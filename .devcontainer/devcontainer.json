@@ -1,0 +1,49 @@
+{
+	"name": "labbox-ephys dev container",
+	"context": "..",
+	"dockerFile": "Dockerfile",
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"python.pythonPath": "/usr/bin/python",
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.linting.pylintPath": "/usr/local/bin/pylint"
+	},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-pyright.pyright",
+		"eamodio.gitlens",
+		"njpwerner.autodocstring",
+		"stkb.rewrap",
+		"ms-azuretools.vscode-docker",
+		"ryanluker.vscode-coverage-gutters",
+	],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": ".devcontainer/post_create.sh",
+
+	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+
+	"mounts": [
+		"source=${localEnv:HITHER2_SOURCE_DIR},target=/workspaces/hither2,type=bind,consistency=delegated",
+		"source=${localEnv:KACHERY_SOURCE_DIR},target=/workspaces/kachery,type=bind,consistency=delegated",
+
+		// So that installed vscode extensions persist between builds
+		// See: https://code.visualstudio.com/docs/remote/containers-advanced#_avoiding-extension-reinstalls-on-container-rebuild
+		"source=labbox-ephys_vscode_server_extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
+	],
+
+	"containerEnv": {
+		"KACHERY_STORAGE_DIR": "${localEnv:KACHERY_STORAGE_DIR}"
+	},
+
+	"runArgs": [
+		"--privileged",
+		"--net=host"
+	]
+}
