@@ -11,12 +11,21 @@ thisdir = pathlib.Path(__file__).parent.absolute()
 sys.path.insert(0, f'{thisdir}/../src')
 import actions
 
-app = Flask(__name__)
+# In production mode we are going to serve the 
+# production react app in the ../build directory
+# Thank you so much to Miguel's tutorial: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+app = Flask(__name__, static_folder='../build', static_url_path='/')
 
 def decodeURIComponent(x):
     return urllib.parse.unquote(x)
 
-@app.route('/getComputeResourceJobStats')
+# We don't want to put the /index.html in the url
+# Thanks again: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
+@app.route('/api/getComputeResourceJobStats')
 def getComputeResourceJobStats():
     computeResourceId = request.args.get('computeResourceId')
     mongoUri = decodeURIComponent(request.args.get('mongoUri'))
@@ -39,7 +48,7 @@ def getComputeResourceJobStats():
         numError=len([doc for doc in docs if doc['status'] == 'error'])
     )
 
-@app.route('/runHitherJob', methods=['POST'])
+@app.route('/api/runHitherJob', methods=['POST'])
 def runHitherJob():
     x = request.json
     functionName = x['functionName']

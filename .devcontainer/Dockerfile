@@ -95,6 +95,8 @@ RUN pip install scipy
 RUN pip install spikeextractors==0.8.2
 RUN pip install requests
 
+RUN yarn global add serve
+
 # nano
 RUN apt-get install -y nano
 

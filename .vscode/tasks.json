@@ -15,9 +15,19 @@
             "command": "bash -ic .vscode/tasks/yarn_start.sh"
         },
         {
-            "label": "start api",
+            "label": "start flask api",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/start_api.sh"
+        },
+        {
+            "label": "yarn build production",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/yarn_build_production.sh"
+        },
+        {
+            "label": "yarn start production",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/yarn_start_production.sh"
         }
     ]
 }

@@ -37,7 +37,7 @@ export const fetchComputeResourceJobStats = computeResourceName => {
     });
     await sleep(50);
 
-    const url = `/getComputeResourceJobStats?computeResourceId=${cr.computeResourceId}&mongoUri=${encodeURIComponent(cr.mongoUri)}&databaseName=${cr.databaseName}`;
+    const url = `/api/getComputeResourceJobStats?computeResourceId=${cr.computeResourceId}&mongoUri=${encodeURIComponent(cr.mongoUri)}&databaseName=${cr.databaseName}`;
     try {
       const result = await axios.get(url);
       const jobStats = result.data;
@@ -160,7 +160,7 @@ export const runHitherJob = (functionName, kwargs, opts) => {
         job.status = 'running';
         let data;
         try {
-          const url = `/runHitherJob`;
+          const url = `/api/runHitherJob`;
           const result = await axios.post(url, job);
           data = result.data;
         }

@@ -44,7 +44,7 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
 # ### Install hither2
 RUN git clone https://github.com/laboratorybox/hither2 /hither2 \
     && cd /hither2 \
-    && git checkout 7163330960c113c815dbe6958859def3a9cca3c9 \
+    && git checkout 1091ee18fc9414492c0a59007f263f44451327ca \
     && pip install .
 
 RUN yarn global add serve
@@ -53,7 +53,7 @@ RUN yarn global add serve
 # ### Install labbox-ephys
 RUN git clone https://github.com/laboratorybox/labbox-ephys /labbox-ephys \
     && cd /labbox-ephys \
-    && git checkout ---- \
+    && git checkout e12305103f4770e9b52377c81fd619f26b5c4dfa \
     && yarn install \
     && yarn build \
     && rm -rf node_modules
