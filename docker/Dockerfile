@@ -29,6 +29,10 @@ RUN pip install python-dotenv simplejson
 # nano
 RUN apt-get install -y nano
 
+RUN pip install scipy
+RUN pip install spikeextractors==0.8.2
+RUN pip install requests
+
 # #########################################
 # ### Install kachery
 RUN git clone https://github.com/flatironinstitute/kachery /kachery \

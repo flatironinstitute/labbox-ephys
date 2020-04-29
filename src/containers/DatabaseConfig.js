@@ -8,7 +8,7 @@ import { FormGroup, FormControl, InputLabel, Input, Button } from '@material-ui/
 
 // Messages
 const required = "This field is required";
-const maxLength = "Your input exceed maximum length";
+const maxLength = "Your input exceeds maximum length";
 
 const errorMessage = error => {
   return <div className="invalid-feedback">{error}</div>;

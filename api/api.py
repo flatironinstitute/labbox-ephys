@@ -1,6 +1,13 @@
+import sys
 from flask import Flask, request
 import hither2 as hi
 import urllib
+import pathlib
+import kachery as ka
+
+thisdir = pathlib.Path(__file__).parent.absolute()
+sys.path.insert(0, f'{thisdir}/../src')
+from actions import functions
 
 app = Flask(__name__)
 
@@ -59,3 +66,16 @@ def getComputeResourceJobs():
     return dict(
         jobs=jobs
     )
+
+@app.route('/runPythonFunction', methods=['POST'])
+def runPythonFunction():
+    x = request.json
+    functionName = x['functionName']
+    kwargs = x['kwargs']
+    opts = x['opts']
+    kachery_config = opts.get('kachery_config', {})
+    assert hasattr(functions, functionName)
+    function = getattr(functions, functionName)
+    with ka.config(**kachery_config):
+        data = function(**kwargs)
+    return data

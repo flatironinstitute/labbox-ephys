@@ -1,18 +1,16 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress } from '@material-ui/core'
+import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, TableRow } from '@material-ui/core'
 import { useForm } from 'react-hook-form'
 import { fetchRecordingInfo } from '../actions'
+import ElectrodeGeometryWidget from '../components/ElectrodeGeometryWidget'
+import { Table, TableHead, TableBody, TableCell } from '@material-ui/core';
 
 const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo }) => {
     const { register, handleSubmit, errors } = useForm();
 
     const onSubmit = (data) => {
         console.log(data);
-        onDone && onDone();
-    }
-
-    const onCancel = () => {
         onDone && onDone();
     }
 
@@ -37,7 +35,7 @@ const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo })
                 <RecordingPathControl
                     inputRef={register({
                         required: true,
-                        maxLength: 30,
+                        maxLength: null,
                         validate: null
                     })}
                     value={recordingPath}
@@ -72,13 +70,15 @@ const formGroupStyle = {
 
 // Messages
 const required = "This field is required";
-const maxLength = "Your input exceed maximum length";
+const maxLength = "Your input exceeds maximum length";
 
 const errorMessage = error => {
     return <div className="invalid-feedback">{error}</div>;
 };
 
 const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
+    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState({});
+
     let x;
     if (recordingInfoObject.fetching) {
         x = <CircularProgress />;
@@ -87,13 +87,66 @@ const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
         x = <span>Error loading recording info.</span>
     }
     else {
-        x = <pre>{JSON.stringify(recordingInfoObject.recordingInfo)}</pre>
+        const ri = recordingInfoObject.recordingInfo;
+        x = (
+            <div>
+                <div style={{width: 600}}>
+                    <RecordingViewTable
+                        sampling_frequency={ri.sampling_frequency}
+                        num_frames={ri.num_frames}
+                        channel_ids={ri.channel_ids}
+                        channel_groups={ri.channel_groups}
+                    />
+                </div>
+                <ElectrodeGeometryWidget
+                    locations={ri.geom}
+                    selectedElectrodeIds={selectedElectrodeIds}
+                    onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
+                />
+            </div>
+        );
     }
     console.log('--- recordingInfoObject', recordingInfoObject)
     return <div>
         <h3>{recordingPath}</h3>
         <div>{x}</div>
     </div>;
+}
+
+const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames }) => {
+    return (
+        <Table>
+            <TableHead>
+            </TableHead>
+            <TableBody>
+                <TableRow>
+                    <TableCell>Sampling frequency</TableCell>
+                    <TableCell>{sampling_frequency}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Num. frames</TableCell>
+                    <TableCell>{num_frames}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Duration (min)</TableCell>
+                    <TableCell>{num_frames / sampling_frequency / 60}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Channel IDs</TableCell>
+                    <TableCell>{commasep(channel_ids)}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Channel groups</TableCell>
+                    <TableCell>{commasep(channel_groups)}</TableCell>
+                </TableRow>
+            </TableBody>
+        </Table>
+    )
+}
+
+function commasep(x) {
+    if (!x) return JSON.stringify(x);
+    return x.join(', ');
 }
 
 const RecordingPathControl = ({ inputRef, value, onChange, errors }) => {

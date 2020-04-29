@@ -30,6 +30,7 @@
 	"remoteUser": "vscode",
 
 	"mounts": [
+		"source=${localEnv:KACHERY_STORAGE_DIR},target=${localEnv:KACHERY_STORAGE_DIR},type=bind,consistency=delegated",
 		"source=${localEnv:HITHER2_SOURCE_DIR},target=/workspaces/hither2,type=bind,consistency=delegated",
 		"source=${localEnv:KACHERY_SOURCE_DIR},target=/workspaces/kachery,type=bind,consistency=delegated",
 

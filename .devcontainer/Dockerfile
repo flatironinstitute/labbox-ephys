@@ -91,6 +91,10 @@ RUN pip install pymongo
 RUN pip install flask
 RUN pip install python-dotenv simplejson
 
+RUN pip install scipy
+RUN pip install spikeextractors==0.8.2
+RUN pip install requests
+
 # nano
 RUN apt-get install -y nano
 

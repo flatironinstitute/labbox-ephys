@@ -14,6 +14,20 @@ export const RECEIVE_RECORDING_INFO = 'RECEIVE_RECORDING_INFO'
 
 const sleep = m => new Promise(r => setTimeout(r, m))
 
+const run_python = async (functionName, kwargs, opts) => {
+  const url = `/runPythonFunction`;
+  const result = await axios.post(url, {
+    functionName: functionName,
+    kwargs: kwargs,
+    opts: opts || {}
+  });
+  const data = result.data;
+  if (!data) {
+    throw Error("No data");
+  }
+  return data;
+}
+
 export const addComputeResource = newComputeResource => ({
   type: ADD_COMPUTE_RESOURCE,
   newComputeResource
@@ -37,7 +51,6 @@ export const fetchComputeResourceJobStats = computeResourceName => {
     await sleep(50);
 
     const url = `/getComputeResourceJobStats?computeResourceId=${cr.computeResourceId}&mongoUri=${encodeURIComponent(cr.mongoUri)}&databaseName=${cr.databaseName}`;
-    console.log(url);
     try {
       const result = await axios.get(url);
       const jobStats = result.data;
@@ -100,15 +113,26 @@ export const fetchRecordingInfo = recordingPath => {
     });
     await sleep(1000);
 
-    if ((recordingPath) && (recordingPath.startsWith('sha1://'))) {
+    try {
+      const recordingInfo = await run_python(
+        'get_recording_info',
+        {
+          recording_path: recordingPath
+        },
+        {
+          kachery_config: {
+            fr: 'default_readonly'
+          }
+        }
+      )
       dispatch({
         type: RECEIVE_RECORDING_INFO,
         recordingPath: recordingPath,
         error: false,
-        recordingInfo: { numChannels: 12 }
+        recordingInfo: recordingInfo
       });
     }
-    else {
+    catch (err) {
       dispatch({
         type: RECEIVE_RECORDING_INFO,
         recordingPath: recordingPath,
