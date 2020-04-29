@@ -290,7 +290,6 @@ export default class CanvasWidget extends Component {
         
     //     //serialize your SVG
     //     var mySerializedSVG = ctx.getSerializedSvg(); //true here, if you need to convert named to numbered entities.
-    //     console.log(mySerializedSVG);
     //     downloadTextAsFile(mySerializedSVG, 'fig.svg');
     // }
 

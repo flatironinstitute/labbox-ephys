@@ -1,16 +1,89 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, TableRow } from '@material-ui/core'
+import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, TableRow, FormLabel, RadioGroup, FormControlLabel, Radio } from '@material-ui/core'
 import { useForm } from 'react-hook-form'
 import { fetchRecordingInfo } from '../actions'
 import ElectrodeGeometryWidget from '../components/ElectrodeGeometryWidget'
 import { Table, TableHead, TableBody, TableCell } from '@material-ui/core';
 
 const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo }) => {
+    const [method, setMethod] = useState('spikeforest');
+
+    let form;
+    if (method === 'spikeforest') {
+        form = (
+            <ImportRecordingFromSpikeForest
+                onDone={onDone}
+                recordingInfoByPath={recordingInfoByPath}
+                onFetchRecordingInfo={onFetchRecordingInfo}
+            />
+        )
+    }
+    else if (method === 'local') {
+        form = (
+            <p>
+                Import from local computer not yet implemented.
+            </p>
+        )
+    }
+    else {
+        form = <span>{`Invalid method: ${method}`}</span>
+    }
+    return (
+        <div>
+            <div>
+                <RadioChoices
+                    label="Import method"
+                    value={method}
+                    onSetValue={setMethod}
+                    options={[
+                        {
+                            value: 'spikeforest',
+                            label: 'From SpikeForest'
+                        },
+                        {
+                            value: 'local',
+                            label: 'From local computer (not yet implemented)'
+                        },
+                        {
+                            value: 'other',
+                            label: 'Other (not yet implemented)',
+                            disabled: true
+                        }
+                    ]}
+                />
+            </div>
+            {form}
+        </div>
+    )
+}
+
+const RadioChoices = ({ label, value, onSetValue, options }) => {
+    return (
+        <FormControl component="fieldset">
+            <FormLabel component="legend">{label}</FormLabel>
+            <RadioGroup value={value} onChange={(evt) => onSetValue(evt.target.value)}>
+                {
+                    options.map(opt => (
+                        <FormControlLabel
+                            key={opt.label}
+                            value={opt.value}
+                            control={<Radio />}
+                            label={opt.label}
+                            disabled={opt.disabled ? true : false}
+                        />
+                    ))
+                }
+            </RadioGroup>
+        </FormControl>
+    );
+}
+
+const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, onFetchRecordingInfo }) => {
     const { register, handleSubmit, errors } = useForm();
 
     const onSubmit = (data) => {
-        console.log(data);
+        console.info(data);
         onDone && onDone();
     }
 
@@ -18,7 +91,7 @@ const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo })
 
     const recordingInfoObject = recordingInfoByPath[recordingPath];
     if ((recordingPath) && (!recordingInfoObject)) {
-        setTimeout(function() {
+        setTimeout(function () {
             onFetchRecordingInfo(recordingPath);
         }, 0);
     }
@@ -30,7 +103,8 @@ const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo })
 
     return (
         <div>
-            <h1>Import recording</h1>
+            <h1>Import recording from SpikeForest</h1>
+            <p>Enter the sha1:// URI of the recording as the recording path</p>
             <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
                 <RecordingPathControl
                     inputRef={register({
@@ -55,7 +129,12 @@ const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo })
                 <FormGroup row={true} style={formGroupStyle}>
                     {
                         showImportButton ? (
-                            <Button variant="contained" type="submit">Import</Button>
+                            <Button
+                                variant="contained"
+                                type="submit"
+                            >
+                                Import
+                            </Button>
                         ) : <span />
                     }
                 </FormGroup>
@@ -84,13 +163,13 @@ const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
         x = <CircularProgress />;
     }
     else if (recordingInfoObject.error) {
-        x = <span>Error loading recording info.</span>
+        x = <span>{`Error loading recording info: ${recordingInfoObject.errorMessage}`}</span>
     }
     else {
         const ri = recordingInfoObject.recordingInfo;
         x = (
             <div>
-                <div style={{width: 600}}>
+                <div style={{ width: 600 }}>
                     <RecordingViewTable
                         sampling_frequency={ri.sampling_frequency}
                         num_frames={ri.num_frames}
@@ -106,7 +185,6 @@ const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
             </div>
         );
     }
-    console.log('--- recordingInfoObject', recordingInfoObject)
     return <div>
         <h3>{recordingPath}</h3>
         <div>{x}</div>
@@ -154,7 +232,7 @@ const RecordingPathControl = ({ inputRef, value, onChange, errors }) => {
 
     const e = errors.recordingPath || {};
     return (
-        <FormGroup row={true} style={formGroupStyle}>
+        <FormGroup style={formGroupStyle}>
             <FormControl>
                 <InputLabel>Recording path</InputLabel>
                 <Input
@@ -169,9 +247,13 @@ const RecordingPathControl = ({ inputRef, value, onChange, errors }) => {
             {e.type === "required" && errorMessage(required)}
             {e.type === "maxLength" && errorMessage(maxLength)}
             {
-                (internalValue !== value) ? (
-                    <Button onClick={() => onChange(internalValue)}>Update</Button>
-                ) : <span />
+                (internalValue !== value) &&
+                <Button
+                    onClick={() => onChange(internalValue)}
+                    style={{width: 30}}
+                >
+                    Update
+                    </Button>
             }
         </FormGroup>
     );

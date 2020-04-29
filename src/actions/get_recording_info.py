@@ -1,6 +1,8 @@
+import hither2 as hi
 import numpy as np
 from .python import LabboxEphysRecordingExtractor
 
+@hi.function('get_recording_info', '0.1.0')
 def get_recording_info(recording_path):
     recording = LabboxEphysRecordingExtractor(recording_path, download=False)
     return dict(

@@ -1,13 +1,15 @@
 import sys
+import traceback
 from flask import Flask, request
 import hither2 as hi
 import urllib
 import pathlib
 import kachery as ka
 
+# this is how the hither functions get registered
 thisdir = pathlib.Path(__file__).parent.absolute()
 sys.path.insert(0, f'{thisdir}/../src')
-from actions import functions
+import actions
 
 app = Flask(__name__)
 
@@ -37,45 +39,28 @@ def getComputeResourceJobStats():
         numError=len([doc for doc in docs if doc['status'] == 'error'])
     )
 
-@app.route('/getComputeResourceJobs')
-def getComputeResourceJobs():
-    computeResourceId = request.args.get('computeResourceId')
-    mongoUri = decodeURIComponent(request.args.get('mongoUri'))
-    databaseName = request.args.get('databaseName')
-    database = hi.Database(
-        mongo_url=mongoUri,
-        database=databaseName
-    )
-    db = database.collection('hither2_jobs')
-    query = dict(
-        compute_resource_id=computeResourceId
-    )
-    projection = {
-        '_id': False,
-        'job_id': True,
-        'handler_id': True,
-        'job_serialized.function_name': True,
-        'job_serialized.function_version': True,
-        'job_serialized.label': True,
-        'status': True
-    }
-    jobs = [
-        doc for doc in db.find(query, projection)
-    ]
-
-    return dict(
-        jobs=jobs
-    )
-
-@app.route('/runPythonFunction', methods=['POST'])
-def runPythonFunction():
+@app.route('/runHitherJob', methods=['POST'])
+def runHitherJob():
     x = request.json
     functionName = x['functionName']
     kwargs = x['kwargs']
     opts = x['opts']
     kachery_config = opts.get('kachery_config', {})
-    assert hasattr(functions, functionName)
-    function = getattr(functions, functionName)
+    hither_config = opts.get('hither_config', {})
     with ka.config(**kachery_config):
-        data = function(**kwargs)
-    return data
+        with hi.config(**hither_config):
+            job = hi.run(functionName, **kwargs)
+            try:
+                job.wait()
+            except Exception as e:
+                traceback.print_exc()
+                return dict(
+                    error=True,
+                    error_message=str(job.exception()),
+                    runtime_info=job.runtime_info()
+                )
+    return dict(
+        error=False,
+        result=job.result(),
+        runtime_info=job.runtime_info()
+    )

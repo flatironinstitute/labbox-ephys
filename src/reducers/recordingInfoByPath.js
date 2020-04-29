@@ -1,16 +1,24 @@
 import { INIT_FETCH_RECORDING_INFO, RECEIVE_RECORDING_INFO } from '../actions'
 
 const databaseConfig = (state = {}, action) => {
-    let state2;
     switch (action.type) {
         case INIT_FETCH_RECORDING_INFO:
-            state2 = {...state}
-            state2[action.recordingPath] = {fetching: true};
-            return state2;
+            return {
+                ...state,
+                ...{ [action.recordingPath]: { fetching: true } }
+            };
         case RECEIVE_RECORDING_INFO:
-            state2 = {...state}
-            state2[action.recordingPath] = {fetching: false, error: action.error, recordingInfo: action.recordingInfo};
-            return state2;
+            return {
+                ...state,
+                ...{
+                    [action.recordingPath]: {
+                        fetching: false,
+                        error: action.error,
+                        errorMessage: action.errorMessage,
+                        recordingInfo: action.recordingInfo
+                    }
+                }
+            }
         default:
             return state
     }
