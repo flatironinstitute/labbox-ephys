@@ -14,7 +14,8 @@ import actions
 # In production mode we are going to serve the 
 # production react app in the ../build directory
 # Thank you so much to Miguel's tutorial: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
-app = Flask(__name__, static_folder='../build', static_url_path='/')
+# Except don't use static_url_path='/' because that messes up the catch_all handler at the bottom
+app = Flask(__name__, static_folder='../build')
 
 def decodeURIComponent(x):
     return urllib.parse.unquote(x)
@@ -73,3 +74,11 @@ def runHitherJob():
         result=job.result(),
         runtime_info=job.runtime_info()
     )
+
+# Handle the react history routing
+# So, for example, if we reload the page with some path in the url
+# Thanks: https://stackoverflow.com/questions/30620276/flask-and-react-routing
+@app.route('/', defaults={'u_path': ''})
+@app.route('/<path:u_path>')
+def catch_all(u_path):
+    return app.send_static_file('index.html')
