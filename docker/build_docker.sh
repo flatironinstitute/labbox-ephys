@@ -2,4 +2,4 @@
 
 set -ex
 
-docker build -t magland/labbox-ephys:0.1.0 .
+docker build -t magland/labbox-ephys:0.1.2 .

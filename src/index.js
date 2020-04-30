@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import './styles.css';
-import Home from './components/Home';
-import About from './components/About';
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk';
@@ -14,9 +12,13 @@ import { deepPurple, indigo } from '@material-ui/core/colors';
 import * as serviceWorker from './serviceWorker';
 import rootReducer from './reducers';
 
+import Home from './components/Home';
+import About from './components/About';
 import Config from './components/Config';
 import TheAppBar from './components/TheAppBar'
+
 import ImportRecordings from './containers/ImportRecordings'
+import RecordingView from './containers/RecordingView'
 
 const theme = createMuiTheme({
   palette: {
@@ -28,16 +30,22 @@ const theme = createMuiTheme({
 // Set up the redux store
 const persistedState = {};
 try {
-  persistedState.computeResources = JSON.parse(localStorage.getItem('computeResources')) || []
+  persistedState.computeResources = JSON.parse(localStorage.getItem('computeResources')) || [];
 }
 catch (err) {
   persistedState.computeResources = [];
 }
 try {
-  persistedState.databaseConfig = JSON.parse(localStorage.getItem('databaseConfig')) || {}
+  persistedState.databaseConfig = JSON.parse(localStorage.getItem('databaseConfig')) || {};
 }
 catch (err) {
   persistedState.databaseConfig = {};
+}
+try {
+  persistedState.recordings = JSON.parse(localStorage.getItem('recordings')) || [];
+}
+catch (err) {
+  persistedState.recordings = [];
 }
 persistedState.computeResources.forEach(cr => {
   cr.jobStats = undefined;
@@ -49,8 +57,10 @@ const store = createStore(rootReducer, persistedState, applyMiddleware(thunk))
 store.subscribe(() => {
   const state0 = store.getState() || {};
   const computeResources = state0.computeResources || [];
+  const recordings = state0.recordings || [];
   localStorage.setItem('computeResources', JSON.stringify(computeResources))
   localStorage.setItem('databaseConfig', JSON.stringify(state0.databaseConfig || {}))
+  localStorage.setItem('recordings', JSON.stringify(state0.recordings || []))
 })
 
 ReactDOM.render(
@@ -63,6 +73,12 @@ ReactDOM.render(
               <Route path="/about"><About /></Route>
               <Route path="/config"><Config /></Route>
               <Route path="/importRecordings"><ImportRecordings /></Route>
+              <Route
+                path="/recording/:recordingId*"
+                render={({ match }) => (
+                  <RecordingView recordingId={match.params.recordingId} />
+                )}
+              />
               <Route path="/"><Home /></Route>
             </Switch>
           </TheAppBar>

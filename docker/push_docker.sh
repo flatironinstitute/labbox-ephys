@@ -2,4 +2,4 @@
 
 set -ex
 
-docker push magland/labbox-ephys:0.1.0
+docker push magland/labbox-ephys:0.1.2

@@ -1,5 +1,5 @@
 server {
-    listen 15308;
+    listen 8080;
     index index.html;
 
     location /api {

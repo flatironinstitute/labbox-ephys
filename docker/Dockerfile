@@ -17,8 +17,14 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN apt-get install -y locales && locale-gen en_US.UTF-8
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-tk
 
+# See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+##### nginx, etc
+RUN apt-get update && apt-get install -y nginx
+
+# nano
+RUN apt-get install -y nano
+
 #########################################
-### Numpy
 RUN pip install numpy
 
 RUN pip install ipython jupyter jupyterlab
@@ -26,21 +32,12 @@ RUN pip install pymongo
 RUN pip install flask
 RUN pip install python-dotenv simplejson
 
-# nano
-RUN apt-get install -y nano
-
 RUN pip install scipy
 RUN pip install spikeextractors==0.8.2
 RUN pip install requests
 
-# See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
-##### nginx, etc
-RUN apt-get update && apt-get install -y nginx
-COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
-RUN rm /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 RUN pip install gunicorn
-RUN yarn global add serve
+RUN yarn global add serve concurrently
 
 # #########################################
 # ### Install kachery
@@ -67,8 +64,12 @@ RUN git clone https://github.com/laboratorybox/labbox-ephys /labbox-ephys \
     && yarn build \
     && rm -rf node_modules
 
+COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+RUN rm /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
+
 COPY run_inside_container.sh /run_inside_container.sh
 
-EXPOSE 15308
+EXPOSE 8080
 
 ENTRYPOINT [ "/run_inside_container.sh" ]

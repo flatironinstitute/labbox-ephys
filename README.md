@@ -16,5 +16,5 @@ In deployed production container:
 
 * 15306 - client (serving `build/` directory)
 * 15307 - server (gunicorn flask `api/`)
-* 15308 - nginx server
+* 8080 - nginx server
 

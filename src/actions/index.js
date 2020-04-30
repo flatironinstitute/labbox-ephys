@@ -13,6 +13,9 @@ export const SET_DATABASE_CONFIG = 'SET_DATABASE_CONFIG'
 export const INIT_FETCH_RECORDING_INFO = 'INIT_FETCH_RECORDING_INFO'
 export const RECEIVE_RECORDING_INFO = 'RECEIVE_RECORDING_INFO'
 
+export const ADD_RECORDING = 'ADD_RECORDING'
+export const DELETE_RECORDINGS = 'DELETE_RECORDINGS'
+
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export const addComputeResource = newComputeResource => ({
@@ -190,3 +193,13 @@ export const runHitherJob = (functionName, kwargs, opts) => {
   }
   return job;
 }
+
+export const addRecording = recording => ({
+  type: ADD_RECORDING,
+  recording: recording
+})
+
+export const deleteRecordings = recordingIds => ({
+  type: DELETE_RECORDINGS,
+  recordingIds: recordingIds
+})

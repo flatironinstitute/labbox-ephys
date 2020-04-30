@@ -51,8 +51,14 @@ const NiceTable = ({ rows, columns, onDeleteRow, deleteRowLabel, onEditRow, edit
 
 const makeCell = (x) => {
     if (!x) return '';
-    if (x.element) return x.element;
-    else return x.text || '';
+    console.log(x);
+    if (typeof(x) == "object") {
+        if (x.element) return x.element;
+        else return x.text || '';
+    }
+    else {
+        return x;
+    }
 }
 
 export default NiceTable;

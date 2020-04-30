@@ -2,9 +2,11 @@ import { combineReducers } from 'redux'
 import computeResources from './computeResources'
 import databaseConfig from './databaseConfig'
 import recordingInfoByPath from './recordingInfoByPath'
+import recordings from './recordings'
 
 export default combineReducers({
     computeResources,
     databaseConfig,
-    recordingInfoByPath
+    recordingInfoByPath,
+    recordings
 })

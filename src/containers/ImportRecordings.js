@@ -1,21 +1,38 @@
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, TableRow, FormLabel, RadioGroup, FormControlLabel, Radio } from '@material-ui/core'
-import { useForm } from 'react-hook-form'
-import { fetchRecordingInfo } from '../actions'
-import ElectrodeGeometryWidget from '../components/ElectrodeGeometryWidget'
-import { Table, TableHead, TableBody, TableCell } from '@material-ui/core';
+import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, FormLabel, RadioGroup, FormControlLabel, Radio, Select, MenuItem, makeStyles } from '@material-ui/core'
+import { fetchRecordingInfo, addRecording } from '../actions'
+import { withRouter } from 'react-router-dom';
+import RecordingInfoView from '../components/RecordingInfoView';
 
-const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo }) => {
-    const [method, setMethod] = useState('spikeforest');
+const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, history }) => {
+    const [method, setMethod] = useState('examples');
+
+    const handleDone = () => {
+        history.push('/');
+    }
 
     let form;
     if (method === 'spikeforest') {
         form = (
             <ImportRecordingFromSpikeForest
-                onDone={onDone}
                 recordingInfoByPath={recordingInfoByPath}
+                existingRecordingIds={existingRecordingIds}
                 onFetchRecordingInfo={onFetchRecordingInfo}
+                onAddRecording={onAddRecording}
+                onDone={handleDone}
+            />
+        )
+    }
+    else if (method === 'examples') {
+        form = (
+            <ImportRecordingFromSpikeForest
+                examplesMode={true}
+                recordingInfoByPath={recordingInfoByPath}
+                existingRecordingIds={existingRecordingIds}
+                onFetchRecordingInfo={onFetchRecordingInfo}
+                onAddRecording={onAddRecording}
+                onDone={handleDone}
             />
         )
     }
@@ -37,6 +54,10 @@ const ImportRecordings = ({ onDone, recordingInfoByPath, onFetchRecordingInfo })
                     value={method}
                     onSetValue={setMethod}
                     options={[
+                        {
+                            value: 'examples',
+                            label: 'Examples'
+                        },
                         {
                             value: 'spikeforest',
                             label: 'From SpikeForest'
@@ -79,15 +100,10 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
     );
 }
 
-const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, onFetchRecordingInfo }) => {
-    const { register, handleSubmit, errors } = useForm();
-
-    const onSubmit = (data) => {
-        console.info(data);
-        onDone && onDone();
-    }
-
+const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, examplesMode }) => {
     const [recordingPath, setRecordingPath] = useState('');
+    const [recordingId, setRecordingId] = useState('');
+    const [errors, setErrors] = useState({});
 
     const recordingInfoObject = recordingInfoByPath[recordingPath];
     if ((recordingPath) && (!recordingInfoObject)) {
@@ -95,52 +111,101 @@ const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, onFetchRe
             onFetchRecordingInfo(recordingPath);
         }, 0);
     }
-    const showImportButton = (
+    const readyToImport = (
         (recordingInfoObject) &&
         (!recordingInfoObject.fetching) &&
         (!recordingInfoObject.error)
     );
 
+    if ((readyToImport) && (recordingId === '<>')) {
+        setRecordingId(autoDetermineRecordingIdFromPath(recordingPath))
+    }
+    if ((!readyToImport) && (recordingId !== '<>')) {
+        setRecordingId('<>');
+    }
+
+    const handleImport = () => {
+        let newErrors = {};
+        if (!recordingId) {
+            newErrors.recordingId = {type: 'required'};
+        }
+        if (recordingId in Object.fromEntries(existingRecordingIds.map(id => [id, true]))) {
+            newErrors.recordingId = {type: 'duplicate-id'};
+        }
+        if (!recordingPath) {
+            newErrors.recordingPath = {type: 'required'};
+        }
+        setErrors(newErrors);
+        if (!isEmptyObject(newErrors)) {
+            return;
+        }
+        const recording = {
+            recordingId,
+            recordingPath,
+            recordingInfo: recordingInfoObject.recordingInfo
+        }
+        onAddRecording(recording);
+        onDone && onDone();
+    }
+
     return (
         <div>
             <h1>Import recording from SpikeForest</h1>
             <p>Enter the sha1:// URI of the recording as the recording path</p>
-            <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+            <form autoComplete="off">
                 <RecordingPathControl
-                    inputRef={register({
-                        required: true,
-                        maxLength: null,
-                        validate: null
-                    })}
+                    examplesMode={examplesMode}
                     value={recordingPath}
-                    onChange={(value) => { setRecordingPath(value) }}
+                    onChange={value => setRecordingPath(value)}
                     errors={errors}
                 />
 
+                {readyToImport && (
+                    <Fragment>
+                        <RecordingIdControl
+                            value={recordingId}
+                            onChange={(val) => setRecordingId(val)}
+                            errors={errors}
+                        />
+                        <FormGroup row={true} style={formGroupStyle}>
+                            <Button
+                                variant="contained"
+                                type="button"
+                                onClick={() => handleImport()}
+                            >
+                                Import
+                            </Button>
+                        </FormGroup>
+                    </Fragment>
+                )}
+
                 {
                     recordingInfoObject ? (
-                        <RecordingInfoView
+                        <RecordingInfoObjectView
                             recordingPath={recordingPath}
                             recordingInfoObject={recordingInfoObject}
                         />
                     ) : <span />
                 }
-
-                <FormGroup row={true} style={formGroupStyle}>
-                    {
-                        showImportButton ? (
-                            <Button
-                                variant="contained"
-                                type="submit"
-                            >
-                                Import
-                            </Button>
-                        ) : <span />
-                    }
-                </FormGroup>
             </form >
         </div>
     )
+}
+
+function autoDetermineRecordingIdFromPath(path) {
+    if (path.startsWith('sha1://') || (path.startsWith('sha1dir://'))) {
+        let x = path.split('/').slice(2);
+        let y = x[0].split('.');
+        if (y.length > 1) {
+            return y.slice(1).join('.') + '/' + x.slice(1).join('/');
+        }
+        else {
+            return x.slice(1).join('/');
+        }
+    }
+    else {
+        return path;
+    }
 }
 
 const formGroupStyle = {
@@ -149,15 +214,14 @@ const formGroupStyle = {
 
 // Messages
 const required = "This field is required";
+const duplicateId = "Duplicate recording ID";
 const maxLength = "Your input exceeds maximum length";
 
 const errorMessage = error => {
     return <div className="invalid-feedback">{error}</div>;
 };
 
-const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState({});
-
+const RecordingInfoObjectView = ({ recordingPath, recordingInfoObject }) => {
     let x;
     if (recordingInfoObject.fetching) {
         x = <CircularProgress />;
@@ -166,24 +230,7 @@ const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
         x = <span>{`Error loading recording info: ${recordingInfoObject.errorMessage}`}</span>
     }
     else {
-        const ri = recordingInfoObject.recordingInfo;
-        x = (
-            <div>
-                <div style={{ width: 600 }}>
-                    <RecordingViewTable
-                        sampling_frequency={ri.sampling_frequency}
-                        num_frames={ri.num_frames}
-                        channel_ids={ri.channel_ids}
-                        channel_groups={ri.channel_groups}
-                    />
-                </div>
-                <ElectrodeGeometryWidget
-                    locations={ri.geom}
-                    selectedElectrodeIds={selectedElectrodeIds}
-                    onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
-                />
-            </div>
-        );
+        return <RecordingInfoView recordingInfo={recordingInfoObject.recordingInfo} />
     }
     return <div>
         <h3>{recordingPath}</h3>
@@ -191,83 +238,125 @@ const RecordingInfoView = ({ recordingPath, recordingInfoObject }) => {
     </div>;
 }
 
-const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames }) => {
+const useStyles = makeStyles((theme) => ({
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 240,
+    },
+    selectEmpty: {
+        marginTop: theme.spacing(2),
+    },
+}));
+
+const SelectExampleRecordingPath = ({ value, onChange }) => {
+    const examplePaths = [
+        "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
+        "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",
+        "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0"
+    ]
+
+    const classes = useStyles();
+
     return (
-        <Table>
-            <TableHead>
-            </TableHead>
-            <TableBody>
-                <TableRow>
-                    <TableCell>Sampling frequency</TableCell>
-                    <TableCell>{sampling_frequency}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Num. frames</TableCell>
-                    <TableCell>{num_frames}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Duration (min)</TableCell>
-                    <TableCell>{num_frames / sampling_frequency / 60}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Channel IDs</TableCell>
-                    <TableCell>{commasep(channel_ids)}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Channel groups</TableCell>
-                    <TableCell>{commasep(channel_groups)}</TableCell>
-                </TableRow>
-            </TableBody>
-        </Table>
+        <FormControl className={classes.formControl}>
+            <InputLabel id="select-example-label">Select example&nbsp;</InputLabel>
+            <Select
+                labelId="select-example-label"
+                id="select-example"
+                value={value}
+                onChange={evt => { onChange(evt.target.value) }}
+            >
+                {
+                    examplePaths.map((path, ii) => (
+                        <MenuItem key={ii} value={path}>{path}</MenuItem>
+                    ))
+                }
+            </Select>
+        </FormControl>
     )
 }
 
-function commasep(x) {
-    if (!x) return JSON.stringify(x);
-    return x.join(', ');
-}
-
-const RecordingPathControl = ({ inputRef, value, onChange, errors }) => {
+const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
     const [internalValue, setInternalValue] = useState(value);
 
     const e = errors.recordingPath || {};
     return (
+        <div>
+            {
+                examplesMode && (
+                    <SelectExampleRecordingPath
+                        value={internalValue}
+                        onChange={path => {
+                            setInternalValue(path);
+                            onChange(path);
+                        }}
+                    />
+                )
+            }
+            <FormGroup style={formGroupStyle}>
+                <FormControl style={{visibility: examplesMode ? "hidden" : "visible"}}>
+                    <InputLabel>Recording path</InputLabel>
+                    <Input
+                        name="recordingPath"
+                        readOnly={false}
+                        disabled={false}
+                        value={internalValue}
+                        onChange={(event) => { setInternalValue(event.target.value); }}
+                    />
+                </FormControl>
+                {e.type === "required" && errorMessage(required)}
+                {e.type === "maxLength" && errorMessage(maxLength)}
+                {
+                    (internalValue !== value) &&
+                    <Button
+                        onClick={() => onChange(internalValue)}
+                        style={{ width: 30 }}
+                    >
+                        Update
+                        </Button>
+                }
+            </FormGroup>
+        </div>
+    );
+}
+
+const RecordingIdControl = ({ value, onChange, errors }) => {
+    const e = errors.recordingId || {};
+    return (
         <FormGroup style={formGroupStyle}>
             <FormControl>
-                <InputLabel>Recording path</InputLabel>
+                <InputLabel>Recording ID</InputLabel>
                 <Input
-                    name="recordingPath"
+                    name="recordingId"
                     readOnly={false}
                     disabled={false}
-                    value={internalValue}
-                    onChange={(event) => { setInternalValue(event.target.value); }}
-                    inputRef={inputRef}
+                    value={value}
+                    onChange={(event) => { onChange(event.target.value); }}
                 />
             </FormControl>
             {e.type === "required" && errorMessage(required)}
+            {e.type === "duplicate-id" && errorMessage(duplicateId)}
             {e.type === "maxLength" && errorMessage(maxLength)}
-            {
-                (internalValue !== value) &&
-                <Button
-                    onClick={() => onChange(internalValue)}
-                    style={{width: 30}}
-                >
-                    Update
-                    </Button>
-            }
         </FormGroup>
     );
 }
 
+function isEmptyObject(x) {
+    return Object.keys(x).length === 0;
+}
+
+
 const mapStateToProps = state => ({
-    recordingInfoByPath: state.recordingInfoByPath
+    recordingInfoByPath: state.recordingInfoByPath,
+    existingRecordingIds: state.recordings.map(rec => rec.recordingId)
 })
 
 const mapDispatchToProps = dispatch => ({
-    onFetchRecordingInfo: (recordingPath) => dispatch(fetchRecordingInfo(recordingPath))
+    onFetchRecordingInfo: (recordingPath) => dispatch(fetchRecordingInfo(recordingPath)),
+    onAddRecording: (recording) => dispatch(addRecording(recording))
 })
 
-export default connect(
+export default withRouter(connect(
     mapStateToProps,
     mapDispatchToProps
-)(ImportRecordings)
+)(ImportRecordings))

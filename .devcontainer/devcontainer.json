@@ -1,6 +1,6 @@
 {
 	"name": "labbox-ephys dev container",
-	"context": "..",
+	"context": ".",
 	"dockerFile": "Dockerfile",
 
 	// Set *default* container specific settings.json values on container create.
