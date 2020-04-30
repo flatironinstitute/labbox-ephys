@@ -21,6 +21,7 @@
 		"stkb.rewrap",
 		"ms-azuretools.vscode-docker",
 		"ryanluker.vscode-coverage-gutters",
+		"zainchen.json"
 	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.

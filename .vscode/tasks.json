@@ -5,29 +5,68 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "start dev api",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_dev_api.sh"
+        },
+        {
+            "label": "start dev client",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_dev_client.sh"
+        },
+        {
+            "label": "_start_dev",
+            "type": "shell",
+            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15301'"
+        },
+        {
+            "label": "START DEV",
+            "type": "shell",
+            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15301'",
+            "dependsOn": [
+                "start dev api",
+                "start dev client",
+                "_start_dev"
+            ]
+        },
+        {
+            "label": "start nginx",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_nginx.sh"
+        },
+        {
+            "label": "start test prod api",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_test_prod_api.sh"
+        },
+        {
+            "label": "start test prod client",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_test_prod_client.sh"
+        },
+        {
+            "label": "_start_test_prod",
+            "type": "shell",
+            "command": "echo 'This will start the test prod api and client as well as the nginx server. Point your browser to http://localhost:15305'"
+        },
+        {
+            "label": "START TEST PROD",
+            "dependsOn": [
+                "start test prod api",
+                "start test prod client",
+                "start nginx",
+                "_start_test_prod"
+            ]
+        },
+        {
+            "label": "build test prod client",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/build_test_prod_client.sh"
+        },
+        {
             "label": "yarn install",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/yarn_install.sh"
-        },
-        {
-            "label": "yarn start",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/yarn_start.sh"
-        },
-        {
-            "label": "start flask api",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_api.sh"
-        },
-        {
-            "label": "yarn build production",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/yarn_build_production.sh"
-        },
-        {
-            "label": "yarn start production",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/yarn_start_production.sh"
         }
     ]
 }

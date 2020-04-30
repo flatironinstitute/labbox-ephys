@@ -1,0 +1,14 @@
+server {
+    listen 15305;
+    index index.html;
+
+    location /api {
+        include proxy_params;
+        proxy_pass http://localhost:15304;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://localhost:15303;
+    }
+}

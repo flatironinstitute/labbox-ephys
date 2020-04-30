@@ -95,9 +95,14 @@ RUN pip install scipy
 RUN pip install spikeextractors==0.8.2
 RUN pip install requests
 
-RUN yarn global add serve
-
 # nano
 RUN apt-get install -y nano
+
+# See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+##### nginx, etc
+RUN apt-get update && apt-get install -y nginx
+COPY .devcontainer/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+RUN rm /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 
 RUN /bin/sh -c "usermod -aG docker vscode && newgrp docker"

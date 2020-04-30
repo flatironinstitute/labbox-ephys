@@ -33,6 +33,15 @@ RUN pip install scipy
 RUN pip install spikeextractors==0.8.2
 RUN pip install requests
 
+# See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+##### nginx, etc
+RUN apt-get update && apt-get install -y nginx
+COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+RUN rm /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
+RUN pip install gunicorn
+RUN yarn global add serve
+
 # #########################################
 # ### Install kachery
 RUN git clone https://github.com/flatironinstitute/kachery /kachery \
@@ -53,7 +62,7 @@ RUN yarn global add serve
 # ### Install labbox-ephys
 RUN git clone https://github.com/laboratorybox/labbox-ephys /labbox-ephys \
     && cd /labbox-ephys \
-    && git checkout e6bd69f1ecfec6568fa690b85625b3719e53bef1 \
+    && git checkout 1a6e0b541e4a4d13d30be99993e84457bb099f1d \
     && yarn install \
     && yarn build \
     && rm -rf node_modules
