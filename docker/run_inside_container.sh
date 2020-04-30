@@ -2,9 +2,7 @@
 
 set -ex
 
-PORT=$1
-
-service restart nginx
+service nginx restart
 
 cd /labbox-ephys
 $(yarn global bin)/serve -s build -l 15306 &

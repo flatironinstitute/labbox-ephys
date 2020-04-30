@@ -67,6 +67,11 @@
             "label": "yarn install",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/yarn_install.sh"
-        }
+        },
+        {
+            "label": "build docker deploy",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/build_docker_deploy.sh"
+        },
     ]
 }

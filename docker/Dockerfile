@@ -53,7 +53,7 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
 # ### Install hither2
 RUN git clone https://github.com/laboratorybox/hither2 /hither2 \
     && cd /hither2 \
-    && git checkout 1091ee18fc9414492c0a59007f263f44451327ca \
+    && git checkout 5af6e907e122d41c8835dfaeddb4f489c720a9cd \
     && pip install .
 
 RUN yarn global add serve
@@ -62,11 +62,13 @@ RUN yarn global add serve
 # ### Install labbox-ephys
 RUN git clone https://github.com/laboratorybox/labbox-ephys /labbox-ephys \
     && cd /labbox-ephys \
-    && git checkout 1a6e0b541e4a4d13d30be99993e84457bb099f1d \
+    && git checkout 120b2c473d29b4cd721ef04efe2efb24513478d6 \
     && yarn install \
     && yarn build \
     && rm -rf node_modules
 
 COPY run_inside_container.sh /run_inside_container.sh
+
+EXPOSE 15308
 
 ENTRYPOINT [ "/run_inside_container.sh" ]
