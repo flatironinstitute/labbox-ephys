@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 import { Home } from '@material-ui/icons';
 import "./TheAppBar.css";
+import PersistStateControl from '../containers/PersistStateControl';
 
 const TheAppBar = (props) => {
     return (
@@ -20,6 +21,7 @@ const TheAppBar = (props) => {
                     </Button>
                     <Button color="inherit" component={Link} to="/config" style={{marginLeft: 'auto'}}>Config</Button>
                     <Button color="inherit" component={Link} to="/about">About</Button>
+                    <PersistStateControl />
                 </Toolbar>
             </AppBar>
             <div style={{padding: 30}}>

@@ -22,6 +22,8 @@ export const DELETE_SORTINGS = 'DELETE_SORTINGS'
 export const INIT_FETCH_SORTING_INFO = 'INIT_FETCH_SORTING_INFO'
 export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
 
+export const SET_PERSIST_STATUS = 'SET_PERSIST_STATUS'
+
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export const addComputeResource = newComputeResource => ({
@@ -183,7 +185,7 @@ export const fetchSortingInfo = (sortingPath, recordingPath) => {
 const globalHitherJobStore = {};
 
 // not an action creator
-export const runHitherJob = (functionName, kwargs, opts) => {
+export const runHitherJob = (functionName, kwargs, opts={}) => {
   const jobHash = objectHash({
     functionName: functionName,
     kwargs: kwargs,
@@ -262,4 +264,9 @@ export const addSorting = sorting => ({
 export const deleteSortings = sortingIds => ({
   type: DELETE_SORTINGS,
   sortingIds: sortingIds
+})
+
+export const setPersistStatus = status => ({
+  type: SET_PERSIST_STATUS,
+  status: status
 })

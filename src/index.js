@@ -28,47 +28,61 @@ const theme = createMuiTheme({
   }
 });
 
-// Set up the redux store
-const persistedKeys = [
-  {
-    key: 'computeResources',
-    default: []
-  },
-  {
-    key: 'databaseConfig',
-    default: {}
-  },
-  {
-    key: 'recordings',
-    default: []
-  },
-  {
-    key: 'sortings',
-    default: []
-  }
-];
 const persistedState = {};
-persistedKeys.forEach(pk => {
-  try {
-    persistedState[pk.key] = JSON.parse(localStorage.getItem(pk.key)) || pk.default;
-  }
-  catch (err) {
-    persistedState.computeResources = pk.default;
-  }
-});
-persistedState.computeResources.forEach(cr => {
-  cr.jobStats = undefined;
-  cr.fetchingJobStats = false;
-  cr.active = undefined;
-  cr.fetchingActive = false;
-});
+// // Set up the redux store
+// const persistedKeys = [
+//   {
+//     key: 'computeResources',
+//     default: []
+//   },
+//   {
+//     key: 'databaseConfig',
+//     default: {}
+//   },
+//   {
+//     key: 'recordings',
+//     default: []
+//   },
+//   {
+//     key: 'sortings',
+//     default: []
+//   }
+// ];
+// const persistedState = {};
+// persistedKeys.forEach(pk => {
+//   try {
+//     persistedState[pk.key] = JSON.parse(localStorage.getItem(pk.key)) || pk.default;
+//   }
+//   catch (err) {
+//     persistedState.computeResources = pk.default;
+//   }
+// });
+// persistedState.computeResources.forEach(cr => {
+//   cr.jobStats = undefined;
+//   cr.fetchingJobStats = false;
+//   cr.active = undefined;
+//   cr.fetchingActive = false;
+// });
 const store = createStore(rootReducer, persistedState, applyMiddleware(thunk))
-store.subscribe(() => {
-  const state0 = store.getState() || {};
-  persistedKeys.forEach(pk => {
-    localStorage.setItem(pk.key, JSON.stringify(state0[pk.key] || pk.default));
-  })
-});
+// let persistStoreScheduled = false;
+// let lastPersistStoreTime = 0;
+// store.subscribe(() => {
+//   if (persistStoreScheduled) return;
+//   persistStoreScheduled = true;
+//   const elapsed = (new Date()) - lastPersistStoreTime;
+//   const timeout = Math.max(100, 5000 - elapsed);
+//   setTimeout(() => {
+//     persistStoreScheduled = false;
+//     doPersistStore();
+//   }, timeout)
+//   function doPersistStore() {
+//     lastPersistStoreTime = new Date();
+//     const state0 = store.getState() || {};
+//     persistedKeys.forEach(pk => {
+//       localStorage.setItem(pk.key, JSON.stringify(state0[pk.key] || pk.default));
+//     })
+//   }
+// });
 
 ReactDOM.render(
   <React.StrictMode>

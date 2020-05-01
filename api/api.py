@@ -1,5 +1,7 @@
 import sys
 import traceback
+import json
+import os
 from flask import Flask, request
 import hither2 as hi
 import urllib
@@ -83,3 +85,24 @@ def runHitherJob():
 def catch_all(u_path):
     return app.send_static_file(f'../build/{u_path}')
     # return app.send_static_file('index.html')
+
+
+@hi.function('save_state_to_disk', '0.1.0')
+def save_state_to_disk(state):
+    if os.path.exists('/data'):
+        with open('/data/state.json', 'w') as f:
+            json.dump(state, f)
+        return True
+    else:
+        return False
+
+@hi.function('get_state_from_disk', '0.1.0')
+def get_state_from_disk():
+    if os.path.exists('/data'):
+        try:
+            with open('/data/state.json', 'r') as f:
+                return json.load(f)
+        except:
+            return dict()
+    else:
+        return dict()
