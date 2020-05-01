@@ -59,7 +59,7 @@ RUN yarn global add serve
 # ### Install labbox-ephys
 RUN git clone https://github.com/laboratorybox/labbox-ephys /labbox-ephys \
     && cd /labbox-ephys \
-    && git checkout 0e67efd0bb126005b94ea6e3ce2de74daf37104c \
+    && git checkout 27a52872b76ee8da7a93e4ebc1517852290c2b13 \
     && yarn install \
     && yarn build \
     && rm -rf node_modules

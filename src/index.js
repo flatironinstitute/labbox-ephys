@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import './styles.css';
@@ -20,6 +20,7 @@ import TheAppBar from './components/TheAppBar'
 import ImportRecordings from './containers/ImportRecordings'
 import RecordingView from './containers/RecordingView'
 import ImportSortings from './containers/ImportSortings';
+import { runHitherJob } from './actions';
 
 const theme = createMuiTheme({
   palette: {
@@ -84,6 +85,22 @@ const store = createStore(rootReducer, persistedState, applyMiddleware(thunk))
 //   }
 // });
 
+const TestPage = () => {
+  const [pythonOutput, setPythonOutput] = useState('')
+
+  useEffect(() => {
+    (async () => {
+      if (!pythonOutput) {
+        setPythonOutput('loading...');
+        let output = await runHitherJob('test_python_call', {}, {}).wait()
+        setPythonOutput(output);
+      }
+    })();
+  })
+
+  return <div>{`Test page... output from python ${pythonOutput}`}</div>;
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
@@ -92,6 +109,7 @@ ReactDOM.render(
           <TheAppBar>
             <Switch>
               <Route path="/about"><About /></Route>
+              <Route path="/test"><TestPage /></Route>
               <Route path="/config"><Config /></Route>
               <Route path="/importRecordings"><ImportRecordings /></Route>
               <Route

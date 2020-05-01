@@ -3,6 +3,8 @@
 # python
 __pycache__
 
+data/state.json
+
 # dependencies
 /node_modules
 /.pnp

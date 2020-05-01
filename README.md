@@ -40,3 +40,9 @@ In deployed production container:
 * Other
     - Python script for building/pushing docker images
     - Read version from package.json to determine tag
+
+* Less important
+    - Design a logo (replace logo.svg and public/favicon.ico)
+    - Color for PersistStateControl icon - different colors for different states
+    - More efficient serialization to disk - and something better than /data/state.json
+    - Export/import persisted state

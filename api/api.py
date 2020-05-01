@@ -106,3 +106,7 @@ def get_state_from_disk():
             return dict()
     else:
         return dict()
+
+@hi.function('test_python_call', '0.1.0')
+def test_python_call():
+    return 'output-from-test-python-call'
