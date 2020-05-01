@@ -187,7 +187,7 @@ class ElectrodeGeometryWidgetInner extends Component {
         this.xmin = xmin; this.xmax = xmax;
         this.ymin = ymin; this.ymax = ymax;
 
-        // this.transpose = (this.ymax - this.ymin > this.xmax - this.xmin);
+        this.transpose = (this.ymax - this.ymin > this.xmax - this.xmin);
 
         let mindists = [];
         for (var i in this.props.locations) {

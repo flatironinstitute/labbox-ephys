@@ -19,6 +19,7 @@ import TheAppBar from './components/TheAppBar'
 
 import ImportRecordings from './containers/ImportRecordings'
 import RecordingView from './containers/RecordingView'
+import ImportSortings from './containers/ImportSortings';
 
 const theme = createMuiTheme({
   palette: {
@@ -28,25 +29,33 @@ const theme = createMuiTheme({
 });
 
 // Set up the redux store
+const persistedKeys = [
+  {
+    key: 'computeResources',
+    default: []
+  },
+  {
+    key: 'databaseConfig',
+    default: {}
+  },
+  {
+    key: 'recordings',
+    default: []
+  },
+  {
+    key: 'sortings',
+    default: []
+  }
+];
 const persistedState = {};
-try {
-  persistedState.computeResources = JSON.parse(localStorage.getItem('computeResources')) || [];
-}
-catch (err) {
-  persistedState.computeResources = [];
-}
-try {
-  persistedState.databaseConfig = JSON.parse(localStorage.getItem('databaseConfig')) || {};
-}
-catch (err) {
-  persistedState.databaseConfig = {};
-}
-try {
-  persistedState.recordings = JSON.parse(localStorage.getItem('recordings')) || [];
-}
-catch (err) {
-  persistedState.recordings = [];
-}
+persistedKeys.forEach(pk => {
+  try {
+    persistedState[pk.key] = JSON.parse(localStorage.getItem(pk.key)) || pk.default;
+  }
+  catch (err) {
+    persistedState.computeResources = pk.default;
+  }
+});
 persistedState.computeResources.forEach(cr => {
   cr.jobStats = undefined;
   cr.fetchingJobStats = false;
@@ -56,12 +65,10 @@ persistedState.computeResources.forEach(cr => {
 const store = createStore(rootReducer, persistedState, applyMiddleware(thunk))
 store.subscribe(() => {
   const state0 = store.getState() || {};
-  const computeResources = state0.computeResources || [];
-  const recordings = state0.recordings || [];
-  localStorage.setItem('computeResources', JSON.stringify(computeResources))
-  localStorage.setItem('databaseConfig', JSON.stringify(state0.databaseConfig || {}))
-  localStorage.setItem('recordings', JSON.stringify(state0.recordings || []))
-})
+  persistedKeys.forEach(pk => {
+    localStorage.setItem(pk.key, JSON.stringify(state0[pk.key] || pk.default));
+  })
+});
 
 ReactDOM.render(
   <React.StrictMode>
@@ -73,6 +80,12 @@ ReactDOM.render(
               <Route path="/about"><About /></Route>
               <Route path="/config"><Config /></Route>
               <Route path="/importRecordings"><ImportRecordings /></Route>
+              <Route
+                path="/importSortingsForRecording/:recordingId*"
+                render={({ match }) => (
+                  <ImportSortings recordingId={match.params.recordingId} />
+                )}
+              />
               <Route
                 path="/recording/:recordingId*"
                 render={({ match }) => (

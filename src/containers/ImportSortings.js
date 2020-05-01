@@ -1,37 +1,48 @@
 import React, { useState, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, FormLabel, RadioGroup, FormControlLabel, Radio, Select, MenuItem, makeStyles } from '@material-ui/core'
-import { fetchRecordingInfo, addRecording } from '../actions'
+import { fetchSortingInfo, addSorting } from '../actions'
 import { withRouter } from 'react-router-dom';
-import RecordingInfoView from '../components/RecordingInfoView';
+import SortingInfoView from '../components/SortingInfoView';
 
-const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, history }) => {
+const ImportSortings = ({ recordingId, recordings, sortingInfoByPath, existingSortingIds, onFetchSortingInfo, onAddSorting, history }) => {
     const [method, setMethod] = useState('examples');
 
+    const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
+    if (!recording) {
+        return <div>{`Recording not found: ${recordingId}`}</div>;
+    }
+    const recordingPath = recording.recordingPath;
+
     const handleDone = () => {
-        history.push('/');
+        history.push(`/recording/${recordingId}`);
     }
 
     let form;
     if (method === 'spikeforest') {
         form = (
-            <ImportRecordingFromSpikeForest
-                recordingInfoByPath={recordingInfoByPath}
-                existingRecordingIds={existingRecordingIds}
-                onFetchRecordingInfo={onFetchRecordingInfo}
-                onAddRecording={onAddRecording}
+            <ImportSortingFromSpikeForest
+                examplesMode={false}
+                recordingId={recordingId}
+                recordingPath={recordingPath}
+                sortingInfoByPath={sortingInfoByPath}
+                existingSortingIds={existingSortingIds}
+                onFetchSortingInfo={onFetchSortingInfo}
+                onAddSorting={onAddSorting}
                 onDone={handleDone}
             />
         )
     }
     else if (method === 'examples') {
         form = (
-            <ImportRecordingFromSpikeForest
+            <ImportSortingFromSpikeForest
                 examplesMode={true}
-                recordingInfoByPath={recordingInfoByPath}
-                existingRecordingIds={existingRecordingIds}
-                onFetchRecordingInfo={onFetchRecordingInfo}
-                onAddRecording={onAddRecording}
+                recordingId={recordingId}
+                recordingPath={recordingPath}
+                sortingInfoByPath={sortingInfoByPath}
+                existingSortingIds={existingSortingIds}
+                onFetchSortingInfo={onFetchSortingInfo}
+                onAddSorting={onAddSorting}
                 onDone={handleDone}
             />
         )
@@ -49,8 +60,9 @@ const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRe
     return (
         <div>
             <div>
+                <h1>{`Import sorting for ${recordingId}`}</h1>
                 <RadioChoices
-                    label="Recording import method"
+                    label="Sorting import method"
                     value={method}
                     onSetValue={setMethod}
                     options={[
@@ -100,71 +112,75 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
     );
 }
 
-const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, examplesMode }) => {
-    const [recordingPath, setRecordingPath] = useState('');
-    const [recordingId, setRecordingId] = useState('');
+const ImportSortingFromSpikeForest = ({ onDone, sortingInfoByPath, existingSortingIds, onFetchSortingInfo, onAddSorting, examplesMode, recordingId, recordingPath }) => {
+    const [sortingPath, setSortingPath] = useState('');
+    const [sortingId, setSortingId] = useState('');
     const [errors, setErrors] = useState({});
 
-    const recordingInfoObject = recordingInfoByPath[recordingPath];
-    if ((recordingPath) && (!recordingInfoObject)) {
+    const srPath = sortingPath + '::::' + recordingPath;
+    const sortingInfoObject = sortingInfoByPath[srPath];
+    if ((sortingPath) && (!sortingInfoObject)) {
         setTimeout(function () {
-            onFetchRecordingInfo(recordingPath);
+            onFetchSortingInfo(sortingPath, recordingPath);
         }, 0);
     }
     const readyToImport = (
-        (recordingInfoObject) &&
-        (!recordingInfoObject.fetching) &&
-        (!recordingInfoObject.error)
+        (sortingInfoObject) &&
+        (!sortingInfoObject.fetching) &&
+        (!sortingInfoObject.error)
     );
 
-    if ((readyToImport) && (recordingId === '<>')) {
-        setRecordingId(autoDetermineRecordingIdFromPath(recordingPath))
+    if ((readyToImport) && (sortingId === '<>')) {
+        setSortingId(autoDetermineSortingIdFromPath(sortingPath))
     }
-    if ((!readyToImport) && (recordingId !== '<>')) {
-        setRecordingId('<>');
+    if ((!readyToImport) && (sortingId !== '<>')) {
+        setSortingId('<>');
     }
 
     const handleImport = () => {
         let newErrors = {};
-        if (!recordingId) {
-            newErrors.recordingId = {type: 'required'};
+        if (!sortingId) {
+            newErrors.sortingId = {type: 'required'};
         }
-        if (recordingId in Object.fromEntries(existingRecordingIds.map(id => [id, true]))) {
-            newErrors.recordingId = {type: 'duplicate-id'};
+        if (sortingId in Object.fromEntries(existingSortingIds.map(id => [id, true]))) {
+            newErrors.sortingId = {type: 'duplicate-id'};
         }
-        if (!recordingPath) {
-            newErrors.recordingPath = {type: 'required'};
+        if (!sortingPath) {
+            newErrors.sortingPath = {type: 'required'};
         }
         setErrors(newErrors);
         if (!isEmptyObject(newErrors)) {
             return;
         }
-        const recording = {
+        const sorting = {
+            sortingId,
+            sortingPath,
             recordingId,
             recordingPath,
-            recordingInfo: recordingInfoObject.recordingInfo
+            sortingInfo: sortingInfoObject.sortingInfo
         }
-        onAddRecording(recording);
+        onAddSorting(sorting);
         onDone && onDone();
     }
 
     return (
         <div>
-            <h1>Import recording from SpikeForest</h1>
-            <p>Enter the sha1:// URI of the recording as the recording path</p>
+            <h1>Import sorting from SpikeForest</h1>
+            <p>Enter the sha1:// URI of the sorting as the sorting path</p>
             <form autoComplete="off">
-                <RecordingPathControl
+                <SortingPathControl
                     examplesMode={examplesMode}
-                    value={recordingPath}
-                    onChange={value => setRecordingPath(value)}
+                    value={sortingPath}
+                    onChange={value => setSortingPath(value)}
                     errors={errors}
+                    recordingPath={recordingPath}
                 />
 
                 {readyToImport && (
                     <Fragment>
-                        <RecordingIdControl
-                            value={recordingId}
-                            onChange={(val) => setRecordingId(val)}
+                        <SortingIdControl
+                            value={sortingId}
+                            onChange={(val) => setSortingId(val)}
                             errors={errors}
                         />
                         <FormGroup row={true} style={formGroupStyle}>
@@ -180,10 +196,10 @@ const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingR
                 )}
 
                 {
-                    recordingInfoObject ? (
-                        <RecordingInfoObjectView
-                            recordingPath={recordingPath}
-                            recordingInfoObject={recordingInfoObject}
+                    sortingInfoObject ? (
+                        <SortingInfoObjectView
+                            sortingPath={sortingPath}
+                            sortingInfoObject={sortingInfoObject}
                         />
                     ) : <span />
                 }
@@ -192,7 +208,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingR
     )
 }
 
-function autoDetermineRecordingIdFromPath(path) {
+function autoDetermineSortingIdFromPath(path) {
     if (path.startsWith('sha1://') || (path.startsWith('sha1dir://'))) {
         let x = path.split('/').slice(2);
         let y = x[0].split('.');
@@ -214,26 +230,26 @@ const formGroupStyle = {
 
 // Messages
 const required = "This field is required";
-const duplicateId = "Duplicate recording ID";
+const duplicateId = "Duplicate sorting ID";
 const maxLength = "Your input exceeds maximum length";
 
 const errorMessage = error => {
     return <div className="invalid-feedback">{error}</div>;
 };
 
-const RecordingInfoObjectView = ({ recordingPath, recordingInfoObject }) => {
+const SortingInfoObjectView = ({ sortingPath, sortingInfoObject }) => {
     let x;
-    if (recordingInfoObject.fetching) {
+    if (sortingInfoObject.fetching) {
         x = <CircularProgress />;
     }
-    else if (recordingInfoObject.error) {
-        x = <span>{`Error loading recording info: ${recordingInfoObject.errorMessage}`}</span>
+    else if (sortingInfoObject.error) {
+        x = <span>{`Error loading sorting info: ${sortingInfoObject.errorMessage}`}</span>
     }
     else {
-        return <RecordingInfoView recordingInfo={recordingInfoObject.recordingInfo} />
+        return <SortingInfoView sortingInfo={sortingInfoObject.sortingInfo} />
     }
     return <div>
-        <h3>{recordingPath}</h3>
+        <h3>{sortingPath}</h3>
         <div>{x}</div>
     </div>;
 }
@@ -248,12 +264,21 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SelectExampleRecordingPath = ({ value, onChange }) => {
+const SelectExampleSortingPath = ({ value, onChange, recordingPath }) => {
     const examplePaths = [
-        "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
-        "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",
-        "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0"
-    ]
+        {
+            recordingPath: "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
+            sortingPath: "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7/firings_true.mda"
+        },
+        {
+            recordingPath: "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",
+            sortingPath: "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8/firings_true.mda"
+        },
+        {
+            recordingPath: "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0",
+            sortingPath: "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0/firings_true.mda"
+        }
+    ].filter(ep => (ep.recordingPath === recordingPath));
 
     const classes = useStyles();
 
@@ -267,8 +292,8 @@ const SelectExampleRecordingPath = ({ value, onChange }) => {
                 onChange={evt => { onChange(evt.target.value) }}
             >
                 {
-                    examplePaths.map((path, ii) => (
-                        <MenuItem key={ii} value={path}>{path}</MenuItem>
+                    examplePaths.map((ep, ii) => (
+                        <MenuItem key={ii} value={ep.sortingPath}>{ep.sortingPath}</MenuItem>
                     ))
                 }
             </Select>
@@ -276,28 +301,29 @@ const SelectExampleRecordingPath = ({ value, onChange }) => {
     )
 }
 
-const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
+const SortingPathControl = ({ value, onChange, errors, examplesMode, recordingPath }) => {
     const [internalValue, setInternalValue] = useState(value);
 
-    const e = errors.recordingPath || {};
+    const e = errors.sortingPath || {};
     return (
         <div>
             {
                 examplesMode && (
-                    <SelectExampleRecordingPath
+                    <SelectExampleSortingPath
                         value={internalValue}
                         onChange={path => {
                             setInternalValue(path);
                             onChange(path);
                         }}
+                        recordingPath={recordingPath}
                     />
                 )
             }
             <FormGroup style={formGroupStyle}>
                 <FormControl style={{visibility: examplesMode ? "hidden" : "visible"}}>
-                    <InputLabel>Recording path</InputLabel>
+                    <InputLabel>Sorting path</InputLabel>
                     <Input
-                        name="recordingPath"
+                        name="sortingPath"
                         readOnly={false}
                         disabled={false}
                         value={internalValue}
@@ -320,14 +346,14 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
     );
 }
 
-const RecordingIdControl = ({ value, onChange, errors }) => {
-    const e = errors.recordingId || {};
+const SortingIdControl = ({ value, onChange, errors }) => {
+    const e = errors.sortingId || {};
     return (
         <FormGroup style={formGroupStyle}>
             <FormControl>
-                <InputLabel>Recording ID</InputLabel>
+                <InputLabel>Sorting ID</InputLabel>
                 <Input
-                    name="recordingId"
+                    name="sortingId"
                     readOnly={false}
                     disabled={false}
                     value={value}
@@ -347,16 +373,17 @@ function isEmptyObject(x) {
 
 
 const mapStateToProps = state => ({
-    recordingInfoByPath: state.recordingInfoByPath,
-    existingRecordingIds: state.recordings.map(rec => rec.recordingId)
+    recordings: state.recordings,
+    sortingInfoByPath: state.sortingInfoByPath,
+    existingSortingIds: state.sortings.map(s => s.sortingId)
 })
 
 const mapDispatchToProps = dispatch => ({
-    onFetchRecordingInfo: (recordingPath) => dispatch(fetchRecordingInfo(recordingPath)),
-    onAddRecording: (recording) => dispatch(addRecording(recording))
+    onFetchSortingInfo: (sortingPath, recordingPath) => dispatch(fetchSortingInfo(sortingPath, recordingPath)),
+    onAddSorting: (sorting) => dispatch(addSorting(sorting))
 })
 
 export default withRouter(connect(
     mapStateToProps,
     mapDispatchToProps
-)(ImportRecordings))
+)(ImportSortings))

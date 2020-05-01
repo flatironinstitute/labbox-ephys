@@ -81,6 +81,5 @@ def runHitherJob():
 @app.route('/', defaults={'u_path': ''})
 @app.route('/<path:u_path>')
 def catch_all(u_path):
-    print('--- catch_all', u_path)
     return app.send_static_file(f'../build/{u_path}')
     # return app.send_static_file('index.html')

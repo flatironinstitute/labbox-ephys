@@ -16,6 +16,12 @@ export const RECEIVE_RECORDING_INFO = 'RECEIVE_RECORDING_INFO'
 export const ADD_RECORDING = 'ADD_RECORDING'
 export const DELETE_RECORDINGS = 'DELETE_RECORDINGS'
 
+export const ADD_SORTING = 'ADD_SORTING'
+export const DELETE_SORTINGS = 'DELETE_SORTINGS'
+
+export const INIT_FETCH_SORTING_INFO = 'INIT_FETCH_SORTING_INFO'
+export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
+
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export const addComputeResource = newComputeResource => ({
@@ -130,6 +136,50 @@ export const fetchRecordingInfo = recordingPath => {
   }
 }
 
+export const fetchSortingInfo = (sortingPath, recordingPath) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const srPath = sortingPath + '::::' + recordingPath;
+    let s = state.sortingInfoByPath || {};
+    if ((s[srPath]) && (s[srPath].fetching)) {
+      return;
+    }
+    dispatch({
+      type: INIT_FETCH_SORTING_INFO,
+      sortingPath: sortingPath,
+      recordingPath: recordingPath
+    });
+    await sleep(1000);
+
+    let sortingInfo;
+    try {
+      sortingInfo = await runHitherJob(
+        'get_sorting_info',
+        { sorting_path: sortingPath, recording_path: recordingPath },
+        { kachery_config: { fr: 'default_readonly' } }
+      ).wait();
+    }
+    catch (err) {
+      dispatch({
+        type: RECEIVE_SORTING_INFO,
+        sortingPath: sortingPath,
+        recordingPath: recordingPath,
+        error: true,
+        errorMessage: err.message,
+        sortingInfo: null
+      });
+      return;
+    }
+    dispatch({
+      type: RECEIVE_SORTING_INFO,
+      sortingPath: sortingPath,
+      recordingPath: recordingPath,
+      error: false,
+      sortingInfo: sortingInfo
+    });
+  }
+}
+
 const globalHitherJobStore = {};
 
 // not an action creator
@@ -202,4 +252,14 @@ export const addRecording = recording => ({
 export const deleteRecordings = recordingIds => ({
   type: DELETE_RECORDINGS,
   recordingIds: recordingIds
+})
+
+export const addSorting = sorting => ({
+  type: ADD_SORTING,
+  sorting: sorting
+})
+
+export const deleteSortings = sortingIds => ({
+  type: DELETE_SORTINGS,
+  sortingIds: sortingIds
 })

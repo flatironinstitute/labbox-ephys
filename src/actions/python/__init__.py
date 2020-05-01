@@ -1,1 +1,2 @@
 from .labboxephysrecordingextractor import LabboxEphysRecordingExtractor
+from .labboxephyssortingextractor import LabboxEphysSortingExtractor

@@ -1,6 +1,6 @@
 import { INIT_FETCH_RECORDING_INFO, RECEIVE_RECORDING_INFO } from '../actions'
 
-const databaseConfig = (state = {}, action) => {
+const recordingInfoByPath = (state = {}, action) => {
     switch (action.type) {
         case INIT_FETCH_RECORDING_INFO:
             return {
@@ -24,4 +24,4 @@ const databaseConfig = (state = {}, action) => {
     }
 }
 
-export default databaseConfig
+export default recordingInfoByPath

@@ -18,3 +18,26 @@ In deployed production container:
 * 15307 - server (gunicorn flask `api/`)
 * 8080 - nginx server
 
+### Todo
+
+* 0.1.3 [done]
+    - Import sortings
+        - Start with ground truth from SpikeForest
+* 0.1.4
+    - labbox-launcher: implement --home --tmp --data
+* 0.1.5
+    - Persist data to disk (not in browser)
+* 0.1.6
+    - Timeseries view for recordings
+* 0.1.7
+    - Run spike sorting
+* 0.1.8
+    - Select compute resource for spike sorting
+* 0.1.9
+    - Summary plots of spike sorting
+* 0.1.10
+    -Import from local disk
+
+* Other
+    - Python script for building/pushing docker images
+    - Read version from package.json to determine tag

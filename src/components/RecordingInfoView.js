@@ -19,6 +19,7 @@ const RecordingInfoView = ({ recordingInfo  }) => {
                 locations={ri.geom}
                 selectedElectrodeIds={selectedElectrodeIds}
                 onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
+                width={350}
             />
         </div>
     );

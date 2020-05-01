@@ -66,7 +66,6 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
                     )
                     self.arg = dict(channel_ids=channel_ids, recording=R.object())
                 elif ('raw' in arg) and ('params' in arg) and ('geom' in arg):
-                    print('-------- test download=', download)
                     self._recording = MdaRecordingExtractor(timeseries_path=_path(arg['raw']), samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
                 else:
                     raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
