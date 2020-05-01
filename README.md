@@ -25,17 +25,16 @@ In deployed production container:
         - Start with ground truth from SpikeForest
 * 0.1.4
     - labbox-launcher: implement --home --tmp --data
-* 0.1.5
     - Persist data to disk (not in browser)
-* 0.1.6
+* 0.1.5
     - Timeseries view for recordings
-* 0.1.7
+* 0.1.6
     - Run spike sorting
-* 0.1.8
+* 0.1.7
     - Select compute resource for spike sorting
-* 0.1.9
+* 0.1.8
     - Summary plots of spike sorting
-* 0.1.10
+* 0.1.9
     -Import from local disk
 
 * Other
