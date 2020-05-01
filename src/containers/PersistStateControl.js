@@ -14,23 +14,27 @@ const PersistStateControl = ({ recordings, onAddRecording, persistStatus, onSetP
     let icon;
     let title;
     if (persistStatus === 'initial') {
-        icon = <Sync />;
+        icon = <Sync style={{color: 'white'}} />;
         title = 'Loading...';
     }
     else if (persistStatus === 'pending') {
-        icon = <Sync />;
+        icon = <Sync style={{color: 'lightgreen'}} />;
         title = 'Pending...';
     }
     else if (persistStatus === 'saving') {
-        icon = <Sync />;
+        icon = <Sync style={{color: 'green'}} />;
         title = 'Saving...';
     }
     else if (persistStatus === 'saved') {
-        icon = <CheckCircleOutline />;
+        icon = <CheckCircleOutline style={{color: 'white'}} />;
         title = "Sync'd to disk"
     }
+    else if (persistStatus === 'error') {
+        icon = <SyncProblem style={{color: 'red'}} />;
+        title = `Error storing state to disk.`;
+    }
     else {
-        icon = <SyncProblem />;
+        icon = <SyncProblem style={{color: 'pink'}} />;
         title = `Unexpected persistStatus: ${persistStatus}`;
     }
 
@@ -38,7 +42,8 @@ const PersistStateControl = ({ recordings, onAddRecording, persistStatus, onSetP
         (async () => {
             if (persistStatus === 'initial') {
                 onSetPersistStatus('pending');
-                await sleep(1000);
+                // the gui experience is better when we slow things down a bit
+                await sleep(500);
                 const s = await runHitherJob('get_state_from_disk', {}, {}).wait();
                 (s.recordings || []).forEach(r => {
                     onAddRecording(r);
@@ -58,10 +63,16 @@ const PersistStateControl = ({ recordings, onAddRecording, persistStatus, onSetP
                     }
                     // TODO: IMPORTANT!! handle case where state has changed while we are saving to disk
                     onSetPersistStatus('saving');
-                    await runHitherJob('save_state_to_disk', { state: newSavedState }).wait();
+                    const ret = await runHitherJob('save_state_to_disk', { state: newSavedState }).wait();
                     lastSavedState.recordings = recordings;
-                    await sleep(2000);
-                    onSetPersistStatus('saved');
+                    // the gui experience is better when we slow things down a bit
+                    await sleep(500);
+                    if (ret) {
+                        onSetPersistStatus('saved');
+                    }
+                    else {
+                        onSetPersistStatus('error');
+                    }
                 }
             }
             else {
@@ -70,7 +81,6 @@ const PersistStateControl = ({ recordings, onAddRecording, persistStatus, onSetP
     });
 
     return (
-        // <SyncProblem /> <SyncDisabled /> <Sync />
         <IconButton title={title}>{icon}</IconButton>
     );
 }

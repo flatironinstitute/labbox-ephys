@@ -109,7 +109,6 @@ export const fetchRecordingInfo = recordingPath => {
       type: INIT_FETCH_RECORDING_INFO,
       recordingPath: recordingPath
     });
-    await sleep(1000);
 
     let recordingInfo;
     try {
@@ -151,7 +150,6 @@ export const fetchSortingInfo = (sortingPath, recordingPath) => {
       sortingPath: sortingPath,
       recordingPath: recordingPath
     });
-    await sleep(1000);
 
     let sortingInfo;
     try {
