@@ -14,11 +14,12 @@ import rootReducer from './reducers';
 
 import Home from './components/Home';
 import About from './components/About';
-import Config from './components/Config';
+// import Config from './components/Config';
 import TheAppBar from './components/TheAppBar'
 
 import ImportRecordings from './containers/ImportRecordings'
 import RecordingView from './containers/RecordingView'
+import TimeseriesForRecordingView from './containers/TimeseriesForRecordingView'
 import ImportSortings from './containers/ImportSortings';
 import { runHitherJob } from './actions';
 
@@ -110,7 +111,7 @@ ReactDOM.render(
             <Switch>
               <Route path="/about"><About /></Route>
               <Route path="/test"><TestPage /></Route>
-              <Route path="/config"><Config /></Route>
+              {/* <Route path="/config"><Config /></Route> */}
               <Route path="/importRecordings"><ImportRecordings /></Route>
               <Route
                 path="/importSortingsForRecording/:recordingId*"
@@ -122,6 +123,12 @@ ReactDOM.render(
                 path="/recording/:recordingId*"
                 render={({ match }) => (
                   <RecordingView recordingId={match.params.recordingId} />
+                )}
+              />
+              <Route
+                path="/timeseriesForRecording/:recordingId*"
+                render={({ match }) => (
+                  <TimeseriesForRecordingView recordingId={match.params.recordingId} />
                 )}
               />
               <Route path="/"><Home /></Route>

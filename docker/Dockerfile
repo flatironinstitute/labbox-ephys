@@ -57,18 +57,17 @@ RUN yarn global add serve
 
 # #########################################
 # ### Install labbox-ephys
-RUN git clone https://github.com/laboratorybox/labbox-ephys /labbox-ephys \
-    && cd /labbox-ephys \
-    && git checkout 27a52872b76ee8da7a93e4ebc1517852290c2b13 \
-    && yarn install \
-    && yarn build \
-    && rm -rf node_modules
+# Be selective in which files we copy
+# Note that the app bundle needs to be built ahead of time (this helps minimize docker layer disk size)
+COPY src /labbox-ephys/src
+COPY api /labbox-ephys/api
+COPY build /labbox-ephys/build
 
-COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+COPY docker/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
 RUN rm /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 
-COPY run_inside_container.sh /run_inside_container.sh
+COPY docker/run_inside_container.sh /run_inside_container.sh
 
 EXPOSE 8080
 

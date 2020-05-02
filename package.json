@@ -1,6 +1,6 @@
 {
   "name": "labbox-ephys",
-  "version": "0.1.4-alpha.1",
+  "version": "0.1.5-alpha.1",
   "dependencies": {
     "@material-ui/core": "^4.9.11",
     "@material-ui/icons": "^4.9.1",
@@ -14,8 +14,10 @@
     "object-hash": "^2.0.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-draggable": "^4.3.1",
     "react-favicon": "^0.0.18",
     "react-hook-form": "^5.5.3",
+    "react-icons": "^3.10.0",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",

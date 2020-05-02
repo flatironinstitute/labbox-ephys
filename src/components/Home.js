@@ -8,7 +8,7 @@ function Home() {
   return (
     <div>
       <Typography component="p">
-        Analysis and vis of neurophysiology recordings and spike sorting results.
+        Analysis and visualization of neurophysiology recordings and spike sorting results.
       </Typography>
       <p />
       <div>
