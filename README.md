@@ -23,7 +23,7 @@ pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher
 ```bash
 # Launch the labbox-ephys container and listen on port 15310 (or whatever you choose)
 # replace /some/data/dir by an existing directory on your machine
-labbox-launcher run magland/labbox-ephys:0.1.4-alpha.1 --data /some/data/dir --port 15310
+labbox-launcher run magland/labbox-ephys:0.1.5-beta.1 --data /some/data/dir --port 15310
 ```
 
 **View in browser**
