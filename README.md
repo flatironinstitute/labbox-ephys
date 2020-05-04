@@ -62,7 +62,7 @@ See [docker/build_docker.sh](docker/build_docker.sh)
 * 0.1.4 [done]
     - labbox-launcher: implement --data
     - Persist data to disk (not in browser)
-* 0.1.5 [in progress]
+* 0.1.5 [done]
     - Python script for building/pushing docker images
     - Minimize size of new docker layers for deploys
         - should be just a few MB
