@@ -154,7 +154,9 @@ export default class TimeseriesWidget extends Component {
         // this.setStatusText(`Painting timepoints ${t1b} to ${t2b}; downsampling ${downsample_factor}`);
         let data0 = this.props.timeseriesModel.getChannelData(m, t1b, t2b, downsample_factor);
 
-        // check to see if we actually got the data... if we did, then we will preload
+        // TODO: figure out better preloading strategy
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // // check to see if we actually got the data... if we did, then we will preload
         // let gotAllTheData = true;
         // for (let val of data0) {
         //     if (isNaN(val)) {
@@ -164,13 +166,16 @@ export default class TimeseriesWidget extends Component {
         // }
         // if (gotAllTheData) {
         //     // trigger pre-loading
+        //     console.log('---- preloading', m, Math.floor(t1b / 3), Math.floor(t2b / 3), downsample_factor * 3);
         //     this.props.timeseriesModel.getChannelData(m, Math.floor(t1b / 3), Math.floor(t2b / 3), downsample_factor * 3, { request_only: true });
         //     if ((downsample_factor > 1) && (this.currentTime >= 0)) {
         //         let t1c = Math.floor(Math.max(0, (this.currentTime - 800) / (downsample_factor / 3)))
         //         let t2c = Math.floor(Math.min(this.props.timeseriesModel.numTimepoints(), (this.currentTime + 800) / (downsample_factor / 3)))
+        //         console.log('----*** preloading', m, t1c, t2c, downsample_factor / 3)
         //         this.props.timeseriesModel.getChannelData(m, t1c, t2c, downsample_factor / 3, { request_only: true });
         //     }
         // }
+        // ////////////////////////////////////////////////////////////////////////////////////////
 
         if (downsample_factor === 1) {
             let penDown = false;

@@ -18,6 +18,9 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         super().__init__()
         self.arg = arg
 
+        if (type(arg) == dict) and ('path' in arg):
+            arg = arg['path']
+
         if isinstance(arg, LabboxEphysRecordingExtractor):
             self._recording = arg
             self.arg = arg.arg
@@ -41,7 +44,6 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
                 else:
                     raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
             elif type(arg) == dict:
-
                 if ('recording' in arg) and ('filters' in arg):
                     recording1 = LabboxEphysRecordingExtractor(arg['recording'], download=download)
                     self._recording = self._apply_filters(recording1, arg['filters'])

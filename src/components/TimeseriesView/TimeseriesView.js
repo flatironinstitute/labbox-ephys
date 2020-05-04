@@ -1,24 +1,135 @@
-import React, { Component } from 'react';
-// import Mda from './Mda';
+import React, { Component, useEffect, useState } from 'react';
+import Mda from './Mda';
 import TimeseriesWidget from "./TimeseriesWidget";
 import TimeseriesModel from "./TimeseriesModel";
 import AutoDetermineWidth from '../jscommon/AutoDetermineWidth';
+import { runHitherJob } from '../../actions';
 
-export default class TimeseriesView extends Component {
-    render() {
-        return (
-            <AutoDetermineWidth>
-                <TimeseriesViewFO {...this.props} />
-            </AutoDetermineWidth>
-        );
-    }
+const TimeseriesView = ({
+    width, height, maxWidth, maxHeight,
+    recordingPath
+}) => {
+    // handle filter opts stuff
+    const leftPanels = [];
+    return (
+        <TimeseriesViewInner
+            width={width}
+            height={height}
+            maxWidth={maxWidth}
+            maxHeight={maxHeight}
+            leftPanels={leftPanels}
+            recordingPath={recordingPath}
+        />
+    );
 }
 
-class TimeseriesViewFO extends Component {
+const TimeseriesViewInner = ({
+    width, height, maxWidth, maxHeight,
+    leftPanels,
+    recordingPath
+}) => {
+
+    const [timeseriesInfo, setTimeseriesInfo] = useState(null);
+    const [status, setStatus] = useState('pending');
+    const [statusMessage, setStatusMessage] = useState(null);
+    const [timeseriesModel, setTimeseriesModel] = useState(null);
+    const [widgetKey, setWidgetKey] = useState(0);
+
+    const effect = async () => {
+        if (!timeseriesInfo) {
+            let info;
+            setStatus('calculating');
+            setStatusMessage('Calculating timeseries info');
+            try {
+                info = await runHitherJob(
+                    'calculate_timeseries_info',
+                    { recording: { path: recordingPath } },
+                    { kachery_config: { fr: 'default_readonly' } }
+                ).wait();
+            }
+            catch (err) {
+                setStatusMessage('Problem calculating timeseries info.');
+                setStatus('error');
+                return;
+            }
+            setTimeseriesInfo(info);
+            setStatusMessage('Setting timeseries model');
+            const model = new TimeseriesModel({
+                samplerate: info.samplerate,
+                num_channels: info.num_channels,
+                num_timepoints: info.num_timepoints,
+                segment_size: info.segment_size
+            });
+            model.onRequestDataSegment(async (ds_factor, segment_num) => {
+                let result;
+                try {
+                    result = await runHitherJob(
+                        'get_timeseries_segment',
+                        {
+                            recording: {path: recordingPath},
+                            ds_factor: ds_factor,
+                            segment_num: segment_num,
+                            segment_size: info.segment_size
+                        },
+                        { kachery_config: { fr: 'default_readonly' } }
+                    ).wait();
+                }
+                catch(err) {
+                    console.error('Error getting timeseries segment', ds_factor, segment_num);
+                    return;
+                }
+                let X = new Mda();
+                X.setFromBase64(result.data_b64);
+                model.setDataSegment(ds_factor, segment_num, X);
+            });
+            setTimeseriesModel(model);
+            setWidgetKey(Math.random());
+            setStatus('finished');
+        }
+    }
+    useEffect(() => { effect(); });
+
+    // render
+    if (status === 'pending') {
+        return <div>Waiting...</div>;
+    }
+    else if (status === 'calculating') {
+        return <div>{`${statusMessage}`}</div>;
+    }
+    else if (status === 'error') {
+        return <div>{`Error: ${statusMessage}`}</div>;
+    }
+
+    if (status !== 'finished') {
+        return <div>{`Unexpected status: ${status}`}</div>
+    }
+
+    const width0 = Math.min(width, maxWidth || 99999);
+    const height0 = Math.min(height || 800, maxHeight || 99999);
+    return (
+        <div>
+            <TimeseriesWidget
+                key={widgetKey}
+                timeseriesModel={timeseriesModel}
+                num_channels={timeseriesInfo.num_channels}
+                channel_ids={timeseriesInfo.channel_ids}
+                channel_locations={timeseriesInfo.channel_locations}
+                num_timepoints={timeseriesInfo.num_timepoints}
+                y_offsets={timeseriesInfo.y_offsets}
+                y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
+                width={width0}
+                height={height0}
+                leftPanels={leftPanels}
+            />
+        </div>
+    )
+}
+
+class OldTimeseriesViewFO extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            filterOpts: props.filterOpts || {type: 'none', freq_min: 300, freq_max: 6000, freq_wid: 1000}
+            filterOpts: props.filterOpts || { type: 'none', freq_min: 300, freq_max: 6000, freq_wid: 1000 }
         };
     }
     render() {
@@ -53,7 +164,33 @@ function keyFromObject(obj) {
     return JSON.stringify(obj);
 }
 
-const TimeseriesViewInner = ({timeseriesModel, timeseriesInfo, leftPanels, width, height, maxWidth, maxHeight}) => {
+const OldTimeseriesViewInner = ({ timeseriesModel, timeseriesInfo, leftPanels, width, height, maxWidth, maxHeight }) => {
+    // useEffect(() => {
+    //     if (!timeseriesModel) return;
+    //     if (!this.state.num_channels) return;
+    //     if (!this.timeseriesModel) {
+    //         if (!this.state.samplerate) {
+    //             return;
+    //         }
+    //         const params = {
+    //             samplerate: this.state.samplerate,
+    //             num_channels: this.state.num_channels,
+    //             num_timepoints: this.state.num_timepoints,
+    //             segment_size: this.state.segment_size
+    //         };
+    //         this.timeseriesModel = new TimeseriesModel(params);
+    //         this.timeseriesModel.onRequestDataSegment((ds_factor, segment_num) => {
+    //             this.pythonInterface.sendMessage({
+    //                 command: 'requestSegment',
+    //                 ds_factor: ds_factor,
+    //                 segment_num: segment_num
+    //             });
+    //         });
+    //         this.setState({
+    //             timeseriesModelSet: this.state.timeseriesModelSet + 1
+    //         });
+    //     }
+    // })
     if (timeseriesModel) {
         const width0 = Math.min(width, maxWidth || 99999);
         const height0 = Math.min(height || 800, maxHeight || 99999);
@@ -196,3 +333,5 @@ class TimeseriesViewInnerOld extends Component {
     }
 }
 */
+
+export default TimeseriesView;

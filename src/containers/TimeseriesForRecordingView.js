@@ -1,8 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import RecordingInfoView from '../components/RecordingInfoView';
 import { withRouter } from 'react-router-dom';
 import TimeseriesView from '../components/TimeseriesView'
+import { SizeMe } from 'react-sizeme';
 
 const TimeseriesForRecordingView = ({ recordingId, recording }) => {
   if (!recording) {
@@ -11,9 +11,22 @@ const TimeseriesForRecordingView = ({ recordingId, recording }) => {
 
   return (
     <div>
-      <RecordingInfoView recordingInfo={recording.recordingInfo} />
-      <TimeseriesView recordingPath={recording.recordingPath} />
+      <h1>{recordingId}</h1>
+      <SizeMe
+        render={
+          ({ size }) => {
+            const width = size.width;
+            const height = 650; // hard-coded for now
+            return (
+              <div>
+                <TimeseriesView recordingPath={recording.recordingPath} width={width} height={height} />
+              </div>
+            );
+          }
+        }
+      />
     </div>
+
   )
 }
 

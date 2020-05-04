@@ -16,12 +16,16 @@ function Mda(arg1,arg2,arg3,arg4,arg5) {
 	this.reshape=function(n1,n2,n3,n4,n5) {return _reshape(n1,n2,n3,n4,n5);};
 	this.getChunk=function(i,size) {return _getChunk(i,size);};
 	this.subArray=function(arg1,arg2,arg3,arg4,arg5,arg6) {return _subArray(arg1,arg2,arg3,arg4,arg5,arg6);};
-	this.load=function(url,callback) {return _load(url,callback);};
+	//this.load=function(url,callback) {return _load(url,callback);};
 	this.setFromArrayBuffer=function(buf) {return _setFromArrayBuffer(buf);};
 	this.setFromBase64=function(x) {return _setFromBase64(x);};
 	this.minimum=function() {return _minimum();};
 	this.maximum=function() {return _maximum();};
 	this.toList=function() {return _toList();};
+
+	let m_data=new Float32Array(1);
+	let m_dims=[1,1,1,1,1];
+	let m_total_size=1;
 	
 	function _allocate(n1,n2,n3,n4,n5) {
 		n1=n1||1; n2=n2||1; n3=n3||1;
@@ -140,28 +144,28 @@ function Mda(arg1,arg2,arg3,arg4,arg5) {
 			return ret;
 		}
 	};
-	function _load(url,callback) {
-		if (!(url in s_mda_binary_loaders)) {
-			s_mda_binary_loaders[url]=new MdaBinaryLoader(url);
-		}
+	// function _load(url,callback) {
+	// 	if (!(url in s_mda_binary_loaders)) {
+	// 		s_mda_binary_loaders[url]=new MdaBinaryLoader(url);
+	// 	}
 
-		s_mda_binary_loaders[url].load(function(ret) {
-			that.allocate(ret.mda.N1(),ret.mda.N2(),ret.mda.N3());
-			that.setData(ret.mda.data());
-			callback({success:true});
-			/*
-			if (ret.data.length>0) {
-				var dims=ret.dims;
-				that.allocate(dims[0],dims[1]||1,dims[2]||1,dims[3]||1,dims[4]||1);
-				m_data=ret.data;
-				callback({success:true});
-			}
-			else {
-				callback({success:false});
-			}
-			*/
-		});
-	};
+	// 	s_mda_binary_loaders[url].load(function(ret) {
+	// 		that.allocate(ret.mda.N1(),ret.mda.N2(),ret.mda.N3());
+	// 		that.setData(ret.mda.data());
+	// 		callback({success:true});
+	// 		/*
+	// 		if (ret.data.length>0) {
+	// 			var dims=ret.dims;
+	// 			that.allocate(dims[0],dims[1]||1,dims[2]||1,dims[3]||1,dims[4]||1);
+	// 			m_data=ret.data;
+	// 			callback({success:true});
+	// 		}
+	// 		else {
+	// 			callback({success:false});
+	// 		}
+	// 		*/
+	// 	});
+	// };
 	function _setFromBase64(x) {
 		_setFromArrayBuffer(_base64ToArrayBuffer(x));
 	}
@@ -222,97 +226,93 @@ function Mda(arg1,arg2,arg3,arg4,arg5) {
 		if (num==-7) return 'float64';
 		return '';
 	}
-	
-	var m_data=new Float32Array(1);
-	var m_dims=[1,1,1,1,1];
-	var m_total_size=1;
 
 	that.allocate(arg1||1,arg2||1,arg3||1,arg4||1,arg5||1);
 }
 
-var s_mda_binary_loaders={};
-function MdaBinaryLoader(url) {
-	this.load=function(callback) {
-		if (m_done_loading) {
-			callback(m_data.slice());
-			return;
-		}
-		JSQ.connect(m_signaler,'loaded',0,function() {
-			callback({mda:m_mda});	
-		});
-		if (!m_is_loading) {
-			m_is_loading=true;
-			start_loading();
-		}
-	}
+// var s_mda_binary_loaders={};
+// function MdaBinaryLoader(url) {
+// 	this.load=function(callback) {
+// 		if (m_done_loading) {
+// 			callback(m_data.slice());
+// 			return;
+// 		}
+// 		JSQ.connect(m_signaler,'loaded',0,function() {
+// 			callback({mda:m_mda});	
+// 		});
+// 		if (!m_is_loading) {
+// 			m_is_loading=true;
+// 			start_loading();
+// 		}
+// 	}
 
-	var m_signaler=new JSQObject();
-	var m_is_loading=false;
-	var m_done_loading=false;
-	var m_mda=new Mda();
+// 	var m_signaler=new JSQObject();
+// 	var m_is_loading=false;
+// 	var m_done_loading=false;
+// 	var m_mda=new Mda();
 
-	function start_loading() {
-		$.ajax({
-			url: url,
-			type: "GET",
-			dataType: "binary",
-			processData: false,
-			responseType: 'arraybuffer',
-			error: function(jqXHR, textStatus, errorThrown) {
-				console.log (url);
-				console.error('Error: '+textStatus+': '+errorThrown);
-			},
-			success: function(result) {
-				if (result.byteLength<64) {
-					console.error('Downloaded file is too small: '+result.byteLength);
-					m_data=[];
-					m_signaler.emit('loaded');
-					return;
-				}
-				if (m_mda.setFromArrayBuffer(result)) {
-					m_signaler.emit('loaded');
-				}
-				else {
-					m_signaler.emit('loaded');
-				}
-				/*
-				var X=new Int32Array(result.slice(0,64));
-				var num_bytes_per_entry=X[1];
-				var num_dims=X[2];
-				m_dims=[];
-				if ((num_dims<2)||(num_dims>5)) {
-					console.error('Invalid number of dimensions: '+num_dims);
-					m_data=[];
-					m_signaler.emit('loaded');
-					return;
-				} 
-				for (var i=0; i<num_dims; i++) {
-					m_dims.push(X[3+i]);
-				}
-				var dtype=get_dtype_string(X[0]);
-				var header_size=(num_dims+3)*4;
-				if (dtype=='float32') {
-					m_data=new Float32Array(result.slice(header_size));
-					m_signaler.emit('loaded');
-					return;
-				}
-				else if (dtype=='float64') {
-					m_data=new Float64Array(result.slice(header_size));
-					m_signaler.emit('loaded');
-					return;	
-				}
-				else {
-					callback({success:false,error:'Unsupported data type: '+dtype});
-					console.error('Unsupported dtype: '+dtype);
-					m_data=[];
-					m_signaler.emit('loaded');
-					return;
-				}
-				*/
-			}
-		});
-	}
-}
+// 	function start_loading() {
+// 		$.ajax({
+// 			url: url,
+// 			type: "GET",
+// 			dataType: "binary",
+// 			processData: false,
+// 			responseType: 'arraybuffer',
+// 			error: function(jqXHR, textStatus, errorThrown) {
+// 				console.log (url);
+// 				console.error('Error: '+textStatus+': '+errorThrown);
+// 			},
+// 			success: function(result) {
+// 				if (result.byteLength<64) {
+// 					console.error('Downloaded file is too small: '+result.byteLength);
+// 					m_data=[];
+// 					m_signaler.emit('loaded');
+// 					return;
+// 				}
+// 				if (m_mda.setFromArrayBuffer(result)) {
+// 					m_signaler.emit('loaded');
+// 				}
+// 				else {
+// 					m_signaler.emit('loaded');
+// 				}
+// 				/*
+// 				var X=new Int32Array(result.slice(0,64));
+// 				var num_bytes_per_entry=X[1];
+// 				var num_dims=X[2];
+// 				m_dims=[];
+// 				if ((num_dims<2)||(num_dims>5)) {
+// 					console.error('Invalid number of dimensions: '+num_dims);
+// 					m_data=[];
+// 					m_signaler.emit('loaded');
+// 					return;
+// 				} 
+// 				for (var i=0; i<num_dims; i++) {
+// 					m_dims.push(X[3+i]);
+// 				}
+// 				var dtype=get_dtype_string(X[0]);
+// 				var header_size=(num_dims+3)*4;
+// 				if (dtype=='float32') {
+// 					m_data=new Float32Array(result.slice(header_size));
+// 					m_signaler.emit('loaded');
+// 					return;
+// 				}
+// 				else if (dtype=='float64') {
+// 					m_data=new Float64Array(result.slice(header_size));
+// 					m_signaler.emit('loaded');
+// 					return;	
+// 				}
+// 				else {
+// 					callback({success:false,error:'Unsupported data type: '+dtype});
+// 					console.error('Unsupported dtype: '+dtype);
+// 					m_data=[];
+// 					m_signaler.emit('loaded');
+// 					return;
+// 				}
+// 				*/
+// 			}
+// 		});
+// 	}
+// }
 
 function _base64ToArrayBuffer(base64) {
 	var binary_string =  window.atob(base64);

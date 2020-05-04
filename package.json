@@ -1,6 +1,6 @@
 {
   "name": "labbox-ephys",
-  "version": "0.1.5-alpha.1",
+  "version": "0.1.5-beta.1",
   "dependencies": {
     "@material-ui/core": "^4.9.11",
     "@material-ui/icons": "^4.9.1",
@@ -21,6 +21,7 @@
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "react-sizeme": "^2.6.12",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0"
   },
