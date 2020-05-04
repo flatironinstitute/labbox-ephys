@@ -1,14 +1,26 @@
 import React, { Component } from "react";
 import CanvasWidget, { CanvasWidgetLayer } from './jscommon/CanvasWidget';
-import AutoDetermineWidth from './jscommon/AutoDetermineWidth';
+// import AutoDetermineWidth from './jscommon/AutoDetermineWidth';
+import { SizeMe } from 'react-sizeme';
 const stable_stringify = require('json-stable-stringify');
 
 export default class ElectrodeGeometryWidget extends Component {
     render() {
         return (
-            <AutoDetermineWidth>
-                <ElectrodeGeometryWidgetInner {...this.props} />
-            </AutoDetermineWidth>
+            <SizeMe
+                render={
+                    ({ size }) => {
+                        return <div>
+                            <
+                                ElectrodeGeometryWidgetInner
+                                {...this.props}
+                                width={size.width} 
+                                maxHeight={200}
+                            />
+                        </div>;
+                    }
+                }
+            />
         );
     }
 }
@@ -62,8 +74,8 @@ class ElectrodeGeometryWidgetInner extends Component {
         this.updatePositions();
 
         let W = this.props.width;
-        if (!W) W=400;
-        
+        if (!W) W = 400;
+
         let H = this.props.height;
         let x1 = this.xmin - this.mindist, x2 = this.xmax + this.mindist;
         let y1 = this.ymin - this.mindist, y2 = this.ymax + this.mindist;
@@ -110,7 +122,7 @@ class ElectrodeGeometryWidgetInner extends Component {
         }
         else if (this.props.locations) {
             let ids = [];
-            for (let i=0; i<this.props.locations.length; i++) {
+            for (let i = 0; i < this.props.locations.length; i++) {
                 ids.push(i);
             }
             return ids;

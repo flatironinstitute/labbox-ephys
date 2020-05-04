@@ -1,8 +1,7 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Mda from './Mda';
 import TimeseriesWidget from "./TimeseriesWidget";
 import TimeseriesModel from "./TimeseriesModel";
-import AutoDetermineWidth from '../jscommon/AutoDetermineWidth';
 import { runHitherJob } from '../../actions';
 
 const TimeseriesView = ({
@@ -125,98 +124,98 @@ const TimeseriesViewInner = ({
     )
 }
 
-class OldTimeseriesViewFO extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            filterOpts: props.filterOpts || { type: 'none', freq_min: 300, freq_max: 6000, freq_wid: 1000 }
-        };
-    }
-    render() {
-        // let leftPanels = [
-        //     {
-        //         key: 'filter-options',
-        //         title: "Filter options",
-        //         icon: <FilterOptsIcon />,
-        //         render: () => (
-        //             <FilterOpts
-        //                 filterOpts={this.state.filterOpts}
-        //                 onChange={(newOpts) => {this.setState({filterOpts: newOpts})}}
-        //             />
-        //         )
-        //     }
-        // ];
-        let leftPanels = [];
-        // let fo = {type: 'none', freq_min: 300, freq_max: 6000, freq_wid: 1000};
-        return (
-            <TimeseriesViewInner
-                {...this.props}
-                key={keyFromObject(this.state.filterOpts)}
-                filterOpts={this.state.filterOpts}
-                // filterOpts={fo}
-                leftPanels={leftPanels}
-            />
-        );
-    }
-}
+// class OldTimeseriesViewFO extends Component {
+//     constructor(props) {
+//         super(props);
+//         this.state = {
+//             filterOpts: props.filterOpts || { type: 'none', freq_min: 300, freq_max: 6000, freq_wid: 1000 }
+//         };
+//     }
+//     render() {
+//         // let leftPanels = [
+//         //     {
+//         //         key: 'filter-options',
+//         //         title: "Filter options",
+//         //         icon: <FilterOptsIcon />,
+//         //         render: () => (
+//         //             <FilterOpts
+//         //                 filterOpts={this.state.filterOpts}
+//         //                 onChange={(newOpts) => {this.setState({filterOpts: newOpts})}}
+//         //             />
+//         //         )
+//         //     }
+//         // ];
+//         let leftPanels = [];
+//         // let fo = {type: 'none', freq_min: 300, freq_max: 6000, freq_wid: 1000};
+//         return (
+//             <TimeseriesViewInner
+//                 {...this.props}
+//                 key={keyFromObject(this.state.filterOpts)}
+//                 filterOpts={this.state.filterOpts}
+//                 // filterOpts={fo}
+//                 leftPanels={leftPanels}
+//             />
+//         );
+//     }
+// }
 
-function keyFromObject(obj) {
-    return JSON.stringify(obj);
-}
+// function keyFromObject(obj) {
+//     return JSON.stringify(obj);
+// }
 
-const OldTimeseriesViewInner = ({ timeseriesModel, timeseriesInfo, leftPanels, width, height, maxWidth, maxHeight }) => {
-    // useEffect(() => {
-    //     if (!timeseriesModel) return;
-    //     if (!this.state.num_channels) return;
-    //     if (!this.timeseriesModel) {
-    //         if (!this.state.samplerate) {
-    //             return;
-    //         }
-    //         const params = {
-    //             samplerate: this.state.samplerate,
-    //             num_channels: this.state.num_channels,
-    //             num_timepoints: this.state.num_timepoints,
-    //             segment_size: this.state.segment_size
-    //         };
-    //         this.timeseriesModel = new TimeseriesModel(params);
-    //         this.timeseriesModel.onRequestDataSegment((ds_factor, segment_num) => {
-    //             this.pythonInterface.sendMessage({
-    //                 command: 'requestSegment',
-    //                 ds_factor: ds_factor,
-    //                 segment_num: segment_num
-    //             });
-    //         });
-    //         this.setState({
-    //             timeseriesModelSet: this.state.timeseriesModelSet + 1
-    //         });
-    //     }
-    // })
-    if (timeseriesModel) {
-        const width0 = Math.min(width, maxWidth || 99999);
-        const height0 = Math.min(height || 800, maxHeight || 99999);
-        return (
-            <div>
-                <TimeseriesWidget
-                    timeseriesModel={timeseriesModel}
-                    num_channels={timeseriesInfo.num_channels}
-                    channel_ids={timeseriesInfo.channel_ids}
-                    channel_locations={timeseriesInfo.channel_locations}
-                    num_timepoints={timeseriesInfo.num_timepoints}
-                    y_offsets={timeseriesInfo.y_offsets}
-                    y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
-                    width={width0}
-                    height={height0}
-                    leftPanels={leftPanels}
-                />
-            </div>
-        )
-    }
-    else {
-        return (
-            <div>TimeseriesView</div>
-        );
-    }
-}
+// const OldTimeseriesViewInner = ({ timeseriesModel, timeseriesInfo, leftPanels, width, height, maxWidth, maxHeight }) => {
+//     // useEffect(() => {
+//     //     if (!timeseriesModel) return;
+//     //     if (!this.state.num_channels) return;
+//     //     if (!this.timeseriesModel) {
+//     //         if (!this.state.samplerate) {
+//     //             return;
+//     //         }
+//     //         const params = {
+//     //             samplerate: this.state.samplerate,
+//     //             num_channels: this.state.num_channels,
+//     //             num_timepoints: this.state.num_timepoints,
+//     //             segment_size: this.state.segment_size
+//     //         };
+//     //         this.timeseriesModel = new TimeseriesModel(params);
+//     //         this.timeseriesModel.onRequestDataSegment((ds_factor, segment_num) => {
+//     //             this.pythonInterface.sendMessage({
+//     //                 command: 'requestSegment',
+//     //                 ds_factor: ds_factor,
+//     //                 segment_num: segment_num
+//     //             });
+//     //         });
+//     //         this.setState({
+//     //             timeseriesModelSet: this.state.timeseriesModelSet + 1
+//     //         });
+//     //     }
+//     // })
+//     if (timeseriesModel) {
+//         const width0 = Math.min(width, maxWidth || 99999);
+//         const height0 = Math.min(height || 800, maxHeight || 99999);
+//         return (
+//             <div>
+//                 <TimeseriesWidget
+//                     timeseriesModel={timeseriesModel}
+//                     num_channels={timeseriesInfo.num_channels}
+//                     channel_ids={timeseriesInfo.channel_ids}
+//                     channel_locations={timeseriesInfo.channel_locations}
+//                     num_timepoints={timeseriesInfo.num_timepoints}
+//                     y_offsets={timeseriesInfo.y_offsets}
+//                     y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
+//                     width={width0}
+//                     height={height0}
+//                     leftPanels={leftPanels}
+//                 />
+//             </div>
+//         )
+//     }
+//     else {
+//         return (
+//             <div>TimeseriesView</div>
+//         );
+//     }
+// }
 
 /*
 class TimeseriesViewInnerOld extends Component {

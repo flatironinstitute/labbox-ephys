@@ -11,7 +11,7 @@ function Home() {
             <p />
             <Typography component="p">
                 Project home:
-                {" "}<a href="https://github.com/laboratorybox/labbox-ephys" target="_blank">labbox-ephys</a>
+                {" "}<a href="https://github.com/laboratorybox/labbox-ephys" target="_blank" rel="noopener noreferrer">labbox-ephys</a>
             </Typography>
             <p />
             <Typography component="p">

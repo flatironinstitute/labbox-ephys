@@ -69,7 +69,8 @@ See [docker/build_docker.sh](docker/build_docker.sh)
         - build app bundle outside of container
         - parse version from package.json
     - Timeseries view for recordings
-* 0.1.6
+* 0.1.6 [in progress]
+    - Code cleanup - separate out ephys-specific code
     - Run spike sorting
 * 0.1.7
     - Select compute resource for spike sorting
