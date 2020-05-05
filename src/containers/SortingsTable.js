@@ -4,7 +4,7 @@ import NiceTable from '../components/NiceTable'
 import { deleteSortings } from '../actions';
 import { Link } from 'react-router-dom';
 
-const SortingsTable = ({ sortings, onDeleteSortings, recordingId }) => {
+const SortingsTable = ({ sortings, onDeleteSortings }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -13,9 +13,6 @@ const SortingsTable = ({ sortings, onDeleteSortings, recordingId }) => {
         });
     }
 
-    if (recordingId) {
-        sortings = sortings.filter(s => (s.recordingId === recordingId))
-    }
     sortings = sortByKey(sortings, 'sortingId');
 
     const rows = sortings.map(s => ({
@@ -25,7 +22,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, recordingId }) => {
             text: s.sortingId,
             element: <Link title={"View this sorting"} to={`/sorting/${s.sortingId}`}>{s.sortingId}</Link>,
         },
-        numUnits: s.sortingInfo.unit_ids.length
+        numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : ''
     }));
 
     const columns = [
@@ -51,9 +48,11 @@ const SortingsTable = ({ sortings, onDeleteSortings, recordingId }) => {
     );
 }
 
-const mapStateToProps = state => ({
-    sortings: state.sortings
-})
+const mapStateToProps = (state, ownProps) => (
+    {
+        sortings: ownProps.sortings || state.sortings
+    }
+)
 
 const mapDispatchToProps = dispatch => ({
     onDeleteSortings: sortingIds => dispatch(deleteSortings(sortingIds))

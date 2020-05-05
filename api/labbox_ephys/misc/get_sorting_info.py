@@ -1,10 +1,10 @@
 import hither2 as hi
 import numpy as np
-from .python import LabboxEphysRecordingExtractor, LabboxEphysSortingExtractor
+import labbox_ephys as le
 
 @hi.function('get_sorting_info', '0.1.0')
 def get_sorting_info(sorting_path, recording_path):
-    sorting = LabboxEphysSortingExtractor(sorting_path)
+    sorting = le.LabboxEphysSortingExtractor(sorting_path)
     # recording = LabboxEphysRecordingExtractor(recording_path, download=False)
     print(sorting.get_unit_ids())
     print(type(sorting.get_unit_ids()))

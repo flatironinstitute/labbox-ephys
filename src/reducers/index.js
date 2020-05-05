@@ -5,6 +5,8 @@ import recordingInfoByPath from './recordingInfoByPath'
 import sortingInfoByPath from './sortingInfoByPath'
 import recordings from './recordings'
 import sortings from './sortings'
+import sortingJobs from './sortingJobs'
+import jobHandlers from './jobHandlers'
 import persisting from './persisting'
 
 export default combineReducers({
@@ -14,5 +16,7 @@ export default combineReducers({
     sortingInfoByPath,
     recordings,
     sortings,
+    sortingJobs,
+    jobHandlers,
     persisting
 })

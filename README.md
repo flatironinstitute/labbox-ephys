@@ -71,6 +71,9 @@ See [docker/build_docker.sh](docker/build_docker.sh)
     - Timeseries view for recordings
 * 0.1.6 [in progress]
     - Code cleanup - separate out ephys-specific code
+    - Reorganize python files
+    - Improve mechanism for job submission from javascript to python
+    - Configure job handlers from GUI
     - Run spike sorting
 * 0.1.7
     - Select compute resource for spike sorting

@@ -24,6 +24,10 @@ export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
 
 export const SET_PERSIST_STATUS = 'SET_PERSIST_STATUS'
 
+export const ADD_SORTING_JOB = 'ADD_SORTING_JOB'
+export const SET_SORTING_JOB_STATUS = 'SET_SORTING_JOB_STATUS'
+export const DELETE_SORTING_JOBS = 'DELETE_SORTING_JOBS'
+
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export const addComputeResource = newComputeResource => ({
@@ -112,11 +116,17 @@ export const fetchRecordingInfo = recordingPath => {
 
     let recordingInfo;
     try {
-      recordingInfo = await runHitherJob(
+      const recordingInfoJob = await createHitherJob(
         'get_recording_info',
         { recording_path: recordingPath },
-        { kachery_config: { fr: 'default_readonly' } }
-      ).wait();
+        { 
+          kachery_config: { fr: 'default_readonly' },
+          hither_config: {
+            job_handler_id: state.jobHandlers.defaultJobHandlerId
+          }
+        }
+      )
+      recordingInfo = await recordingInfoJob.wait();
     }
     catch (err) {
       dispatch({
@@ -153,11 +163,12 @@ export const fetchSortingInfo = (sortingPath, recordingPath) => {
 
     let sortingInfo;
     try {
-      sortingInfo = await runHitherJob(
+      const sortingInfoJob = await createHitherJob(
         'get_sorting_info',
         { sorting_path: sortingPath, recording_path: recordingPath },
         { kachery_config: { fr: 'default_readonly' } }
-      ).wait();
+      );
+      sortingInfo = await sortingInfoJob.wait();
     }
     catch (err) {
       dispatch({
@@ -183,7 +194,7 @@ export const fetchSortingInfo = (sortingPath, recordingPath) => {
 const globalHitherJobStore = {};
 
 // not an action creator
-export const runHitherJob = (functionName, kwargs, opts={}) => {
+export const createHitherJob = async (functionName, kwargs, opts={}) => {
   const jobHash = objectHash({
     functionName: functionName,
     kwargs: kwargs,
@@ -200,9 +211,13 @@ export const runHitherJob = (functionName, kwargs, opts={}) => {
     runtime_info: null,
     status: 'pending'
   }
-  globalHitherJobStore[job] = job;
+  globalHitherJobStore[job.jobHash] = job;
   job.wait = async () => {
     while (true) {
+      while ((!job.jobId) && (job.status === 'pending')) {
+        // the api call must be happening elsewhere
+        await sleep(10);
+      }
       if (job.status === 'finished') {
         return job.result;
       }
@@ -213,22 +228,25 @@ export const runHitherJob = (functionName, kwargs, opts={}) => {
         job.status = 'running';
         let data;
         try {
-          const url = `/api/runHitherJob`;
-          const result = await axios.post(url, job);
+          const url = `/api/hither_job_wait`;
+          const result = await axios.post(url, {job_id: job.jobId});
           data = result.data;
         }
         catch (err) {
           job.status = 'error';
-          job.errorMessage = 'Error calling runHitherJob';
+          job.errorMessage = 'Error calling hitherJobWait';
+          break;
         }
         if (!data) {
           job.status = 'error';
           job.errorMessage = 'Unexpected: No data';
+          break;
         }
-        if (data.error) {
+        else if (data.error) {
           job.status = 'error';
           job.errorMessage = `Error running job: ${data.error_message}`;
           job.runtime_info = data.runtime_info;
+          break;
         }
         else {
           job.status = 'finished';
@@ -240,6 +258,20 @@ export const runHitherJob = (functionName, kwargs, opts={}) => {
         await sleep(50);
       }
     }
+    throw Error(job.errorMessage);
+  }
+  let j;
+  try {
+    j = await axios.post('/api/hither_job_run', job);
+  }
+  catch(err) {
+    job.status = 'error';
+    job.errorMessage = 'Error running job.';
+    throw(err);
+  }
+  job.jobId = j.data.job_id;
+  if (opts.wait) {
+    return await job.wait();
   }
   return job;
 }
@@ -267,4 +299,22 @@ export const deleteSortings = sortingIds => ({
 export const setPersistStatus = status => ({
   type: SET_PERSIST_STATUS,
   status: status
+})
+
+export const addSortingJob = (sortingJobId, recordingId, sorter) => ({
+  type: ADD_SORTING_JOB,
+  sortingJobId,
+  recordingId,
+  sorter
+})
+
+export const setSortingJobStatus = (sortingJobId, status) => ({
+  type: SET_SORTING_JOB_STATUS,
+  sortingJobId,
+  status
+})
+
+export const deleteSortingJobs = (sortingJobIds) => ({
+  type: DELETE_SORTING_JOBS,
+  sortingJobIds
 })

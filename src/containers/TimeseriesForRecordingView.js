@@ -4,10 +4,14 @@ import { withRouter } from 'react-router-dom';
 import TimeseriesView from '../components/TimeseriesView'
 import { SizeMe } from 'react-sizeme';
 
-const TimeseriesForRecordingView = ({ recordingId, recording }) => {
+const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => {
   if (!recording) {
     return <h3>{`Recording not found: ${recordingId}`}</h3>
   }
+
+  const hitherConfig = {
+    job_handler_id: jobHandlers.defaultJobHandlerId
+  };
 
   return (
     <div>
@@ -19,7 +23,12 @@ const TimeseriesForRecordingView = ({ recordingId, recording }) => {
             const height = 650; // hard-coded for now
             return (
               <div>
-                <TimeseriesView recordingPath={recording.recordingPath} width={width} height={height} />
+                <TimeseriesView
+                  recordingPath={recording.recordingPath}
+                  width={width}
+                  height={height}
+                  hitherConfig={hitherConfig}
+                />
               </div>
             );
           }
@@ -31,7 +40,8 @@ const TimeseriesForRecordingView = ({ recordingId, recording }) => {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0]
+  recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
+  jobHandlers: state.jobHandlers
 })
 
 const mapDispatchToProps = dispatch => ({

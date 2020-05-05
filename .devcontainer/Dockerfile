@@ -87,12 +87,12 @@ RUN apt-get update && \
     apt-get -y install docker-ce
 
 RUN pip install ipython jupyter jupyterlab
-RUN pip install pymongo
+RUN pip install pymongo dsnpython
 RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
-RUN pip install spikeextractors==0.8.2
+RUN pip install spikeextractors==0.7.2 spiketoolkit==0.5.2 spikesorters==0.2.5
 RUN pip install requests
 
 # nano
@@ -104,5 +104,7 @@ RUN apt-get update && apt-get install -y nginx
 COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
 RUN rm /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
+
+ENV PYTHONPATH=/workspaces/labbox-ephys/api
 
 RUN /bin/sh -c "usermod -aG docker vscode && newgrp docker"

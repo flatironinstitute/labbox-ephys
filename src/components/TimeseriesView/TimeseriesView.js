@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Mda from './Mda';
 import TimeseriesWidget from "./TimeseriesWidget";
 import TimeseriesModel from "./TimeseriesModel";
-import { runHitherJob } from '../../actions';
+import { createHitherJob } from '../../actions';
 
 const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
-    recordingPath
+    recordingPath,
+    hitherConfig
 }) => {
     // handle filter opts stuff
     const leftPanels = [];
@@ -18,6 +19,7 @@ const TimeseriesView = ({
             maxHeight={maxHeight}
             leftPanels={leftPanels}
             recordingPath={recordingPath}
+            hitherConfig={hitherConfig}
         />
     );
 }
@@ -25,7 +27,8 @@ const TimeseriesView = ({
 const TimeseriesViewInner = ({
     width, height, maxWidth, maxHeight,
     leftPanels,
-    recordingPath
+    recordingPath,
+    hitherConfig
 }) => {
 
     const [timeseriesInfo, setTimeseriesInfo] = useState(null);
@@ -35,19 +38,26 @@ const TimeseriesViewInner = ({
     const [widgetKey, setWidgetKey] = useState(0);
 
     const effect = async () => {
-        if (!timeseriesInfo) {
+        if ((!timeseriesInfo) && (status != 'error')) {
             let info;
             setStatus('calculating');
             setStatusMessage('Calculating timeseries info');
             try {
-                info = await runHitherJob(
+                const infoJob = await createHitherJob(
                     'calculate_timeseries_info',
                     { recording: { path: recordingPath } },
                     { kachery_config: { fr: 'default_readonly' } }
-                ).wait();
+                );
+                info = await infoJob.wait();
             }
             catch (err) {
+                console.error(err);
                 setStatusMessage('Problem calculating timeseries info.');
+                setStatus('error');
+                return;
+            }
+            if (!info) {
+                setStatusMessage('Unepected problem calculating timeseries info: info is null.');
                 setStatus('error');
                 return;
             }
@@ -62,7 +72,7 @@ const TimeseriesViewInner = ({
             model.onRequestDataSegment(async (ds_factor, segment_num) => {
                 let result;
                 try {
-                    result = await runHitherJob(
+                    const resultJob = await createHitherJob(
                         'get_timeseries_segment',
                         {
                             recording: {path: recordingPath},
@@ -70,8 +80,12 @@ const TimeseriesViewInner = ({
                             segment_num: segment_num,
                             segment_size: info.segment_size
                         },
-                        { kachery_config: { fr: 'default_readonly' } }
-                    ).wait();
+                        {
+                            kachery_config: { fr: 'default_readonly' },
+                            hither_config: hitherConfig || {}
+                        }
+                    );
+                    result = await resultJob.wait();
                 }
                 catch(err) {
                     console.error('Error getting timeseries segment', ds_factor, segment_num);

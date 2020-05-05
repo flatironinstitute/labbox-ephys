@@ -18,7 +18,7 @@ const ToolBarContent = () => {
                 </Typography>
             </Button>
             <span style={{marginLeft: 'auto'}} />
-            {/* <Button color="inherit" component={Link} to="/config" style={{marginLeft: 'auto'}}>Config</Button> */}
+            <Button color="inherit" component={Link} to="/config" style={{marginLeft: 'auto'}}>Config</Button>
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
         </Fragment>

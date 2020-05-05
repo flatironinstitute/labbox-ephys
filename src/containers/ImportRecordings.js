@@ -1,9 +1,10 @@
 import React, { useState, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, FormLabel, RadioGroup, FormControlLabel, Radio, Select, MenuItem, makeStyles } from '@material-ui/core'
+import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, Select, MenuItem, makeStyles } from '@material-ui/core'
 import { fetchRecordingInfo, addRecording } from '../actions'
 import { withRouter } from 'react-router-dom';
 import RecordingInfoView from '../components/RecordingInfoView';
+import RadioChoices from '../components/RadioChoices';
 
 const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, history }) => {
     const [method, setMethod] = useState('examples');
@@ -77,27 +78,6 @@ const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRe
             {form}
         </div>
     )
-}
-
-const RadioChoices = ({ label, value, onSetValue, options }) => {
-    return (
-        <FormControl component="fieldset">
-            <FormLabel component="legend">{label}</FormLabel>
-            <RadioGroup value={value} onChange={(evt) => onSetValue(evt.target.value)}>
-                {
-                    options.map(opt => (
-                        <FormControlLabel
-                            key={opt.label}
-                            value={opt.value}
-                            control={<Radio />}
-                            label={opt.label}
-                            disabled={opt.disabled ? true : false}
-                        />
-                    ))
-                }
-            </RadioGroup>
-        </FormControl>
-    );
 }
 
 const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, examplesMode }) => {
@@ -252,7 +232,8 @@ const SelectExampleRecordingPath = ({ value, onChange }) => {
     const examplePaths = [
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",
-        "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0"
+        "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0",
+        "sha1dir://fb52d510d2543634e247e0d2d1d4390be9ed9e20.synth_magland/datasets_noise10_K10_C4/001_synth"
     ]
 
     const classes = useStyles();

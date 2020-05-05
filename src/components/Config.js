@@ -2,16 +2,18 @@ import React from 'react';
 import ComputeResourcesTable from '../containers/ComputeResourcesTable';
 import DatabaseConfig from '../containers/DatabaseConfig';
 import { Button } from '@material-ui/core';
+import ConfigJobHandlers from '../containers/ConfigJobHandlers';
 
 const Config = () => {
   return (
     <div>
-      <h1>Database configuration</h1>
+      <ConfigJobHandlers />
+      {/* <h1>Database configuration</h1>
       <DatabaseConfigWrapper />
       <h1>Compute resources configuration</h1>
       <div style={{ maxWidth: 800 }}>
         <ComputeResourcesTable />
-      </div>
+      </div> */}
     </div>
   );
 }

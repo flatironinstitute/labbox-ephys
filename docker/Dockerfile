@@ -28,12 +28,12 @@ RUN apt-get install -y nano
 RUN pip install numpy
 
 RUN pip install ipython jupyter jupyterlab
-RUN pip install pymongo
+RUN pip install pymongo dnspython
 RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
-RUN pip install spikeextractors==0.8.2
+RUN pip install spikeextractors==0.7.2 spiketoolkit==0.5.2 spikesorters==0.2.5
 RUN pip install requests
 
 RUN pip install gunicorn
@@ -68,6 +68,8 @@ RUN rm /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 
 COPY docker/run_inside_container.sh /run_inside_container.sh
+
+ENV PYTHONPATH=/labbox-ephys/api
 
 EXPOSE 8080
 
