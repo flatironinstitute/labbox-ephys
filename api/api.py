@@ -87,6 +87,14 @@ def _get_job_handler_for_id(job_handler_id):
         global_data['job_handlers_by_id'][job_handler_id] = _create_job_handler_from_config(handler_configs[0])
     return _get_job_handler_for_id(job_handler_id)
 
+def _get_job_handler_for_role(job_handler_role):
+    state = get_state_from_disk()
+    role_assignments = state['jobHandlers'].get('roleAssignments', dict())
+    if job_handler_role not in role_assignments:
+        with global_data_lock:
+            return global_data['default_job_handler']
+    return _get_job_handler_for_id(role_assignments[job_handler_role])
+
 @app.route('/api/hither_job_run', methods=['POST'])
 def hither_job_run():
     global global_data
@@ -97,14 +105,18 @@ def hither_job_run():
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})
     job_handler_id = hither_config.get('job_handler_id', None)
+    job_handler_role = hither_config.get('job_handler_role', None)
     if job_handler_id is not None:
         hither_config['job_handler'] = _get_job_handler_for_id(job_handler_id)
-        if hither_config['job_handler'].is_remote:
-            hither_config['container'] = True
         del hither_config['job_handler_id']
+    elif job_handler_role is not None:
+        hither_config['job_handler'] = _get_job_handler_for_role(job_handler_role)
+        del hither_config['job_handler_role']
     else:
         with global_data_lock:
             hither_config['job_handler'] = global_data['default_job_handler']
+    if hither_config['job_handler'].is_remote:
+        hither_config['container'] = True
     with global_data_lock:
         with ka.config(**kachery_config):
             with hi.config(**hither_config):
@@ -137,9 +149,11 @@ def hither_job_wait(timeout=None):
                     runtime_info=job.runtime_info()
                 )
             if job.status() == 'finished':
+                result = job.result()
+                result = _resolve_files_in_item(result)
                 return dict(
                     error=False,
-                    result=job.result(),
+                    result=result,
                     runtime_info=job.runtime_info()
                 )
         elapsed = time.time() - timer
@@ -147,6 +161,28 @@ def hither_job_wait(timeout=None):
             return dict(
                 timeout=True
             )
+
+def _resolve_files_in_item(x):
+    if isinstance(x, hi.File):
+        if x._item_type == 'file':
+            path = ka.load_file(x._sha1_path)
+            assert path is not None, f'Unable to load file: {x._sha1_path}'
+            return path
+        elif x._item_type == 'ndarray':
+            return x.array()
+        else:
+            raise Exception(f'Unexpected item type: {x._item_type}')
+    elif type(x) == dict:
+        ret = dict()
+        for key, val in x.items():
+            ret[key] = _resolve_files_in_item(val)
+        return ret
+    elif type(x) == list:
+        return [_resolve_files_in_item(val) for val in x]
+    elif type(x) == tuple:
+        return tuple([_resolve_files_in_item(val) for val in x])
+    else:
+        return x
 
 # Handle the react history routing
 # So, for example, if we reload the page with some path in the url

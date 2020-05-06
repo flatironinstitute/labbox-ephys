@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { IconButton } from '@material-ui/core';
 import { Sync, CheckCircleOutline, SyncProblem } from '@material-ui/icons';
 import { connect } from 'react-redux';
-import { setPersistStatus, createHitherJob, addRecording } from '../actions';
-import { setDefaultJobHandler, setSortingJobHandler, addJobHandler } from '../actions/jobHandlers';
+import { setPersistStatus, createHitherJob, addRecording, addSorting } from '../actions';
+import { assignJobHandlerToRole, addJobHandler } from '../actions/jobHandlers';
 
 const lastSavedState = {
     recordings: null,
@@ -16,7 +16,7 @@ const sleep = m => new Promise(r => setTimeout(r, m))
 const PersistStateControl = ({
     recordings, onAddRecording,
     sortings, onAddSorting,
-    jobHandlers, onAddJobHandler, onSetDefaultJobHandler, onSetSortingJobHandler,
+    jobHandlers, onAddJobHandler, onAssignJobHandlerToRole,
     persistStatus, onSetPersistStatus
 }) => {
     let icon;
@@ -59,11 +59,15 @@ const PersistStateControl = ({
                 (s.sortings || []).forEach(x => {
                     onAddSorting(x);
                 });
-                ((s.jobHandlers || {}).jobHandlers || []).forEach(x => {
+                const jobHandlers = (s.jobHandlers || {}).jobHandlers || [];
+                const roleAssignments = (s.jobHandlers || {}).roleAssignments || {};
+                jobHandlers.forEach(x => {
                     onAddJobHandler(x);
                 });
-                onSetDefaultJobHandler((s.jobHandlers || {}).defaultJobHandlerId || null);
-                onSetSortingJobHandler((s.jobHandlers || {}).sortingJobHandlerId || null);
+                const roles = Object.keys(roleAssignments);
+                roles.forEach(r => {
+                    onAssignJobHandlerToRole({ role: r, jobHandlerId: roleAssignments[r] })
+                });
                 onSetPersistStatus('saved');
             }
             else if (persistStatus === 'pending') {
@@ -118,10 +122,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     onSetPersistStatus: (status) => dispatch(setPersistStatus(status)),
-    onAddRecording: (r) => dispatch(addRecording(r)),
-    onAddJobHandler: (jh) => dispatch(addJobHandler(jh)),
-    onSetDefaultJobHandler: id => dispatch(setDefaultJobHandler(id)),
-    onSetSortingJobHandler: id => dispatch(setSortingJobHandler(id))
+    onAddRecording: r => dispatch(addRecording(r)),
+    onAddSorting: s => dispatch(addSorting(s)),
+    onAddJobHandler: jh => dispatch(addJobHandler(jh)),
+    onAssignJobHandlerToRole: ({ role, jobHandlerId }) => dispatch(assignJobHandlerToRole({ role, jobHandlerId }))
 })
 
 export default connect(

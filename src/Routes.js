@@ -10,6 +10,7 @@ import Home from "./components/Home";
 import About from "./components/About";
 import { createHitherJob } from "./actions";
 import Config from './components/Config';
+import SortingView from './containers/SortingView';
 
 const TestPage = () => {
     const [pythonOutput, setPythonOutput] = useState('')
@@ -44,6 +45,12 @@ const Routes = () => {
                 path="/recording/:recordingId*"
                 render={({ match }) => (
                     <RecordingView recordingId={match.params.recordingId} />
+                )}
+            />
+            <Route
+                path="/sorting/:sortingId*"
+                render={({ match }) => (
+                    <SortingView sortingId={match.params.sortingId} />
                 )}
             />
             <Route

@@ -10,7 +10,7 @@ const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => 
   }
 
   const hitherConfig = {
-    job_handler_id: jobHandlers.defaultJobHandlerId
+    job_handler_role: 'general'
   };
 
   return (

@@ -15,7 +15,6 @@ const SortingJobsTable = ({ sortingJobs, onDeleteSortingJobs }) => {
 
     sortingJobs = sortByKey(sortingJobs, 'sortingJobId');
 
-    console.log(sortingJobs);
     const rows = sortingJobs.map(s => ({
         sortingJob: s,
         key: s.sortingJobId,

@@ -1,9 +1,8 @@
 import { ADD_JOB_HANDLER, SET_JOB_HANDLER_NAME, DELETE_JOB_HANDLER } from '../actions/jobHandlers'
-import { SET_DEFAULT_JOB_HANDLER, SET_SORTING_JOB_HANDLER } from '../actions/jobHandlers'
+import { ASSIGN_JOB_HANDLER_TO_ROLE } from '../actions/jobHandlers'
 
 const jobHandlers = (state = {
-    defaultJobHandlerId: null,
-    sortingJobHandlerId: null,
+    roleAssignments: {},
     jobHandlers: []
 }, action) => {
     switch (action.type) {
@@ -47,21 +46,22 @@ const jobHandlers = (state = {
                 ...state,
                 jobHandlers: state.jobHandlers.filter(jh => (jh.jobHandlerId !== action.jobHandlerId))
             };
-        case SET_DEFAULT_JOB_HANDLER:
-            if ((action.jobHandlerId !== null) && (!findJobHandlerById(state, action.jobHandlerId))) {
+        case ASSIGN_JOB_HANDLER_TO_ROLE:
+            if ((action.jobHandlerId) && (!findJobHandlerById(state, action.jobHandlerId))) {
                 throw Error(`Unable to find job handler with id: ${action.jobHandlerId}`);
+            }
+            let roleAssignments = state.roleAssignments;
+            if (!action.jobHandlerId) {
+                if (action.role in roleAssignments) {
+                    delete roleAssignments[action.role];
+                }
+            }
+            else {
+                roleAssignments = {...roleAssignments, [action.role]: action.jobHandlerId};
             }
             return {
                 ...state,
-                defaultJobHandlerId: action.jobHandlerId
-            }
-        case SET_SORTING_JOB_HANDLER:
-            if ((action.jobHandlerId !== null) && (!findJobHandlerById(state, action.jobHandlerId))) {
-                throw Error(`Unable to find job handler with id: ${action.jobHandlerId}`);
-            }
-            return {
-                ...state,
-                sortingJobHandlerId: action.jobHandlerId
+                roleAssignments
             }
         default:
             return state

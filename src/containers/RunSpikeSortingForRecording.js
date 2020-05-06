@@ -20,18 +20,18 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
     onAddSortingJob(sortingJobId, recordingId, sorter);
     onSetSortingJobStatus(sortingJobId, 'running');
     let result;
+    if (sorter.algorithm)
     try {
       const job = await createHitherJob(
-        'run_spike_sorting',
+        sorter.algorithm,
         {
-          recording: {path: recording.recordingPath},
-          sorter: sorter
+          recording: {path: recording.recordingPath}
+          // todo: sorting parameters go here
         },
         {
           kachery_config: {fr: 'default_readonly'},
           hither_config: {
-            job_handler_id: jobHandlers.sortingJobHandlerId,
-            container: true
+            job_handler_role: 'sorting'
           }
         }
       );
@@ -42,15 +42,15 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
       onSetSortingJobStatus(sortingJobId, 'error');
       return;
     }
-    if (!result.sorting_path) {
-      console.error('Problem: sorting_path not found.');
+    if (!result.sorting) {
+      console.error('Problem: sorting not found.');
       onSetSortingJobStatus(sortingJobId, 'error');
       return;
     }
     onSetSortingJobStatus(sortingJobId, 'finished');
     const sorting = {
         sortingId: sortingJobId,
-        sortingPath: result.sorting_path,
+        sortingPath: result.sorting,
         recordingId: recordingId,
         recordingPath: recording.recordingPath,
         sortingInfo: null

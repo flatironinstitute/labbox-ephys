@@ -3,6 +3,7 @@ import { Table, TableHead, TableRow, TableBody, TableCell } from '@material-ui/c
 
 const SortingInfoView = ({ sortingInfo  }) => {
     const si = sortingInfo;
+    if (!si) return <div>No sorting info found</div>;
     return (
         <div>
             <div style={{ width: 600 }}>

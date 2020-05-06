@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react'
-import { addJobHandler, setJobHandlerName, deleteJobHandler, setDefaultJobHandler, setSortingJobHandler } from '../actions/jobHandlers'
+import { addJobHandler, setJobHandlerName, deleteJobHandler, assignJobHandlerToRole } from '../actions/jobHandlers'
 import NiceTable from '../components/NiceTable'
 import { connect } from 'react-redux';
 import { Fab, Button } from '@material-ui/core';
@@ -10,9 +10,11 @@ import DropdownControl from '../components/DropdownControl';
 
 const ConfigJobHandlers = ({
     jobHandlers,
-    defaultJobHandlerId,
-    sortingJobHandlerId,
-    onAddJobHandler, onSetJobHandlerName, onDeleteJobHandler, onSetDefaultJobHandler, onSetSortingJobHandler
+    roleAssignments,
+    onAddJobHandler,
+    onSetJobHandlerName,
+    onDeleteJobHandler,
+    onAssignJobHandlerToRole
 }) => {
     const [mode, setMode] = useState('table');
 
@@ -42,31 +44,10 @@ const ConfigJobHandlers = ({
             content = <div>Unexpected mode</div>
             break;
     }
-    const jobHandlerOptions = [
-        {
-            label: 'NONE',
-            value: null
-        },
-        ...jobHandlers.map(jh => ({
-            label: jh.name,
-            value: jh.jobHandlerId
-        }))
-    ];
     return (
         <div>
             <h1>Job handler configuration</h1>
-            <DropdownControl
-                label="Default job handler"
-                options={jobHandlerOptions}
-                value={defaultJobHandlerId}
-                onSetValue={onSetDefaultJobHandler}
-            />
-            <DropdownControl
-                label="Sorting job handler"
-                options={jobHandlerOptions}
-                value={sortingJobHandlerId}
-                onSetValue={onSetSortingJobHandler}
-            />
+            <CJHRoles jobHandlers={jobHandlers} roleAssignments={roleAssignments} onAssignJobHandlerToRole={onAssignJobHandlerToRole} />
             <div style={{ paddingBottom: 15 }} />
             {content}
         </div>
@@ -109,6 +90,46 @@ const CJHTable = ({ jobHandlers, onDeleteJobHandler }) => {
             columns={columns}
             onDeleteRow={row => onDeleteJobHandler(row.jobHandler.jobHandlerId)}
         />
+    )
+}
+
+const CJHRoles = ({ jobHandlers, roleAssignments, onAssignJobHandlerToRole }) => {
+    const jobHandlerOptions = [
+        {
+            label: 'NONE',
+            value: ''
+        },
+        ...jobHandlers.map(jh => ({
+            label: jh.name,
+            value: jh.jobHandlerId
+        }))
+    ];
+    const roles = [
+        {
+            name: "general",
+            label: "General job handler"
+        },
+        {
+            name: "sorting",
+            label: "Spike sorting job handler"
+        }
+    ];
+    return (
+        <div className="CHJRoles">
+            {
+                roles.map((role) => (
+                    <Fragment key={role.label}>
+                        <DropdownControl
+                            label={role.label}
+                            options={jobHandlerOptions}
+                            value={roleAssignments[role.name] || ''}
+                            onSetValue={val => onAssignJobHandlerToRole({role: role.name, jobHandlerId: val})}
+                        />                
+                        <div style={{ paddingBottom: 15 }} />
+                    </Fragment>
+                ))
+            }
+        </div>
     )
 }
 
@@ -221,6 +242,7 @@ function randomString(num_chars) {
 
 const mapStateToProps = state => ({
     jobHandlers: state.jobHandlers.jobHandlers,
+    roleAssignments: state.jobHandlers.roleAssignments,
     defaultJobHandlerId: state.jobHandlers.defaultJobHandlerId,
     sortingJobHandlerId: state.jobHandlers.sortingJobHandlerId
 })
@@ -229,8 +251,7 @@ const mapDispatchToProps = dispatch => ({
     onAddJobHandler: jh => dispatch(addJobHandler(jh)),
     onSetJobHandlerName: (jobHandlerId, name) => dispatch(setJobHandlerName(jobHandlerId, name)),
     onDeleteJobHandler: (jobHandlerId) => dispatch(deleteJobHandler(jobHandlerId)),
-    onSetDefaultJobHandler: (jobHandlerId) => dispatch(setDefaultJobHandler(jobHandlerId)),
-    onSetSortingJobHandler: (jobHandlerId) => dispatch(setSortingJobHandler(jobHandlerId))
+    onAssignJobHandlerToRole: ({ role, jobHandlerId }) => dispatch(assignJobHandlerToRole({ role, jobHandlerId }))
 })
 
 export default connect(

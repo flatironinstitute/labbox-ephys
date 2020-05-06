@@ -1,7 +1,7 @@
 import React from 'react'
 import { FormGroup, FormControl, InputLabel, Input } from "@material-ui/core"
 
-const TextInputControl = ({ label, value, onSetValue, readOnly=false, disabled=false }) => {
+const TextInputControl = ({ label, value, onSetValue, readOnly = false, disabled = false }) => {
     const formGroupStyle = {
         paddingTop: 25
     };

@@ -18,6 +18,7 @@ export const DELETE_RECORDINGS = 'DELETE_RECORDINGS'
 
 export const ADD_SORTING = 'ADD_SORTING'
 export const DELETE_SORTINGS = 'DELETE_SORTINGS'
+export const SET_SORTING_INFO = 'SET_SORTING_INFO'
 
 export const INIT_FETCH_SORTING_INFO = 'INIT_FETCH_SORTING_INFO'
 export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
@@ -122,7 +123,7 @@ export const fetchRecordingInfo = recordingPath => {
         { 
           kachery_config: { fr: 'default_readonly' },
           hither_config: {
-            job_handler_id: state.jobHandlers.defaultJobHandlerId
+            job_handler_role: 'general'
           }
         }
       )
@@ -190,6 +191,12 @@ export const fetchSortingInfo = (sortingPath, recordingPath) => {
     });
   }
 }
+
+export const setSortingInfo = ({ sortingId, sortingInfo }) => ({
+    type: SET_SORTING_INFO,
+    sortingId,
+    sortingInfo
+})
 
 const globalHitherJobStore = {};
 

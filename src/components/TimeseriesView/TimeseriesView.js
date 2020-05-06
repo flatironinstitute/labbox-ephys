@@ -38,7 +38,7 @@ const TimeseriesViewInner = ({
     const [widgetKey, setWidgetKey] = useState(0);
 
     const effect = async () => {
-        if ((!timeseriesInfo) && (status != 'error')) {
+        if ((!timeseriesInfo) && (status !== 'error')) {
             let info;
             setStatus('calculating');
             setStatusMessage('Calculating timeseries info');
