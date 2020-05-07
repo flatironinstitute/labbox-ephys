@@ -1,4 +1,4 @@
-import { ADD_RECORDING, DELETE_RECORDINGS } from '../actions'
+import { ADD_RECORDING, DELETE_RECORDINGS, SET_RECORDING_INFO } from '../actions'
 
 const recordings = (state = [], action) => {
     switch (action.type) {
@@ -12,6 +12,18 @@ const recordings = (state = [], action) => {
             return state.filter(rec => (
                 !(rec.recordingId in exclude)
             ));
+        case SET_RECORDING_INFO:
+            const rec = state.filter(r => (r.recordingId === action.recordingId))[0];
+            if (!rec) {
+                throw Error(`Unable to find recording: ${action.recordingId}`);
+            }
+            return [
+                ...state.filter(r => (r.recordingId !== action.recordingId)),
+                {
+                    ...rec,
+                    recordingInfo: action.recordingInfo
+                }
+            ];
         default:
             return state
     }

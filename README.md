@@ -75,20 +75,22 @@ See [docker/build_docker.sh](docker/build_docker.sh)
     - Improve mechanism for job submission from javascript to python
     - Configure job handlers from GUI
     - Run spike sorting
+    - View sortings
+    - Read version from package.json to determine tag
+    - Refactor sortingInfo calculation
+    - Select compute resource for spike sorting and other stuff
+    - refactoring to remove fetchRecordingInfo and fetchSortingInfo
 * 0.1.7
-    - Select compute resource for spike sorting
-* 0.1.8
     - Summary plots of spike sorting
-* 0.1.9
+* 0.1.8
     -Import from local disk
 
 * Other
-    
-    
-    - Read version from package.json to determine tag
-
-* Less important
+    - when a recording is deleted, we must delete the associated sortings!
+    - Store private job handler configuration on disk only (not in the redux state)
+    - Import/export job handler configuration
+    - Fix fetchSortingInfo and fetchRecordingInfo stuff
+    - sourcemark
     - Design a logo (replace logo.svg and public/favicon.ico)
-    - Color for PersistStateControl icon - different colors for different states
-    - More efficient serialization to disk - and something better than /data/state.json
+    - More efficient serialization to disk
     - Export/import persisted state

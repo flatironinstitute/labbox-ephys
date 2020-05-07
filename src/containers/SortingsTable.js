@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable'
-import { deleteSortings } from '../actions';
+import { deleteSortings, setSortingInfo, sleep, createHitherJob } from '../actions';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@material-ui/core';
 
-const SortingsTable = ({ sortings, onDeleteSortings }) => {
+const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -15,6 +16,35 @@ const SortingsTable = ({ sortings, onDeleteSortings }) => {
 
     sortings = sortByKey(sortings, 'sortingId');
 
+    const effect = async () => {
+        for (const sor of sortings) {
+            if (!sor.sortingInfo) {
+                let info;
+                try {
+                    // for a nice gui effect
+                    await sleep(400);
+                    const sortingInfoJob = await createHitherJob(
+                        'get_sorting_info',
+                        { sorting_path: sor.sortingPath, recording_path: sor.recordingPath },
+                        {
+                            kachery_config: { fr: 'default_readonly' },
+                            hither_config: {
+                                job_handler_role: 'general'
+                            }
+                        }
+                    )
+                    info = await sortingInfoJob.wait();
+                    onSetSortingInfo({ sortingId: sor.sortingId, sortingInfo: info });
+                }
+                catch (err) {
+                    console.error(err);
+                    return;
+                }
+            }
+        }
+    }
+    useEffect(() => { effect() })
+
     const rows = sortings.map(s => ({
         sorting: s,
         key: s.sortingId,
@@ -22,7 +52,7 @@ const SortingsTable = ({ sortings, onDeleteSortings }) => {
             text: s.sortingId,
             element: <Link title={"View this sorting"} to={`/sorting/${s.sortingId}`}>{s.sortingId}</Link>,
         },
-        numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : ''
+        numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
     }));
 
     const columns = [
@@ -55,7 +85,8 @@ const mapStateToProps = (state, ownProps) => (
 )
 
 const mapDispatchToProps = dispatch => ({
-    onDeleteSortings: sortingIds => dispatch(deleteSortings(sortingIds))
+    onDeleteSortings: sortingIds => dispatch(deleteSortings(sortingIds)),
+    onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo }))
 })
 
 export default connect(

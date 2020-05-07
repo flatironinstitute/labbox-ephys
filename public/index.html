@@ -23,6 +23,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+
     <title>Labbox-ephys</title>
   </head>
   <body>
@@ -38,5 +39,14 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <!-- 
+    Thanks: https://github.com/dvas0004/bokeh-react/blob/master/public/index.html
+    Easier to add via CDN than npm imports due to import errors 
+    https://github.com/bokeh/bokeh/issues/8197
+  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/2.0.2/bokeh.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/2.0.2/bokeh-widgets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/2.0.2/bokeh-tables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/2.0.2/bokeh-api.min.js"></script>
   </body>
 </html>

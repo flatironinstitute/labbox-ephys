@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable'
-import { deleteRecordings } from '../actions';
+import { deleteRecordings, setRecordingInfo, sleep, createHitherJob } from '../actions';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@material-ui/core';
 
-const RecordingsTable = ({ recordings, onDeleteRecordings }) => {
+const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -15,6 +16,35 @@ const RecordingsTable = ({ recordings, onDeleteRecordings }) => {
 
     recordings = sortByKey(recordings, 'recordingId');
 
+    const effect = async () => {
+        for (const rec of recordings) {
+            if (!rec.recordingInfo) {
+                let info;
+                try {
+                    // for a nice gui effect
+                    await sleep(400);
+                    const recordingInfoJob = await createHitherJob(
+                        'get_recording_info',
+                        { recording_path: rec.recordingPath },
+                        {
+                            kachery_config: { fr: 'default_readonly' },
+                            hither_config: {
+                                job_handler_role: 'general'
+                            }
+                        }
+                    )
+                    info = await recordingInfoJob.wait();
+                    onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+                }
+                catch (err) {
+                    console.error(err);
+                    return;
+                }
+            }
+        }
+    }
+    useEffect(() => { effect() })
+
     const rows = recordings.map(rec => ({
         recording: rec,
         key: rec.recordingId,
@@ -22,9 +52,9 @@ const RecordingsTable = ({ recordings, onDeleteRecordings }) => {
             text: rec.recordingId,
             element: <Link title={"View this recording"} to={`/recording/${rec.recordingId}`}>{rec.recordingId}</Link>,
         },
-        numChannels: rec.recordingInfo.channel_ids.length,
-        samplingFrequency: rec.recordingInfo.sampling_frequency,
-        durationMinutes: rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60
+        numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
+        samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
+        durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
     }));
 
     const columns = [
@@ -63,7 +93,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    onDeleteRecordings: recordingIds => dispatch(deleteRecordings(recordingIds))
+    onDeleteRecordings: recordingIds => dispatch(deleteRecordings(recordingIds)),
+    onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
 })
 
 export default connect(

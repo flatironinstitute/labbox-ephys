@@ -1,13 +1,6 @@
 const axios = require('axios');
 const objectHash = require('object-hash');
 
-export const ADD_COMPUTE_RESOURCE = 'ADD_COMPUTE_RESOURCE'
-export const DELETE_COMPUTE_RESOURCE = 'DELETE_COMPUTE_RESOURCE'
-export const RECEIVE_COMPUTE_RESOURCE_JOB_STATS = 'RECEIVE_COMPUTE_RESOURCE_JOB_STATS'
-export const INIT_FETCH_COMPUTE_RESOURCE_JOB_STATS = 'INIT_FETCH_COMPUTE_RESOURCE_JOB_STATS'
-export const RECEIVE_COMPUTE_RESOURCE_ACTIVE = 'RECEIVE_COMPUTE_RESOURCE_ACTIVE'
-export const INIT_FETCH_COMPUTE_RESOURCE_ACTIVE = 'INIT_FETCH_COMPUTE_RESOURCE_ACTIVE'
-
 export const SET_DATABASE_CONFIG = 'SET_DATABASE_CONFIG'
 
 export const INIT_FETCH_RECORDING_INFO = 'INIT_FETCH_RECORDING_INFO'
@@ -15,6 +8,7 @@ export const RECEIVE_RECORDING_INFO = 'RECEIVE_RECORDING_INFO'
 
 export const ADD_RECORDING = 'ADD_RECORDING'
 export const DELETE_RECORDINGS = 'DELETE_RECORDINGS'
+export const SET_RECORDING_INFO = 'SET_RECORDING_INFO'
 
 export const ADD_SORTING = 'ADD_SORTING'
 export const DELETE_SORTINGS = 'DELETE_SORTINGS'
@@ -29,168 +23,12 @@ export const ADD_SORTING_JOB = 'ADD_SORTING_JOB'
 export const SET_SORTING_JOB_STATUS = 'SET_SORTING_JOB_STATUS'
 export const DELETE_SORTING_JOBS = 'DELETE_SORTING_JOBS'
 
-const sleep = m => new Promise(r => setTimeout(r, m))
-
-export const addComputeResource = newComputeResource => ({
-  type: ADD_COMPUTE_RESOURCE,
-  newComputeResource
-})
-
-export const deleteComputeResource = computeResourceName => ({
-  type: DELETE_COMPUTE_RESOURCE,
-  computeResourceName
-})
-
-export const fetchComputeResourceJobStats = computeResourceName => {
-  return async (dispatch, getState) => {
-    const state = getState();
-    let cr = findComputeResource(state, computeResourceName);
-    if (!cr) return;
-    if (cr.fetchingJobStats) return;
-    dispatch({
-      type: INIT_FETCH_COMPUTE_RESOURCE_JOB_STATS,
-      computeResourceName: computeResourceName
-    });
-    await sleep(50);
-
-    const url = `/api/getComputeResourceJobStats?computeResourceId=${cr.computeResourceId}&mongoUri=${encodeURIComponent(cr.mongoUri)}&databaseName=${cr.databaseName}`;
-    try {
-      const result = await axios.get(url);
-      const jobStats = result.data;
-
-      dispatch({
-        type: RECEIVE_COMPUTE_RESOURCE_JOB_STATS,
-        computeResourceName: computeResourceName,
-        jobStats: jobStats
-      });
-    }
-    catch (err) {
-      console.error(err);
-      dispatch({
-        type: RECEIVE_COMPUTE_RESOURCE_JOB_STATS,
-        computeResourceName: computeResourceName,
-        jobStats: { error: true }
-      });
-    }
-  }
-}
-
-export const fetchComputeResourceActive = computeResourceName => {
-  return async (dispatch, getState) => {
-    const state = getState();
-    let cr = findComputeResource(state, computeResourceName);
-    if (!cr) return;
-    if (cr.fetchingActive) return;
-    dispatch({
-      type: INIT_FETCH_COMPUTE_RESOURCE_ACTIVE,
-      computeResourceName: computeResourceName
-    });
-    await sleep(50);
-    dispatch({
-      type: RECEIVE_COMPUTE_RESOURCE_ACTIVE,
-      computeResourceName: computeResourceName,
-      active: true
-    });
-  }
-}
-
-const findComputeResource = (state, computeResourceName) => {
-  return state.computeResources.filter(r => (r.computeResourceName === computeResourceName))[0]
-}
+export const sleep = m => new Promise(r => setTimeout(r, m));
 
 export const setDatabaseConfig = databaseConfig => ({
   type: SET_DATABASE_CONFIG,
   databaseConfig
 })
-
-export const fetchRecordingInfo = recordingPath => {
-  return async (dispatch, getState) => {
-    const state = getState();
-    let s = state.recordingInfoByPath || {};
-    if ((s[recordingPath]) && (s[recordingPath].fetching)) {
-      return;
-    }
-    dispatch({
-      type: INIT_FETCH_RECORDING_INFO,
-      recordingPath: recordingPath
-    });
-
-    let recordingInfo;
-    try {
-      const recordingInfoJob = await createHitherJob(
-        'get_recording_info',
-        { recording_path: recordingPath },
-        { 
-          kachery_config: { fr: 'default_readonly' },
-          hither_config: {
-            job_handler_role: 'general'
-          }
-        }
-      )
-      recordingInfo = await recordingInfoJob.wait();
-    }
-    catch (err) {
-      dispatch({
-        type: RECEIVE_RECORDING_INFO,
-        recordingPath: recordingPath,
-        error: true,
-        errorMessage: err.message,
-        recordingInfo: null
-      });
-      return;
-    }
-    dispatch({
-      type: RECEIVE_RECORDING_INFO,
-      recordingPath: recordingPath,
-      error: false,
-      recordingInfo: recordingInfo
-    });
-  }
-}
-
-export const fetchSortingInfo = (sortingPath, recordingPath) => {
-  return async (dispatch, getState) => {
-    const state = getState();
-    const srPath = sortingPath + '::::' + recordingPath;
-    let s = state.sortingInfoByPath || {};
-    if ((s[srPath]) && (s[srPath].fetching)) {
-      return;
-    }
-    dispatch({
-      type: INIT_FETCH_SORTING_INFO,
-      sortingPath: sortingPath,
-      recordingPath: recordingPath
-    });
-
-    let sortingInfo;
-    try {
-      const sortingInfoJob = await createHitherJob(
-        'get_sorting_info',
-        { sorting_path: sortingPath, recording_path: recordingPath },
-        { kachery_config: { fr: 'default_readonly' } }
-      );
-      sortingInfo = await sortingInfoJob.wait();
-    }
-    catch (err) {
-      dispatch({
-        type: RECEIVE_SORTING_INFO,
-        sortingPath: sortingPath,
-        recordingPath: recordingPath,
-        error: true,
-        errorMessage: err.message,
-        sortingInfo: null
-      });
-      return;
-    }
-    dispatch({
-      type: RECEIVE_SORTING_INFO,
-      sortingPath: sortingPath,
-      recordingPath: recordingPath,
-      error: false,
-      sortingInfo: sortingInfo
-    });
-  }
-}
 
 export const setSortingInfo = ({ sortingId, sortingInfo }) => ({
     type: SET_SORTING_INFO,
@@ -291,6 +129,12 @@ export const addRecording = recording => ({
 export const deleteRecordings = recordingIds => ({
   type: DELETE_RECORDINGS,
   recordingIds: recordingIds
+})
+
+export const setRecordingInfo = ({ recordingId, recordingInfo }) => ({
+  type: SET_RECORDING_INFO,
+  recordingId,
+  recordingInfo
 })
 
 export const addSorting = sorting => ({

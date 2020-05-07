@@ -1,12 +1,12 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, Select, MenuItem, makeStyles } from '@material-ui/core'
-import { fetchRecordingInfo, addRecording } from '../actions'
+import { addRecording, createHitherJob, sleep } from '../actions'
 import { withRouter } from 'react-router-dom';
 import RecordingInfoView from '../components/RecordingInfoView';
 import RadioChoices from '../components/RadioChoices';
 
-const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, history }) => {
+const ImportRecordings = ({ existingRecordingIds, onAddRecording, history }) => {
     const [method, setMethod] = useState('examples');
 
     const handleDone = () => {
@@ -17,9 +17,7 @@ const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRe
     if (method === 'spikeforest') {
         form = (
             <ImportRecordingFromSpikeForest
-                recordingInfoByPath={recordingInfoByPath}
                 existingRecordingIds={existingRecordingIds}
-                onFetchRecordingInfo={onFetchRecordingInfo}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
             />
@@ -29,9 +27,7 @@ const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRe
         form = (
             <ImportRecordingFromSpikeForest
                 examplesMode={true}
-                recordingInfoByPath={recordingInfoByPath}
                 existingRecordingIds={existingRecordingIds}
-                onFetchRecordingInfo={onFetchRecordingInfo}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
             />
@@ -80,40 +76,59 @@ const ImportRecordings = ({ recordingInfoByPath, existingRecordingIds, onFetchRe
     )
 }
 
-const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingRecordingIds, onFetchRecordingInfo, onAddRecording, examplesMode }) => {
+const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRecording, examplesMode }) => {
     const [recordingPath, setRecordingPath] = useState('');
+    const [recordingInfo, setRecordingInfo] = useState(null);
+    const [recordingInfoStatus, setRecordingInfoStatus] = useState('');
     const [recordingId, setRecordingId] = useState('');
     const [errors, setErrors] = useState({});
 
-    const recordingInfoObject = recordingInfoByPath[recordingPath];
-    if ((recordingPath) && (!recordingInfoObject)) {
-        setTimeout(function () {
-            onFetchRecordingInfo(recordingPath);
-        }, 0);
+    const effect = async () => {
+        if ((recordingPath) && (!recordingInfo)) {
+            setRecordingInfoStatus('calculating');
+            let info;
+            try {
+                await sleep(500);
+                const recordingInfoJob = await createHitherJob(
+                    'get_recording_info',
+                    { recording_path: recordingPath },
+                    {
+                        kachery_config: { fr: 'default_readonly' },
+                        hither_config: {
+                            job_handler_role: 'general'
+                        }
+                    }
+                )
+                info = await recordingInfoJob.wait();
+                setRecordingInfo(info);
+                setRecordingInfoStatus('finished');
+            }
+            catch (err) {
+                console.error(err);
+                setRecordingInfoStatus('error');
+                return;
+            }
+        }
     }
-    const readyToImport = (
-        (recordingInfoObject) &&
-        (!recordingInfoObject.fetching) &&
-        (!recordingInfoObject.error)
-    );
+    useEffect(() => {effect()});
 
-    if ((readyToImport) && (recordingId === '<>')) {
+    if ((recordingInfo) && (recordingId === '<>')) {
         setRecordingId(autoDetermineRecordingIdFromPath(recordingPath))
     }
-    if ((!readyToImport) && (recordingId !== '<>')) {
+    if ((!recordingInfo) && (recordingId !== '<>')) {
         setRecordingId('<>');
     }
 
     const handleImport = () => {
         let newErrors = {};
         if (!recordingId) {
-            newErrors.recordingId = {type: 'required'};
+            newErrors.recordingId = { type: 'required' };
         }
         if (recordingId in Object.fromEntries(existingRecordingIds.map(id => [id, true]))) {
-            newErrors.recordingId = {type: 'duplicate-id'};
+            newErrors.recordingId = { type: 'duplicate-id' };
         }
         if (!recordingPath) {
-            newErrors.recordingPath = {type: 'required'};
+            newErrors.recordingPath = { type: 'required' };
         }
         setErrors(newErrors);
         if (!isEmptyObject(newErrors)) {
@@ -121,8 +136,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingR
         }
         const recording = {
             recordingId,
-            recordingPath,
-            recordingInfo: recordingInfoObject.recordingInfo
+            recordingPath
         }
         onAddRecording(recording);
         onDone && onDone();
@@ -140,7 +154,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingR
                     errors={errors}
                 />
 
-                {readyToImport && (
+                {recordingInfo && (
                     <Fragment>
                         <RecordingIdControl
                             value={recordingId}
@@ -160,12 +174,16 @@ const ImportRecordingFromSpikeForest = ({ onDone, recordingInfoByPath, existingR
                 )}
 
                 {
-                    recordingInfoObject ? (
-                        <RecordingInfoObjectView
-                            recordingPath={recordingPath}
-                            recordingInfoObject={recordingInfoObject}
-                        />
-                    ) : <span />
+                    <Fragment>
+                        <h3>{recordingPath}</h3>
+                        {
+                            recordingInfoStatus === 'calculating' ? (
+                                <CircularProgress />
+                            ) : (
+                                    recordingInfo && <RecordingInfoView recordingInfo={recordingInfo} />
+                                )
+                        }
+                    </Fragment>
                 }
             </form >
         </div>
@@ -200,23 +218,6 @@ const maxLength = "Your input exceeds maximum length";
 const errorMessage = error => {
     return <div className="invalid-feedback">{error}</div>;
 };
-
-const RecordingInfoObjectView = ({ recordingPath, recordingInfoObject }) => {
-    let x;
-    if (recordingInfoObject.fetching) {
-        x = <CircularProgress />;
-    }
-    else if (recordingInfoObject.error) {
-        x = <span>{`Error loading recording info: ${recordingInfoObject.errorMessage}`}</span>
-    }
-    else {
-        return <RecordingInfoView recordingInfo={recordingInfoObject.recordingInfo} />
-    }
-    return <div>
-        <h3>{recordingPath}</h3>
-        <div>{x}</div>
-    </div>;
-}
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -275,7 +276,7 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
                 )
             }
             <FormGroup style={formGroupStyle}>
-                <FormControl style={{visibility: examplesMode ? "hidden" : "visible"}}>
+                <FormControl style={{ visibility: examplesMode ? "hidden" : "visible" }}>
                     <InputLabel>Recording path</InputLabel>
                     <Input
                         name="recordingPath"
@@ -326,14 +327,11 @@ function isEmptyObject(x) {
     return Object.keys(x).length === 0;
 }
 
-
 const mapStateToProps = state => ({
-    recordingInfoByPath: state.recordingInfoByPath,
     existingRecordingIds: state.recordings.map(rec => rec.recordingId)
 })
 
 const mapDispatchToProps = dispatch => ({
-    onFetchRecordingInfo: (recordingPath) => dispatch(fetchRecordingInfo(recordingPath)),
     onAddRecording: (recording) => dispatch(addRecording(recording))
 })
 

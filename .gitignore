@@ -3,7 +3,7 @@
 # python
 __pycache__
 
-data/state.json
+data
 
 # dependencies
 /node_modules

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
-import { Grid, CircularProgress } from '@material-ui/core';
-import { withRouter, Link } from 'react-router-dom';
+import { CircularProgress } from '@material-ui/core';
+import { withRouter } from 'react-router-dom';
 import { setSortingInfo, createHitherJob } from '../actions';
+import PyBokeh from './PyBokeh';
 
 const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
@@ -36,6 +37,12 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
           <SortingInfoView sortingInfo={sorting.sortingInfo} />
         )
       }
+      <div>
+        <PyBokeh
+          functionName={'test_bokeh2'}
+          functionArgs={{}}
+        />
+      </div>
     </div>
   );
 }

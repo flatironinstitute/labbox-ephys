@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { IconButton } from '@material-ui/core';
 import { Sync, CheckCircleOutline, SyncProblem } from '@material-ui/icons';
 import { connect } from 'react-redux';
-import { setPersistStatus, createHitherJob, addRecording, addSorting } from '../actions';
+import { setPersistStatus, createHitherJob, addRecording, addSorting, sleep } from '../actions';
 import { assignJobHandlerToRole, addJobHandler } from '../actions/jobHandlers';
 
 const lastSavedState = {
@@ -10,8 +10,6 @@ const lastSavedState = {
     sortings: null,
     jobHandlers: null
 };
-
-const sleep = m => new Promise(r => setTimeout(r, m))
 
 const PersistStateControl = ({
     recordings, onAddRecording,

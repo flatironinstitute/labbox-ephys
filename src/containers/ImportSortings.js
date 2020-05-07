@@ -1,11 +1,11 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, FormLabel, RadioGroup, FormControlLabel, Radio, Select, MenuItem, makeStyles } from '@material-ui/core'
-import { fetchSortingInfo, addSorting } from '../actions'
+import { addSorting, sleep, createHitherJob } from '../actions'
 import { withRouter } from 'react-router-dom';
 import SortingInfoView from '../components/SortingInfoView';
 
-const ImportSortings = ({ recordingId, recordings, sortingInfoByPath, existingSortingIds, onFetchSortingInfo, onAddSorting, history }) => {
+const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSorting, history }) => {
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
@@ -25,9 +25,7 @@ const ImportSortings = ({ recordingId, recordings, sortingInfoByPath, existingSo
                 examplesMode={false}
                 recordingId={recordingId}
                 recordingPath={recordingPath}
-                sortingInfoByPath={sortingInfoByPath}
                 existingSortingIds={existingSortingIds}
-                onFetchSortingInfo={onFetchSortingInfo}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
             />
@@ -39,9 +37,7 @@ const ImportSortings = ({ recordingId, recordings, sortingInfoByPath, existingSo
                 examplesMode={true}
                 recordingId={recordingId}
                 recordingPath={recordingPath}
-                sortingInfoByPath={sortingInfoByPath}
                 existingSortingIds={existingSortingIds}
-                onFetchSortingInfo={onFetchSortingInfo}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
             />
@@ -112,28 +108,48 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
     );
 }
 
-const ImportSortingFromSpikeForest = ({ onDone, sortingInfoByPath, existingSortingIds, onFetchSortingInfo, onAddSorting, examplesMode, recordingId, recordingPath }) => {
+const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting, examplesMode, recordingId, recordingPath }) => {
     const [sortingPath, setSortingPath] = useState('');
     const [sortingId, setSortingId] = useState('');
     const [errors, setErrors] = useState({});
+    const [sortingInfo, setSortingInfo] = useState(null);
+    const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
 
-    const srPath = sortingPath + '::::' + recordingPath;
-    const sortingInfoObject = sortingInfoByPath[srPath];
-    if ((sortingPath) && (!sortingInfoObject)) {
-        setTimeout(function () {
-            onFetchSortingInfo(sortingPath, recordingPath);
-        }, 0);
+    const effect = async () => {
+        if ((sortingPath) && (!sortingInfo)) {
+            setSortingInfoStatus('calculating');
+            let info;
+            try {
+                await sleep(500);
+                const sortingInfoJob = await createHitherJob(
+                    'get_sorting_info',
+                    { sorting_path: sortingPath, recording_path: recordingPath },
+                    {
+                        kachery_config: { fr: 'default_readonly' },
+                        hither_config: {
+                            job_handler_role: 'general'
+                        }
+                    }
+                )
+                info = await sortingInfoJob.wait();
+                setSortingInfo(info);
+                setSortingInfoStatus('finished');
+            }
+            catch (err) {
+                console.error(err);
+                setSortingInfoStatus('error');
+                return;
+            }
+        }
     }
-    const readyToImport = (
-        (sortingInfoObject) &&
-        (!sortingInfoObject.fetching) &&
-        (!sortingInfoObject.error)
-    );
+    useEffect(() => {effect()});
 
-    if ((readyToImport) && (sortingId === '<>')) {
+    // const srPath = sortingPath + '::::' + recordingPath;
+
+    if ((sortingInfo) && (sortingId === '<>')) {
         setSortingId(autoDetermineSortingIdFromPath(sortingPath))
     }
-    if ((!readyToImport) && (sortingId !== '<>')) {
+    if ((!sortingInfo) && (sortingId !== '<>')) {
         setSortingId('<>');
     }
 
@@ -156,8 +172,7 @@ const ImportSortingFromSpikeForest = ({ onDone, sortingInfoByPath, existingSorti
             sortingId,
             sortingPath,
             recordingId,
-            recordingPath,
-            sortingInfo: sortingInfoObject.sortingInfo
+            recordingPath
         }
         onAddSorting(sorting);
         onDone && onDone();
@@ -176,7 +191,7 @@ const ImportSortingFromSpikeForest = ({ onDone, sortingInfoByPath, existingSorti
                     recordingPath={recordingPath}
                 />
 
-                {readyToImport && (
+                {sortingInfo && (
                     <Fragment>
                         <SortingIdControl
                             value={sortingId}
@@ -194,14 +209,17 @@ const ImportSortingFromSpikeForest = ({ onDone, sortingInfoByPath, existingSorti
                         </FormGroup>
                     </Fragment>
                 )}
-
                 {
-                    sortingInfoObject ? (
-                        <SortingInfoObjectView
-                            sortingPath={sortingPath}
-                            sortingInfoObject={sortingInfoObject}
-                        />
-                    ) : <span />
+                    <Fragment>
+                        <h3>{sortingPath}</h3>
+                        {
+                            sortingInfoStatus === 'calculating' ? (
+                                <CircularProgress />
+                            ) : (
+                                    sortingInfo && <SortingInfoView sortingInfo={sortingInfo} />
+                                )
+                        }
+                    </Fragment>
                 }
             </form >
         </div>
@@ -236,23 +254,6 @@ const maxLength = "Your input exceeds maximum length";
 const errorMessage = error => {
     return <div className="invalid-feedback">{error}</div>;
 };
-
-const SortingInfoObjectView = ({ sortingPath, sortingInfoObject }) => {
-    let x;
-    if (sortingInfoObject.fetching) {
-        x = <CircularProgress />;
-    }
-    else if (sortingInfoObject.error) {
-        x = <span>{`Error loading sorting info: ${sortingInfoObject.errorMessage}`}</span>
-    }
-    else {
-        return <SortingInfoView sortingInfo={sortingInfoObject.sortingInfo} />
-    }
-    return <div>
-        <h3>{sortingPath}</h3>
-        <div>{x}</div>
-    </div>;
-}
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -374,12 +375,10 @@ function isEmptyObject(x) {
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    sortingInfoByPath: state.sortingInfoByPath,
     existingSortingIds: state.sortings.map(s => s.sortingId)
 })
 
 const mapDispatchToProps = dispatch => ({
-    onFetchSortingInfo: (sortingPath, recordingPath) => dispatch(fetchSortingInfo(sortingPath, recordingPath)),
     onAddSorting: (sorting) => dispatch(addSorting(sorting))
 })
 

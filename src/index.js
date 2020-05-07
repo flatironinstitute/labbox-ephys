@@ -31,19 +31,23 @@ import Routes from './Routes';
 // Create the store
 const store = createStore(rootReducer, {}, applyMiddleware(thunk))
 
+const content = (
+  // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
+  <ThemeProvider theme={theme}>
+    <Provider store={store}>
+      <Router>
+        <AppContainer>
+          <Routes />
+        </AppContainer>
+      </Router>
+    </Provider>
+  </ThemeProvider>
+  // </React.StrictMode>
+);
+
 // Render the app
 ReactDOM.render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <Router>
-          <AppContainer>
-            <Routes />
-          </AppContainer>
-        </Router>
-      </Provider>
-    </ThemeProvider>
-  </React.StrictMode>,
+  content,
   document.getElementById('root')
 );
 

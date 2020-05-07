@@ -39,29 +39,6 @@ def decodeURIComponent(x):
 def index():
     return app.send_static_file('index.html')
 
-@app.route('/api/getComputeResourceJobStats')
-def getComputeResourceJobStats():
-    computeResourceId = request.args.get('computeResourceId')
-    mongoUri = decodeURIComponent(request.args.get('mongoUri'))
-    databaseName = request.args.get('databaseName')
-    database = hi.Database(
-        mongo_url=mongoUri,
-        database=databaseName
-    )
-    db = database.collection('hither2_jobs')
-    query = dict(
-        compute_resource_id=computeResourceId
-    )
-    docs = [doc for doc in db.find(query)]
-
-    return dict(
-        numTotal=len(docs),
-        numQueued=len([doc for doc in docs if doc['status'] == 'queued']),
-        numRunning=len([doc for doc in docs if doc['status'] == 'running']),
-        numFinished=len([doc for doc in docs if doc['status'] == 'finished']),
-        numError=len([doc for doc in docs if doc['status'] == 'error'])
-    )
-
 def _create_job_handler_from_config(x):
     job_handler_type = x['jobHandlerType']
     if job_handler_type == 'default':
@@ -119,16 +96,18 @@ def hither_job_run():
         hither_config['container'] = True
     with global_data_lock:
         with ka.config(**kachery_config):
-            with hi.config(**hither_config):
+            with hi.Config(**hither_config):
                 job = hi.run(functionName, **kwargs)
                 job_id = job._job_id
                 global_data['jobs_by_id'][job_id] = job
+                print('--- returning job with id', job_id)
                 return dict(
                     job_id=job_id
                 )
 
 @app.route('/api/hither_job_wait', methods=['POST'])
 def hither_job_wait(timeout=None):
+    print('hither job wait')
     x = request.json
     job_id = x['job_id']
     assert job_id, 'Missing job_id'
@@ -148,7 +127,7 @@ def hither_job_wait(timeout=None):
                     error_message=str(job.exception()),
                     runtime_info=job.runtime_info()
                 )
-            if job.status() == 'finished':
+            if job.status() == hi.JobStatus.FINISHED:
                 result = job.result()
                 result = _resolve_files_in_item(result)
                 return dict(
@@ -218,14 +197,34 @@ def get_state_from_disk():
                 return None
         else:
             return None
-    return dict(
+    ret = dict(
         recordings=get_state_from_disk_helper('recordings'),
         sortings=get_state_from_disk_helper('sortings'),
         jobHandlers=get_state_from_disk_helper('jobHandlers')
     )
+    print('----- get_state_from_disk', len(ret['recordings']))
+    return ret
     
 @hi.function('test_python_call', '0.1.0')
 def test_python_call():
     return 'output-from-test-python-call'
+
+@hi.function('test_bokeh2', '0.1.0')
+def test_bokeh2():
+    from bokeh.embed import json_item
+    from bokeh.plotting import figure
+    
+    # prepare some data
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 2, 4, 5]
+
+    # create a new plot with a title and axis labels
+    p = figure(title="Proof-of-concept - embed Bokeh plot generated from python", x_axis_label='x', y_axis_label='y')
+
+    # add a line renderer with legend and line thickness
+    p.line(x, y, legend_label="Temp.", line_width=2)
+
+    return json_item(p, "test_bokeh")
+
 
 # start_worker_thread()
