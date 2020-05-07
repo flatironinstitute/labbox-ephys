@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Switch, Route } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
 import RecordingView from "./containers/RecordingView";
@@ -8,30 +8,19 @@ import ImportRecordings from "./containers/ImportRecordings";
 import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecording';
 import Home from "./components/Home";
 import About from "./components/About";
-import { createHitherJob } from "./actions";
+import Prototypes from './components/Prototypes';
 import Config from './components/Config';
 import SortingView from './containers/SortingView';
 
 const TestPage = () => {
-    const [pythonOutput, setPythonOutput] = useState('')
-
-    const effect = async() => {
-        if (!pythonOutput) {
-            setPythonOutput('loading...');
-            const job = await createHitherJob('test_python_call', {}, {});
-            const output = await job.wait();
-            setPythonOutput(output);
-        }
-    }
-    useEffect(() => {effect()});
-
-    return <div>{`Test page... output from python ${pythonOutput}`}</div>;
+    return <div>{`Test page`}</div>;
 }
 
 const Routes = () => {
     return (
         <Switch>
             <Route path="/about"><About /></Route>
+            <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
             <Route path="/config"><Config /></Route>
             <Route path="/importRecordings"><ImportRecordings /></Route>

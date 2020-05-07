@@ -39,6 +39,9 @@ RUN pip install requests
 RUN pip install gunicorn
 RUN yarn global add serve concurrently
 
+RUN pip install bokeh
+RUN pip install matplotlib mpld3
+
 # #########################################
 # ### Install kachery
 RUN git clone https://github.com/flatironinstitute/kachery /kachery \
@@ -50,7 +53,7 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
 # ### Install hither2
 RUN git clone https://github.com/laboratorybox/hither2 /hither2 \
     && cd /hither2 \
-    && git checkout 5af6e907e122d41c8835dfaeddb4f489c720a9cd \
+    && git checkout cd409a5d97a7477d81e2ed6b8cca5c05a3dd460f \
     && pip install .
 
 RUN yarn global add serve

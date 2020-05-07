@@ -87,13 +87,16 @@ RUN apt-get update && \
     apt-get -y install docker-ce
 
 RUN pip install ipython jupyter jupyterlab
-RUN pip install pymongo dsnpython
+RUN pip install pymongo dnspython
 RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
 RUN pip install spikeextractors==0.7.2 spiketoolkit==0.5.2 spikesorters==0.2.5
 RUN pip install requests
+
+RUN pip install bokeh
+RUN pip install matplotlib mpld3
 
 # nano
 RUN apt-get install -y nano

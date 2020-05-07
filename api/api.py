@@ -4,6 +4,7 @@ import json
 import os
 import threading
 import time
+import sys
 from flask import Flask, request
 import hither2 as hi
 import urllib
@@ -12,6 +13,9 @@ import kachery as ka
 # this is how the hither functions get registered
 import labbox_ephys as le
 
+thisdir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(f'{thisdir}/../src')
+import pluginComponents
 
 app = Flask(__name__)
 global_data = dict(
@@ -198,33 +202,15 @@ def get_state_from_disk():
         else:
             return None
     ret = dict(
-        recordings=get_state_from_disk_helper('recordings'),
-        sortings=get_state_from_disk_helper('sortings'),
-        jobHandlers=get_state_from_disk_helper('jobHandlers')
+        recordings=get_state_from_disk_helper('recordings') or [],
+        sortings=get_state_from_disk_helper('sortings') or [],
+        jobHandlers=get_state_from_disk_helper('jobHandlers') or {}
     )
-    print('----- get_state_from_disk', len(ret['recordings']))
     return ret
     
 @hi.function('test_python_call', '0.1.0')
 def test_python_call():
     return 'output-from-test-python-call'
-
-@hi.function('test_bokeh2', '0.1.0')
-def test_bokeh2():
-    from bokeh.embed import json_item
-    from bokeh.plotting import figure
-    
-    # prepare some data
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 2, 4, 5]
-
-    # create a new plot with a title and axis labels
-    p = figure(title="Proof-of-concept - embed Bokeh plot generated from python", x_axis_label='x', y_axis_label='y')
-
-    # add a line renderer with legend and line thickness
-    p.line(x, y, legend_label="Temp.", line_width=2)
-
-    return json_item(p, "test_bokeh")
 
 
 # start_worker_thread()

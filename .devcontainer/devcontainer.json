@@ -44,7 +44,8 @@
 	],
 
 	"containerEnv": {
-		"KACHERY_STORAGE_DIR": "${localEnv:KACHERY_STORAGE_DIR}"
+		"KACHERY_STORAGE_DIR": "${localEnv:KACHERY_STORAGE_DIR}",
+		"KACHERY_DEFAULT_PASSWORD": "${localEnv:KACHERY_DEFAULT_PASSWORD}"
 	},
 
 	"runArgs": [

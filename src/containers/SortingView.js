@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import { setSortingInfo, createHitherJob } from '../actions';
-import PyBokeh from './PyBokeh';
+import * as pluginComponents from '../pluginComponents';
+
+const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
 
 const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
@@ -38,13 +40,37 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
         )
       }
       <div>
-        <PyBokeh
-          functionName={'test_bokeh2'}
-          functionArgs={{}}
-        />
+        {
+          pluginComponentsList.map(PluginComponent => {
+            const config = PluginComponent.sortingViewPlugin;
+            return (
+              <Expandable
+                label={config.label}
+              >
+                <PluginComponent
+                  {...config.props || {}}
+                  sortingPath={sorting.sortingPath} recordingPath={recording.recordingPath}
+                />
+              </Expandable>
+            )
+          })
+        }
       </div>
     </div>
   );
+}
+
+const Expandable = ({ label, children }) => {
+  return (
+    <ExpansionPanel>
+      <ExpansionPanelSummary>
+        {label}
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        {children}
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  )
 }
 
 function findSortingForId(state, id) {

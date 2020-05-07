@@ -69,7 +69,7 @@ See [docker/build_docker.sh](docker/build_docker.sh)
         - build app bundle outside of container
         - parse version from package.json
     - Timeseries view for recordings
-* 0.1.6 [in progress]
+* 0.1.6 [done]
     - Code cleanup - separate out ephys-specific code
     - Reorganize python files
     - Improve mechanism for job submission from javascript to python
@@ -80,11 +80,15 @@ See [docker/build_docker.sh](docker/build_docker.sh)
     - Refactor sortingInfo calculation
     - Select compute resource for spike sorting and other stuff
     - refactoring to remove fetchRecordingInfo and fetchSortingInfo
-* 0.1.7
+* 0.1.7 [in progress]
+    - Bokeh integration [done]
+    - Matplotlib integration [done]
+    - Prototypes view
     - Summary plots of spike sorting
+        - Autocorrelograms
+        - Average waveforms
 * 0.1.8
     -Import from local disk
-
 * Other
     - when a recording is deleted, we must delete the associated sortings!
     - Store private job handler configuration on disk only (not in the redux state)
