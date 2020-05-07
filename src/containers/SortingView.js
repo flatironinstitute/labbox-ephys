@@ -49,7 +49,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
               >
                 <PluginComponent
                   {...config.props || {}}
-                  sortingPath={sorting.sortingPath} recordingPath={recording.recordingPath}
+                  sorting={sorting}
                 />
               </Expandable>
             )
@@ -62,7 +62,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
 
 const Expandable = ({ label, children }) => {
   return (
-    <ExpansionPanel>
+    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
       <ExpansionPanelSummary>
         {label}
       </ExpansionPanelSummary>

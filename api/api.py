@@ -104,7 +104,6 @@ def hither_job_run():
                 job = hi.run(functionName, **kwargs)
                 job_id = job._job_id
                 global_data['jobs_by_id'][job_id] = job
-                print('--- returning job with id', job_id)
                 return dict(
                     job_id=job_id
                 )

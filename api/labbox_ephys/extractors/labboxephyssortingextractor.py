@@ -34,6 +34,10 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             elif type(arg) == dict:
                 if 'firings' in arg:
                     self._sorting = LabboxEphysSortingExtractor(arg['firings'], samplerate=samplerate)
+                elif 'sortingPath' in arg:
+                    if samplerate is None:
+                        samplerate = arg.get('sortingInfo', {}).get('samplerate', None)
+                    self._sorting = LabboxEphysSortingExtractor(arg['sortingPath'], samplerate=samplerate)
                 elif 'path' in arg:
                     self._sorting = LabboxEphysSortingExtractor(arg['path'], samplerate=samplerate)
                 else:

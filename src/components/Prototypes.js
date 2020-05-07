@@ -30,7 +30,7 @@ const Prototypes = () => {
 
 const Expandable = ({ label, children }) => {
   return (
-    <ExpansionPanel>
+    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
       <ExpansionPanelSummary>
         {label}
       </ExpansionPanelSummary>

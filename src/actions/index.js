@@ -40,6 +40,10 @@ const globalHitherJobStore = {};
 
 // not an action creator
 export const createHitherJob = async (functionName, kwargs, opts={}) => {
+  if (opts.wait) {
+    const job0 = await createHitherJob(functionName, kwargs, {...opts, wait: false});
+    return await job0.wait();
+  }
   const jobHash = objectHash({
     functionName: functionName,
     kwargs: kwargs,
@@ -56,7 +60,6 @@ export const createHitherJob = async (functionName, kwargs, opts={}) => {
     runtime_info: null,
     status: 'pending'
   }
-  globalHitherJobStore[job.jobHash] = job;
   job.wait = async () => {
     while (true) {
       while ((!job.jobId) && (job.status === 'pending')) {
@@ -105,6 +108,7 @@ export const createHitherJob = async (functionName, kwargs, opts={}) => {
     }
     throw Error(job.errorMessage);
   }
+  globalHitherJobStore[job.jobHash] = job;
   let j;
   try {
     j = await axios.post('/api/hither_job_run', job);
@@ -115,9 +119,6 @@ export const createHitherJob = async (functionName, kwargs, opts={}) => {
     throw(err);
   }
   job.jobId = j.data.job_id;
-  if (opts.wait) {
-    return await job.wait();
-  }
   return job;
 }
 

@@ -1,3 +1,5 @@
+// Note: this file was modified by jfm in order to get it to work properly with d3 v3
+
 (function(d3) {
   var mpld3 = {
     _mpld3IsLoaded: true,

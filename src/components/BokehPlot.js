@@ -15,7 +15,7 @@ const BokehPlot = ({ functionName, functionArgs }) => {
             let plot_data;
             try {
                 setStatus('calculating');
-                await sleep(500);
+                await sleep(50);
                 plot_data = await createHitherJob(
                     functionName,
                     functionArgs,
@@ -32,8 +32,7 @@ const BokehPlot = ({ functionName, functionArgs }) => {
 
         }
         else if ((status === 'finished') && (plotData)) {
-            console.log(plotRef);
-            Bokeh.embed.embed_item(plotData, plotRef.current.id);
+            plotRef.current && Bokeh.embed.embed_item(plotData, plotRef.current.id);
         }
     }
     useEffect(() => { effect(); })
@@ -41,18 +40,19 @@ const BokehPlot = ({ functionName, functionArgs }) => {
         status === 'calculating' ? (
             <div><CircularProgress /></div>
         ) : (
-            <div ref={plotRef} id={generateRandomId()} />
-        )
+                <div ref={plotRef} id={`bokeh-${generateRandomAlphaId()}`} /> // note: it is important not to start id with a digit
+            )
     );
 }
 
-function generateRandomId() {
+function generateRandomAlphaId() {
     const num_chars = 10;
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     let text = "";
     for (let i = 0; i < num_chars; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
 }
+
 
 export default BokehPlot;
