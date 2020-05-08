@@ -80,21 +80,23 @@ See [docker/build_docker.sh](docker/build_docker.sh)
     - Refactor sortingInfo calculation
     - Select compute resource for spike sorting and other stuff
     - refactoring to remove fetchRecordingInfo and fetchSortingInfo
-* 0.1.7 [in progress]
+* 0.1.7 [done]
     - Bokeh integration [done]
     - Matplotlib integration [done]
-    - Prototypes view
+    - Prototypes view [done]
     - Summary plots of spike sorting
         - Autocorrelograms
-        - Average waveforms
-* 0.1.8
-    -Import from local disk
+* 
+* 0.1.9
+    - Import from local disk
+* 0.1.10
+    - Additional plots for 
 * Other
     - when a recording is deleted, we must delete the associated sortings!
     - Store private job handler configuration on disk only (not in the redux state)
     - Import/export job handler configuration
     - Fix fetchSortingInfo and fetchRecordingInfo stuff
-    - sourcemark
+    - syncmark
     - Design a logo (replace logo.svg and public/favicon.ico)
     - More efficient serialization to disk
     - Export/import persisted state

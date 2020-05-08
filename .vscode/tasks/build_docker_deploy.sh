@@ -2,5 +2,5 @@
 
 set -ex
 
-cd docker
+cd docker/labbox-ephys
 ./build_docker.sh
