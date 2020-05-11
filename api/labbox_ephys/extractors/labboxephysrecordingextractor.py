@@ -150,6 +150,8 @@ def _resolve_paths_in_item(x):
 
 def can_load_mda(path):
     dd = ka.read_dir(path)
+    if dd is None:
+        return False
     if 'raw.mda' in dd['files'] and 'params.json' in dd['files'] and 'geom.csv' in dd['files']:
         return True
     return False

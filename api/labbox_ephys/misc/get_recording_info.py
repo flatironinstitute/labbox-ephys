@@ -10,8 +10,7 @@ import labbox_ephys as le
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:latest')
 def get_recording_info(recording_path):
-    with ka.config(fr='default_readonly'):
-        recording = le.LabboxEphysRecordingExtractor(recording_path, download=False)
+    recording = le.LabboxEphysRecordingExtractor(recording_path, download=False)
     return dict(
         recording_path=recording_path,
         sampling_frequency=recording.get_sampling_frequency(),

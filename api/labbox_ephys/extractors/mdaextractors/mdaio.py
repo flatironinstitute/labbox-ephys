@@ -163,8 +163,6 @@ def _read_header(path, verbose=True):
         raise Exception(f'Unable to find file: {path}')
     bytes0 = ka.load_bytes(path, start=0, end=min(200, info0['size']))
     if bytes0 is None:
-        ka.set_config(fr='default_readonly')
-        print(ka.get_file_info(path))
         raise Exception('Unable to load header bytes from {}'.format(path))
     f = io.BytesIO(bytes0)
     try:

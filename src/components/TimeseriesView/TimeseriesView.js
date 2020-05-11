@@ -46,7 +46,7 @@ const TimeseriesViewInner = ({
                 const infoJob = await createHitherJob(
                     'calculate_timeseries_info',
                     { recording: { path: recordingPath } },
-                    { kachery_config: { fr: 'default_readonly' } }
+                    { kachery_config: {} }
                 );
                 info = await infoJob.wait();
             }
@@ -81,7 +81,7 @@ const TimeseriesViewInner = ({
                             segment_size: info.segment_size
                         },
                         {
-                            kachery_config: { fr: 'default_readonly' },
+                            kachery_config: {},
                             hither_config: hitherConfig || {}
                         }
                     );

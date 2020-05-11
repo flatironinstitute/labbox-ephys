@@ -27,7 +27,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
                         'get_recording_info',
                         { recording_path: rec.recordingPath },
                         {
-                            kachery_config: { fr: 'default_readonly' },
+                            kachery_config: {},
                             hither_config: {
                                 job_handler_role: 'general'
                             }

@@ -49,8 +49,10 @@ export const createHitherJob = async (functionName, kwargs, opts={}) => {
     kwargs: kwargs,
     opts: opts
   });
-  const existingJob = globalHitherJobStore[jobHash];
-  if (existingJob) return existingJob;
+  if (opts.useCache !== false) {
+    const existingJob = globalHitherJobStore[jobHash];
+    if (existingJob) return existingJob;
+  }
   const job = {
     jobHash: jobHash,
     functionName: functionName,
@@ -108,7 +110,9 @@ export const createHitherJob = async (functionName, kwargs, opts={}) => {
     }
     throw Error(job.errorMessage);
   }
-  globalHitherJobStore[job.jobHash] = job;
+  if (opts.useCache !== false) {
+    globalHitherJobStore[job.jobHash] = job;
+  }
   let j;
   try {
     j = await axios.post('/api/hither_job_run', job);

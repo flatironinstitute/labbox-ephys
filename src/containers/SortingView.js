@@ -16,7 +16,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
       const sortingInfoJob = await createHitherJob(
         'get_sorting_info',
         { sorting_path: sorting.sortingPath, recording_path: recording.recordingPath },
-        { kachery_config: { fr: 'default_readonly' } }
+        { kachery_config: {} }
       );
       const sortingInfo = await sortingInfoJob.wait();
       onSetSortingInfo({ sortingId, sortingInfo });

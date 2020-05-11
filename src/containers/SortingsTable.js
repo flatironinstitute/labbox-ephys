@@ -27,7 +27,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo }) => {
                         'get_sorting_info',
                         { sorting_path: sor.sortingPath, recording_path: sor.recordingPath },
                         {
-                            kachery_config: { fr: 'default_readonly' },
+                            kachery_config: {},
                             hither_config: {
                                 job_handler_role: 'general'
                             }

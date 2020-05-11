@@ -13,7 +13,7 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
 
 ### Create directories and set environment variables
 
-You will need to create some directories. Rename as desired:
+You will need to create some directories. Here we assume that "user" is the name of the logged in user. Rename as desired - you can choose any locations you want.
 
 * `/home/user/labbox/kachery-storage` - The system will store large temporary files here
 * `/home/user/labbox/labbox-ephys-data` - For importing data into the system
@@ -23,7 +23,7 @@ Set environment variables to point to these directories so we can refer to them 
 ```bash
 # Adjust as needed to match above
 export KACHERY_STORAGE_DIR=/home/user/labbox/kachery-storage
-export LABBOX_EPHYS_DATA_DIR=/home/user/labbox/data
+export LABBOX_EPHYS_DATA_DIR=/home/user/labbox/labbox-ephys-data
 ```
 
 To ensure that those environment variables are set with each new terminal session, add those lines to your ~/.bashrc file.
@@ -37,6 +37,8 @@ Install the latest version of labbox-launcher
 ```
 pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher
 ```
+
+This should make the `labbox-launcher` command available from the command line. If it is not available, you may need to check that the appropriate bin directory for installed Python executables has been added to your PATH.
 
 ### Launch the container
 
@@ -92,13 +94,13 @@ If you want to use your own computer to run the spike sorting, then you will nee
     - Prototypes view [done]
     - Summary plots of spike sorting
         - Autocorrelograms [done]
-* 0.1.8 [in progress]
+* 0.1.8 [done-ish]
     - Update documentation - for users and developers
     - Create complete instructions for running labbox-ephys with local compute resource
-* 0.1.9
-    - Import from local disk
+* 0.1.9 [in progress]
+    - Import from local disk [in progress]
 * 0.1.10
-    - Additional plots for 
+    - Additional plots for sorting view
 * Other
     - when a recording is deleted, we must delete the associated sortings!
     - Store private job handler configuration on disk only (not in the redux state)

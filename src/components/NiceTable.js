@@ -1,9 +1,32 @@
 import React from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, IconButton } from '@material-ui/core';
+import { Table, TableHead, TableBody, TableRow, TableCell, IconButton, Checkbox } from '@material-ui/core';
 import { Delete, Edit } from "@material-ui/icons"
 import './NiceTable.css'
 
-const NiceTable = ({ rows, columns, onDeleteRow, deleteRowLabel, onEditRow, editRowLabel }) => {
+const NiceTable = ({
+    rows,
+    columns,
+    onDeleteRow,
+    deleteRowLabel,
+    onEditRow,
+    editRowLabel,
+    selectionMode='none', // none, single, multiple
+    selectedRowKeys,
+    onSelectedRowKeysChanged
+}) => {
+
+    const selectedRowKeysObj = {};
+    selectedRowKeys && selectedRowKeys.forEach(k => {selectedRowKeysObj[k] = true});
+    const handleClickRow = (key) => {
+        if (selectionMode === 'single') {
+            if (key in selectedRowKeysObj) {
+                onSelectedRowKeysChanged && onSelectedRowKeysChanged([]);
+            }
+            else {
+                onSelectedRowKeysChanged && onSelectedRowKeysChanged([key]);
+            }
+        }
+    }
     return (
         <Table className="NiceTable">
             <TableHead>
@@ -24,14 +47,22 @@ const NiceTable = ({ rows, columns, onDeleteRow, deleteRowLabel, onEditRow, edit
                         <TableRow key={row.key}>
                             <TableCell>
                                 {
-                                    onDeleteRow ? (
+                                    onDeleteRow && (
                                         <IconButton title={deleteRowLabel || ''} onClick={() => onDeleteRow && onDeleteRow(row)}><Delete /></IconButton>
-                                    ) : (<span />)
+                                    )
                                 }
                                 {
-                                    onEditRow ? (
+                                    onEditRow && (
                                         <IconButton title={editRowLabel || ''} onClick={() => onEditRow && onEditRow(row)}><Edit /></IconButton>
-                                    ) : (<span />)
+                                    )
+                                }
+                                {
+                                    selectionMode !== 'none' && (
+                                        <Checkbox
+                                            checked={row.key in selectedRowKeysObj}
+                                            onClick={() => handleClickRow(row.key)}
+                                        />
+                                    )
                                 }
                             </TableCell>
                             {

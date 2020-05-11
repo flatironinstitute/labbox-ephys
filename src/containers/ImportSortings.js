@@ -125,7 +125,7 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
                     'get_sorting_info',
                     { sorting_path: sortingPath, recording_path: recordingPath },
                     {
-                        kachery_config: { fr: 'default_readonly' },
+                        kachery_config: {},
                         hither_config: {
                             job_handler_role: 'general'
                         }

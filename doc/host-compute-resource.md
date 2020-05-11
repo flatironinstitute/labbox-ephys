@@ -48,6 +48,8 @@ docker run -v $MONGO_DATA_DIR:/data/db --net host -it mongo mongod --port 27017
 
 This should start a Mongo database listening on the default port at `mongodb://localhost:27017`.
 
+Note that if mongodb is already running on your system, there may be a conflict, and you should then select a different port.
+
 ## Host a kachery server locally
 
 ```bash

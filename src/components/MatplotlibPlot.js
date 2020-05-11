@@ -15,7 +15,6 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
             try {
                 setStatus('calculating');
                 await sleep(50)
-                console.log(functionArgs);
                 plot_data = await createHitherJob(
                     functionName,
                     functionArgs,

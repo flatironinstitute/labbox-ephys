@@ -79,6 +79,9 @@ def _get_job_handler_for_role(job_handler_role):
 @app.route('/api/hither_job_run', methods=['POST'])
 def hither_job_run():
     global global_data
+
+    ka.set_config(fr='default_readonly')
+
     x = request.json
     functionName = x['functionName']
     kwargs = x['kwargs']
@@ -206,6 +209,29 @@ def get_state_from_disk():
         jobHandlers=get_state_from_disk_helper('jobHandlers') or {}
     )
     return ret
+
+@hi.function('get_local_data_dir', '0.1.0')
+def get_local_data_dir():
+    return ka.read_dir('/data')
+
+@hi.function('get_importable_recordings', '0.1.0')
+def get_importable_recordings(subdir=''):
+    basedir = '/data' + subdir
+    ret = []
+    x = ka.read_dir(basedir)
+    for dirname, _ in x['dirs'].items():
+        path = ka.store_dir(f'{basedir}/{dirname}')
+        info = le.get_recording_info(path)
+        ret.append(dict(
+            id=dirname,
+            path=path,
+            recording_info=info
+        ))
+    return ret
+
+@hi.function('download_recording', '0.1.0')
+def download_recording(recording_path):
+    le.LabboxEphysRecordingExtractor(recording_path, download=True)
     
 @hi.function('test_python_call', '0.1.0')
 def test_python_call():

@@ -29,7 +29,7 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
           // todo: sorting parameters go here
         },
         {
-          kachery_config: {fr: 'default_readonly'},
+          kachery_config: {},
           hither_config: {
             job_handler_role: 'sorting'
           }

@@ -1,5 +1,6 @@
 import hither as hi
 import numpy as np
+import kachery as ka
 from ._correlograms_phy import compute_correlograms
 
 @hi.function('genplot_autocorrelogram', '0.1.0')
