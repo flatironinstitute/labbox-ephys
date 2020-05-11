@@ -7,23 +7,32 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
 ### Prerequisites
 
 * Linux
-* Docker
-    - be sure that your non-root user is in the docker group
+* Docker (be sure that your non-root user is in the docker group)
 * Python (>= 3.6)
 * git
 
-### Create directories
+### Create directories and set environment variables
 
-You will need to create some directories. Rename as needed:
+You will need to create some directories. Rename as desired:
 
 * `/home/user/labbox/kachery-storage` - The system will store large temporary files here
-* `/home/user/labbox/data` - For importing data into the system
-* `/home/user/labbox/compute-resource-server` (optional) - directory for hosting a compute resource server for spike sorting
-* `/home/user/labbox/kachery-server` (optional) - directory for hosting a kachery server to go along with the compute resource server.
+* `/home/user/labbox/labbox-ephys-data` - For importing data into the system
 
-Set the `KACHERY_STORAGE_DIR` environment variable as the `kachery-storage` directory you are using.
+Set environment variables to point to these directories so we can refer to them elsewhere
+
+```bash
+# Adjust as needed to match above
+export KACHERY_STORAGE_DIR=/home/user/labbox/kachery-storage
+export LABBOX_EPHYS_DATA_DIR=/home/user/labbox/data
+```
+
+To ensure that those environment variables are set with each new terminal session, add those lines to your ~/.bashrc file.
 
 ### Install/upgrade labbox-launcher
+
+Note: is recommended that you use a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or a virtualenv when using the `pip` and `python` commands.
+
+Install the latest version of labbox-launcher
 
 ```
 pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher
@@ -31,101 +40,25 @@ pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher
 
 ### Launch the container
 
-Launch the labbox-ephys container and listen on port 15310 (or whatever you choose). Replace directories as appropriate.
+Launch the labbox-ephys container and listen on port 15310 (or whatever you choose).
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.7-alpha.1 --kachery $KACHERY_STORAGE_DIR --data /home/user/labbox/data --port 15310
+labbox-launcher run magland/labbox-ephys:0.1.7-alpha.1 --kachery $KACHERY_STORAGE_DIR --data $LABBOX_EPHYS_DATA_DIR --port 15310
 ```
 
 ### View in browser
 
-Now, point browser to: `http://localhost:15310`
+Now, point your browser (chrome is recommended) to: `http://localhost:15310`
 
-Note that the console output of the labbox-launcher command may refer to other ports that are only relevant withint the container. You should the port specified via the `--port` option.
+Note that the console output of the labbox-launcher command may refer to other ports that are only relevant within the container. You should use the port you specified via the `--port` option.
 
 ### Optionally host a compute resource server for spike sorting
 
-To host a compute resource server, you must have three services running:
-
-* A mongo database (either in the cloud or on your local machine)
-* A kachery server (either locally or remotely)
-* A hither compute resource server (either locally or remotely)
-
-**To host a mongo database locally**
-
-Install mongodb, and then run the following from a terminal:
-
-```bash
-mongod
-```
-
-This should start a Mongo database listening on the default port at `mongodb://localhost:27017`.
-
-**To host a kachery server locally**
-
-```bash
-labbox-launcher run magland/kachery-server:0.1.0 --data /home/user/labbox/kachery-server --port 15401
-```
-
-If it doesn't already exists, a `kachery.json` file will be created in the `kachery-storage` directory. You can edit that to configure the server. Then restart the server with the above command.
-
-Leave this server running in a terminal.
-
-**To host a hither compute resource server locally**
-
-Install the latest version of hither:
-
-```
-pip install --upgrade git+git://github.com/flatironinstitute/hither
-```
-
-First initialize the compute resource server via:
-
-```bash
-cd /home/user/labbox/compute-resource-server
-hither-compute-resource init
-```
-
-This will create a `compute_resource.json`. You must edit that and fill in the relevant fields. For example, you must specify URLs for your mongo database and your kachery server.
-
-For example,
-
-* Mongo URL: `mongodb://localhost:27017`
-* Database: `labbox` 
-* Kachery URL: `http://localhost:15401`
-* Kachery channel: `readwrite`
-* Kachery password: `readwrite`
-
-Then run the following to start the compute resource
-
-```bash
-cd /home/user/labbox/compute-resource-server
-hither-compute-resource start
-```
-
-Leave this server running in a terminal.
+If you want to use your own computer to run the spike sorting, then you will need to set up a [hither compute resource server](doc/host-compute-resource.md).
 
 ## Information for developers
 
-### Ports
-
-In development container:
-
-* 15301 - development client (yarn start)
-* 15302 - development api server (flask `api/`)
-* 15303 - test production client (serving `build/` directory)
-* 15304 - test production api server (gunicorn flask `api/`)
-* 15305 - test production nginx server
-
-In deployed production container:
-
-* 15306 - client (serving `build/` directory)
-* 15307 - server (gunicorn flask `api/`)
-* 8080 - nginx server
-
-### Deploying docker image
-
-See [docker/build_docker.sh](docker/build_docker.sh)
+[Instructions on opening labbox-ephys in a development environment](doc/development-environment.md)
 
 ### Todo
 
@@ -158,8 +91,10 @@ See [docker/build_docker.sh](docker/build_docker.sh)
     - Matplotlib integration [done]
     - Prototypes view [done]
     - Summary plots of spike sorting
-        - Autocorrelograms
-* 
+        - Autocorrelograms [done]
+* 0.1.8 [in progress]
+    - Update documentation - for users and developers
+    - Create complete instructions for running labbox-ephys with local compute resource
 * 0.1.9
     - Import from local disk
 * 0.1.10

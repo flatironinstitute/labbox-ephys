@@ -1,5 +1,5 @@
 import labbox_ephys as le
-import hither2 as hi
+import hither as hi
 import kachery as ka
 
 @hi.function('run_spike_sorting', '0.1.0')

@@ -2,7 +2,7 @@ from typing import Union
 import os
 import random
 from types import SimpleNamespace
-import hither2 as hi
+import hither as hi
 import kachery as ka
 
 @hi.function('mountainsort4', '0.1.4')

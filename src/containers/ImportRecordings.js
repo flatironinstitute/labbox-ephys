@@ -84,7 +84,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
     const [errors, setErrors] = useState({});
 
     const effect = async () => {
-        if ((recordingPath) && (!recordingInfo)) {
+        if ((recordingPath) && (!recordingInfo) && (!recordingInfoStatus)) {
             setRecordingInfoStatus('calculating');
             let info;
             try {

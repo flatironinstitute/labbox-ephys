@@ -1,6 +1,6 @@
 import os
 import kachery as ka
-import hither2 as hi
+import hither as hi
 import spikeextractors as se
 import numpy as np
 from .mdaextractors import MdaSortingExtractor

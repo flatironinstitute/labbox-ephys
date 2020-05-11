@@ -1,4 +1,4 @@
-import hither2 as hi
+import hither as hi
 import numpy as np
 import io
 import base64

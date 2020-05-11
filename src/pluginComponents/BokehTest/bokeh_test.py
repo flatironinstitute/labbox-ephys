@@ -1,4 +1,4 @@
-import hither2 as hi
+import hither as hi
 
 @hi.function('bokeh_test', '0.1.0')
 def bokeh_test():

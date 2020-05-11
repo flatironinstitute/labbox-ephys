@@ -50,10 +50,10 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
     && pip install .
 
 # #########################################
-# ### Install hither2
-RUN git clone https://github.com/laboratorybox/hither2 /hither2 \
-    && cd /hither2 \
-    && git checkout cd409a5d97a7477d81e2ed6b8cca5c05a3dd460f \
+# ### Install hither
+RUN git clone https://github.com/flatironinstitute/hither /hither \
+    && cd /hither \
+    && git checkout e28f24e0746bd0c3d7357a937dd3b96361c07efd \
     && pip install .
 
 RUN yarn global add serve

@@ -1,4 +1,4 @@
-import hither2 as hi
+import hither as hi
 import numpy as np
 from ._correlograms_phy import compute_correlograms
 

@@ -2,7 +2,7 @@ import kachery as ka
 from .bandpass_filter import bandpass_filter
 import spikeextractors as se
 import numpy as np
-import hither2 as hi
+import hither as hi
 from .mdaextractors import MdaRecordingExtractor
 
 def _path(x):

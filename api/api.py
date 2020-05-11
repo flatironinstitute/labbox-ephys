@@ -6,7 +6,7 @@ import threading
 import time
 import sys
 from flask import Flask, request
-import hither2 as hi
+import hither as hi
 import urllib
 import kachery as ka
 

@@ -1,4 +1,4 @@
-import hither2 as hi
+import hither as hi
 
 @hi.function('test_mpl', '0.1.0')
 def test_mpl():

@@ -1,4 +1,4 @@
-import hither2 as hi
+import hither as hi
 import numpy as np
 import labbox_ephys as le
 from .get_recording_info import geom_from_recording

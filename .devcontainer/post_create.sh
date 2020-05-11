@@ -2,10 +2,10 @@
 
 # set -ex
 
-# hither2
-cd /workspaces/hither2
+# hither
+cd /workspaces/hither
 pip install --no-deps -e .
-echo "export PATH=/workspaces/hither2/bin:\$PATH" >> ~/.bashrc
+echo "export PATH=/workspaces/hither/bin:\$PATH" >> ~/.bashrc
 
 # kachery
 cd /workspaces/kachery
