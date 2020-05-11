@@ -8,6 +8,8 @@ To host a compute resource server, you must have three services running:
 * A kachery server (either locally or remotely)
 * A hither compute resource server (either locally or remotely)
 
+![](./labbox-ephys-diagram.png)
+
 Below we will assume you are running all of the services locally.
 
 ## Prerequisites
@@ -46,7 +48,7 @@ docker run -v $MONGO_DATA_DIR:/data/db --net host -it mongo mongod --port 27017
 
 This should start a Mongo database listening on the default port at `mongodb://localhost:27017`.
 
-**To host a kachery server locally**
+## Host a kachery server locally
 
 ```bash
 labbox-launcher run magland/kachery-server:0.1.0 --data $KACHERY_SERVER_DIR --port 15401
@@ -56,7 +58,7 @@ If it doesn't already exists, a `kachery.json` file will be created in the `$KAC
 
 Leave this server running in a terminal.
 
-**To host a hither compute resource server locally**
+## Host a hither compute resource server locally
 
 Install the latest version of hither (it is recommended that you use a conda or virtualenv environment):
 
@@ -91,7 +93,7 @@ hither-compute-resource start
 
 Leave this server running in a terminal.
 
-### Configure labbox-ephys to use the compute resource
+## Configure labbox-ephys to use the compute resource
 
 You can now configure labbox-ephys to use your newly-configured hither compute
 resource. From within the labbox-ephys browser gui click on the config button and add a new job handler of type "remote". Fill in the appropriate configuration information. Finally, use the
