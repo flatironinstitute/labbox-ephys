@@ -15,7 +15,7 @@ for i in "$@" ; do
     fi
 done
 
-cd ..
+cd ../..
 
 # Version key/value should be on its own line
 # Thanks: https://gist.github.com/DarrenN/8c6a5b969481725a4413
@@ -33,7 +33,7 @@ yarn build
 
 IMAGE_NAME="magland/labbox-ephys:${PACKAGE_VERSION}"
 
-docker build -f docker/Dockerfile -t $IMAGE_NAME .
+docker build -f docker/labbox-ephys/Dockerfile -t $IMAGE_NAME .
 
 if [ "$PUSH" = "true" ]; then
     docker push $IMAGE_NAME

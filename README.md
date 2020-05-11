@@ -45,7 +45,7 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container and listen on port 15310 (or whatever you choose).
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.7-alpha.1 --kachery $KACHERY_STORAGE_DIR --data $LABBOX_EPHYS_DATA_DIR --port 15310
+labbox-launcher run magland/labbox-ephys:0.1.9-alpha.1 --kachery $KACHERY_STORAGE_DIR --data $LABBOX_EPHYS_DATA_DIR --port 15310
 ```
 
 ### View in browser

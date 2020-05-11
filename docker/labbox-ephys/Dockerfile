@@ -66,11 +66,11 @@ COPY src /labbox-ephys/src
 COPY api /labbox-ephys/api
 COPY build /labbox-ephys/build
 
-COPY docker/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+COPY docker/labbox-ephys/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
 RUN rm /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 
-COPY docker/run_inside_container.sh /run_inside_container.sh
+COPY docker/labbox-ephys/run_inside_container.sh /run_inside_container.sh
 
 ENV PYTHONPATH=/labbox-ephys/api
 
