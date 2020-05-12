@@ -45,6 +45,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
             const config = PluginComponent.sortingViewPlugin;
             return (
               <Expandable
+                key={config.label}
                 label={config.label}
               >
                 <PluginComponent

@@ -11,4 +11,9 @@ sudo service nginx restart
 # export PATH=$(yarn global bin):~/.local/bin:$PATH
 
 cd /labbox-ephys
-concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"
+# concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"
+
+serve -s build -l 15306 &
+
+cd /labbox-ephys/api
+exec gunicorn -b 127.0.0.1:15307 api:app
