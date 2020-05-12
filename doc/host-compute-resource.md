@@ -1,5 +1,9 @@
 # Host a hither compute resource locally
 
+**These instructions are obsolete. Use labbox-launcher config-compute-resource instead!**
+
+**Obsolete**
+
 These instructions show how to host a hither compute resource on your local computer. This can be used to run spike sorting when launched from the labbox-ephys GUI.
 
 To host a compute resource server, you must have three services running:
@@ -14,6 +18,8 @@ Below we will assume you are running all of the services locally.
 
 ## Prerequisites
 
+**Obsolete**
+
 * Linux
 * Docker
     - Be sure that your non-root user is in the docker group
@@ -22,6 +28,8 @@ Below we will assume you are running all of the services locally.
 * git
 
 ### Create directories
+
+**Obsolete**
 
 You will need to create some directories. Rename as needed:
 
@@ -96,6 +104,8 @@ hither-compute-resource start
 Leave this server running in a terminal.
 
 ## Configure labbox-ephys to use the compute resource
+
+**Obsolete**
 
 You can now configure labbox-ephys to use your newly-configured hither compute
 resource. From within the labbox-ephys browser gui click on the config button and add a new job handler of type "remote". Fill in the appropriate configuration information. Finally, use the

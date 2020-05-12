@@ -67,7 +67,7 @@ The following ports are used inside the deployed production container:
 
 * 15306 - client (serving `build/` directory)
 * 15307 - server (gunicorn flask `api/`)
-* 8080 - nginx server
+* 15310 - nginx server (main port to connect to)
 
 ### Deploying docker image
 

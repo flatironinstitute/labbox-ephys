@@ -74,6 +74,6 @@ COPY docker/labbox-ephys/run_inside_container.sh /run_inside_container.sh
 
 ENV PYTHONPATH=/labbox-ephys/api
 
-EXPOSE 8080
+EXPOSE 15310
 
 ENTRYPOINT [ "/run_inside_container.sh" ]

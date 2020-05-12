@@ -42,17 +42,15 @@ This should make the `labbox-launcher` command available from the command line. 
 
 ### Launch the container
 
-Launch the labbox-ephys container and listen on port 15310 (or whatever you choose).
+Launch the labbox-ephys container
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.9-alpha.1 --kachery $KACHERY_STORAGE_DIR --data $LABBOX_EPHYS_DATA_DIR --port 15310
+labbox-launcher run magland/labbox-ephys:0.1.9-alpha.5 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
 
 Now, point your browser (chrome is recommended) to: `http://localhost:15310`
-
-Note that the console output of the labbox-launcher command may refer to other ports that are only relevant within the container. You should use the port you specified via the `--port` option.
 
 ### Optionally host a compute resource server for spike sorting
 
