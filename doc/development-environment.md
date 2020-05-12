@@ -41,6 +41,14 @@ Run the vscode command: `Remote-Containers: Reopen in Container`
 
 See [this guide](https://github.com/flatironinstitute/learn-sciware-dev/blob/master/07_RemoteWork/vscode/remote_containers.md) for more information on using devcontainers.
 
+### Start the GUI development server
+
+* Run the vscode task "yarn install" (only need to do this once unless dependency packages have been updated)
+* Run the vscode task "START DEV"
+* Open the browser pointing to the url in the terminal
+
+You can learn more about vscode tasks [here](https://code.visualstudio.com/docs/editor/tasks). In short, to run a vscode task, select `Tasks: Run Task` from the Command Palette.
+
 ### Ports
 
 **In development container**
