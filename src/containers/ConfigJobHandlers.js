@@ -50,6 +50,27 @@ const ConfigJobHandlers = ({
             <CJHRoles jobHandlers={jobHandlers} roleAssignments={roleAssignments} onAssignJobHandlerToRole={onAssignJobHandlerToRole} />
             <div style={{ paddingBottom: 15 }} />
             {content}
+            <h2>Hosting a compute resource server on your own computer</h2>
+            <p>To host a compute resource server on your own computer, do the following.</p>
+            <ul>
+                <li>
+                    Install the most recent version of labbox-launcher: <pre>pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher</pre>
+                </li>
+                <li>
+                    Create a new directory on your compute. For example: <pre>mkdir /home/user/labbox/compute_resource</pre>
+                </li>
+                <li>
+                    Change to that directory and run the configuration utility:
+                    <pre>cd /home/user/labbox/compute_resource</pre>
+                    <pre>labbox-launcher config-compute-resource</pre>
+                </li>
+                <li>
+                    Follow the instructions to set up and run the compute resource server.
+                </li>
+                <li>
+                    Finally, add a new job handler and enter the configuration information displayed in the terminal when you run the compute resource.
+                </li>
+            </ul>
         </div>
     );
 }
@@ -134,7 +155,7 @@ const CJHRoles = ({ jobHandlers, roleAssignments, onAssignJobHandlerToRole }) =>
 }
 
 const CJHAdd = ({ onAdd, onCancel }) => {
-    const [jobHandlerType, setJobHandlerType] = useState('default');
+    const [jobHandlerType, setJobHandlerType] = useState('remote');
     const [name, setName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [mongoUri, setMongoUri] = useState('');
@@ -142,12 +163,12 @@ const CJHAdd = ({ onAdd, onCancel }) => {
     const [computeResourceId, setComputeResourceId] = useState('');
     const typeOptions = [
         {
-            label: 'Local',
-            value: 'default'
-        },
-        {
             label: 'Remote',
             value: 'remote'
+        },
+        {
+            label: 'Local',
+            value: 'default'
         }
     ];
     const handleSubmit = () => {
@@ -205,6 +226,12 @@ const CJHAdd = ({ onAdd, onCancel }) => {
                 (jobHandlerType === 'remote') && (
                     <Fragment>
                         <TextInputControl
+                            label="Compute resource ID"
+                            value={computeResourceId}
+                            onSetValue={setComputeResourceId}
+                        />
+                        <div style={{ paddingBottom: 15 }} />
+                        <TextInputControl
                             label="Mongo URI"
                             value={mongoUri}
                             onSetValue={setMongoUri}
@@ -216,18 +243,15 @@ const CJHAdd = ({ onAdd, onCancel }) => {
                             onSetValue={setDatabaseName}
                         />
                         <div style={{ paddingBottom: 15 }} />
-                        <TextInputControl
-                            label="Compute resource ID"
-                            value={computeResourceId}
-                            onSetValue={setComputeResourceId}
-                        />
-                        <div style={{ paddingBottom: 15 }} />
                     </Fragment>
                 )
             }
 
             <div className="invalid-feedback">{errorMessage}</div>
             <Button color="primary" onClick={handleSubmit}>Add this job handler</Button>
+            <div>
+                <Button color="secondary" onClick={onCancel}>Cancel</Button>
+            </div>
         </div>
     )
 }
