@@ -1,7 +1,7 @@
 import React from 'react'
 import BokehPlot from '../../components/BokehPlot';
 
-const BokehTest = ({ sortingPath, recordingPath }) => {
+const BokehTest = () => {
     return (
         <BokehPlot
             functionName="bokeh_test"

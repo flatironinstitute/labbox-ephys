@@ -5,7 +5,7 @@ import TimeseriesModel from "./TimeseriesModel";
 import { createHitherJob } from '../../hither';
 const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
-    recordingPath,
+    recordingObject,
     hitherConfig
 }) => {
     // handle filter opts stuff
@@ -17,7 +17,7 @@ const TimeseriesView = ({
             maxWidth={maxWidth}
             maxHeight={maxHeight}
             leftPanels={leftPanels}
-            recordingPath={recordingPath}
+            recordingObject={recordingObject}
             hitherConfig={hitherConfig}
         />
     );
@@ -26,7 +26,7 @@ const TimeseriesView = ({
 const TimeseriesViewInner = ({
     width, height, maxWidth, maxHeight,
     leftPanels,
-    recordingPath,
+    recordingObject,
     hitherConfig
 }) => {
 
@@ -44,7 +44,7 @@ const TimeseriesViewInner = ({
             try {
                 const infoJob = await createHitherJob(
                     'calculate_timeseries_info',
-                    { recording: { path: recordingPath } },
+                    { recording_object: recordingObject },
                     { kachery_config: {} }
                 );
                 info = await infoJob.wait();
@@ -74,7 +74,7 @@ const TimeseriesViewInner = ({
                     const resultJob = await createHitherJob(
                         'get_timeseries_segment',
                         {
-                            recording: {path: recordingPath},
+                            recording_object: recordingObject,
                             ds_factor: ds_factor,
                             segment_num: segment_num,
                             segment_size: info.segment_size

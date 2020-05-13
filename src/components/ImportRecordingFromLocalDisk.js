@@ -23,7 +23,8 @@ const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecor
         setImportErrorMessage('');
         onAddRecording({
             recordingId: rec.id,
-            recordingPath: rec.path
+            recordingPath: rec.path,
+            recordingObject: rec.recordingObject
         })
         onDone();
     }
@@ -99,6 +100,7 @@ const TheTable = ({ importableRecordings, selectedRecordingId, onSetSelectedReco
             key: r.id,
             id: r.id,
             path: r.path,
+            recordingObject: r.recording_object,
             numChannels: r.recording_info.channel_ids.length,
             samplingFrequency: r.recording_info.sampling_frequency,
             durationMin: r.recording_info.num_frames / r.recording_info.sampling_frequency / 60

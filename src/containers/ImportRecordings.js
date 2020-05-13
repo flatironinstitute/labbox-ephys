@@ -1,9 +1,7 @@
-import React, { useState, Fragment, useEffect } from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, Select, MenuItem, makeStyles } from '@material-ui/core'
-import { addRecording, createHitherJob, sleep } from '../actions'
+import { addRecording } from '../actions'
 import { withRouter } from 'react-router-dom';
-import RecordingInfoView from '../components/RecordingInfoView';
 import RadioChoices from '../components/RadioChoices';
 import ImportRecordingsFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';

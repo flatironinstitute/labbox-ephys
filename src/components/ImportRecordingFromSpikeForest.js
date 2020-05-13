@@ -6,28 +6,40 @@ import RecordingInfoView from '../components/RecordingInfoView';
 
 const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRecording, examplesMode }) => {
     const [recordingPath, setRecordingPath] = useState('');
+    const [recordingObject, setRecordingObject] = useState(null);
     const [recordingInfo, setRecordingInfo] = useState(null);
     const [recordingInfoStatus, setRecordingInfoStatus] = useState('');;
     const [recordingId, setRecordingId] = useState('');
     const [errors, setErrors] = useState({});
 
     const effect = async () => {
-        if ((recordingPath) && (!recordingInfo) && (!recordingInfoStatus)) {
+        if ((recordingPath) && (!recordingObject) && (!recordingInfo) && (!recordingInfoStatus)) {
             setRecordingInfoStatus('calculating');
             let info;
             try {
                 await sleep(500);
-                const recordingInfoJob = await createHitherJob(
+                const obj = await createHitherJob(
+                    'get_recording_object',
+                    {
+                        recording_path: recordingPath
+                    },
+                    {
+                        wait: true
+                    }
+                )
+                setRecordingObject(obj);
+                const info = await createHitherJob(
                     'get_recording_info',
-                    { recording_path: recordingPath },
+                    { recording_object: obj },
                     {
                         kachery_config: {},
                         hither_config: {
                             job_handler_role: 'general'
-                        }
+                        },
+                        wait: true
                     }
                 )
-                info = await recordingInfoJob.wait();
+                
                 setRecordingInfo(info);
                 setRecordingInfoStatus('finished');
             }
@@ -64,7 +76,8 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
         }
         const recording = {
             recordingId,
-            recordingPath
+            recordingPath,
+            recordingObject
         }
         onAddRecording(recording);
         onDone && onDone();

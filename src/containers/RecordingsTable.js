@@ -26,7 +26,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
                     await sleep(400);
                     const recordingInfoJob = await createHitherJob(
                         'get_recording_info',
-                        { recording_path: rec.recordingPath },
+                        { recording_object: rec.recordingObject },
                         {
                             kachery_config: {},
                             hither_config: {

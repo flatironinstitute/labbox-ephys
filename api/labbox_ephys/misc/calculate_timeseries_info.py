@@ -4,8 +4,8 @@ import labbox_ephys as le
 from .get_recording_info import geom_from_recording
 
 @hi.function('calculate_timeseries_info', '0.1.0')
-def calculate_timeseries_info(recording):
-    recording0 = le.LabboxEphysRecordingExtractor(recording, download=False)
+def calculate_timeseries_info(recording_object):
+    recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)
 
     traces0 = recording0.get_traces(
         channel_ids=recording0.get_channel_ids(),

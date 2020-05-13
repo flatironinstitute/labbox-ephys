@@ -9,7 +9,7 @@ import kachery as ka
 @hi.container('docker://magland/sf-mountainsort4:0.3.2')
 @hi.local_modules(['../../labbox_ephys'])
 def mountainsort4(
-    recording: Union[str, dict],
+    recording_object: dict,
     detect_sign=-1,
     adjacency_radius=50,
     clip_size=50,
@@ -27,16 +27,16 @@ def mountainsort4(
     import labbox_ephys as le
 
     with ka.config(fr='labbox_ephys_readonly'):
-        recording = le.LabboxEphysRecordingExtractor(recording, download=True)
+        recording = le.LabboxEphysRecordingExtractor(recording_object, download=True)
 
     # for quick testing
     # import spikeextractors as se
-    # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 1)
+    # recording = se.SubRecordingExtractor(parent_recording=recording_object, start_frame=0, end_frame=30000 * 1)
     
     # Preprocessing
     # print('Preprocessing...')
-    # recording = st.preprocessing.bandpass_filter(recording, freq_min=300, freq_max=6000)
-    # recording = st.preprocessing.whiten(recording)
+    # recording = st.preprocessing.bandpass_filter(recording_object, freq_min=300, freq_max=6000)
+    # recording = st.preprocessing.whiten(recording_object)
 
     # Sorting
     print('Sorting...')

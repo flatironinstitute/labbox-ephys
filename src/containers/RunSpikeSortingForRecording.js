@@ -25,7 +25,7 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
       const job = await createHitherJob(
         sorter.algorithm,
         {
-          recording: {path: recording.recordingPath}
+          recording_object: recording.recordingObject
           // todo: sorting parameters go here
         },
         {
@@ -53,6 +53,7 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
         sortingPath: result.sorting,
         recordingId: recordingId,
         recordingPath: recording.recordingPath,
+        recordingObject: recording.recordingObject,
         sortingInfo: null
     }
     onAddSorting(sorting);

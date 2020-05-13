@@ -7,7 +7,7 @@ import numpy as np
 from .mdaextractors import MdaRecordingExtractor
 
 def _load_geom_from_csv(path: str) -> list:
-    return _listify_ndarray(np.genfromtxt(path, delimiter=','))
+    return _listify_ndarray(np.genfromtxt(path, delimiter=',').T)
 
 def _listify_ndarray(x: np.ndarray) -> list:
     if x.ndim == 1:

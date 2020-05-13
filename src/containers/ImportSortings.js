@@ -14,6 +14,7 @@ const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSort
         return <div>{`Recording not found: ${recordingId}`}</div>;
     }
     const recordingPath = recording.recordingPath;
+    const recordingObject = recording.recordingObject;
 
     const handleDone = () => {
         history.push(`/recording/${recordingId}`);
@@ -26,6 +27,7 @@ const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSort
                 examplesMode={false}
                 recordingId={recordingId}
                 recordingPath={recordingPath}
+                recordingObject={recordingObject}
                 existingSortingIds={existingSortingIds}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
@@ -38,6 +40,7 @@ const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSort
                 examplesMode={true}
                 recordingId={recordingId}
                 recordingPath={recordingPath}
+                recordingObject={recordingObject}
                 existingSortingIds={existingSortingIds}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
@@ -109,7 +112,7 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
     );
 }
 
-const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting, examplesMode, recordingId, recordingPath }) => {
+const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
     const [sortingPath, setSortingPath] = useState('');
     const [sortingId, setSortingId] = useState('');
     const [errors, setErrors] = useState({});
@@ -124,7 +127,7 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
                 await sleep(500);
                 const sortingInfoJob = await createHitherJob(
                     'get_sorting_info',
-                    { sorting_path: sortingPath, recording_path: recordingPath },
+                    { sorting_path: sortingPath, recording_object: recordingObject },
                     {
                         kachery_config: {},
                         hither_config: {
@@ -173,7 +176,8 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
             sortingId,
             sortingPath,
             recordingId,
-            recordingPath
+            recordingPath,
+            recordingObject
         }
         onAddSorting(sorting);
         onDone && onDone();

@@ -9,10 +9,9 @@ import labbox_ephys as le
 @hi.function('get_recording_info', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:latest')
-def get_recording_info(recording_path):
-    recording = le.LabboxEphysRecordingExtractor(recording_path, download=False)
+def get_recording_info(recording_object):
+    recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     return dict(
-        recording_path=recording_path,
         sampling_frequency=recording.get_sampling_frequency(),
         channel_ids=recording.get_channel_ids(),
         channel_groups=recording.get_channel_groups(),

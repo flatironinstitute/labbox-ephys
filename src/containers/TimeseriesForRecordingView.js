@@ -24,7 +24,7 @@ const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => 
             return (
               <div>
                 <TimeseriesView
-                  recordingPath={recording.recordingPath}
+                  recordingObject={recording.recordingObject}
                   width={width}
                   height={height}
                   hitherConfig={hitherConfig}

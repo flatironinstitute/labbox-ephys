@@ -26,7 +26,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo }) => {
                     await sleep(400);
                     const sortingInfoJob = await createHitherJob(
                         'get_sorting_info',
-                        { sorting_path: sor.sortingPath, recording_path: sor.recordingPath },
+                        { sorting_path: sor.sortingPath, recording_object: sor.recordingObject },
                         {
                             kachery_config: {},
                             hither_config: {
