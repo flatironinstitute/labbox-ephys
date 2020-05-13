@@ -13,10 +13,123 @@ def _path(x):
     else:
         raise Exception('Cannot get path from:', x)
 
+def _try_mda_create_object(arg):
+    if type(arg) == str or isinstance(arg, hi.File):
+        path = _path(arg)
+        if path.startswith('sha1dir') or path.startswith('/'):
+            dd = ka.read_dir(path)
+            if dd is not None:
+                if 'raw.mda' in dd['files'] and 'params.json' in dd['files'] and 'geom.csv' in dd['files']:
+                    return dict(
+                        recording_format='mda',
+                        raw=dd['files']['raw.mda'],
+                        geom=
+                    )
+            return False
+            if can_load_mda(path):
+                self._recording = MdaRecordingExtractor(recording_directory=path, download=download)
+            else:
+                raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
+        else:
+            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
+    elif type(arg) == dict:
+        if ('recording' in arg) and ('filters' in arg):
+            recording1 = LabboxEphysRecordingExtractor(arg['recording'], download=download)
+            self._recording = self._apply_filters(recording1, arg['filters'])
+        if ('recording' in arg) and ('group' in arg):
+            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
+            channel_ids = np.array(R.get_channel_ids())
+            groups = R.get_channel_groups(channel_ids=R.get_channel_ids())
+            group = int(arg['group'])
+            inds = np.where(np.array(groups) == group)[0]
+            channel_ids = channel_ids[inds]
+            self._recording = se.SubRecordingExtractor(
+                parent_recording=R,
+                channel_ids=np.array(channel_ids)
+            )
+            self.arg = dict(group=group, recording=R.object())
+        elif ('recording' in arg) and ('channel_ids' in arg):
+            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
+            channel_ids = arg['channel_ids']
+            self._recording = se.SubRecordingExtractor(
+                parent_recording=R,
+                channel_ids=np.array(channel_ids)
+            )
+            self.arg = dict(channel_ids=channel_ids, recording=R.object())
+        elif ('raw' in arg) and ('params' in arg) and ('geom' in arg):
+            self._recording = MdaRecordingExtractor(timeseries_path=_path(arg['raw']), samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
+        else:
+            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
+    else:
+        raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
+
+def _create_object_for_arg(arg):
+    if (type(arg) == dict) and ('path' in arg):
+        arg = arg['path']
+
+    if isinstance(arg, LabboxEphysRecordingExtractor):
+        return arg.object()
+
+    if type(arg) == str or isinstance(arg, hi.File):
+        path = _path(arg)
+        if path.endswith('.json'):
+            arg = ka.load_object(path)
+            if arg is None:
+                raise Exception(f'Unable to load object: {path}')
+    
+    obj = _try_mda_create_object(arg)
+    if obj is not None:
+        return obj
+        
+    if type(arg) == str or isinstance(arg, hi.File):
+        path = _path(arg)
+        if path.startswith('sha1dir') or path.startswith('/'):
+            if can_load_mda(path):
+                self._recording = MdaRecordingExtractor(recording_directory=path, download=download)
+            elif can_load_nrs(path):
+                self._recording = NrsRecordingExtractor(path)
+            else:
+                raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
+        else:
+            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
+    elif type(arg) == dict:
+        if ('recording' in arg) and ('filters' in arg):
+            recording1 = LabboxEphysRecordingExtractor(arg['recording'], download=download)
+            self._recording = self._apply_filters(recording1, arg['filters'])
+        if ('recording' in arg) and ('group' in arg):
+            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
+            channel_ids = np.array(R.get_channel_ids())
+            groups = R.get_channel_groups(channel_ids=R.get_channel_ids())
+            group = int(arg['group'])
+            inds = np.where(np.array(groups) == group)[0]
+            channel_ids = channel_ids[inds]
+            self._recording = se.SubRecordingExtractor(
+                parent_recording=R,
+                channel_ids=np.array(channel_ids)
+            )
+            self.arg = dict(group=group, recording=R.object())
+        elif ('recording' in arg) and ('channel_ids' in arg):
+            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
+            channel_ids = arg['channel_ids']
+            self._recording = se.SubRecordingExtractor(
+                parent_recording=R,
+                channel_ids=np.array(channel_ids)
+            )
+            self.arg = dict(channel_ids=channel_ids, recording=R.object())
+        elif ('raw' in arg) and ('params' in arg) and ('geom' in arg):
+            self._recording = MdaRecordingExtractor(timeseries_path=_path(arg['raw']), samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
+        else:
+            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
+    else:
+        raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
+
+# TODO: #1 reorganize this class to create a recording object that has all sha1:// paths nested
+# This should be returned by the .object() method
 class LabboxEphysRecordingExtractor(se.RecordingExtractor):
     def __init__(self, arg, download=False):
         super().__init__()
-        self.arg = arg
+        if (type(arg) != dict) or ('recording_format' not in arg):
+            arg = _create_object_for_arg(arg)
 
         if (type(arg) == dict) and ('path' in arg):
             arg = arg['path']

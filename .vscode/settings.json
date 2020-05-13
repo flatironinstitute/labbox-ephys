@@ -1,5 +1,7 @@
 {
     "cSpell.ignoreWords": [
         "magland"
-    ]
+    ],
+    "githubIssues.ignoreUserCompletionTrigger": [],
+    "githubIssues.ignoreCompletionTrigger": []
 }
