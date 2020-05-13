@@ -1,138 +1,205 @@
+from typing import Union
 import kachery as ka
 from .bandpass_filter import bandpass_filter
 import spikeextractors as se
 import numpy as np
-import hither as hi
 from .mdaextractors import MdaRecordingExtractor
 
-def _path(x):
-    if type(x) is str:
-        return x
-    elif isinstance(x, hi.File):
-        return x.path
+def _load_geom_from_csv(path):
+    return _listify_ndarray(np.genfromtxt(path, delimiter=','))
+
+def _listify_ndarray(x):
+    if x.ndim == 1:
+        if np.issubdtype(x.dtype, np.integer):
+            return [int(val) for val in x]
+        else:
+            return [float(val) for val in x]
+    elif x.ndim == 2:
+        ret = []
+        for j in range(x.shape[1]):
+            ret.append(_listify_ndarray(x[:, j]))
+        return ret
+    elif x.ndim == 3:
+        ret = []
+        for j in range(x.shape[2]):
+            ret.append(_listify_ndarray(x[:, :, j]))
+        return ret
+    elif x.ndim == 4:
+        ret = []
+        for j in range(x.shape[3]):
+            ret.append(_listify_ndarray(x[:, :, :, j]))
+        return ret
     else:
-        raise Exception('Cannot get path from:', x)
+        raise Exception('Cannot listify ndarray with {} dims.'.format(x.ndim))
 
 def _try_mda_create_object(arg):
-    if type(arg) == str or isinstance(arg, hi.File):
-        path = _path(arg)
+    if type(arg) == str:
+        path = arg
         if path.startswith('sha1dir') or path.startswith('/'):
             dd = ka.read_dir(path)
             if dd is not None:
                 if 'raw.mda' in dd['files'] and 'params.json' in dd['files'] and 'geom.csv' in dd['files']:
+                    raw_path = path + '/raw.mda'
+                    params_path = path + '/params.json'
+                    geom_path = path + '/geom.csv'
+                    geom_path_resolved = ka.load_file(geom)
+                    assert geom_path_resolved is not None, f'Unable to load geom.csv from: {geom_path}'
+                    params = ka.load_object(params_path)
+                    assert params is not None, f'Unable to load params.json from: {params_path}'
+                    geom = _load_geom_from_csv(geom_path_resolved)
                     return dict(
                         recording_format='mda',
-                        raw=dd['files']['raw.mda'],
-                        geom=
+                        data=dict(
+                            raw=raw_path,
+                            geom=geom,
+                            params=params
+                        )
                     )
-            return False
-            if can_load_mda(path):
-                self._recording = MdaRecordingExtractor(recording_directory=path, download=download)
-            else:
-                raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
-        else:
-            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
-    elif type(arg) == dict:
-        if ('recording' in arg) and ('filters' in arg):
-            recording1 = LabboxEphysRecordingExtractor(arg['recording'], download=download)
-            self._recording = self._apply_filters(recording1, arg['filters'])
-        if ('recording' in arg) and ('group' in arg):
-            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
-            channel_ids = np.array(R.get_channel_ids())
-            groups = R.get_channel_groups(channel_ids=R.get_channel_ids())
-            group = int(arg['group'])
-            inds = np.where(np.array(groups) == group)[0]
-            channel_ids = channel_ids[inds]
-            self._recording = se.SubRecordingExtractor(
-                parent_recording=R,
-                channel_ids=np.array(channel_ids)
+    
+    if type(arg) == dict:
+        if ('raw' in arg) and ('geom' in arg) and ('params' in arg) and (type(arg['geom']) == list) and (type(arg['params']) == dict):
+            return dict(
+                recording_format='mda',
+                data=dict(
+                    raw=arg['raw'],
+                    geom=arg['geom'],
+                    params=arg['params']
+                )
             )
-            self.arg = dict(group=group, recording=R.object())
-        elif ('recording' in arg) and ('channel_ids' in arg):
-            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
-            channel_ids = arg['channel_ids']
-            self._recording = se.SubRecordingExtractor(
-                parent_recording=R,
-                channel_ids=np.array(channel_ids)
+    
+    return None
+
+def _try_nrs_create_object(arg):
+    if type(arg) == str:
+        path = arg
+        if path.startswith('sha1dir') or path.startswith('/'):
+            dd = ka.read_dir(path)
+            if dd is not None:
+                probe_file = None
+                xml_file = None
+                nrs_file = None
+                dat_file = None
+                for f in dd['files'].keys():
+                    if f.endswith('.json'):
+                        obj = ka.load_object(path + '/' + f)
+                        if obj.get('format_version', None) in ['flatiron-probe-0.1', 'flatiron-probe-0.2']:
+                            probe_file = path + '/' + f
+                    elif f.endswith('.xml'):
+                        xml_file = path + '/' + f
+                    elif f.endswith('.nrs'):
+                        nrs_file = path + '/' + f
+                    elif f.endswith('.dat'):
+                        dat_file = path + '/' + f
+                if probe_file is not None and xml_file is not None and nrs_file is not None and dat_file is not None:
+                    data = dict(
+                        probe_file=probe_file,
+                        xml_file=xml_file,
+                        nrs_file=nrs_file,
+                        dat_file=dat_file
+                    )
+                    return dict(
+                        recording_format='nrs',
+                        data=data
+                    )
+    
+    if type(arg) == dict:
+        if ('probe_file' in arg) and ('xml_file' in arg) and ('nrs_file' in arg) and ('dat_file' in arg):
+            return dict(
+                recording_format='nrs',
+                data=dict(
+                    probe_file=arg['probe_file'],
+                    xml_file=arg['xml_file'],
+                    nrs_file=arg['nrs_file'],
+                    dat_file=arg['dat_file']
+                )
             )
-            self.arg = dict(channel_ids=channel_ids, recording=R.object())
-        elif ('raw' in arg) and ('params' in arg) and ('geom' in arg):
-            self._recording = MdaRecordingExtractor(timeseries_path=_path(arg['raw']), samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
-        else:
-            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
-    else:
-        raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
+    
+    return None
+
 
 def _create_object_for_arg(arg):
-    if (type(arg) == dict) and ('path' in arg):
+    # check to see if it already has the recording_format field. If so, just return arg
+    if (type(arg) == dict) and ('recording_format' in arg):
+        return arg
+
+    # if has form dict(path='...') then replace by the string
+    if (type(arg) == dict) and ('path' in arg) and (type(arg['path']) == str):
         arg = arg['path']
 
+    # if has type LabboxEphysRecordingExtractor, then just get the object from arg.object()
     if isinstance(arg, LabboxEphysRecordingExtractor):
         return arg.object()
 
-    if type(arg) == str or isinstance(arg, hi.File):
-        path = _path(arg)
-        if path.endswith('.json'):
-            arg = ka.load_object(path)
-            if arg is None:
-                raise Exception(f'Unable to load object: {path}')
+    # if arg is a string ending with .json then replace arg by the object
+    if (type(arg) == str) and (arg.endswith('.json')):
+        path = arg
+        arg = ka.load_object(path)
+        if arg is None:
+            raise Exception(f'Unable to load object: {path}')
     
+    # See if it has format 'mda'
     obj = _try_mda_create_object(arg)
     if obj is not None:
         return obj
-        
-    if type(arg) == str or isinstance(arg, hi.File):
-        path = _path(arg)
-        if path.startswith('sha1dir') or path.startswith('/'):
-            if can_load_mda(path):
-                self._recording = MdaRecordingExtractor(recording_directory=path, download=download)
-            elif can_load_nrs(path):
-                self._recording = NrsRecordingExtractor(path)
-            else:
-                raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
-        else:
-            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
-    elif type(arg) == dict:
-        if ('recording' in arg) and ('filters' in arg):
-            recording1 = LabboxEphysRecordingExtractor(arg['recording'], download=download)
-            self._recording = self._apply_filters(recording1, arg['filters'])
-        if ('recording' in arg) and ('group' in arg):
-            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
-            channel_ids = np.array(R.get_channel_ids())
-            groups = R.get_channel_groups(channel_ids=R.get_channel_ids())
-            group = int(arg['group'])
-            inds = np.where(np.array(groups) == group)[0]
-            channel_ids = channel_ids[inds]
-            self._recording = se.SubRecordingExtractor(
-                parent_recording=R,
-                channel_ids=np.array(channel_ids)
+    
+    # See if it has format 'nrs'
+    obj = _try_nrs_create_object(arg)
+    if obj is not None:
+        return obj
+    
+    # See if it is of type filtered
+    if (type(arg) == dict) and ('recording' in arg) and ('filters' in arg):
+        return dict(
+            recording_format='filtered',
+            data=dict(
+                filters=arg['filters'],
+                recording=_create_object_for_arg(arg['recording'])
             )
-            self.arg = dict(group=group, recording=R.object())
-        elif ('recording' in arg) and ('channel_ids' in arg):
-            R = LabboxEphysRecordingExtractor(arg['recording'], download=download)
-            channel_ids = arg['channel_ids']
-            self._recording = se.SubRecordingExtractor(
-                parent_recording=R,
-                channel_ids=np.array(channel_ids)
+        )
+    
+    # See if it is type subrecording
+    if (type(arg) == dict) and ('recording' in arg) and ('group' in arg):
+        return dict(
+            recording_type='subrecording',
+            data=dict(
+                group=arg['group'],
+                recording=_create_object_for_arg(arg['recording'])
             )
-            self.arg = dict(channel_ids=channel_ids, recording=R.object())
-        elif ('raw' in arg) and ('params' in arg) and ('geom' in arg):
-            self._recording = MdaRecordingExtractor(timeseries_path=_path(arg['raw']), samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
-        else:
-            raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)
-    else:
-        raise Exception('Invalid arg for LabboxEphysRecordingExtractor', arg)    
-
+        )
+    if (type(arg) == dict) and ('recording' in arg) and ('groups' in arg):
+        return dict(
+            recording_type='subrecording',
+            data=dict(
+                groups=arg['groups'],
+                recording=_create_object_for_arg(arg['recording'])
+            )
+        )
+    if (type(arg) == dict) and ('recording' in arg) and ('channel_ids' in arg):
+        return dict(
+            recording_type='subrecording',
+            data=dict(
+                channel_ids=arg['channel_ids'],
+                recording=_create_object_for_arg(arg['recording'])
+            )
+        )
+    
+    return None    
+    
 # TODO: #1 reorganize this class to create a recording object that has all sha1:// paths nested
 # This should be returned by the .object() method
 class LabboxEphysRecordingExtractor(se.RecordingExtractor):
     def __init__(self, arg, download=False):
         super().__init__()
-        if (type(arg) != dict) or ('recording_format' not in arg):
-            arg = _create_object_for_arg(arg)
-
-        if (type(arg) == dict) and ('path' in arg):
-            arg = arg['path']
+        if (type(arg) == dict) and ('recording_format' in arg):
+            self._object: dict = arg
+        else:
+            self._object: Union[dict, None] = _create_object_for_arg(arg)
+            assert self._object is not None, raise Exception('Unable to create recording from arg:', arg)
+        
+        recording_format = self._object['recording_format']
+        data: dict = self._object['data']
+        if recording_format == 'mda':
+            self._recording = MdaRecordingExtractor(timeseries_path=data['raw'], samplerate=data['params']['samplerate'], geom=np.array(data['geom']), download=download)
 
         if isinstance(arg, LabboxEphysRecordingExtractor):
             self._recording = arg
