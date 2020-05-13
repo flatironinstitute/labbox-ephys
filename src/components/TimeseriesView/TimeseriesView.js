@@ -18,7 +18,6 @@ const TimeseriesView = ({
             maxHeight={maxHeight}
             leftPanels={leftPanels}
             recordingObject={recordingObject}
-            hitherConfig={hitherConfig}
         />
     );
 }
@@ -26,8 +25,7 @@ const TimeseriesView = ({
 const TimeseriesViewInner = ({
     width, height, maxWidth, maxHeight,
     leftPanels,
-    recordingObject,
-    hitherConfig
+    recordingObject
 }) => {
 
     const [timeseriesInfo, setTimeseriesInfo] = useState(null);
@@ -45,7 +43,12 @@ const TimeseriesViewInner = ({
                 const infoJob = await createHitherJob(
                     'calculate_timeseries_info',
                     { recording_object: recordingObject },
-                    { kachery_config: {} }
+                    {
+                        hither_config: {
+                            job_handler_role: 'general'
+                        },
+                        auto_substitute_file_objects: true
+                    }
                 );
                 info = await infoJob.wait();
             }
@@ -80,8 +83,10 @@ const TimeseriesViewInner = ({
                             segment_size: info.segment_size
                         },
                         {
-                            kachery_config: {},
-                            hither_config: hitherConfig || {}
+                            hither_config: {
+                                job_handler_role: 'general'
+                            },
+                            auto_substitute_file_objects: true
                         }
                     );
                     result = await resultJob.wait();

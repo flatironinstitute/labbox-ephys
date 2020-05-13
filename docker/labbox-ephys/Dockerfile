@@ -53,7 +53,7 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout e28f24e0746bd0c3d7357a937dd3b96361c07efd \
+    && git checkout bfea2f9481773bf13ef9342070d8df09eb47de61 \
     && pip install .
 
 RUN yarn global add serve

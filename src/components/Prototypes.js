@@ -14,6 +14,7 @@ const Prototypes = () => {
             const config = PluginComponent.prototypeViewPlugin;
             return (
               <Expandable
+                key={config.label}
                 label={config.label}
               >
                 <PluginComponent

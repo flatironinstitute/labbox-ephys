@@ -31,7 +31,8 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo }) => {
                             kachery_config: {},
                             hither_config: {
                                 job_handler_role: 'general'
-                            }
+                            },
+                            auto_substitute_file_objects: true
                         }
                     )
                     info = await sortingInfoJob.wait();

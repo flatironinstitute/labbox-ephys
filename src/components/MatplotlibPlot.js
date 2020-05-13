@@ -19,7 +19,10 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
                 plot_data = await createHitherJob(
                     functionName,
                     functionArgs,
-                    { wait: true }
+                    {
+                        auto_substitute_file_objects: true,
+                        wait: true
+                    }
                 )
             }
             catch (err) {

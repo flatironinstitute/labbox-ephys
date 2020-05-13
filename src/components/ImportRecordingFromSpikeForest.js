@@ -36,6 +36,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                         hither_config: {
                             job_handler_role: 'general'
                         },
+                        auto_substitute_file_objects: true,
                         wait: true
                     }
                 )

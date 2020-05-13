@@ -132,7 +132,8 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
                         kachery_config: {},
                         hither_config: {
                             job_handler_role: 'general'
-                        }
+                        },
+                        auto_substitute_file_objects: true
                     }
                 )
                 info = await sortingInfoJob.wait();

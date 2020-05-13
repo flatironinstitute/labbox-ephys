@@ -76,8 +76,8 @@ def _get_job_handler_for_role(job_handler_role):
             return global_data['default_job_handler']
     return _get_job_handler_for_id(role_assignments[job_handler_role])
 
-@app.route('/api/hither_job_run', methods=['POST'])
-def hither_job_run():
+@app.route('/api/create_hither_job', methods=['POST'])
+def create_hither_job():
     global global_data
 
     ka.set_config(fr='default_readonly')
@@ -85,8 +85,10 @@ def hither_job_run():
     x = request.json
     functionName = x['functionName']
     kwargs = x['kwargs']
-    kwargs = _deserialize_files_in_item(kwargs)
     opts = x['opts']
+    if opts.get('auto_substitute_file_objects', False):
+        kwargs = _auto_substitute_file_objects_in_item(kwargs)
+    kwargs = _deserialize_files_in_item(kwargs)
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})
     job_handler_id = hither_config.get('job_handler_id', None)
@@ -206,6 +208,31 @@ def _deserialize_files_in_item(x):
         return [_deserialize_files_in_item(val) for val in x]
     elif type(x) == tuple:
         return tuple([_deserialize_files_in_item(val) for val in x])
+    else:
+        return x
+
+def _auto_substitute_file_objects_in_item(x):
+    if type(x) == dict:
+        ret = dict()
+        for key, val in x.items():
+            ret[key] = _auto_substitute_file_objects_in_item(val)
+        return ret
+    elif type(x) == list:
+        return [_auto_substitute_file_objects_in_item(val) for val in x]
+    elif type(x) == tuple:
+        return tuple([_auto_substitute_file_objects_in_item(val) for val in x])
+    elif type(x) == str:
+        do_substitute = False
+        if x.startswith('sha1://'):
+            do_substitute = True
+        if x.startswith('sha1dir://'):
+            if ka.get_file_info(x):
+                # must be a file
+                do_substitute = True
+        if do_substitute:
+            return hi.File(x)
+        else:
+            return x
     else:
         return x
 

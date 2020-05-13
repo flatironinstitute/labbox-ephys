@@ -84,7 +84,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
   }
   let j;
   try {
-    j = await axios.post('/api/hither_job_run', job);
+    j = await axios.post('/api/create_hither_job', job);
   }
   catch(err) {
     job.status = 'error';
