@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable'
-import { deleteRecordings, setRecordingInfo, sleep, createHitherJob } from '../actions';
+import { deleteRecordings, setRecordingInfo, sleep } from '../actions';
+import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 

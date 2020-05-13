@@ -1,7 +1,8 @@
 import React, { useState, Fragment, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, FormLabel, RadioGroup, FormControlLabel, Radio, Select, MenuItem, makeStyles } from '@material-ui/core'
-import { addSorting, sleep, createHitherJob } from '../actions'
+import { addSorting, sleep } from '../actions';
+import { createHitherJob } from '../hither';
 import { withRouter } from 'react-router-dom';
 import SortingInfoView from '../components/SortingInfoView';
 

@@ -5,6 +5,8 @@ const objectHash = require('object-hash');
 
 const globalHitherJobStore = {};
 
+export const sleep = m => new Promise(r => setTimeout(r, m));
+
 const createHitherJob = async (functionName, kwargs, opts={}) => {
   if (opts.wait) {
     const job0 = await createHitherJob(functionName, kwargs, {...opts, wait: false});
@@ -94,6 +96,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
 }
 
 function serializeFileObjectsInItem(x) {
+  if (!x) return x;
   if (typeof(x) === 'object') {
     if (Array.isArray(x)) {
       let ret = [];
@@ -119,6 +122,7 @@ function serializeFileObjectsInItem(x) {
 }
 
 function deserializeFileObjectsInItem(x) {
+  if (!x) return x;
   if (typeof(x) === 'object') {
     if (Array.isArray(x)) {
       let ret = [];

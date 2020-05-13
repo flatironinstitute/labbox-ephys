@@ -2,7 +2,8 @@ import React, { useEffect } from 'react'
 import { IconButton } from '@material-ui/core';
 import { Sync, CheckCircleOutline, SyncProblem } from '@material-ui/icons';
 import { connect } from 'react-redux';
-import { setPersistStatus, createHitherJob, addRecording, addSorting, sleep } from '../actions';
+import { setPersistStatus, addRecording, addSorting, sleep } from '../actions';
+import { createHitherJob } from '../hither';
 import { assignJobHandlerToRole, addJobHandler } from '../actions/jobHandlers';
 
 const lastSavedState = {

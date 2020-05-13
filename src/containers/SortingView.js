@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
 import { CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
-import { setSortingInfo, createHitherJob } from '../actions';
+import { setSortingInfo } from '../actions';
+import { createHitherJob } from '../hither';
 import * as pluginComponents from '../pluginComponents';
 
 const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
