@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react'
 
-import { createHitherJob } from '../actions'
+import { createHitherJob } from '../hither'
 import { CircularProgress, Button } from '@material-ui/core'
 import NiceTable from './NiceTable'
 

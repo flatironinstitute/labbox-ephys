@@ -85,6 +85,7 @@ def hither_job_run():
     x = request.json
     functionName = x['functionName']
     kwargs = x['kwargs']
+    kwargs = _deserialize_files_in_item(kwargs)
     opts = x['opts']
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})
@@ -135,7 +136,7 @@ def hither_job_wait(timeout=None):
                 )
             if job.status() == hi.JobStatus.FINISHED:
                 result = job.result()
-                result = _resolve_files_in_item(result)
+                result = _serialize_files_in_item(result)
                 return dict(
                     error=False,
                     result=result,
@@ -166,6 +167,45 @@ def _resolve_files_in_item(x):
         return [_resolve_files_in_item(val) for val in x]
     elif type(x) == tuple:
         return tuple([_resolve_files_in_item(val) for val in x])
+    else:
+        return x
+
+def _serialize_files_in_item(x):
+    if isinstance(x, hi.File):
+        if x._item_type == 'file':
+            return dict(
+                _type='_hither_file',
+                path=x._sha1_path
+            )
+        elif x._item_type == 'ndarray':
+            return x.array()
+        else:
+            raise Exception(f'Unexpected item type: {x._item_type}')
+    elif type(x) == dict:
+        ret = dict()
+        for key, val in x.items():
+            ret[key] = _serialize_files_in_item(val)
+        return ret
+    elif type(x) == list:
+        return [_serialize_files_in_item(val) for val in x]
+    elif type(x) == tuple:
+        return tuple([_serialize_files_in_item(val) for val in x])
+    else:
+        return x
+
+def _deserialize_files_in_item(x):
+    if type(x) == dict:
+        if ('_type' in x) and (x['_type'] == '_hither_file'):
+            return hi.File(x['path'])
+        else:
+            ret = dict()
+            for key, val in x.items():
+                ret[key] = _deserialize_files_in_item(val)
+            return ret
+    elif type(x) == list:
+        return [_deserialize_files_in_item(val) for val in x]
+    elif type(x) == tuple:
+        return tuple([_deserialize_files_in_item(val) for val in x])
     else:
         return x
 

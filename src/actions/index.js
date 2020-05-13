@@ -1,6 +1,3 @@
-const axios = require('axios');
-const objectHash = require('object-hash');
-
 export const SET_DATABASE_CONFIG = 'SET_DATABASE_CONFIG'
 
 export const INIT_FETCH_RECORDING_INFO = 'INIT_FETCH_RECORDING_INFO'
@@ -35,96 +32,6 @@ export const setSortingInfo = ({ sortingId, sortingInfo }) => ({
     sortingId,
     sortingInfo
 })
-
-const globalHitherJobStore = {};
-
-// not an action creator
-export const createHitherJob = async (functionName, kwargs, opts={}) => {
-  if (opts.wait) {
-    const job0 = await createHitherJob(functionName, kwargs, {...opts, wait: false});
-    return await job0.wait();
-  }
-  const jobHash = objectHash({
-    functionName: functionName,
-    kwargs: kwargs,
-    opts: opts
-  });
-  if (opts.useCache !== false) {
-    const existingJob = globalHitherJobStore[jobHash];
-    if (existingJob) return existingJob;
-  }
-  const job = {
-    jobHash: jobHash,
-    functionName: functionName,
-    kwargs: kwargs,
-    opts: opts,
-    result: null,
-    runtime_info: null,
-    status: 'pending'
-  }
-  job.wait = async () => {
-    while (true) {
-      while ((!job.jobId) && (job.status === 'pending')) {
-        // the api call must be happening elsewhere
-        await sleep(10);
-      }
-      if (job.status === 'finished') {
-        return job.result;
-      }
-      else if (job.status === 'error') {
-        throw Error(job.errorMessage);
-      }
-      else if (job.status === 'pending') {
-        job.status = 'running';
-        let data;
-        try {
-          const url = `/api/hither_job_wait`;
-          const result = await axios.post(url, {job_id: job.jobId});
-          data = result.data;
-        }
-        catch (err) {
-          job.status = 'error';
-          job.errorMessage = 'Error calling hitherJobWait';
-          break;
-        }
-        if (!data) {
-          job.status = 'error';
-          job.errorMessage = 'Unexpected: No data';
-          break;
-        }
-        else if (data.error) {
-          job.status = 'error';
-          job.errorMessage = `Error running job: ${data.error_message}`;
-          job.runtime_info = data.runtime_info;
-          break;
-        }
-        else {
-          job.status = 'finished';
-          job.result = data.result;
-          job.runtime_info = data.runtime_info;
-        }
-      }
-      else {
-        await sleep(50);
-      }
-    }
-    throw Error(job.errorMessage);
-  }
-  if (opts.useCache !== false) {
-    globalHitherJobStore[job.jobHash] = job;
-  }
-  let j;
-  try {
-    j = await axios.post('/api/hither_job_run', job);
-  }
-  catch(err) {
-    job.status = 'error';
-    job.errorMessage = 'Error running job.';
-    throw(err);
-  }
-  job.jobId = j.data.job_id;
-  return job;
-}
 
 export const addRecording = recording => ({
   type: ADD_RECORDING,

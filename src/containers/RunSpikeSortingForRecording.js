@@ -6,7 +6,7 @@ import SortingsView from '../components/SortingsView';
 import SelectSpikeSorter from '../components/SelectSpikeSorter';
 import { Button } from '@material-ui/core';
 import { addSortingJob, setSortingJobStatus, deleteSortingJobs, addSorting } from '../actions';
-import { createHitherJob } from '../actions';
+import { createHitherJob } from '../hither'
 
 const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sortingJobs, onAddSortingJob, onSetSortingJobStatus, onDeleteSortingJobs, onAddSorting, jobHandlers }) => {
   const [sorter, setSorter] = useState(null);

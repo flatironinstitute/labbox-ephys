@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Mda from './Mda';
 import TimeseriesWidget from "./TimeseriesWidget";
 import TimeseriesModel from "./TimeseriesModel";
-import { createHitherJob } from '../../actions';
-
+import { createHitherJob } from '../../hither';
 const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
     recordingPath,

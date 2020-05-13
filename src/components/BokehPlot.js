@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { createHitherJob, sleep } from '../actions';
+import { createHitherJob } from '../hither'
+import { sleep } from '../actions';
 import { CircularProgress } from '@material-ui/core';
 
 const BokehPlot = ({ functionName, functionArgs }) => {
