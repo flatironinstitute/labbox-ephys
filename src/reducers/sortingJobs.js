@@ -1,8 +1,8 @@
-import { ADD_SORTING_JOB, SET_SORTING_JOB_STATUS, CANCEL_SORTING_JOBS, CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS } from '../actions'
+import { ADD_SORTING_JOB, START_SORTING_JOB, SET_SORTING_JOB_STATUS, CANCEL_SORTING_JOBS, CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS } from '../actions'
 
 const sortingJobs = (state = [], action) => {
     switch (action.type) {
-        case ADD_SORTING_JOB:
+        case START_SORTING_JOB:
             return [
                 ...state,
                 {
@@ -11,6 +11,11 @@ const sortingJobs = (state = [], action) => {
                     sorter: action.sorter,
                     status: 'pending'
                 }
+            ];
+        case ADD_SORTING_JOB:
+            return [
+                ...state,
+                action.sortingJob
             ];
         case SET_SORTING_JOB_STATUS:
             return state.map(s => (

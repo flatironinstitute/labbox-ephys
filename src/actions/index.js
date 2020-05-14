@@ -18,6 +18,7 @@ export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
 export const SET_PERSIST_STATUS = 'SET_PERSIST_STATUS'
 
 export const ADD_SORTING_JOB = 'ADD_SORTING_JOB'
+export const START_SORTING_JOB = 'START_SORTING_JOB'
 export const SET_SORTING_JOB_STATUS = 'SET_SORTING_JOB_STATUS'
 export const CANCEL_SORTING_JOBS = 'CANCEL_SORTING_JOBS'
 export const CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS = 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS'
@@ -78,8 +79,13 @@ export const setPersistStatus = status => ({
   status: status
 })
 
-export const addSortingJob = (sortingJobId, recordingId, sorter) => ({
+export const addSortingJob = sortingJob => ({
   type: ADD_SORTING_JOB,
+  sortingJob
+})
+
+export const startSortingJob = (sortingJobId, recordingId, sorter) => ({
+  type: START_SORTING_JOB,
   sortingJobId,
   recordingId,
   sorter

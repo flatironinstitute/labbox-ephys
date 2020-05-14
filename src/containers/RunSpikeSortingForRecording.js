@@ -5,10 +5,10 @@ import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
 import SelectSpikeSorter from '../components/SelectSpikeSorter';
 import { Button } from '@material-ui/core';
-import { addSortingJob, setSortingJobStatus, cancelSortingJobs, addSorting } from '../actions';
+import { startSortingJob, setSortingJobStatus, cancelSortingJobs, addSorting } from '../actions';
 import { createHitherJob } from '../hither'
 
-const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sortingJobs, onAddSortingJob, onSetSortingJobStatus, onCancelSortingJobs, onAddSorting, jobHandlers }) => {
+const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sortingJobs, onStartSortingJob, onSetSortingJobStatus, onCancelSortingJobs, onAddSorting, jobHandlers }) => {
   const [sorter, setSorter] = useState(null);
 
   if (!recording) {
@@ -19,7 +19,7 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
 
   const handleRun = async () => {
     const sortingJobId = randomString(8);
-    onAddSortingJob(sortingJobId, recordingId, sorter);
+    onStartSortingJob(sortingJobId, recordingId, sorter);
     onSetSortingJobStatus(sortingJobId, 'running');
     let sortingPath, sortingObject;
     try {
@@ -104,7 +104,7 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onAddSortingJob: (sortingJobId, recordingId, sorter) => dispatch(addSortingJob(sortingJobId, recordingId, sorter)),
+  onStartSortingJob: (sortingJobId, recordingId, sorter) => dispatch(startSortingJob(sortingJobId, recordingId, sorter)),
   onSetSortingJobStatus: (sortingJobId, status) => dispatch(setSortingJobStatus(sortingJobId, status)),
   onCancelSortingJobs: (sortingJobIds) => dispatch(cancelSortingJobs(sortingJobIds)),
   onAddSorting: (sorting) => dispatch(addSorting(sorting))

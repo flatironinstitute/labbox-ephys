@@ -254,7 +254,7 @@ def save_state_to_disk(state):
             return True
         else:
             return False
-    for field in ['recordings', 'sortings', 'jobHandlers']:
+    for field in ['recordings', 'sortings', 'sortingJobs', 'jobHandlers']:
         if not save_state_to_disk_helper(field, state[field]):
             return False
     return True
@@ -273,6 +273,7 @@ def get_state_from_disk():
     ret = dict(
         recordings=get_state_from_disk_helper('recordings') or [],
         sortings=get_state_from_disk_helper('sortings') or [],
+        sortingJobs=get_state_from_disk_helper('sortingJobs') or [],
         jobHandlers=get_state_from_disk_helper('jobHandlers') or {}
     )
     return ret
