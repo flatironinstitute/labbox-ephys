@@ -4,11 +4,11 @@ import kachery as ka
 from ._correlograms_phy import compute_correlograms
 
 @hi.function('genplot_autocorrelogram', '0.1.0')
-def genplot_autocorrelogram(sorting, unit_id):
+def genplot_autocorrelogram(sorting_object, unit_id):
     import matplotlib.pyplot as plt, mpld3
     import labbox_ephys as le
 
-    S = le.LabboxEphysSortingExtractor(sorting)
+    S = le.LabboxEphysSortingExtractor(sorting_object)
 
     f = plt.figure(figsize=(2, 2))
     _plot_autocorrelogram(ax=plt.gca(), sorting=S, unit_id=unit_id, window_size_msec=50, bin_size_msec=1)

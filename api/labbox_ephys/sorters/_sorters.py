@@ -2,10 +2,12 @@ from typing import Union
 import os
 import random
 from types import SimpleNamespace
+
+from labbox_ephys.extractors.labboxephyssortingextractor import LabboxEphysSortingExtractor
 import hither as hi
 import kachery as ka
 
-@hi.function('mountainsort4', '0.1.4')
+@hi.function('mountainsort4', '0.1.5')
 @hi.container('docker://magland/sf-mountainsort4:0.3.2')
 @hi.local_modules(['../../labbox_ephys'])
 def mountainsort4(
@@ -72,9 +74,9 @@ def mountainsort4(
     with hi.TemporaryDirectory() as tmpdir:
         sorting_fname = tmpdir + '/firings.mda'
         le.MdaSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_fname)
-        sorting_out = hi.File(sorting_fname)
+        sorting_file = hi.File(sorting_fname)
     return dict(
-        sorting=sorting_out
+        sorting_file=sorting_file
     )
 
 def _random_string(num_chars: int) -> str:

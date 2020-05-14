@@ -12,17 +12,18 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
   const [sorter, setSorter] = useState(null);
 
   if (!recording) {
-    return <h3>{`Recording not found: ${recordingId}`}</h3>
+    return (
+      <h3>{`Recording not found: ${recordingId}`}</h3>
+    );
   }
 
   const handleRun = async () => {
     const sortingJobId = randomString(8);
     onAddSortingJob(sortingJobId, recordingId, sorter);
     onSetSortingJobStatus(sortingJobId, 'running');
-    let result;
-    if (sorter.algorithm)
+    let sortingPath, sortingObject;
     try {
-      const job = await createHitherJob(
+      const result = await createHitherJob(
         sorter.algorithm,
         {
           recording_object: recording.recordingObject
@@ -33,29 +34,41 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
           hither_config: {
             job_handler_role: 'sorting'
           },
-          auto_substitute_file_objects: true
+          auto_substitute_file_objects: true,
+          wait: true
         }
       );
-      result = await job.wait();
+      sortingPath = result.sorting_file;
+      sortingObject = await createHitherJob(
+        'get_sorting_object',
+        {
+          sorting_path: sortingPath,
+          recording_object: recording.recordingObject
+        },
+        {
+          wait: true
+        }
+      )
     }
-    catch(err) {
+    catch (err) {
       console.error(err);
       onSetSortingJobStatus(sortingJobId, 'error');
       return;
     }
-    if (!result.sorting) {
+    if (!sortingObject) {
       console.error('Problem: sorting not found.');
       onSetSortingJobStatus(sortingJobId, 'error');
       return;
     }
     onSetSortingJobStatus(sortingJobId, 'finished');
     const sorting = {
-        sortingId: sortingJobId,
-        sortingPath: result.sorting,
-        recordingId: recordingId,
-        recordingPath: recording.recordingPath,
-        recordingObject: recording.recordingObject,
-        sortingInfo: null
+      sortingId: sortingJobId,
+      sortingPath: sortingPath,
+      sortingObject: sortingObject,
+      recordingId: recordingId,
+      recordingPath: recording.recordingPath,
+      recordingObject: recording.recordingObject,
+      sortingInfo: null
     }
     onAddSorting(sorting);
   }
