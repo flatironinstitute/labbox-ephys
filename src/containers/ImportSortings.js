@@ -114,29 +114,41 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
 
 const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
     const [sortingPath, setSortingPath] = useState('');
+    const [sortingObject, setSortingObject] = useState(null);
     const [sortingId, setSortingId] = useState('');
     const [errors, setErrors] = useState({});
     const [sortingInfo, setSortingInfo] = useState(null);
     const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
 
     const effect = async () => {
-        if ((sortingPath) && (!sortingInfo)) {
+        if ((sortingPath) && (!sortingObject) && (!sortingInfo)) {
             setSortingInfoStatus('calculating');
             let info;
             try {
                 await sleep(500);
-                const sortingInfoJob = await createHitherJob(
+                const obj = await createHitherJob(
+                    'get_sorting_object',
+                    {
+                        sorting_path: sortingPath,
+                        recording_object: recordingObject
+                    },
+                    {
+                        wait: true
+                    }
+                )
+                setSortingObject(obj);
+                const info = await createHitherJob(
                     'get_sorting_info',
-                    { sorting_path: sortingPath, recording_object: recordingObject },
+                    { sorting_object: obj, recording_object: recordingObject },
                     {
                         kachery_config: {},
                         hither_config: {
                             job_handler_role: 'general'
                         },
+                        wait: true,
                         auto_substitute_file_objects: true
                     }
                 )
-                info = await sortingInfoJob.wait();
                 setSortingInfo(info);
                 setSortingInfoStatus('finished');
             }
@@ -176,6 +188,7 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
         const sorting = {
             sortingId,
             sortingPath,
+            sortingObject,
             recordingId,
             recordingPath,
             recordingObject
@@ -284,6 +297,10 @@ const SelectExampleSortingPath = ({ value, onChange, recordingPath }) => {
         {
             recordingPath: "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0",
             sortingPath: "sha1dir://51570fce195942dcb9d6228880310e1f4ca1395b.paired_kampff/2014_11_25_Pair_3_0/firings_true.mda"
+        },
+        {
+            recordingPath: "sha1dir://fb52d510d2543634e247e0d2d1d4390be9ed9e20.synth_magland/datasets_noise10_K10_C4/001_synth",
+            sortingPath: "sha1dir://fb52d510d2543634e247e0d2d1d4390be9ed9e20.synth_magland/datasets_noise10_K10_C4/001_synth/firings_true.mda"
         }
     ].filter(ep => (ep.recordingPath === recordingPath));
 
