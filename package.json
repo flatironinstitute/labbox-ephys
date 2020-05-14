@@ -1,6 +1,6 @@
 {
   "name": "labbox-ephys",
-  "version": "0.1.9-beta.1",
+  "version": "0.1.10-alpha.1",
   "dependencies": {
     "@material-ui/core": "^4.9.11",
     "@material-ui/icons": "^4.9.1",
@@ -8,6 +8,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
+    "global": "^4.4.0",
     "json-stable-stringify": "^1.0.1",
     "mongodb": "^3.5.6",
     "mongodb-client-encryption": "^1.0.1",
@@ -48,5 +49,7 @@
     ]
   },
   "proxy": "http://localhost:15302",
-  "devDependencies": {}
+  "devDependencies": {
+    "serve": "^11.3.0"
+  }
 }

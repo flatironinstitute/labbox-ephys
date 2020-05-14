@@ -52,6 +52,8 @@ labbox-launcher run magland/labbox-ephys:0.1.9-beta.1 --kachery $KACHERY_STORAGE
 
 Now, point your browser (chrome is recommended) to: `http://localhost:15310`
 
+**Important: The terminal output may refer to different ports, but it is important that you use 15310**
+
 ### Optionally host a compute resource server for spike sorting
 
 If you want to use your own computer to run the spike sorting, then you will need to set up a [hither compute resource server](doc/host-compute-resource.md).
