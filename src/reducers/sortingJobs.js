@@ -1,4 +1,4 @@
-import { ADD_SORTING_JOB, SET_SORTING_JOB_STATUS, DELETE_SORTING_JOBS } from '../actions'
+import { ADD_SORTING_JOB, SET_SORTING_JOB_STATUS, CANCEL_SORTING_JOBS, CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS } from '../actions'
 
 const sortingJobs = (state = [], action) => {
     switch (action.type) {
@@ -17,10 +17,15 @@ const sortingJobs = (state = [], action) => {
                 (s.sortingJobId === action.sortingJobId) ?
                     {...s, status: action.status} : s
             ))
-        case DELETE_SORTING_JOBS:
+        case CANCEL_SORTING_JOBS:
             const exclude = Object.fromEntries(action.sortingJobIds.map(id => [id, true]));
             return state.filter(s => (
                 !(s.sortingJobId in exclude)
+            ));
+        case CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS:
+            const excludeRecordingIds = Object.fromEntries(action.recordingIds.map(id => [id, true]));
+            return state.filter(s => (
+                !(s.recordingId in excludeRecordingIds)
             ));
         default:
             return state

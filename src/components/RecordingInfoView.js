@@ -5,6 +5,11 @@ import { Table, TableHead, TableRow, TableBody, TableCell } from '@material-ui/c
 const RecordingInfoView = ({ recordingInfo  }) => {
     const ri = recordingInfo;
     const [selectedElectrodeIds, setSelectedElectrodeIds] = useState({});
+    if (!ri) {
+        return (
+            <div>No recording info found for recording.</div>
+        )
+    }
     return (
         <div>
             <div style={{ width: 600 }}>

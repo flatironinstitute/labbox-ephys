@@ -98,10 +98,11 @@ If you want to use your own computer to run the spike sorting, then you will nee
 * 0.1.9 [in progress]
     - reorganized labbox rec extractor [done]
     - switch to using recordingObject throughout [done]
-    - switch to using sortingObject throughout [in-progress]
-    - when recording is deleted, also delete the associated sortings [in-progress]
+    - switch to using sortingObject throughout #3 [done]
+    - when recording is deleted, also delete the associated sortings #5 [in-progress]
     - auto-convert sha1:// strings to hi.File() [done]
     - Import from local disk [done]
+    - Persisting sorting jobs #6
 * 0.1.10
     - Additional plots for sorting view
 * Other

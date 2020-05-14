@@ -15,7 +15,6 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
     const effect = async () => {
         if ((recordingPath) && (!recordingObject) && (!recordingInfo) && (!recordingInfoStatus)) {
             setRecordingInfoStatus('calculating');
-            let info;
             try {
                 await sleep(500);
                 const obj = await createHitherJob(

@@ -1,10 +1,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable'
-import { deleteSortingJobs } from '../actions';
+import { cancelSortingJobs } from '../actions';
 import { Link } from 'react-router-dom';
 
-const SortingJobsTable = ({ sortingJobs, onDeleteSortingJobs }) => {
+const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -47,7 +47,7 @@ const SortingJobsTable = ({ sortingJobs, onDeleteSortingJobs }) => {
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Cancel this sorting job"}
-                onDeleteRow={(row) => onDeleteSortingJobs([row.sortingJob.sortingJobId])}
+                onDeleteRow={(row) => onCancelSortingJobs([row.sortingJob.sortingJobId])}
             />
         </div>
     );
@@ -60,7 +60,7 @@ const mapStateToProps = (state, ownProps) => (
 )
 
 const mapDispatchToProps = dispatch => ({
-    onDeleteSortingJobs: sortingJobIds => dispatch(deleteSortingJobs(sortingJobIds))
+    onCancelSortingJobs: sortingJobIds => dispatch(cancelSortingJobs(sortingJobIds))
 })
 
 export default connect(

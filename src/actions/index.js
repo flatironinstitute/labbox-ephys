@@ -9,6 +9,7 @@ export const SET_RECORDING_INFO = 'SET_RECORDING_INFO'
 
 export const ADD_SORTING = 'ADD_SORTING'
 export const DELETE_SORTINGS = 'DELETE_SORTINGS'
+export const DELETE_ALL_SORTINGS_FOR_RECORDINGS = 'DELETE_ALL_SORTINGS_FOR_RECORDINGS'
 export const SET_SORTING_INFO = 'SET_SORTING_INFO'
 
 export const INIT_FETCH_SORTING_INFO = 'INIT_FETCH_SORTING_INFO'
@@ -18,7 +19,8 @@ export const SET_PERSIST_STATUS = 'SET_PERSIST_STATUS'
 
 export const ADD_SORTING_JOB = 'ADD_SORTING_JOB'
 export const SET_SORTING_JOB_STATUS = 'SET_SORTING_JOB_STATUS'
-export const DELETE_SORTING_JOBS = 'DELETE_SORTING_JOBS'
+export const CANCEL_SORTING_JOBS = 'CANCEL_SORTING_JOBS'
+export const CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS = 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS'
 
 export const sleep = m => new Promise(r => setTimeout(r, m));
 
@@ -38,10 +40,22 @@ export const addRecording = recording => ({
   recording: recording
 })
 
-export const deleteRecordings = recordingIds => ({
-  type: DELETE_RECORDINGS,
-  recordingIds: recordingIds
-})
+export const deleteRecordings = recordingIds => {
+  return function(dispatch) {
+    dispatch({
+      type: 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS',
+      recordingIds: recordingIds
+    });
+    dispatch({
+      type: 'DELETE_ALL_SORTINGS_FOR_RECORDINGS',
+      recordingIds: recordingIds
+    });
+    dispatch({
+      type: 'DELETE_RECORDINGS',
+      recordingIds: recordingIds,
+    });
+  }
+}
 
 export const setRecordingInfo = ({ recordingId, recordingInfo }) => ({
   type: SET_RECORDING_INFO,
@@ -77,7 +91,7 @@ export const setSortingJobStatus = (sortingJobId, status) => ({
   status
 })
 
-export const deleteSortingJobs = (sortingJobIds) => ({
-  type: DELETE_SORTING_JOBS,
+export const cancelSortingJobs = (sortingJobIds) => ({
+  type: CANCEL_SORTING_JOBS,
   sortingJobIds
 })
