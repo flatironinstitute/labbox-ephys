@@ -110,25 +110,25 @@ def create_hither_job():
                 job = hi.run(functionName, **kwargs)
                 job_id = job._job_id
                 global_data['jobs_by_id'][job_id] = job
+                print(f'======== Created hither job: {job_id} {functionName}')
                 return dict(
                     job_id=job_id
                 )
 
 @app.route('/api/hither_job_wait', methods=['POST'])
 def hither_job_wait(timeout=None):
-    print('hither job wait')
     x = request.json
     job_id = x['job_id']
     assert job_id, 'Missing job_id'
     global global_data
     with global_data_lock:
         assert job_id in global_data['jobs_by_id'], f'No job with id: {job_id}'
-        job = global_data['jobs_by_id'][job_id]
+        job: hi.Job = global_data['jobs_by_id'][job_id]
     timer = time.time()
     while True:
         with global_data_lock:
             try:
-                job.wait(0.1)
+                job.wait(0)
             except Exception:
                 traceback.print_exc()
                 return dict(
@@ -139,11 +139,14 @@ def hither_job_wait(timeout=None):
             if job.status() == hi.JobStatus.FINISHED:
                 result = job.result()
                 result = _serialize_files_in_item(result)
+                print(f'======== Finished hither job: {job_id} {job.get_label()}')
                 return dict(
                     error=False,
                     result=result,
                     runtime_info=job.runtime_info()
                 )
+        # Note that this sleep is importantly outside the lock context
+        time.sleep(0.1)
         elapsed = time.time() - timer
         if (timeout is not None) and (elapsed > timeout):
             return dict(
