@@ -1,8 +1,8 @@
-import os
+from copy import deepcopy
+from typing import Union
 import kachery as ka
 import hither as hi
 import spikeextractors as se
-import numpy as np
 from .mdaextractors import MdaSortingExtractor
 
 def _path(x):
@@ -13,86 +13,84 @@ def _path(x):
     else:
         raise Exception('Cannot get path from:', x)
 
+def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None, dict]:
+    if isinstance(arg, str):
+        path = arg
+        if not ka.get_file_info(path):
+            return None
+        return dict(
+            sorting_format='mda',
+            data=dict(
+                firings=path,
+                samplerate=samplerate
+            )
+        )
+    
+    if isinstance(arg, dict):
+        if 'firings' in arg:
+            return dict(
+                recording_format='mda',
+                data=dict(
+                    firings=arg['firings'],
+                    samplerate=arg.get('samplerate', None)
+                )
+            )
+    
+    return None
+
+def _create_object_for_arg(arg: Union[str, dict], samplerate=None) -> Union[dict, None]:
+    # check to see if it already has the sorting_format field. If so, just return arg
+    if (isinstance(arg, dict)) and ('sorting_format' in arg):
+        return arg
+
+    # if has form dict(path='...') then replace by the string
+    if (isinstance(arg, dict)) and ('path' in arg) and (type(arg['path']) == str):
+        arg = arg['path']
+
+    # if has type LabboxEphysRecordingExtractor, then just get the object from arg.object()
+    if isinstance(arg, LabboxEphysSortingExtractor):
+        return arg.object()
+
+    # if arg is a string ending with .json then replace arg by the object
+    if (isinstance(arg, str)) and (arg.endswith('.json')):
+        path = arg
+        arg = ka.load_object(path)
+        if arg is None:
+            raise Exception(f'Unable to load object: {path}')
+    
+    # See if it has format 'mda'
+    obj = _try_mda_create_object(arg, samplerate=samplerate)
+    if obj is not None:
+        return obj
+    
+    return None    
+
 class LabboxEphysSortingExtractor(se.SortingExtractor):
     def __init__(self, arg, samplerate=None):
         super().__init__()
-
-        self.arg = arg
-
-        if isinstance(arg, LabboxEphysSortingExtractor):
-            self._sorting = arg
-            self.arg = self._sorting.arg
+        if (isinstance(arg, dict)) and ('sorting_format' in arg):
+            obj = dict(arg)
         else:
-            if type(arg) == str or isinstance(arg, hi.File):
-                path = _path(arg)
-                if path.endswith('.json'):
-                    arg = ka.load_object(path)
-            
-            if type(arg) == str or isinstance(arg, hi.File):
-                path = _path(arg)
-                self._sorting = MdaSortingExtractor(firings_file=path, samplerate=samplerate)
-            elif type(arg) == dict:
-                if 'firings' in arg:
-                    self._sorting = LabboxEphysSortingExtractor(arg['firings'], samplerate=samplerate)
-                elif 'sortingPath' in arg:
-                    if samplerate is None:
-                        samplerate = arg.get('sortingInfo', {}).get('samplerate', None)
-                    self._sorting = LabboxEphysSortingExtractor(arg['sortingPath'], samplerate=samplerate)
-                elif 'path' in arg:
-                    self._sorting = LabboxEphysSortingExtractor(arg['path'], samplerate=samplerate)
-                else:
-                    raise Exception('Invalid arg for LabboxEphysSortingExtractor', arg)
-            else:
-                raise Exception('Invalid arg for LabboxEphysSortingExtractor', arg)
+            obj = _create_object_for_arg(arg, samplerate=samplerate)
+            assert obj is not None, f'Unable to create sorting from arg: {arg}'
+        self._object: dict = obj
+
+        sorting_format = self._object['sorting_format']
+        data: dict = self._object['data']
+        if sorting_format == 'mda':
+            firings_path = ka.load_file(data['firings'])
+            assert firings_path is not None, f'Unable to load firings file: {data["firings"]}'
+            self._sorting: se.SortingExtractor = MdaSortingExtractor(firings_file=firings_path, samplerate=data['samplerate'])
+        else:
+            raise Exception(f'Unexpected sorting format: {sorting_format}')
 
         self.copy_unit_properties(sorting=self._sorting)
     
     def object(self):
-        return _resolve_paths_in_item(self.arg)
-
-    def _init_from_file(self, path: str, *, original_path: str, kwargs: dict):
-        if MdaSortingExtractor.can_read(firings_file=path):
-            if 'paramsPath' in kwargs:
-                params = ka.load_object(kwargs['paramsPath'])
-                samplerate = params['samplerate']
-            elif 'samplerate' in kwargs:
-                samplerate = kwargs['samplerate']
-            else:
-                raise Exception('Missing argument: samplerate or paramsPath')
-            self._sorting = MdaSortingExtractor(firings_file=path, samplerate=samplerate)
-        else:
-            try:
-                obj = ka.load_object(path)
-            except:
-                obj = None
-            if obj is not None:
-                if 'firings' in obj:
-                    if 'paramsPath' in kwargs:
-                        params = ka.load_object(kwargs['paramsPath'])
-                        samplerate = params['samplerate']
-                    elif 'samplerate' in kwargs:
-                        samplerate = kwargs['samplerate']
-                    elif 'samplerate' in obj:
-                        samplerate = obj['samplerate']
-                    else:
-                        raise Exception('Missing argument: samplerate or paramsPath')
-                    self._sorting = MdaSortingExtractor(firings_file=obj['firings'], samplerate=samplerate)
-            
-        if not self._sorting:
-            raise Exception('Unsupported format for {} of size {}'.format(path, os.path.getsize(path)))
-        
+        return deepcopy(self._object)
     
-    def hash(self):
-        if not self._hash:
-            if hasattr(self._sorting, 'hash'):
-                if type(self._sorting.hash) == str:
-                    self._hash = self._sorting.hash
-                else:
-                    self._hash = self._sorting.hash()
-            else:
-                self._hash = None
-                # self._hash = _samplehash(self._sorting)
-        return self._hash
+    def hash(self) -> str:
+        return ka.get_object_hash(self.object())
 
     def get_unit_ids(self):
         return self._sorting.get_unit_ids()
@@ -151,102 +149,102 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
         #         json.dump(sorting_obj, f, indent=4)
         # return sorting_obj
 
-class NwbSortingExtractor(se.SortingExtractor):
-    def __init__(self, *, path, nwb_path):
-        import h5py
-        super().__init__()
-        self._path = path
-        with h5py.File(self._path, 'r') as f:
-            X = load_nwb_item(file=f, nwb_path=nwb_path)
-            self._spike_times = X['spike_times'][:] * self.get_sampling_frequency()
-            self._spike_times_index = X['spike_times_index'][:]
-            self._unit_ids = X['id'][:]
-            self._index_by_id = dict()
-            for index, id0 in enumerate(self._unit_ids):
-                self._index_by_id[id0] = index
+# class NwbSortingExtractor(se.SortingExtractor):
+#     def __init__(self, *, path, nwb_path):
+#         import h5py
+#         super().__init__()
+#         self._path = path
+#         with h5py.File(self._path, 'r') as f:
+#             X = load_nwb_item(file=f, nwb_path=nwb_path)
+#             self._spike_times = X['spike_times'][:] * self.get_sampling_frequency()
+#             self._spike_times_index = X['spike_times_index'][:]
+#             self._unit_ids = X['id'][:]
+#             self._index_by_id = dict()
+#             for index, id0 in enumerate(self._unit_ids):
+#                 self._index_by_id[id0] = index
 
-    def get_unit_ids(self):
-        return [int(val) for val in self._unit_ids]
+#     def get_unit_ids(self):
+#         return [int(val) for val in self._unit_ids]
 
-    def get_unit_spike_train(self, unit_id, start_frame=None, end_frame=None):
-        if start_frame is None:
-            start_frame = 0
-        if end_frame is None:
-            end_frame = np.Inf
-        index = self._index_by_id[unit_id]
-        ii2 = self._spike_times_index[index]
-        if index - 1 >= 0:
-            ii1 = self._spike_times_index[index - 1]
-        else:
-            ii1 = 0
-        return self._spike_times[ii1:ii2]
+#     def get_unit_spike_train(self, unit_id, start_frame=None, end_frame=None):
+#         if start_frame is None:
+#             start_frame = 0
+#         if end_frame is None:
+#             end_frame = np.Inf
+#         index = self._index_by_id[unit_id]
+#         ii2 = self._spike_times_index[index]
+#         if index - 1 >= 0:
+#             ii1 = self._spike_times_index[index - 1]
+#         else:
+#             ii1 = 0
+#         return self._spike_times[ii1:ii2]
     
-    def get_sampling_frequency(self):
-        # need to fix this
-        return 30000
+#     def get_sampling_frequency(self):
+#         # need to fix this
+#         return 30000
 
-def _concatenate(list):
-    if len(list) == 0:
-        return np.array([])
-    return np.concatenate(list)
+# def _concatenate(list):
+#     if len(list) == 0:
+#         return np.array([])
+#     return np.concatenate(list)
 
-def _json_serialize(x):
-    if isinstance(x, np.ndarray):
-        return _listify_ndarray(x)
-    elif isinstance(x, np.integer):
-        return int(x)
-    elif isinstance(x, np.floating):
-        return float(x)
-    elif type(x) == dict:
-        ret = dict()
-        for key, val in x.items():
-            ret[key] = _json_serialize(val)
-        return ret
-    elif type(x) == list:
-        ret = []
-        for i, val in enumerate(x):
-            ret.append(_json_serialize(val))
-        return ret
-    else:
-        return x
+# def _json_serialize(x):
+#     if isinstance(x, np.ndarray):
+#         return _listify_ndarray(x)
+#     elif isinstance(x, np.integer):
+#         return int(x)
+#     elif isinstance(x, np.floating):
+#         return float(x)
+#     elif type(x) == dict:
+#         ret = dict()
+#         for key, val in x.items():
+#             ret[key] = _json_serialize(val)
+#         return ret
+#     elif type(x) == list:
+#         ret = []
+#         for i, val in enumerate(x):
+#             ret.append(_json_serialize(val))
+#         return ret
+#     else:
+#         return x
 
-def _listify_ndarray(x):
-    if x.ndim == 1:
-        if np.issubdtype(x.dtype, np.integer):
-            return [int(val) for val in x]
-        else:
-            return [float(val) for val in x]
-    elif x.ndim == 2:
-        ret = []
-        for j in range(x.shape[1]):
-            ret.append(_listify_ndarray(x[:, j]))
-        return ret
-    elif x.ndim == 3:
-        ret = []
-        for j in range(x.shape[2]):
-            ret.append(_listify_ndarray(x[:, :, j]))
-        return ret
-    elif x.ndim == 4:
-        ret = []
-        for j in range(x.shape[3]):
-            ret.append(_listify_ndarray(x[:, :, :, j]))
-        return ret
-    else:
-        raise Exception('Cannot listify ndarray with {} dims.'.format(x.ndim))
+# def _listify_ndarray(x):
+#     if x.ndim == 1:
+#         if np.issubdtype(x.dtype, np.integer):
+#             return [int(val) for val in x]
+#         else:
+#             return [float(val) for val in x]
+#     elif x.ndim == 2:
+#         ret = []
+#         for j in range(x.shape[1]):
+#             ret.append(_listify_ndarray(x[:, j]))
+#         return ret
+#     elif x.ndim == 3:
+#         ret = []
+#         for j in range(x.shape[2]):
+#             ret.append(_listify_ndarray(x[:, :, j]))
+#         return ret
+#     elif x.ndim == 4:
+#         ret = []
+#         for j in range(x.shape[3]):
+#             ret.append(_listify_ndarray(x[:, :, :, j]))
+#         return ret
+#     else:
+#         raise Exception('Cannot listify ndarray with {} dims.'.format(x.ndim))
 
-def _resolve_paths_in_item(x):
-    if isinstance(x, hi.File):
-        return x.path
-    elif type(x) == list:
-        return [_resolve_paths_in_item[v] for v in x]
-    elif type(x) == tuple:
-        return tuple([_resolve_paths_in_item[v] for v in x])
-    elif type(x) == dict:
-        ret = dict()
-        for k, v in x.items():
-            ret[k] = _resolve_paths_in_item(v)
-    else:
-        return x
+# def _resolve_paths_in_item(x):
+#     if isinstance(x, hi.File):
+#         return x.path
+#     elif type(x) == list:
+#         return [_resolve_paths_in_item[v] for v in x]
+#     elif type(x) == tuple:
+#         return tuple([_resolve_paths_in_item[v] for v in x])
+#     elif type(x) == dict:
+#         ret = dict()
+#         for k, v in x.items():
+#             ret[k] = _resolve_paths_in_item(v)
+#     else:
+#         return x
 
 # def _samplehash(sorting):
 #     from mountaintools import client as mt

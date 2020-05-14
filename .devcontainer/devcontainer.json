@@ -23,7 +23,7 @@
 		"ryanluker.vscode-coverage-gutters",
 		"zainchen.json",
 		"github.vscode-pull-request-github",
-		"dbaeumer.jshint"
+		"dbaeumer.vscode-eslint"
 	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.

@@ -3,5 +3,8 @@
         "magland"
     ],
     "githubIssues.ignoreUserCompletionTrigger": [],
-    "githubIssues.ignoreCompletionTrigger": []
+    "githubIssues.ignoreCompletionTrigger": [],
+    "jshint.options": {
+    "esversion": 9
+    }
 }
