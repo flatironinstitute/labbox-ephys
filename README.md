@@ -45,7 +45,7 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.9-alpha.6 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.9-beta.1 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
@@ -95,7 +95,7 @@ If you want to use your own computer to run the spike sorting, then you will nee
 * 0.1.8 [done-ish]
     - Update documentation - for users and developers
     - Create complete instructions for running labbox-ephys with local compute resource
-* 0.1.9 [in progress]
+* 0.1.9 [done]
     - reorganized labbox rec extractor [done]
     - switch to using recordingObject throughout [done]
     - switch to using sortingObject throughout #3 [done]
@@ -103,7 +103,7 @@ If you want to use your own computer to run the spike sorting, then you will nee
     - auto-convert sha1:// strings to hi.File() [done]
     - Import from local disk [done]
     - Persisting sorting jobs #6 [done]
-    - Run multiple hither api calls in parallel #8 [in progress]
+    - Run multiple hither api calls in parallel #8 [done]
 * 0.1.10
     - Additional plots for sorting view
 * Other
