@@ -117,3 +117,9 @@ If you want to use your own computer to run the spike sorting, then you will nee
     - Design a logo (replace logo.svg and public/favicon.ico)
     - More efficient serialization to disk
     - Export/import persisted state
+
+## Authors
+
+Jeremy Magland and Jeff Soules
+
+Center for Computational Mathematics, Flatiron Institute

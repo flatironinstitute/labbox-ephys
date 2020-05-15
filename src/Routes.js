@@ -11,6 +11,7 @@ import About from "./components/About";
 import Prototypes from './components/Prototypes';
 import Config from './components/Config';
 import SortingView from './containers/SortingView';
+import HitherJobMonitor from './containers/HitherJobMonitor';
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -23,6 +24,7 @@ const Routes = () => {
             <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
             <Route path="/config"><Config /></Route>
+            <Route path="/hitherJobMonitor"><HitherJobMonitor /></Route>
             <Route path="/importRecordings"><ImportRecordings /></Route>
             <Route
                 path="/importSortingsForRecording/:recordingId*"

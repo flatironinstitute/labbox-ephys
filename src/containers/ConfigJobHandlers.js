@@ -57,7 +57,7 @@ const ConfigJobHandlers = ({
                     Install the most recent version of labbox-launcher: <pre>pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher</pre>
                 </li>
                 <li>
-                    Create a new directory on your compute. For example: <pre>mkdir /home/user/labbox/compute_resource</pre>
+                    Create a new directory on your computer. For example: <pre>mkdir /home/user/labbox/compute_resource</pre>
                 </li>
                 <li>
                     Change to that directory and run the configuration utility:

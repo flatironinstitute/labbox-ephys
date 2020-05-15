@@ -15,7 +15,7 @@ function Home() {
             </Typography>
             <p />
             <Typography component="p">
-                Authors: Jeremy Magland, Flatiron Institute
+                Authors: Jeremy Magland and Jeff Soules, Center for Computational Mathematics, Flatiron Institute
             </Typography>
         </div>
     );

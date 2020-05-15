@@ -5,6 +5,7 @@ import sortings from './sortings'
 import sortingJobs from './sortingJobs'
 import jobHandlers from './jobHandlers'
 import persisting from './persisting'
+import hitherJobs from './hitherJobs'
 
 export default combineReducers({
     databaseConfig,
@@ -12,5 +13,6 @@ export default combineReducers({
     sortings,
     sortingJobs,
     jobHandlers,
-    persisting
+    persisting,
+    hitherJobs
 })

@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 import { Home } from '@material-ui/icons';
 import PersistStateControl from './containers/PersistStateControl';
+import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
 const ToolBarContent = () => {
     return (
         <Fragment>
@@ -22,6 +23,7 @@ const ToolBarContent = () => {
             <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
+            <HitherJobMonitorControl />
         </Fragment>
     )
 }

@@ -1,11 +1,27 @@
 import File from './File'
+import { addHitherJob, updateHitherJob } from '../actions/hitherJobs'
 
 const axios = require('axios');
 const objectHash = require('object-hash');
 
 const globalHitherJobStore = {};
+const globalDispatch = {};
 
 export const sleep = m => new Promise(r => setTimeout(r, m));
+
+const dispatchAddHitherJob = (job) => {
+  if (!globalDispatch.dispatch) return;
+  globalDispatch.dispatch(addHitherJob(job));
+}
+
+const dispatchUpdateHitherJob = ({ jobId, update} ) => {
+  if (!globalDispatch.dispatch) return;
+  globalDispatch.dispatch(updateHitherJob({ jobId, update }));
+}
+
+export const setDispatch = (dispatch) => {
+  globalDispatch.dispatch = dispatch;
+}
 
 const createHitherJob = async (functionName, kwargs, opts={}) => {
   if (opts.wait) {
@@ -45,6 +61,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
       }
       else if (job.status === 'pending') {
         job.status = 'running';
+        dispatchUpdateHitherJob({jobId: job.jobId, update: job});
         let data;
         try {
           const url = `/api/hither_job_wait`;
@@ -54,23 +71,27 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
         catch (err) {
           job.status = 'error';
           job.errorMessage = 'Error calling hitherJobWait';
+          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
           break;
         }
         if (!data) {
           job.status = 'error';
           job.errorMessage = 'Unexpected: No data';
+          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
           break;
         }
         else if (data.error) {
           job.status = 'error';
           job.errorMessage = `Error running job: ${data.error_message}`;
           job.runtime_info = data.runtime_info;
+          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
           break;
         }
         else {
           job.status = 'finished';
           job.result = deserializeFileObjectsInItem(data.result);
           job.runtime_info = data.runtime_info;
+          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
         }
       }
       else {
@@ -92,6 +113,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     throw(err);
   }
   job.jobId = j.data.job_id;
+  dispatchAddHitherJob(job);
   return job;
 }
 
