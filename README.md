@@ -45,7 +45,7 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.10-alpha.3 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.10-alpha.4 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
