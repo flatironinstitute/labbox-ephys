@@ -45,7 +45,7 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.10-alpha.2 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.10-alpha.3 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
@@ -109,6 +109,8 @@ If you want to use your own computer to run the spike sorting, then you will nee
 * 0.1.10
     - Hither job monitor within GUI #11 [done]
     - Improved import/download spikeforest recordings system [done]
+    - Timestamps on jobs, sort table by timestamps
+    - Allow cancelling of hither jobs
     - Connect back to sorting job even after page reload #9
     - Additional plots for sorting view
 * Other
