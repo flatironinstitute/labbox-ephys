@@ -7,7 +7,7 @@ const objectHash = require('object-hash');
 const globalHitherJobStore = {};
 const globalDispatch = {};
 
-export const sleep = m => new Promise(r => setTimeout(r, m));
+export const sleepMsec = m => new Promise(r => setTimeout(r, m));
 
 const dispatchAddHitherJob = (job) => {
   if (!globalDispatch.dispatch) return;
@@ -47,11 +47,11 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     runtime_info: null,
     status: 'pending'
   }
-  job.wait = async () => {
+  job.wait = async (timeout=undefined) => {
     while (true) {
       while ((!job.jobId) && (job.status === 'pending')) {
         // the api call must be happening elsewhere
-        await sleep(10);
+        await sleepMsec(10);
       }
       if (job.status === 'finished') {
         return job.result;
@@ -62,43 +62,77 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
       else if (job.status === 'pending') {
         job.status = 'running';
         dispatchUpdateHitherJob({jobId: job.jobId, update: job});
-        let data;
-        try {
-          const url = `/api/hither_job_wait`;
-          const result = await axios.post(url, {job_id: job.jobId});
-          data = result.data;
-        }
-        catch (err) {
-          job.status = 'error';
-          job.errorMessage = 'Error calling hitherJobWait';
-          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
-          break;
-        }
-        if (!data) {
-          job.status = 'error';
-          job.errorMessage = 'Unexpected: No data';
-          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
-          break;
-        }
-        else if (data.error) {
-          job.status = 'error';
-          job.errorMessage = `Error running job: ${data.error_message}`;
-          job.runtime_info = data.runtime_info;
-          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
-          break;
-        }
-        else {
-          job.status = 'finished';
-          job.result = deserializeFileObjectsInItem(data.result);
-          job.runtime_info = data.runtime_info;
-          dispatchUpdateHitherJob({jobId: job.jobId, update: job});
+        const timer = new Date();
+        while (true) {
+          const ret = await job._wait_helper();
+          if (!ret.timeout) {
+            if (job.status === 'error') {
+              throw Error(job.errorMessage);
+            }  
+            else if (job.status === 'finished') {
+              return job.result;
+            }
+            else {
+              throw Error(`Unexpected status after returning from job._wait_helper: ${job.status}`)
+            }
+          }
+          const elapsed = (new Date() - timer);
+          if ((timeout !== undefined) && (elapsed > timeout)) {
+            return null;
+          }
+          await sleepMsec(100);
         }
       }
       else {
-        await sleep(50);
+        await sleepMsec(50);
       }
     }
-    throw Error(job.errorMessage);
+    
+  }
+  job._wait_helper = async () => {
+    let data;
+    try {
+      const url = `/api/hither_job_wait`;
+      const result = await axios.post(url, {job_id: job.jobId, timeout_sec: 5});
+      data = result.data;
+    }
+    catch (err) {
+      job.status = 'error';
+      job.errorMessage = 'Error calling hitherJobWait';
+      dispatchUpdateHitherJob({jobId: job.jobId, update: job});
+      return {
+        timeout: false
+      };
+    }
+    if (!data) {
+      job.status = 'error';
+      job.errorMessage = 'Unexpected: No data';
+      dispatchUpdateHitherJob({jobId: job.jobId, update: job});
+      return {
+        timeout: false
+      };
+    }
+    else if (data.error) {
+      job.status = 'error';
+      job.errorMessage = `Error running job: ${data.error_message}`;
+      job.runtime_info = data.runtime_info;
+      dispatchUpdateHitherJob({jobId: job.jobId, update: job});
+      return {
+        timeout: false
+      };
+    }
+    else if (data.timeout) {
+      return {timeout: true};
+    }
+    else {
+      job.status = 'finished';
+      job.result = deserializeFileObjectsInItem(data.result);
+      job.runtime_info = data.runtime_info;
+      dispatchUpdateHitherJob({jobId: job.jobId, update: job});
+      return {
+        timeout: false
+      };
+    }
   }
   if (opts.useCache !== false) {
     globalHitherJobStore[job.jobHash] = job;

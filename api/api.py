@@ -116,9 +116,10 @@ def create_hither_job():
                 )
 
 @app.route('/api/hither_job_wait', methods=['POST'])
-def hither_job_wait(timeout=None):
+def hither_job_wait():
     x = request.json
     job_id = x['job_id']
+    timeout_sec = x['timeout_sec']
     assert job_id, 'Missing job_id'
     global global_data
     with global_data_lock:
@@ -148,7 +149,7 @@ def hither_job_wait(timeout=None):
         # Note that this sleep is importantly outside the lock context
         time.sleep(0.1)
         elapsed = time.time() - timer
-        if (timeout is not None) and (elapsed > timeout):
+        if elapsed > timeout_sec:
             return dict(
                 timeout=True
             )
