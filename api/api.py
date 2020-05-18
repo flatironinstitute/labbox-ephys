@@ -19,7 +19,7 @@ import pluginComponents
 
 app = Flask(__name__)
 global_data = dict(
-    default_job_handler=hi.DefaultJobHandler(),
+    default_job_handler=hi.ParallelJobHandler(num_workers=4),
     job_handlers_by_id=dict(),
     jobs_by_id=dict()
 )

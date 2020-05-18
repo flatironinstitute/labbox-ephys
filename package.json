@@ -1,6 +1,6 @@
 {
   "name": "labbox-ephys",
-  "version": "0.1.10-alpha.4",
+  "version": "0.1.10-alpha.6",
   "dependencies": {
     "@material-ui/core": "^4.9.11",
     "@material-ui/icons": "^4.9.1",

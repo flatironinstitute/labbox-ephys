@@ -18,6 +18,7 @@ const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history 
     <div>
       <Grid container spacing={3}>
         <Grid item xs={12} lg={6}>
+          <div>{recording.recordingPath}</div>
           <RecordingInfoView recordingInfo={recording.recordingInfo} />
           <Link to={`/timeseriesForRecording/${recordingId}`}>View timeseries</Link>
         </Grid>
