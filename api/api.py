@@ -154,6 +154,17 @@ def hither_job_wait():
                 timeout=True
             )
 
+@app.route('/api/hither_job_cancel', methods=['POST'])
+def hither_job_cancel():
+    x = request.json
+    job_id = x['job_id']
+    assert job_id, 'Missing job_id'
+    global global_data
+    with global_data_lock:
+        assert job_id in global_data['jobs_by_id'], f'No job with id: {job_id}'
+        job: hi.Job = global_data['jobs_by_id'][job_id]
+    job.cancel()
+
 def _resolve_files_in_item(x):
     if isinstance(x, hi.File):
         if x._item_type == 'file':

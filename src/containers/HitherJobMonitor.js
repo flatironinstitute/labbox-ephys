@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable';
-import { Link as LinkMui, Button, Table, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core';
+import { Link as LinkMui, Button, Table, TableHead, TableBody, TableRow, TableCell, IconButton } from '@material-ui/core';
+import { Delete } from "@material-ui/icons"
 
 const HitherJobMonitor = ({
     allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs
 }) => {
     const [currentJob, setCurrentJob] = useState(null);
+
+    const handleCancelJob = (j) => {
+        j.cancel();
+    }
 
     if (currentJob) {
         return (
@@ -21,6 +26,7 @@ const HitherJobMonitor = ({
             <HitherJobMonitorTable
                 jobs={allJobs}
                 onViewJob={j => setCurrentJob(j)}
+                onCancelJob={j => handleCancelJob(j)}
             />
         )
     }
@@ -83,6 +89,14 @@ const HitherJobInfoView = ({ job }) => {
             value: job.status
         },
         {
+            label: 'Started',
+            value: job.timestampStarted ? formatTime(new Date(job.timestampStarted)) : ''
+        },
+        {
+            label: 'Finished',
+            value: job.timestampFinished ? formatTime(new Date(job.timestampFinished)) : ''
+        },
+        {
             label: 'Result',
             value: resultElement
         }
@@ -108,7 +122,8 @@ const HitherJobInfoView = ({ job }) => {
 
 const HitherJobMonitorTable = ({
     jobs,
-    onViewJob
+    onViewJob,
+    onCancelJob
 }) => {
     const columns = [
         {
@@ -122,15 +137,37 @@ const HitherJobMonitorTable = ({
         {
             key: 'status',
             label: 'Status'
+        },
+        {
+            key: 'started',
+            label: 'Started'
+        },
+        {
+            key: 'finished',
+            label: 'Finished'
         }
     ];
-    const rows = jobs.map((j) => ({
+    const sortedJobs = jobs;
+    sortedJobs.sort((j1, j2) => {
+        if ((j1.status === 'running') && (j2.status !== 'running'))
+            return -1;
+        else if ((j2.status === 'running') && (j1.status !== 'running'))
+            return 1;
+        if ((j1.timestampStarted) && (j2.timestampStarted)) {
+            if (j1.timestampStarted < j2.timestampStarted) return 1;
+            else if (j2.timestampStarted < j1.timestampStarted) return -1;
+            else return 0;
+        }
+    })
+    const rows = sortedJobs.map((j) => ({
         key: j.jobId,
         jobId: {
             element: <LinkMui href="#" onClick={() => {onViewJob && onViewJob(j)}}>{j.jobId}</LinkMui>
         },
         functionName: j.functionName,
-        status: j.status
+        status: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status,
+        started: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : '',
+        finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : ''
     }));
     return (
         <NiceTable
@@ -140,9 +177,28 @@ const HitherJobMonitorTable = ({
     )
 }
 
+const CancelJobButton = ({ onClick }) => {
+    return (
+        <IconButton title={"Cancel job"} onClick={onClick}><Delete /></IconButton>
+    )
+}
+
 function niceStringify(x) {
     // TODO: figure out how to keep numeric arrays on one line in this expansion
     return JSON.stringify(x, null, 4);
+}
+
+function formatTime(d) {
+    const datesAreOnSameDay = (first, second) =>
+        first.getFullYear() === second.getFullYear() &&
+        first.getMonth() === second.getMonth() &&
+        first.getDate() === second.getDate();
+    let ret = '';
+    if (!datesAreOnSameDay(d, new Date())) {
+        ret += `${(d.getMonth() + 1)}/${d.getDate()}/${d.getFullYear()}} `;
+    }
+    ret += `${d.toLocaleTimeString()}`
+    return ret;
 }
 
 const mapStateToProps = state => ({
