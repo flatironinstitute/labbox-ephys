@@ -8,12 +8,18 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
     const [recordingPath, setRecordingPath] = useState('');
     const [recordingObject, setRecordingObject] = useState(null);
     const [recordingInfo, setRecordingInfo] = useState(null);
-    const [recordingInfoStatus, setRecordingInfoStatus] = useState('');;
+    const [recordingInfoStatus, setRecordingInfoStatus] = useState('');
+    const [downloadStatus, setDownloadStatus] = useState('');
     const [recordingId, setRecordingId] = useState('');
     const [errors, setErrors] = useState({});
 
     const effect = async () => {
-        if ((recordingPath) && (!recordingObject) && (!recordingInfo) && (!recordingInfoStatus)) {
+        if ((!recordingInfoStatus) && (recordingPath)) {
+            // trigger loading of recording info
+            setRecordingInfoStatus('pending');
+        }
+        if (recordingInfoStatus === 'pending') {
+            // we need to calculate the recording object and info from the recording path
             setRecordingInfoStatus('calculating');
             try {
                 await sleep(500);
@@ -23,7 +29,8 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                         recording_path: recordingPath
                     },
                     {
-                        wait: true
+                        wait: true,
+                        useCache: false
                     }
                 )
                 setRecordingObject(obj);
@@ -35,13 +42,15 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                         hither_config: {
                             job_handler_role: 'general'
                         },
-                        auto_substitute_file_objects: true,
-                        wait: true
+                        // if we do not substitute file objects, then it does not get downloaded
+                        auto_substitute_file_objects: false,
+                        wait: true,
+                        useCache: false
                     }
                 )
                 
                 setRecordingInfo(info);
-                setRecordingInfoStatus('finished');
+                setRecordingInfoStatus('calculated');
             }
             catch (err) {
                 console.error(err);
@@ -49,23 +58,46 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                 return;
             }
         }
+        if (downloadStatus === 'pending') {
+            // we need to download the recording
+            setDownloadStatus('downloading');
+            try {
+                await createHitherJob(
+                    'download_recording',
+                    { recording_object: recordingObject },
+                    {
+                        kachery_config: {},
+                        hither_config: {},
+                        auto_substitute_file_objects: false,
+                        wait: true,
+                        useCache: false
+                    }
+                )
+                setDownloadStatus('downloaded');
+                // Let's now recompute the recording info
+                setRecordingInfoStatus('pending');
+            }
+            catch(err) {
+                console.error(err);
+                setDownloadStatus('error');
+                return;
+            }
+        }
     }
     useEffect(() => {effect()});
 
-    if ((recordingInfo) && (recordingId === '<>')) {
-        setRecordingId(autoDetermineRecordingIdFromPath(recordingPath))
-    }
     if ((!recordingInfo) && (recordingId !== '<>')) {
         setRecordingId('<>');
     }
 
     const handleImport = () => {
         let newErrors = {};
-        if (!recordingId) {
+        let recordingId2 = recordingId === '<>' ? autoDetermineRecordingIdFromPath(recordingPath) : recordingId;
+        if (!recordingId2) {
             newErrors.recordingId = { type: 'required' };
         }
-        if (recordingId in Object.fromEntries(existingRecordingIds.map(id => [id, true]))) {
-            newErrors.recordingId = { type: 'duplicate-id' };
+        if (recordingId2 in Object.fromEntries(existingRecordingIds.map(id => [id, true]))) {
+            newErrors.recordingId2 = { type: 'duplicate-id' };
         }
         if (!recordingPath) {
             newErrors.recordingPath = { type: 'required' };
@@ -75,13 +107,30 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
             return;
         }
         const recording = {
-            recordingId,
+            recordingId: recordingId2,
             recordingPath,
             recordingObject
         }
         onAddRecording(recording);
         onDone && onDone();
     }
+
+    const handleDownload = () => {
+        setDownloadStatus('pending');
+    }
+
+    let showImportButton = false;
+    let showDownloadButton = false;
+    if (recordingInfoStatus === 'calculated') {
+        if (recordingInfo.is_local) {
+            showImportButton = true;
+        }
+        else {
+            showDownloadButton = true;
+        }
+    }
+
+    const controlsDisabled = ((downloadStatus === 'downloading') || (recordingInfoStatus === 'calculating'));
 
     return (
         <div>
@@ -91,42 +140,61 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                 <RecordingPathControl
                     examplesMode={examplesMode}
                     value={recordingPath}
-                    onChange={value => setRecordingPath(value)}
+                    disabled={controlsDisabled}
+                    onChange={value => {setRecordingPath(value); setRecordingInfo(null); setRecordingInfoStatus(''); setRecordingId('<>')}}
                     errors={errors}
                 />
 
-                {recordingInfo && (
+                {
+                    recordingPath &&
                     (
-                        <Fragment>
-                            <RecordingIdControl
-                                value={recordingId}
-                                onChange={(val) => setRecordingId(val)}
-                                errors={errors}
-                            />
-                            <FormGroup row={true} style={formGroupStyle}>
-                                <Button
-                                    variant="contained"
-                                    type="button"
-                                    onClick={() => handleImport()}
-                                >
-                                    Import
-                                </Button>
-                            </FormGroup>
-                        </Fragment>
+                        <RecordingIdControl
+                            value={recordingId === '<>' ? autoDetermineRecordingIdFromPath(recordingPath) : recordingId}
+                            onChange={(val) => setRecordingId(val)}
+                            disabled={controlsDisabled}
+                            errors={errors}
+                        />
                     )
-                )}
+                }
 
                 {
-                    <Fragment>
-                        <h3>{recordingPath}</h3>
-                        {
-                            recordingInfoStatus === 'calculating' ? (
-                                <CircularProgress />
-                            ) : (
-                                    recordingInfo && <RecordingInfoView recordingInfo={recordingInfo} />
-                                )
-                        }
-                    </Fragment>
+                    downloadStatus === 'downloading' && (
+                        <div><CircularProgress /> Downloading recording</div>
+                    )
+                }
+                {
+                    showDownloadButton && (
+                        <FormGroup row={true} style={formGroupStyle}>
+                            <Button
+                                variant="contained"
+                                type="button"
+                                onClick={() => handleDownload()}
+                            >
+                                Download
+                            </Button>
+                        </FormGroup>
+                    )
+                }
+
+                {
+                    showImportButton && (
+                        <FormGroup row={true} style={formGroupStyle}>
+                            <Button
+                                variant="contained"
+                                type="button"
+                                onClick={() => handleImport()}
+                            >
+                                Import
+                            </Button>
+                        </FormGroup>
+                    )
+                }
+                {
+                    recordingInfoStatus === 'calculating' ? (
+                        <CircularProgress />
+                    ) : (
+                        recordingInfo && <RecordingInfoView recordingInfo={recordingInfo} />
+                    )
                 }
             </form >
         </div>
@@ -172,7 +240,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SelectExampleRecordingPath = ({ value, onChange }) => {
+const SelectExampleRecordingPath = ({ value, onChange, disabled=false }) => {
     const examplePaths = [
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",
@@ -188,6 +256,7 @@ const SelectExampleRecordingPath = ({ value, onChange }) => {
             <Select
                 labelId="select-example-label"
                 id="select-example"
+                disabled={disabled}
                 value={value}
                 onChange={evt => { onChange(evt.target.value) }}
             >
@@ -201,7 +270,7 @@ const SelectExampleRecordingPath = ({ value, onChange }) => {
     )
 }
 
-const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
+const RecordingPathControl = ({ value, onChange, errors, examplesMode, disabled=false }) => {
     const [internalValue, setInternalValue] = useState(value);
 
     const e = errors.recordingPath || {};
@@ -210,6 +279,7 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
             {
                 examplesMode && (
                     <SelectExampleRecordingPath
+                        disabled={disabled}
                         value={internalValue}
                         onChange={path => {
                             setInternalValue(path);
@@ -224,7 +294,7 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
                     <Input
                         name="recordingPath"
                         readOnly={false}
-                        disabled={false}
+                        disabled={disabled}
                         value={internalValue}
                         onChange={(event) => { setInternalValue(event.target.value); }}
                     />
@@ -235,6 +305,7 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
                     (internalValue !== value) &&
                     <Button
                         onClick={() => onChange(internalValue)}
+                        disabled={disabled}
                         style={{ width: 30 }}
                     >
                         Update
@@ -245,7 +316,7 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode }) => {
     );
 }
 
-const RecordingIdControl = ({ value, onChange, errors }) => {
+const RecordingIdControl = ({ value, onChange, errors, disabled=false }) => {
     const e = errors.recordingId || {};
     return (
         <FormGroup style={formGroupStyle}>
@@ -254,7 +325,7 @@ const RecordingIdControl = ({ value, onChange, errors }) => {
                 <Input
                     name="recordingId"
                     readOnly={false}
-                    disabled={false}
+                    disabled={disabled}
                     value={value}
                     onChange={(event) => { onChange(event.target.value); }}
                 />

@@ -1,5 +1,5 @@
 from .get_recording_object import get_recording_object
-from .get_recording_info import get_recording_info
+from .get_recording_info import get_recording_info, download_recording
 from .get_sorting_object import get_sorting_object
 from .get_sorting_info import get_sorting_info
 from .calculate_timeseries_info import calculate_timeseries_info

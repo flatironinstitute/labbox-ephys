@@ -18,6 +18,7 @@ const RecordingInfoView = ({ recordingInfo  }) => {
                     num_frames={ri.num_frames}
                     channel_ids={ri.channel_ids}
                     channel_groups={ri.channel_groups}
+                    is_local={ri.is_local}
                 />
             </div>
             <ElectrodeGeometryWidget
@@ -30,7 +31,7 @@ const RecordingInfoView = ({ recordingInfo  }) => {
     );
 }
 
-const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames }) => {
+const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames, is_local }) => {
     return (
         <Table>
             <TableHead>
@@ -55,6 +56,10 @@ const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, n
                 <TableRow>
                     <TableCell>Channel groups</TableCell>
                     <TableCell>{commasep(channel_groups)}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Downloaded</TableCell>
+                    <TableCell>{is_local ? "Yes" : "No"}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>

@@ -7,7 +7,7 @@ from labbox_ephys.extractors.labboxephyssortingextractor import LabboxEphysSorti
 import hither as hi
 import kachery as ka
 
-@hi.function('mountainsort4', '0.1.5')
+@hi.function('mountainsort4', '0.1.6')
 @hi.container('docker://magland/sf-mountainsort4:0.3.2')
 @hi.local_modules(['../../labbox_ephys'])
 def mountainsort4(

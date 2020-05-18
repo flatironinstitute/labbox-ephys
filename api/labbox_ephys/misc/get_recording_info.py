@@ -16,8 +16,16 @@ def get_recording_info(recording_object):
         channel_ids=recording.get_channel_ids(),
         channel_groups=recording.get_channel_groups(),
         geom=geom_from_recording(recording).tolist(),
-        num_frames=recording.get_num_frames()
+        num_frames=recording.get_num_frames(),
+        is_local=recording.is_local()
     )
+
+@hi.function('download_recording', '0.1.0')
+@hi.local_modules(['../../labbox_ephys'])
+@hi.container('docker://magland/labbox-ephys-processing:latest')
+def download_recording(recording_object):
+    recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
+    recording.download()
 
 def geom_from_recording(recording):
     channel_ids = recording.get_channel_ids()

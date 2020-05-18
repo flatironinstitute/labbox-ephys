@@ -134,16 +134,16 @@ def hither_job_wait(timeout=None):
                 return dict(
                     error=True,
                     error_message=str(job.exception()),
-                    runtime_info=job.runtime_info()
+                    runtime_info=job.get_runtime_info()
                 )
-            if job.status() == hi.JobStatus.FINISHED:
+            if job.get_status() == hi.JobStatus.FINISHED:
                 result = job.result()
                 result = _serialize_files_in_item(result)
                 print(f'======== Finished hither job: {job_id} {job.get_label()}')
                 return dict(
                     error=False,
                     result=result,
-                    runtime_info=job.runtime_info()
+                    runtime_info=job.get_runtime_info()
                 )
         # Note that this sleep is importantly outside the lock context
         time.sleep(0.1)

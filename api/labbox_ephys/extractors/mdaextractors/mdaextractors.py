@@ -27,7 +27,7 @@ class MdaRecordingExtractor(RecordingExtractor):
                 samplerate=samplerate
             )
             self._samplerate = samplerate
-            
+        
         if download:
             path0 = ka.load_file(path=self._timeseries_path)
             if not path0:

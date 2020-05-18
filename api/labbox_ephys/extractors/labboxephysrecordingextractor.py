@@ -238,6 +238,12 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
     
     def hash(self) -> str:
         return ka.get_object_hash(self.object())
+    
+    def is_local(self):
+        return _all_files_are_local_in_item(self._object)
+    
+    def download(self):
+        return _download_files_in_item(self._object)
 
     def get_channel_ids(self) -> Union[list, np.ndarray]:
         return self._recording.get_channel_ids()
@@ -250,7 +256,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
 
     def get_traces(self, channel_ids=None, start_frame=None, end_frame=None) -> np.ndarray:
         return self._recording.get_traces(channel_ids=channel_ids, start_frame=start_frame, end_frame=end_frame)
-    
+
     # @staticmethod
     # def get_recording_object(recording):
     #     with hi.TemporaryDirectory() as tmpdir:
@@ -351,3 +357,56 @@ class NrsRecordingExtractor(se.RecordingExtractor):
         if channel_ids is None:
             channel_ids = self._channel_ids
         return self._rec.get_traces(channel_ids=channel_ids, start_frame=start_frame, end_frame=end_frame)
+
+def _all_files_are_local_in_item(x):
+    if type(x) == str:
+        if x.startswith('sha1://'):
+            if not ka.get_file_info(x, fr=dict(url=None)):
+                return False
+        if x.startswith('sha1dir://') and ka.get_file_info(x):
+            if not ka.get_file_info(x, fr=dict(url=None)):
+                return False
+        return True
+    elif type(x) == dict:
+        for _, val in x.items():
+            if not _all_files_are_local_in_item(val):
+                return False
+        return True
+    elif type(x) == list:
+        for y in x:
+            if not _all_files_are_local_in_item(y):
+                return False
+        return True
+    elif type(x) == tuple:
+        for y in x:
+            if not _all_files_are_local_in_item(y):
+                return False
+        return True
+    else:
+        return True
+
+def _download_files_in_item(x):
+    if type(x) == str:
+        if x.startswith('sha1://'):
+            if not ka.get_file_info(x, fr=dict(url=None)):
+                a = ka.load_file(x)
+                assert a is not None, f'Unable to download file: {x}'
+        if x.startswith('sha1dir://') and ka.get_file_info(x):
+            if not ka.get_file_info(x, fr=dict(url=None)):
+                a = ka.load_file(x)
+                assert a is not None, f'Unable to download file: {x}'
+        return
+    elif type(x) == dict:
+        for _, val in x.items():
+            _download_files_in_item(val)
+        return
+    elif type(x) == list:
+        for y in x:
+            _download_files_in_item(y)
+        return
+    elif type(x) == tuple:
+        for y in x:
+            _download_files_in_item(y)
+        return
+    else:
+        return
