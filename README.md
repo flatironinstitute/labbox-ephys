@@ -108,6 +108,7 @@ If you want to use your own computer to run the spike sorting, then you will nee
     - Run multiple hither api calls in parallel #8 [done]
 * 0.1.10
     - Hither job monitor within GUI #11 [done]
+    - Improved import/download spikeforest recordings system [done]
     - Connect back to sorting job even after page reload #9
     - Additional plots for sorting view
 * Other
