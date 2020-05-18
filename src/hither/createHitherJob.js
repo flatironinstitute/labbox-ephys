@@ -61,6 +61,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
       }
       else if (job.status === 'pending') {
         job.status = 'running';
+        job.timestampStarted = (new Date()).getTime();
         dispatchUpdateHitherJob({jobId: job.jobId, update: job});
         let data;
         try {
@@ -71,12 +72,14 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
         catch (err) {
           job.status = 'error';
           job.errorMessage = 'Error calling hitherJobWait';
+          job.timestampFinished = (new Date()).getTime();
           dispatchUpdateHitherJob({jobId: job.jobId, update: job});
           break;
         }
         if (!data) {
           job.status = 'error';
           job.errorMessage = 'Unexpected: No data';
+          job.timestampFinished = (new Date()).getTime();
           dispatchUpdateHitherJob({jobId: job.jobId, update: job});
           break;
         }
@@ -84,6 +87,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
           job.status = 'error';
           job.errorMessage = `Error running job: ${data.error_message}`;
           job.runtime_info = data.runtime_info;
+          job.timestampFinished = (new Date()).getTime();
           dispatchUpdateHitherJob({jobId: job.jobId, update: job});
           break;
         }
@@ -91,6 +95,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
           job.status = 'finished';
           job.result = deserializeFileObjectsInItem(data.result);
           job.runtime_info = data.runtime_info;
+          job.timestampFinished = (new Date()).getTime();
           dispatchUpdateHitherJob({jobId: job.jobId, update: job});
         }
       }
@@ -99,6 +104,10 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
       }
     }
     throw Error(job.errorMessage);
+  }
+  job.cancel = async () => {
+    const url = `/api/hither_job_cancel`;
+    await axios.post(url, {job_id: job.jobId});
   }
   if (opts.useCache !== false) {
     globalHitherJobStore[job.jobHash] = job;
