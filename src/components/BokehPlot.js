@@ -20,7 +20,7 @@ const BokehPlot = ({ functionName, functionArgs }) => {
                 plot_data = await createHitherJob(
                     functionName,
                     functionArgs,
-                    { wait: true }
+                    { wait: true, useClientCache: true }
                 )
             }
             catch (err) {

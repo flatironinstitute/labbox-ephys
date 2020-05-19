@@ -133,7 +133,8 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
                         recording_object: recordingObject
                     },
                     {
-                        wait: true
+                        wait: true,
+                        useClientCache: false
                     }
                 )
                 setSortingObject(obj);
@@ -146,7 +147,8 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
                             job_handler_role: 'general'
                         },
                         wait: true,
-                        auto_substitute_file_objects: true
+                        auto_substitute_file_objects: true,
+                        useClientCache: false
                     }
                 )
                 setSortingInfo(info);

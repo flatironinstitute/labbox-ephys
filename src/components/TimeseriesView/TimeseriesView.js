@@ -47,6 +47,7 @@ const TimeseriesViewInner = ({
                         hither_config: {
                             job_handler_role: 'general'
                         },
+                        useClientCache: true,
                         auto_substitute_file_objects: true
                     }
                 );
@@ -86,6 +87,7 @@ const TimeseriesViewInner = ({
                             hither_config: {
                                 job_handler_role: 'general'
                             },
+                            useClientCache: true,
                             auto_substitute_file_objects: true
                         }
                     );

@@ -21,7 +21,8 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
                     functionArgs,
                     {
                         auto_substitute_file_objects: true,
-                        wait: true
+                        wait: true,
+                        useClientCache: true
                     }
                 )
             }

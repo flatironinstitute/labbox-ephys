@@ -109,12 +109,11 @@ If you want to use your own computer to run the spike sorting, then you will nee
 * 0.1.10
     - Hither job monitor within GUI #11 [done]
     - Improved import/download spikeforest recordings system [done]
-    - Timestamps on jobs, sort table by timestamps
+    - Timestamps on jobs, sort table by timestamps [done]
     - Allow cancelling of hither jobs
     - Connect back to sorting job even after page reload #9
     - Additional plots for sorting view
 * Other
-    - when a recording is deleted, we must delete the associated sortings!
     - Store private job handler configuration on disk only (not in the redux state)
     - Import/export job handler configuration
     - Fix fetchSortingInfo and fetchRecordingInfo stuff

@@ -34,7 +34,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     kwargs: kwargs2,
     opts: opts
   });
-  if (opts.useCache !== false) {
+  if (opts.useClientCache) {
     const existingJob = globalHitherJobStore[jobHash];
     if (existingJob) return existingJob;
   }
@@ -139,7 +139,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     const url = `/api/hither_job_cancel`;
     await axios.post(url, {job_id: job.jobId});
   }
-  if (opts.useCache !== false) {
+  if (opts.useClientCache) {
     globalHitherJobStore[job.jobHash] = job;
   }
   let j;

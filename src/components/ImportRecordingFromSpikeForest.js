@@ -30,7 +30,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                     },
                     {
                         wait: true,
-                        useCache: false
+                        useClientCache: false
                     }
                 )
                 setRecordingObject(obj);
@@ -45,7 +45,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                         // if we do not substitute file objects, then it does not get downloaded
                         auto_substitute_file_objects: false,
                         wait: true,
-                        useCache: false
+                        useClientCache: false
                     }
                 )
                 
@@ -70,7 +70,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                         hither_config: {},
                         auto_substitute_file_objects: false,
                         wait: true,
-                        useCache: false
+                        useClientCache: false
                     }
                 )
                 setDownloadStatus('downloaded');

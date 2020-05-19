@@ -35,7 +35,8 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
             job_handler_role: 'sorting'
           },
           auto_substitute_file_objects: true,
-          wait: true
+          wait: true,
+          useClientCache: false
         }
       );
       sortingPath = result.sorting_file;
@@ -46,7 +47,8 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
           recording_object: recording.recordingObject
         },
         {
-          wait: true
+          wait: true,
+          useClientCache: false
         }
       )
     }

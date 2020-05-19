@@ -38,7 +38,7 @@ const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecor
                     'get_importable_recordings',
                     {},
                     {
-                        useCache: false,
+                        useClientCache: false,
                         wait: true
                     }
                 )

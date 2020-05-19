@@ -14,12 +14,11 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
   const effect = async () => {
     if ((sorting) && (recording) && (!sorting.sortingInfo)) {
       setSortingInfoStatus('computing');
-      const sortingInfoJob = await createHitherJob(
+      const sortingInfo = await createHitherJob(
         'get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { kachery_config: {} }
+        { kachery_config: {}, useClientCache: false, wait: true}
       );
-      const sortingInfo = await sortingInfoJob.wait();
       onSetSortingInfo({ sortingId, sortingInfo });
       setSortingInfoStatus('');
     }

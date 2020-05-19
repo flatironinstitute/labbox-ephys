@@ -164,6 +164,7 @@ def hither_job_cancel():
         assert job_id in global_data['jobs_by_id'], f'No job with id: {job_id}'
         job: hi.Job = global_data['jobs_by_id'][job_id]
     job.cancel()
+    return dict()
 
 def _resolve_files_in_item(x):
     if isinstance(x, hi.File):

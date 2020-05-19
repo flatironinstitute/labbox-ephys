@@ -53,7 +53,7 @@ const PersistStateControl = ({
                 onSetPersistStatus('pending');
                 // the gui experience is better when we slow things down a bit
                 await sleep(500);
-                const s = await createHitherJob('get_state_from_disk', {}, {wait: true});
+                const s = await createHitherJob('get_state_from_disk', {}, {wait: true, useClientCache: false});
                 (s.recordings || []).forEach(x => {
                     onAddRecording(x);
                 });
@@ -95,7 +95,7 @@ const PersistStateControl = ({
                     }
                     // TODO: IMPORTANT!! handle case where state has changed while we are saving to disk
                     onSetPersistStatus('saving');
-                    const ret = await createHitherJob('save_state_to_disk', { state: newSavedState }, {wait: true});
+                    const ret = await createHitherJob('save_state_to_disk', { state: newSavedState }, {wait: true, useClientCache: false});
                     lastSavedState.recordings = recordings;
                     lastSavedState.sortings = sortings;
                     lastSavedState.sortingJobs = sortingJobs;
