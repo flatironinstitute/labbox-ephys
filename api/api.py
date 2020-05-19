@@ -141,6 +141,7 @@ def hither_job_wait():
                 result = job.result()
                 result = _serialize_files_in_item(result)
                 print(f'======== Finished hither job: {job_id} {job.get_label()}')
+                print(job.get_runtime_info())
                 return dict(
                     error=False,
                     result=result,
@@ -270,6 +271,7 @@ def save_state_to_disk(state):
             return True
         else:
             return False
+    print('Saving state to disk.')
     for field in ['recordings', 'sortings', 'sortingJobs', 'jobHandlers']:
         if not save_state_to_disk_helper(field, state[field]):
             return False
@@ -286,6 +288,7 @@ def get_state_from_disk():
                 return None
         else:
             return None
+    print('Loading state from disk.')
     ret = dict(
         recordings=get_state_from_disk_helper('recordings') or [],
         sortings=get_state_from_disk_helper('sortings') or [],

@@ -99,6 +99,10 @@ const HitherJobInfoView = ({ job }) => {
         {
             label: 'Result',
             value: resultElement
+        },
+        {
+            label: 'Message',
+            value: job.errorMessage
         }
     ]
     return (
@@ -116,6 +120,7 @@ const HitherJobInfoView = ({ job }) => {
                     }
                 </TableBody>
             </Table>
+            <ConsoleOutView consoleOut={job.runtime_info.console_out} />
         </div>
     )
 }
@@ -145,6 +150,10 @@ const HitherJobMonitorTable = ({
         {
             key: 'finished',
             label: 'Finished'
+        },
+        {
+            key: 'message',
+            label: 'Message'
         }
     ];
     const sortedJobs = jobs;
@@ -167,7 +176,8 @@ const HitherJobMonitorTable = ({
         functionName: j.functionName,
         status: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status,
         started: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : '',
-        finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : ''
+        finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : '',
+        message: j.errorMessage || ''
     }));
     return (
         <NiceTable
@@ -180,6 +190,23 @@ const HitherJobMonitorTable = ({
 const CancelJobButton = ({ onClick }) => {
     return (
         <IconButton title={"Cancel job"} onClick={onClick}><Delete /></IconButton>
+    )
+}
+
+const ConsoleOutView = ({ consoleOut, includeTimestamps=true }) => {
+    let txt;
+    if (includeTimestamps) {
+        txt = consoleOut.lines.map(line => `${line.timestamp}: ${line.text}`).join('\n');
+    }
+    else {
+        txt = consoleOut.lines.map(line => `${line.text}`).join('\n');
+    }
+    return (
+        <div style={{backgroundColor: 'black', color: 'white'}}>
+            <pre>
+                {txt}
+            </pre>
+        </div>
     )
 }
 
