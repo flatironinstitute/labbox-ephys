@@ -33,6 +33,10 @@ class EventStream {
     setPosition(position) {
         this._position = position;
     }
+    async gotoEnd() {
+        const numEvents = await this.getNumEvents();
+        this.setPosition(numEvents);
+    }
     async readEvents(waitMsec) {
         const signature = sha1OfObject({
             // keys in alphabetical order
@@ -51,6 +55,22 @@ class EventStream {
         }
         else {
             throw Error(`Error getting events: ${result.data.error}`);
+        }
+    }
+    async getNumEvents() {
+        const signature = sha1OfObject({
+            // keys in alphabetical order
+            password: this._password,
+            streamId: this._streamId,
+            taskName: "getNumEvents"
+        })
+        const url = `${this._serverUrl}/getNumEvents/${this._streamId}`;
+        let result = await axios.post(url, {channel: this._channel, signature: signature});
+        if (result.data.success) {
+            return result.data.numEvents;
+        }
+        else {
+            throw Error(`Error getting num events: ${result.data.error}`);
         }
     }
     async writeEvent(event) {

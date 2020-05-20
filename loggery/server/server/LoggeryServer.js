@@ -70,6 +70,23 @@ export default class LoggeryServer {
                 this._finalizeTask('writeEvents', reqData.channel, 0, approvalObject);
             }
         });
+        this._app.post('/getNumEvents/:streamId', async (req, res) => {
+            const reqData = req.body
+            let approvalObject = await this._approveTask("getNumEvents", req.params.streamId, null, reqData.channel, reqData.signature, req);
+            if (!approvalObject.approve) {
+                await this._errorResponse(req, res, 500, approvalObject.reason);
+                return;
+            }
+            try {
+                await this._apiGetNumEvents(req, res)
+            }
+            catch(err) {
+                await this._errorResponse(req, res, 500, err.message);
+            }
+            finally {
+                this._finalizeTask('getNumEvents', reqData.channel, null, approvalObject);
+            }
+        });
 
         this._startIterate();
     }
@@ -120,6 +137,25 @@ export default class LoggeryServer {
         }
         catch(err) {
             const errstr = `Error writing events to stream ${streamId}: ${err.message}`;
+            console.warn(errstr);
+            await this._errorResponse(req, res, 500, errstr);
+        }
+    }
+    async _apiGetNumEvents(req, res) {
+        let params = req.params;
+        const reqData = req.body
+        const streamId = params.streamId;
+        if (!validateStreamId(streamId)) {
+            await this._errorResponse(req, res, 500, `Invalid stream ID`);
+            return;
+        }
+        let result;
+        try {
+            const numEvents = await this._eventStreamManager.getNumEvents(streamId);
+            res.json( {success: true, numEvents: numEvents} );
+        }
+        catch(err) {
+            const errstr = `Error getting num events from stream ${streamId}: ${err.message}`;
             console.warn(errstr);
             await this._errorResponse(req, res, 500, errstr);
         }
@@ -217,6 +253,9 @@ class EventStream {
             }
         }
     }
+    async getNumEvents() {
+        return this.events.length;
+    }
     async iterate() {
         /////////////////////
         await this._lock();
@@ -277,6 +316,12 @@ class EventStreamManager {
             newPosition: position
         };
         return await S.getEvents(position, opts);
+    }
+    async getNumEvents(streamId) {
+        await this._loadStream(streamId, false);
+        const S = this.streams[streamId];
+        if (!S) return 0;
+        return await S.getNumEvents();
     }
     async iterate() {
         for (let streamId in this.streams) {

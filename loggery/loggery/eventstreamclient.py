@@ -12,12 +12,12 @@ class EventStreamClient:
         self.channel = channel
         self.password = password
 
-    def get_stream(self, stream_id: Union[dict, str]):
-        return _EventStream(stream_id=stream_id, client=self)
+    def get_stream(self, stream_id: Union[dict, str], start_at_end=False):
+        return _EventStream(stream_id=stream_id, client=self, start_at_end=start_at_end)
 
 
 class _EventStream:
-    def __init__(self, stream_id: Union[dict, str], client: EventStreamClient):
+    def __init__(self, stream_id: Union[dict, str], client: EventStreamClient, start_at_end=False):
         self._url = client.url
         self._channel = client.channel
         self._password = client.password
@@ -29,6 +29,12 @@ class _EventStream:
             raise Exception(
                 f'Unexpected type for stream_id: {type(stream_id)}')
         self._position = 0
+        if start_at_end:
+            self.goto_end()
+    
+    def goto_end(self):
+        num_events = self.get_num_events()
+        self.set_position(num_events)
 
     def set_position(self, position):
         self._position = position
@@ -46,6 +52,19 @@ class _EventStream:
         assert result.get('success', False), 'Error reading from event stream.'
         self._position = result['newPosition']
         return result['events']
+    
+    def get_num_events(self):
+        signature = _sha1_of_object(dict(
+            # keys in alphabetical order
+            password=_get_password(self._password),
+            streamId=self._stream_id,
+            taskName='getNumEvents'
+        ))
+        url = f'''{self._url}/getNumEvents/{self._stream_id}'''
+        result = _http_post_json(url, dict(channel=self._channel, signature=signature))
+        assert result is not None, f'Error loading json from: {url}'
+        assert result.get('success', False), 'Error getting num results.'
+        return result['numEvents']
 
     def write_event(self, event):
         self.write_events([event])
