@@ -1,0 +1,24 @@
+{
+  "name": "loggeryServer",
+  "version": "0.1.0",
+  "description": "Read and write to event streams",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"No tests\" && exit 0",
+    "start": "node --experimental-modules server/main.js",
+    "start-docker": "PORT=8080 LOGGERY_SERVER_DIR=/loggery-server node --experimental-modules server/main.js"
+  },
+  "keywords": [],
+  "author": "Jeremy Magland",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/flatironinstitute/loggery",
+  "main": "server/main.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "bin": {},
+  "devDependencies": {
+    "axios": "^0.19.2"
+  }
+}

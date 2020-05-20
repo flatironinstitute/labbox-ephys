@@ -12,5 +12,9 @@ RUN npm install
 COPY kachery_config_template.json /kachery_config_template.json
 COPY run_inside_container.sh /run_inside_container.sh
 
+# Remove the node user -- so it doesn't conflict with the host user
+# In the future we will want to let labbox-launcher take care of this situation.
+RUN userdel node
+
 EXPOSE 8080
 ENTRYPOINT [ "/run_inside_container.sh" ]
