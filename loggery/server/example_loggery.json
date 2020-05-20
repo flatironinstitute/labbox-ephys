@@ -1,9 +1,0 @@
-{
-    "channels": [
-        {
-            "name": "name-of-channel",
-            "password": "password-for-channel",
-            "readonly": false
-        }
-    ]
-}

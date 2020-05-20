@@ -27,9 +27,43 @@ import AppContainer from './AppContainer';
 
 // Custom routes
 import Routes from './Routes';
+import { ADD_RECORDING, sleep, DELETE_RECORDINGS, SET_RECORDING_INFO } from './actions';
+
+import { EventStreamClient } from './loggery'
+import { sleepMsec } from './hither/createHitherJob';
+
+const persistStateMiddleware = store => next => action => {
+  const esc = new EventStreamClient('/api/loggery', 'readwrite', 'readwrite');
+  const writeAction = async (key, theAction) => {
+    const stream = esc.getStream({ key: key });
+    await stream.writeEvent(theAction);
+  }
+
+  if ((action.persistKey) && (action.source !== 'fromActionStream')) {
+    writeAction(action.persistKey, action);
+    return;
+  }
+  return next(action);
+}
 
 // Create the store
-const store = createStore(rootReducer, {}, applyMiddleware(thunk))
+const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
+
+const listenToActionStream = async (key) => {
+  const esc = new EventStreamClient('/api/loggery', 'readwrite', 'readwrite');
+  const stream = esc.getStream({ key: key });
+  while (true) {
+    await sleepMsec(500);
+    const events = await stream.readEvents(3000);
+    for (let e of events) {
+      e.source = 'fromActionStream';
+      store.dispatch(e);
+    }
+  }
+}
+['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
+  key => listenToActionStream(key)
+)
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

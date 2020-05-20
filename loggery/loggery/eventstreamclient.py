@@ -40,8 +40,8 @@ class _EventStream:
             streamId=self._stream_id,
             taskName='readEvents'
         ))
-        url = f'''{self._url}/readEvents/{self._stream_id}/{self._position}?channel={self._channel}&signature={signature}'''
-        result = _http_get_json(url)
+        url = f'''{self._url}/readEvents/{self._stream_id}/{self._position}'''
+        result = _http_post_json(url, dict(channel=self._channel, signature=signature))
         assert result is not None, f'Error loading json from: {url}'
         assert result.get('success', False), 'Error reading from event stream.'
         self._position = result['newPosition']
@@ -57,8 +57,8 @@ class _EventStream:
             streamId=self._stream_id,
             taskName='writeEvents'
         ))
-        url = f'''{self._url}/writeEvents/{self._stream_id}?channel={self._channel}&signature={signature}'''
-        result = _http_post_json(url, dict(events=events))
+        url = f'''{self._url}/writeEvents/{self._stream_id}'''
+        result = _http_post_json(url, dict(channel=self._channel, signature=signature, events=events))
         assert result is not None, f'Error loading json from: {url}'
         assert result.get('success', False), 'Error writing to event stream.'
 

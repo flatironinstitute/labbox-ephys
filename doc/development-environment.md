@@ -57,6 +57,7 @@ The following ports are used by the development container:
 
 * 15301 - development client (yarn start)
 * 15302 - development api server (flask `api/`)
+* 15321 - development loggery server
 * 15303 - test production client (serving `build/` directory)
 * 15304 - test production api server (gunicorn flask `api/`)
 * 15305 - test production nginx server

@@ -32,8 +32,9 @@ export default class LoggeryServer {
                 await this._errorResponse(req, res, 500, err.message);
             }
         });
-        this._app.get('/readEvents/:streamId/:position', async (req, res) => {
-            let approvalObject = await this._approveTask("readEvents", req.params.streamId, null, req.query.channel, req.query.signature, req);
+        this._app.post('/readEvents/:streamId/:position', async (req, res) => {
+            const reqData = req.body
+            let approvalObject = await this._approveTask("readEvents", req.params.streamId, null, reqData.channel, reqData.signature, req);
             if (!approvalObject.approve) {
                 await this._errorResponse(req, res, 500, approvalObject.reason);
                 return;
@@ -45,27 +46,28 @@ export default class LoggeryServer {
                 await this._errorResponse(req, res, 500, err.message);
             }
             finally {
-                this._finalizeTask('readEvents', req.query.channel, null, approvalObject);
+                this._finalizeTask('readEvents', reqData.channel, null, approvalObject);
             }
         });
         this._app.post('/writeEvents/:streamId', async (req, res) => {
             let numBytes = Number(req.headers['content-length']);
+            const reqData = req.body
             if (isNaN(numBytes))  {
                 await this._errorResponse(req, res, 500, 'Missing or invalid content-length in request header');
                 return;
             }
-            let approvalObject = await this._approveTask("writeEvents", req.params.streamId, numBytes, req.query.channel, req.query.signature, req);
+            let approvalObject = await this._approveTask("writeEvents", req.params.streamId, numBytes, reqData.channel, reqData.signature, req);
             if (!approvalObject.approve) {
                 await this._errorResponse(req, res, 500, approvalObject.reason);
                 return;
             }
             try {
                 await this._apiWriteEvents(req, res);
-                this._finalizeTask('writeEvents', req.query.channel, numBytes, approvalObject);
+                this._finalizeTask('writeEvents', reqData.channel, numBytes, approvalObject);
             }
             catch(err) {
                 await this._errorResponse(req, res, 500, err.message);
-                this._finalizeTask('writeEvents', req.query.channel, 0, approvalObject);
+                this._finalizeTask('writeEvents', reqData.channel, 0, approvalObject);
             }
         });
 
@@ -84,16 +86,16 @@ export default class LoggeryServer {
     }
     async _apiReadEvents(req, res) {
         let params = req.params;
-        let query = req.query;
+        const reqData = req.body
         const streamId = params.streamId;
-        const position = params.position;
+        const position = parseInt(params.position);
         if (!validateStreamId(streamId)) {
             await this._errorResponse(req, res, 500, `Invalid stream ID`);
             return;
         }
         let result;
         try {
-            result = await this._eventStreamManager.getEvents(streamId, position, {waitMsec: query.waitMsec});
+            result = await this._eventStreamManager.getEvents(streamId, position, {waitMsec: reqData.waitMsec});
             res.json( result );
         }
         catch(err) {
@@ -103,15 +105,14 @@ export default class LoggeryServer {
         }
     }
     async _apiWriteEvents(req, res) {
-        let params = req.params;
-        let query = req.query;
+        const params = req.params;
+        const reqData = req.body;
         const streamId = params.streamId;
         if (!validateStreamId(streamId)) {
             await this._errorResponse(req, res, 500, `Invalid stream ID`);
             return;
         }
 
-        const reqData = req.body;
         const events = reqData.events;
         try {
             await this._eventStreamManager.appendEvents(streamId, events);
@@ -204,7 +205,7 @@ class EventStream {
                 }
             }
             const elapsed = (new Date() - timer);
-            if ((opts.waitMsec) && (elapsed < waitMsec)) {
+            if ((opts.waitMsec) && (elapsed < opts.waitMsec)) {
                 await sleepMsec(10);
             }
             else {
@@ -315,53 +316,58 @@ async function start_http_server(app, listen_port) {
 }
 
 async function writeJsonFile(path, x) {
-    await fs.promises.writeFile(path, JSON.stringify(x));
+    await fs.promises.writeFile(path, JSON.stringify(x), {encoding: 'utf8'});
 }
 
 async function readEventsFile(path) {
     let txt;
     try {
-        txt = await fs.promises.readFile(path);
+        txt = await fs.promises.readFile(path, {encoding: 'utf8'});
     }
     catch(err) {
         return [];
     }
-    try {
-        const lines = txt.split('\n');
-        let events = [];
-        for (let line in lines) {
-            if (line) {
+    if (typeof(txt) !== 'string') {
+        console.error(txt);
+        throw Error('Unexpected: txt is not a string.');
+    }
+    let events = [];
+    const lines = txt.split('\n');
+    for (let line of lines) {
+        if (line) {
+            try {
                 events.push(JSON.parse(line));
             }
+            catch(err) {
+                console.error(line);
+                console.warn(`Problem parsing JSON from file: ${path}`);
+                return [];
+            }
         }
-    }
-    catch(err) {
-        console.warn(`Problem parsing JSON from file: ${path}`);
-        return [];
     }
     return events;
 }
 
 async function appendToEventsFile(path, event) {
-    await fs.promises.appendFile(path, JSON.stringify(event) + '\n');
+    await fs.promises.appendFile(path, JSON.stringify(event) + '\n', {encoding: 'utf8'});
 }
 
-async function readJsonFile(path, defaultVal) {
-    let txt;
-    try {
-        txt = await fs.promises.readFile(path);
-    }
-    catch(err) {
-        return defaultVal;
-    }
-    try {
-        return JSON.parse(txt);
-    }
-    catch(err) {
-        console.warn(`Problem parsing JSON from file: ${path}`);
-        return defaultVal;
-    }
-}
+// async function readJsonFile(path, defaultVal) {
+//     let txt;
+//     try {
+//         txt = await fs.promises.readFile(path, {encoding: 'utf8'});
+//     }
+//     catch(err) {
+//         return defaultVal;
+//     }
+//     try {
+//         return JSON.parse(txt);
+//     }
+//     catch(err) {
+//         console.warn(`Problem parsing JSON from file: ${path}`);
+//         return defaultVal;
+//     }
+// }
 function readJsonFileSync(path, defaultVal) {
     let txt;
     try {

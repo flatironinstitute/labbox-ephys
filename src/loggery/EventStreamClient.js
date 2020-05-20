@@ -33,7 +33,7 @@ class EventStream {
     setPosition(position) {
         this._position = position;
     }
-    async readEvents() {
+    async readEvents(waitMsec) {
         const signature = sha1OfObject({
             // keys in alphabetical order
             password: this._password,
@@ -41,9 +41,9 @@ class EventStream {
             taskName: "readEvents"
         })
         const url = `${this._serverUrl}/readEvents/${this._streamId}/${this._position}`;
-        let result = await axios.post(url, {channel: this._channel, signature: signature});
+        let result = await axios.post(url, {channel: this._channel, signature: signature, waitMsec: waitMsec});
         if (result.data.success) {
-            if (result.data.newPosition != this._position + result.data.events.length) {
+            if (result.data.newPosition !== this._position + result.data.events.length) {
                 throw Error(`Unexpected new position in response from getEvents ${result.data.newPosition} <> ${this._position + result.data.events.length}`);
             }
             this._position = result.data.newPosition;
