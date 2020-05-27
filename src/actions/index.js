@@ -48,11 +48,13 @@ export const deleteRecordings = recordingIds => {
   return function(dispatch) {
     dispatch({
       type: 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS',
-      recordingIds: recordingIds
+      recordingIds: recordingIds,
+      persistKey: 'sortings'
     });
     dispatch({
       type: 'DELETE_ALL_SORTINGS_FOR_RECORDINGS',
-      recordingIds: recordingIds
+      recordingIds: recordingIds,
+      persistKey: 'sortings'
     });
     dispatch({
       type: 'DELETE_RECORDINGS',
