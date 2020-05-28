@@ -134,11 +134,11 @@ def hither_job_wait():
                 traceback.print_exc()
                 return dict(
                     error=True,
-                    error_message=str(job.exception()),
+                    error_message=str(job.get_exception()),
                     runtime_info=job.get_runtime_info()
                 )
             if job.get_status() == hi.JobStatus.FINISHED:
-                result = job.result()
+                result = job.get_result()
                 result = _serialize_files_in_item(result)
                 print(f'======== Finished hither job: {job_id} {job.get_label()}')
                 print(job.get_runtime_info())
@@ -307,15 +307,20 @@ def get_importable_recordings(subdir=''):
     ret = []
     x = ka.read_dir(basedir)
     for dirname, _ in x['dirs'].items():
-        path = ka.store_dir(f'{basedir}/{dirname}')
-        recording_object = le.LabboxEphysRecordingExtractor(path).object()
-        info = le.get_recording_info(recording_object)
-        ret.append(dict(
-            id=dirname,
-            path=path,
-            recording_object=recording_object,
-            recording_info=info
-        ))
+        # path = ka.store_dir(f'{basedir}/{dirname}')
+        path = f'{basedir}/{dirname}'
+        try:
+            recording_object = le.LabboxEphysRecordingExtractor(path).object()
+        except:
+            recording_object = None
+        if recording_object is not None:
+            info = le.get_recording_info(recording_object)
+            ret.append(dict(
+                id=dirname,
+                path=path,
+                recording_object=recording_object,
+                recording_info=info
+            ))
     return ret
     
 @hi.function('test_python_call', '0.1.0')

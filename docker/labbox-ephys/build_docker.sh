@@ -1,9 +1,9 @@
 #!/bin/bash
 
-Rebuilds the app bundle
-Builds the docker image for deploy using code in this repo
-Uses the version from package.json as the tag
-If --push is provided, also pushes to dockerhub
+# Rebuilds the app bundle
+# Builds the docker image for deploy using code in this repo
+# Uses the version from package.json as the tag
+# If --push is provided, also pushes to dockerhub
 
 set -ex
 

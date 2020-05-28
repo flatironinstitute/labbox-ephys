@@ -24,7 +24,7 @@ const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecor
         onAddRecording({
             recordingId: rec.id,
             recordingPath: rec.path,
-            recordingObject: rec.recordingObject
+            recordingObject: rec.recording_object
         })
         onDone();
     }
