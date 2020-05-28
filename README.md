@@ -1,5 +1,7 @@
 # Labbox-ephys
 
+**Under development** (and seeking helpers for this open sourcee project)
+
 Analysis and visualization of neurophysiology recordings and spike sorting results.
 
 ## Installation and basic usage
