@@ -8,7 +8,8 @@ const jobHandlers = (state = {
     switch (action.type) {
         case ADD_JOB_HANDLER:
             if (findJobHandlerById(state, action.jobHandlerId)) {
-                throw Error(`Job handler with id already exists: ${action.jobHandlerId}`);
+                console.warn(`Job handler with id already exists: ${action.jobHandlerId}`);
+                return state;
             }
             return {
                 ...state,
@@ -24,7 +25,8 @@ const jobHandlers = (state = {
             };
         case SET_JOB_HANDLER_NAME:
             if (!findJobHandlerById(state, action.jobHandlerId)) {
-                throw Error(`Unable to find job handler with id: ${action.jobHandlerId}`);
+                console.warn(`Unable to find job handler with id: ${action.jobHandlerId}`);
+                return state;
             }
             return {
                 ...state,
@@ -34,7 +36,8 @@ const jobHandlers = (state = {
             };
         case DELETE_JOB_HANDLER:
             if (!findJobHandlerById(state, action.jobHandlerId)) {
-                throw Error(`Unable to find job handler with id: ${action.jobHandlerId}`);
+                console.warn(`Unable to find job handler with id: ${action.jobHandlerId}`);
+                return state;
             }
             if (state.defaultJobHandlerId === action.jobHandlerId) {
                 state.defaultJobHandlerId = null;

@@ -8,22 +8,26 @@ export const addJobHandler = ({ jobHandlerId, name, jobHandlerType, config }) =>
     jobHandlerId,
     name,
     jobHandlerType: jobHandlerType,
-    config
+    config,
+    persistKey: 'jobHandlers'
 })
 
 export const setJobHandlerName = (jobHandlerId, name) => ({
     type: SET_JOB_HANDLER_NAME,
     jobHandlerId,
-    name
+    name,
+    persistKey: 'jobHandlers'
 })
 
 export const deleteJobHandler = (jobHandlerId) => ({
     type: DELETE_JOB_HANDLER,
-    jobHandlerId
+    jobHandlerId,
+    persistKey: 'jobHandlers'
 })
 
 export const assignJobHandlerToRole = ({ jobHandlerId, role }) => ({
     type: ASSIGN_JOB_HANDLER_TO_ROLE,
     jobHandlerId,
-    role
+    role,
+    persistKey: 'jobHandlers'
 })

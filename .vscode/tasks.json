@@ -15,6 +15,11 @@
             "command": "bash -ic .vscode/tasks/start_dev_client.sh"
         },
         {
+            "label": "start dev loggery",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_dev_loggery.sh"
+        },
+        {
             "label": "_start_dev",
             "type": "shell",
             "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15301'"
@@ -25,6 +30,7 @@
             "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15301'",
             "dependsOn": [
                 "start dev api",
+                "start dev loggery",
                 "start dev client",
                 "_start_dev"
             ]

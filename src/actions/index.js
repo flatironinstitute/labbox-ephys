@@ -25,6 +25,7 @@ export const CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS = 'CANCEL_ALL_SORTING_JOBS_F
 
 export const sleep = m => new Promise(r => setTimeout(r, m));
 
+// no longer used
 export const setDatabaseConfig = databaseConfig => ({
   type: SET_DATABASE_CONFIG,
   databaseConfig
@@ -33,27 +34,32 @@ export const setDatabaseConfig = databaseConfig => ({
 export const setSortingInfo = ({ sortingId, sortingInfo }) => ({
     type: SET_SORTING_INFO,
     sortingId,
-    sortingInfo
+    sortingInfo,
+    persistKey: 'sortings'
 })
 
 export const addRecording = recording => ({
   type: ADD_RECORDING,
-  recording: recording
+  recording: recording,
+  persistKey: 'recordings'
 })
 
 export const deleteRecordings = recordingIds => {
   return function(dispatch) {
     dispatch({
       type: 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS',
-      recordingIds: recordingIds
+      recordingIds: recordingIds,
+      persistKey: 'sortings'
     });
     dispatch({
       type: 'DELETE_ALL_SORTINGS_FOR_RECORDINGS',
-      recordingIds: recordingIds
+      recordingIds: recordingIds,
+      persistKey: 'sortings'
     });
     dispatch({
       type: 'DELETE_RECORDINGS',
       recordingIds: recordingIds,
+      persistKey: 'recordings'
     });
   }
 }
@@ -61,17 +67,20 @@ export const deleteRecordings = recordingIds => {
 export const setRecordingInfo = ({ recordingId, recordingInfo }) => ({
   type: SET_RECORDING_INFO,
   recordingId,
-  recordingInfo
+  recordingInfo,
+  persistKey: 'recordings'
 })
 
 export const addSorting = sorting => ({
   type: ADD_SORTING,
-  sorting: sorting
+  sorting: sorting,
+  persistKey: 'sortings'
 })
 
 export const deleteSortings = sortingIds => ({
   type: DELETE_SORTINGS,
-  sortingIds: sortingIds
+  sortingIds: sortingIds,
+  persistKey: 'sortings'
 })
 
 export const setPersistStatus = status => ({
@@ -81,23 +90,27 @@ export const setPersistStatus = status => ({
 
 export const addSortingJob = sortingJob => ({
   type: ADD_SORTING_JOB,
-  sortingJob
+  sortingJob,
+  persistKey: 'sortingJobs'
 })
 
 export const startSortingJob = (sortingJobId, recordingId, sorter) => ({
   type: START_SORTING_JOB,
   sortingJobId,
   recordingId,
-  sorter
+  sorter,
+  persistKey: 'sortingJobs'
 })
 
 export const setSortingJobStatus = (sortingJobId, status) => ({
   type: SET_SORTING_JOB_STATUS,
   sortingJobId,
-  status
+  status,
+  persistKey: 'sortingJobs'
 })
 
 export const cancelSortingJobs = (sortingJobIds) => ({
   type: CANCEL_SORTING_JOBS,
-  sortingJobIds
+  sortingJobIds,
+  persistKey: 'sortingJobs'
 })

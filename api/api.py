@@ -5,10 +5,11 @@ import os
 import threading
 import time
 import sys
-from flask import Flask, request
+from flask import Flask, request, Response
 import hither as hi
 import urllib
 import kachery as ka
+import requests
 
 # this is how the hither functions get registered
 import labbox_ephys as le
@@ -167,6 +168,24 @@ def hither_job_cancel():
     job.cancel()
     return dict()
 
+@app.route('/api/loggery/<path:path>',methods=['GET', 'POST'])
+def loggery(path):
+    # thanks: https://medium.com/customorchestrator/simple-reverse-proxy-server-using-flask-936087ce0afb
+    if request.method == 'GET':
+        resp = requests.get(f'http://localhost:15321/{path}')
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+    elif request.method=='POST':
+        resp = requests.post(f'http://localhost:15321/{path}',json=request.get_json())
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+    else:
+        raise Exception(f'Unexpected method: {request.method}')
+
 def _resolve_files_in_item(x):
     if isinstance(x, hi.File):
         if x._item_type == 'file':
@@ -272,7 +291,8 @@ def save_state_to_disk(state):
         else:
             return False
     print('Saving state to disk.')
-    for field in ['recordings', 'sortings', 'sortingJobs', 'jobHandlers']:
+    # for field in ['recordings', 'sortings', 'sortingJobs', 'jobHandlers']:
+    for field in ['sortings', 'sortingJobs', 'jobHandlers']:
         if not save_state_to_disk_helper(field, state[field]):
             return False
     return True
@@ -290,7 +310,7 @@ def get_state_from_disk():
             return None
     print('Loading state from disk.')
     ret = dict(
-        recordings=get_state_from_disk_helper('recordings') or [],
+        # recordings=get_state_from_disk_helper('recordings') or [],
         sortings=get_state_from_disk_helper('sortings') or [],
         sortingJobs=get_state_from_disk_helper('sortingJobs') or [],
         jobHandlers=get_state_from_disk_helper('jobHandlers') or {}

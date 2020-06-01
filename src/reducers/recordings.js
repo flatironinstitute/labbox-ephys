@@ -3,6 +3,7 @@ import { ADD_RECORDING, DELETE_RECORDINGS, SET_RECORDING_INFO } from '../actions
 const recordings = (state = [], action) => {
     switch (action.type) {
         case ADD_RECORDING:
+            if (state.filter(rec => rec.recordingId === action.recordingId)[0]) return;
             return [
                 ...state,
                 action.recording
@@ -15,7 +16,8 @@ const recordings = (state = [], action) => {
         case SET_RECORDING_INFO:
             const rec = state.filter(r => (r.recordingId === action.recordingId))[0];
             if (!rec) {
-                throw Error(`Unable to find recording: ${action.recordingId}`);
+                // console.warn(`Unable to find recording: ${action.recordingId}`);
+                return state;
             }
             return [
                 ...state.filter(r => (r.recordingId !== action.recordingId)),
