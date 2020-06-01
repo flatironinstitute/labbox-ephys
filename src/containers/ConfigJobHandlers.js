@@ -54,7 +54,7 @@ const ConfigJobHandlers = ({
             <p>To host a compute resource server on your own computer, do the following.</p>
             <ul>
                 <li>
-                    Install the most recent version of labbox-launcher: <pre>pip install --upgrade git+git://github.com/laboratorybox/labbox-launcher</pre>
+                    Install the most recent version of hither: <pre>pip install --upgrade git+git://github.com/flatironinstitute/hither</pre>
                 </li>
                 <li>
                     Create a new directory on your computer. For example: <pre>mkdir /home/user/labbox/compute_resource</pre>
@@ -62,7 +62,7 @@ const ConfigJobHandlers = ({
                 <li>
                     Change to that directory and run the configuration utility:
                     <pre>cd /home/user/labbox/compute_resource</pre>
-                    <pre>labbox-launcher config-compute-resource</pre>
+                    <pre>hither-compute-resource config</pre>
                 </li>
                 <li>
                     Follow the instructions to set up and run the compute resource server.
@@ -101,7 +101,7 @@ const CJHTable = ({ jobHandlers, onDeleteJobHandler }) => {
             jobHandlerId: jh.jobHandlerId,
             name: jh.name,
             jobHandlerType: jh.jobHandlerType,
-            config: '********************'
+            config: JSON.stringify(jh.config)
         }
     ));
 
@@ -158,8 +158,7 @@ const CJHAdd = ({ onAdd, onCancel }) => {
     const [jobHandlerType, setJobHandlerType] = useState('remote');
     const [name, setName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [mongoUri, setMongoUri] = useState('');
-    const [databaseName, setDatabaseName] = useState('');
+    const [eventStreamUrl, setEventStreamUrl] = useState('');
     const [computeResourceId, setComputeResourceId] = useState('');
     const typeOptions = [
         {
@@ -167,8 +166,8 @@ const CJHAdd = ({ onAdd, onCancel }) => {
             value: 'remote'
         },
         {
-            label: 'Local',
-            value: 'default'
+            label: 'Within labbox-ephys container',
+            value: 'internal'
         }
     ];
     const handleSubmit = () => {
@@ -178,12 +177,8 @@ const CJHAdd = ({ onAdd, onCancel }) => {
         }
         let config;
         if (jobHandlerType === 'remote') {
-            if (!mongoUri) {
-                setErrorMessage('Missing Mongo URI');
-                return;
-            }
-            if (!databaseName) {
-                setErrorMessage('Missing database name');
+            if (!eventStreamUrl) {
+                setErrorMessage('Missing event stream url');
                 return;
             }
             if (!computeResourceId) {
@@ -191,8 +186,7 @@ const CJHAdd = ({ onAdd, onCancel }) => {
                 return;
             }
             config = {
-                mongoUri: mongoUri,
-                databaseName: databaseName,
+                eventStreamUrl: eventStreamUrl,
                 computeResourceId: computeResourceId
             };
         }
@@ -226,21 +220,15 @@ const CJHAdd = ({ onAdd, onCancel }) => {
                 (jobHandlerType === 'remote') && (
                     <Fragment>
                         <TextInputControl
+                            label="Event stream URL"
+                            value={eventStreamUrl}
+                            onSetValue={setEventStreamUrl}
+                        />
+                        <div style={{ paddingBottom: 15 }} />
+                        <TextInputControl
                             label="Compute resource ID"
                             value={computeResourceId}
                             onSetValue={setComputeResourceId}
-                        />
-                        <div style={{ paddingBottom: 15 }} />
-                        <TextInputControl
-                            label="Mongo URI"
-                            value={mongoUri}
-                            onSetValue={setMongoUri}
-                        />
-                        <div style={{ paddingBottom: 15 }} />
-                        <TextInputControl
-                            label="Database name"
-                            value={databaseName}
-                            onSetValue={setDatabaseName}
                         />
                         <div style={{ paddingBottom: 15 }} />
                     </Fragment>

@@ -33,6 +33,8 @@ import { sleepMsec } from './hither/createHitherJob';
 
 import { INITIAL_LOAD } from './actions';
 
+import { setJobHandlersByRole } from './hither/createHitherJob';
+
 const eventStreamClientOpts = {
   useWebSocket: true
 }
@@ -87,6 +89,19 @@ const listenToActionStream = async (key) => {
 ['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
   key => listenToActionStream(key)
 )
+
+store.subscribe(() => {
+  const state = store.getState().jobHandlers;
+  const jobHandlersByRole = {};
+  for (let role in state.roleAssignments) {
+    const handlerId = state.roleAssignments[role];
+    const handlerConfig = state.jobHandlers.filter(jh => (jh.jobHandlerId === handlerId))[0];
+    if (handlerConfig) {
+      jobHandlersByRole[role] = handlerConfig;
+    }
+  }
+  setJobHandlersByRole(jobHandlersByRole);
+})
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

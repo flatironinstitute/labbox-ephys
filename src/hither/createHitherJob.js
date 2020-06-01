@@ -6,6 +6,7 @@ const objectHash = require('object-hash');
 
 const globalHitherJobStore = {};
 const globalDispatch = {};
+let globalJobHandlersByRole = {};
 
 export const sleepMsec = m => new Promise(r => setTimeout(r, m));
 
@@ -23,10 +24,20 @@ export const setDispatch = (dispatch) => {
   globalDispatch.dispatch = dispatch;
 }
 
+export const setJobHandlersByRole = (handlersByRole) => {
+  globalJobHandlersByRole = handlersByRole;
+}
+
 const createHitherJob = async (functionName, kwargs, opts={}) => {
   if (opts.wait) {
     const job0 = await createHitherJob(functionName, kwargs, {...opts, wait: false});
     return await job0.wait();
+  }
+  if ((opts.hither_config) && (opts.hither_config.job_handler_role)) {
+    if (opts.hither_config.job_handler_role in globalJobHandlersByRole) {
+      opts.hither_config.job_handler_config = globalJobHandlersByRole[opts.hither_config.job_handler_role];
+    }
+    opts.hither_config.job_handler_role = undefined;
   }
   const kwargs2 = serializeFileObjectsInItem(kwargs);
   const jobHash = objectHash({

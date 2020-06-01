@@ -21,7 +21,6 @@ import pluginComponents
 app = Flask(__name__)
 global_data = dict(
     default_job_handler=hi.ParallelJobHandler(num_workers=4),
-    job_handlers_by_id=dict(),
     jobs_by_id=dict()
 )
 global_data_lock = threading.Lock()
@@ -49,33 +48,15 @@ def _create_job_handler_from_config(x):
     if job_handler_type == 'default':
         return hi.ParallelJobHandler(num_workers=4)
     elif job_handler_type == 'remote':
-        db = hi.Database(mongo_url=x['config']['mongoUri'], database=x['config']['databaseName'])
-        jh = hi.RemoteJobHandler(database=db, compute_resource_id=x['config']['computeResourceId'])
+        event_stream_url = x['config']['eventStreamUrl']
+        channel = 'readwrite'
+        password = 'readwrite'
+        compute_resource_id = x['config']['computeResourceId']
+        esc = hi.EventStreamClient(event_stream_url, channel=channel, password=password)
+        jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
         return jh
     else:
         raise Exception(f'Unexpected job handler type: {job_handler_type}')
-
-def _get_job_handler_for_id(job_handler_id):
-    global global_data
-    with global_data_lock:
-        if job_handler_id in global_data['job_handlers_by_id']:
-            return global_data['job_handlers_by_id'][job_handler_id]
-    state = get_state_from_disk()
-    handler_configs = state['jobHandlers']['jobHandlers']
-    handler_configs = [hc for hc in handler_configs if hc['jobHandlerId'] == job_handler_id]
-    assert len(handler_configs) > 0, f'Unable to find handler configs with id: {job_handler_id}'
-    assert len(handler_configs) < 2, f'Found more than one handler configs with id: {job_handler_id}'
-    with global_data_lock:
-        global_data['job_handlers_by_id'][job_handler_id] = _create_job_handler_from_config(handler_configs[0])
-    return _get_job_handler_for_id(job_handler_id)
-
-def _get_job_handler_for_role(job_handler_role):
-    state = get_state_from_disk()
-    role_assignments = state['jobHandlers'].get('roleAssignments', dict())
-    if job_handler_role not in role_assignments:
-        with global_data_lock:
-            return global_data['default_job_handler']
-    return _get_job_handler_for_id(role_assignments[job_handler_role])
 
 @app.route('/api/create_hither_job', methods=['POST'])
 def create_hither_job():
@@ -92,14 +73,14 @@ def create_hither_job():
     kwargs = _deserialize_files_in_item(kwargs)
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})
-    job_handler_id = hither_config.get('job_handler_id', None)
-    job_handler_role = hither_config.get('job_handler_role', None)
-    if job_handler_id is not None:
-        hither_config['job_handler'] = _get_job_handler_for_id(job_handler_id)
-        del hither_config['job_handler_id']
-    elif job_handler_role is not None:
-        hither_config['job_handler'] = _get_job_handler_for_role(job_handler_role)
-        del hither_config['job_handler_role']
+    if 'job_handler_config' in hither_config:
+        job_handler_config = hither_config.get('job_handler_config')
+        del hither_config['job_handler_config']
+    else:
+        job_handler_config = None
+
+    if job_handler_config is not None:
+        hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
     else:
         with global_data_lock:
             hither_config['job_handler'] = global_data['default_job_handler']
@@ -142,7 +123,6 @@ def hither_job_wait():
                 result = job.get_result()
                 result = _serialize_files_in_item(result)
                 print(f'======== Finished hither job: {job_id} {job.get_label()}')
-                print(job.get_runtime_info())
                 return dict(
                     error=False,
                     result=result,

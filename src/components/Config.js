@@ -3,9 +3,7 @@ import ConfigJobHandlers from '../containers/ConfigJobHandlers';
 
 const Config = () => {
   return (
-    <div>
-      <ConfigJobHandlers />
-    </div>
+    <ConfigJobHandlers />
   );
 }
 
