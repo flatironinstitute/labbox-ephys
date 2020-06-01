@@ -1,14 +1,19 @@
 server {
-    listen 15305;
+    listen 15371;
     index index.html;
 
     location /api {
         include proxy_params;
-        proxy_pass http://localhost:15304;
+        proxy_pass http://localhost:15362;
+    }
+
+    location /eventstreamserver {
+        include proxy_params;
+        proxy_pass http://localhost:15363;
     }
 
     location / {
         include proxy_params;
-        proxy_pass http://localhost:15303;
+        proxy_pass http://localhost:15361;
     }
 }

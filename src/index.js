@@ -27,16 +27,23 @@ import AppContainer from './AppContainer';
 
 // Custom routes
 import Routes from './Routes';
-import { ADD_RECORDING, sleep, DELETE_RECORDINGS, SET_RECORDING_INFO } from './actions';
 
-import { EventStreamClient } from './loggery'
+import EventStreamClient from './eventstreamclient/EventStreamClient'
 import { sleepMsec } from './hither/createHitherJob';
 
+import { INITIAL_LOAD } from './actions';
+
+const eventStreamClientOpts = {
+  useWebSocket: true
+}
+const eventStreamClient = new EventStreamClient('/api/eventstream', 'readwrite', 'readwrite', eventStreamClientOpts);
 const persistStateMiddleware = store => next => action => {
-  const esc = new EventStreamClient('/api/loggery', 'readwrite', 'readwrite');
   const writeAction = async (key, theAction) => {
-    const stream = esc.getStream({ key: key });
-    await stream.writeEvent(theAction);
+    const stream = eventStreamClient.getStream({ key: key });
+    await stream.writeEvent({
+      timestamp: (new Date()).getTime(),
+      action: theAction
+    });
   }
 
   if ((action.persistKey) && (action.source !== 'fromActionStream')) {
@@ -50,14 +57,30 @@ const persistStateMiddleware = store => next => action => {
 const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 
 const listenToActionStream = async (key) => {
-  const esc = new EventStreamClient('/api/loggery', 'readwrite', 'readwrite');
-  const stream = esc.getStream({ key: key });
+  const stream = eventStreamClient.getStream({ key: key });
+  const initialLoad = false;
+  const numEvents = await stream.getNumEvents();
+  if (!numEvents) {
+    store.dispatch({
+      type: INITIAL_LOAD,
+      key: key
+    });
+  }
   while (true) {
-    await sleepMsec(500);
-    const events = await stream.readEvents(3000);
+    await sleepMsec(100);
+    const events = await stream.readEvents(12000);
     for (let e of events) {
-      e.source = 'fromActionStream';
-      store.dispatch(e);
+      let action = e.action;
+      action.source = 'fromActionStream';
+      store.dispatch(action);
+    }
+    if (events.length > 0) {
+      if (!initialLoad) {
+        store.dispatch({
+          type: INITIAL_LOAD,
+          key: key
+        });
+      }
     }
   }
 }

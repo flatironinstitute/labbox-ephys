@@ -55,12 +55,15 @@ You can learn more about vscode tasks [here](https://code.visualstudio.com/docs/
 
 The following ports are used by the development container:
 
-* 15301 - development client (yarn start)
-* 15302 - development api server (flask `api/`)
-* 15321 - development loggery server
-* 15303 - test production client (serving `build/` directory)
-* 15304 - test production api server (gunicorn flask `api/`)
-* 15305 - test production nginx server
+* 15351 - development client (yarn start)
+* 15352 - development api server (flask `api/`)
+* 15353 - development event stream server
+* 15353 - development websocket for event stream server
+* 15361 - test production client (serving `build/` directory)
+* 15362 - test production api server (gunicorn flask `api/`)
+* 15363 - test production event stream server
+* 15363 - test production websocket for event stream server
+* 15371 - test production nginx server
 
 **In deployed production container**
 
@@ -68,6 +71,8 @@ The following ports are used inside the deployed production container:
 
 * 15306 - client (serving `build/` directory)
 * 15307 - server (gunicorn flask `api/`)
+* 15308 - event stream server
+* 15308 - websocket for event stream server
 * 15310 - nginx server (main port to connect to)
 
 ### Deploying docker image

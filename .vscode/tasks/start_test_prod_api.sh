@@ -2,6 +2,8 @@
 
 set -ex
 
+export EVENT_STREAM_URL=http://localhost:15363
+
 pip install gunicorn
 cd api
-~/.local/bin/gunicorn -b 127.0.0.1:15304 api:app
+~/.local/bin/gunicorn -b 127.0.0.1:15362 api:app

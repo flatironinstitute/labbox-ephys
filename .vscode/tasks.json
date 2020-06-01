@@ -15,23 +15,23 @@
             "command": "bash -ic .vscode/tasks/start_dev_client.sh"
         },
         {
-            "label": "start dev loggery",
+            "label": "start dev event stream server",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_dev_loggery.sh"
+            "command": "bash -ic .vscode/tasks/start_dev_event_stream_server.sh"
         },
         {
             "label": "_start_dev",
             "type": "shell",
-            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15301'"
+            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15351'"
         },
         {
             "label": "START DEV",
             "type": "shell",
-            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15301'",
+            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15351'",
             "dependsOn": [
                 "start dev api",
-                "start dev loggery",
                 "start dev client",
+                "start dev event stream server",
                 "_start_dev"
             ]
         },
@@ -51,15 +51,21 @@
             "command": "bash -ic .vscode/tasks/start_test_prod_client.sh"
         },
         {
+            "label": "start test prod event stream server",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_test_prod_event_stream_server.sh"
+        },
+        {
             "label": "_start_test_prod",
             "type": "shell",
-            "command": "echo 'This will start the test prod api and client as well as the nginx server. Point your browser to http://localhost:15305'"
+            "command": "echo 'This will start the test prod api and client as well as the nginx server. Point your browser to http://localhost:15371'"
         },
         {
             "label": "START TEST PROD",
             "dependsOn": [
                 "start test prod api",
                 "start test prod client",
+                "start test prod event stream server",
                 "start nginx",
                 "_start_test_prod"
             ]

@@ -168,17 +168,17 @@ def hither_job_cancel():
     job.cancel()
     return dict()
 
-@app.route('/api/loggery/<path:path>',methods=['GET', 'POST'])
-def loggery(path):
+@app.route('/api/eventstream/<path:path>',methods=['GET', 'POST'])
+def eventstream(path):
     # thanks: https://medium.com/customorchestrator/simple-reverse-proxy-server-using-flask-936087ce0afb
     if request.method == 'GET':
-        resp = requests.get(f'http://localhost:15321/{path}')
+        resp = requests.get(f'{os.environ["EVENT_STREAM_URL"]}/{path}')
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
         response = Response(resp.content, resp.status_code, headers)
         return response
     elif request.method=='POST':
-        resp = requests.post(f'http://localhost:15321/{path}',json=request.get_json())
+        resp = requests.post(f'{os.environ["EVENT_STREAM_URL"]}/{path}',json=request.get_json())
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
         response = Response(resp.content, resp.status_code, headers)
@@ -291,7 +291,6 @@ def save_state_to_disk(state):
         else:
             return False
     print('Saving state to disk.')
-    # for field in ['recordings', 'sortings', 'sortingJobs', 'jobHandlers']:
     for field in ['sortings', 'sortingJobs', 'jobHandlers']:
         if not save_state_to_disk_helper(field, state[field]):
             return False

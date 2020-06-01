@@ -3,4 +3,4 @@
 set -ex
 
 yarn global add serve
-$(yarn global bin)/serve -s build -l 15303
+$(yarn global bin)/serve -s build -l 15361

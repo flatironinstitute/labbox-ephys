@@ -10,6 +10,16 @@ sudo service nginx restart
 
 # export PATH=$(yarn global bin):~/.local/bin:$PATH
 
+export EVENT_STREAM_PORT=15308
+export EVENT_STREAM_URL=http://localhost:$EVENT_STREAM_PORT
+export EVENT_STREAM_WEBSOCKET_URL=ws://localhost:$EVENT_STREAM_PORT
+
+export EVENT_STREAM_SERVER_DIR=/data/eventstreamdata
+export PORT=$EVENT_STREAM_PORT
+mkdir -p $EVENT_STREAM_SERVER_DIR
+cp /hither/eventstreamserver/eventstreamserver_open.json $EVENT_STREAM_SERVER_DIR/eventstreamserver.json
+node --experimental-modules /hither/eventstreamserver/server/main.js &
+
 cd /labbox-ephys
 # concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"
 

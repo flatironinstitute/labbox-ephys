@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { Home } from '@material-ui/icons';
 import PersistStateControl from './containers/PersistStateControl';
 import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
+import { connect } from 'react-redux';
 const ToolBarContent = () => {
     return (
         <Fragment>
@@ -29,7 +30,14 @@ const ToolBarContent = () => {
 }
 //////////////////////////////////////////////////////////////
 
-const AppContainer = (props) => {
+const AppContainer = ({ initialLoad, children }) => {
+    let loaded = true;
+    ['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
+        key => {
+            if (!initialLoad[key])
+                loaded = false;
+        }
+    )
     return (
         <div className={"TheAppBar"}>
             <AppBar position="static">
@@ -38,10 +46,28 @@ const AppContainer = (props) => {
                 </Toolbar>
             </AppBar>
             <div style={{padding: 30}}>
-                {props.children}
+                {
+                    loaded ? (
+                        children
+                    ) : (
+                        <div>Loading...</div>
+                    )
+                }
             </div>
         </div>
     )
 }
 
-export default AppContainer
+const mapStateToProps = state => {
+    return {
+        initialLoad: state.initialLoad
+    }
+}
+
+const mapDispatchToProps = dispatch => ({
+})
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AppContainer)

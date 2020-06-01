@@ -1,0 +1,1 @@
+export { default as EventStreamClient } from './EventStreamClient';
