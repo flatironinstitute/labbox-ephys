@@ -35,12 +35,34 @@ import { INITIAL_LOAD } from './actions';
 
 import { setJobHandlersByRole } from './hither/createHitherJob';
 
-const eventStreamClientOpts = {
-  useWebSocket: true
+const axios = require('axios');
+
+let eventStreamClient = null;
+let eventStreamClientStatus = null;
+async function initializeEventStreamClient() {
+  if (eventStreamClientStatus === 'initializing') {
+    while (eventStreamClientStatus !== 'initialized') {
+      await sleepMsec(100);
+    }
+    return;
+  }
+  eventStreamClientStatus = 'initializing';
+  const x = (await axios.get('/api/get_event_stream_websocket_port')).data;
+  const port = x.port;
+  const url = `ws://localhost:${port}` // TODO: generalize this
+  const webSocketUrl = url;
+  const eventStreamClientOpts = {
+    useWebSocket: true,
+    webSocketUrl: webSocketUrl
+  }
+  eventStreamClient = new EventStreamClient('/api/eventstream', 'readwrite', 'readwrite', eventStreamClientOpts);
+  eventStreamClientStatus = 'initialized';
 }
-const eventStreamClient = new EventStreamClient('/api/eventstream', 'readwrite', 'readwrite', eventStreamClientOpts);
 const persistStateMiddleware = store => next => action => {
   const writeAction = async (key, theAction) => {
+    if (eventStreamClientStatus !== 'initialized') {
+      await initializeEventStreamClient();
+    }
     const stream = eventStreamClient.getStream({ key: key });
     await stream.writeEvent({
       timestamp: (new Date()).getTime(),
@@ -59,6 +81,9 @@ const persistStateMiddleware = store => next => action => {
 const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 
 const listenToActionStream = async (key) => {
+  if (eventStreamClientStatus !== 'initialized') {
+    await initializeEventStreamClient();
+  }
   const stream = eventStreamClient.getStream({ key: key });
   const initialLoad = false;
   const numEvents = await stream.getNumEvents();

@@ -148,6 +148,12 @@ def hither_job_cancel():
     job.cancel()
     return dict()
 
+@app.route('/api/get_event_stream_websocket_port', methods=['GET'])
+def get_event_stream_websocket_port():
+    return dict(
+        port=int(os.environ['EVENT_STREAM_WEBSOCKET_PORT'])
+    )
+
 @app.route('/api/eventstream/<path:path>',methods=['GET', 'POST'])
 def eventstream(path):
     # thanks: https://medium.com/customorchestrator/simple-reverse-proxy-server-using-flask-936087ce0afb

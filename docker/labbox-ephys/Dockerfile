@@ -53,7 +53,7 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout 566d7441dfd8123f2bbfc2b11875124ea0d6179f \
+    && git checkout 9dc245e9bc6eb8695ebeeca08e65810634f24158 \
     && pip install . \
     && cd /hither/eventstreamserver \
     && yarn install

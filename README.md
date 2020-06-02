@@ -32,7 +32,7 @@ To ensure that those environment variables are set with each new terminal sessio
 
 ### Install/upgrade labbox-launcher
 
-Note: is recommended that you use a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or a virtualenv when using the `pip` and `python` commands.
+Note: it is recommended that you use a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or a virtualenv when using the `pip` and `python` commands.
 
 Install the latest version of labbox-launcher
 
@@ -47,7 +47,7 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.11-alpha.2 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.11-alpha.3 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser

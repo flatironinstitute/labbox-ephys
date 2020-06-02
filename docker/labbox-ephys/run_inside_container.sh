@@ -12,7 +12,7 @@ sudo service nginx restart
 
 export EVENT_STREAM_PORT=15308
 export EVENT_STREAM_URL=http://localhost:$EVENT_STREAM_PORT
-export EVENT_STREAM_WEBSOCKET_URL=ws://localhost:$EVENT_STREAM_PORT
+export EVENT_STREAM_WEBSOCKET_PORT=$EVENT_STREAM_PORT
 
 export EVENT_STREAM_SERVER_DIR=/data/eventstreamdata
 export PORT=$EVENT_STREAM_PORT

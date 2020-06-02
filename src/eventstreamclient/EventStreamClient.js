@@ -35,9 +35,10 @@ class EventStreamClient {
             return;
         }
         this._webSocketStatus = 'initializing';
-        let x = await axios.get(`${this._url}/getWebSocketUrl`);
-        x = x.data;
-        this._webSocket = new window.WebSocket(x.webSocketUrl);
+        if (!this._opts.webSocketUrl) {
+            throw Error('Missing option: webSocketUrl');
+        }
+        this._webSocket = new window.WebSocket(this._opts.webSocketUrl);
         this._webSocket.onmessage = (e => {
             const msg = JSON.parse(e.data);
             if (msg.name === 'response') {
