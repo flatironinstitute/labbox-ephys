@@ -8,8 +8,9 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
 
 ### Prerequisites
 
-* Linux
-* Docker (be sure that your non-root user is in the docker group)
+* Linux or MacOS
+* Docker
+    - For Linux, be sure that your non-root user is in the docker group
 * Python (>= 3.6)
 * git
 
@@ -45,10 +46,10 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container
 
 ```bash
-# On linux:
+# On Linux:
 labbox-launcher run magland/labbox-ephys:0.1.11-alpha.5 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 
-# On mac:
+# On MacOS:
 labbox-launcher run magland/labbox-ephys:0.1.11-alpha.5 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
