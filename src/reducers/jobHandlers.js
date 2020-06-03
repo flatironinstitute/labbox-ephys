@@ -52,8 +52,9 @@ const jobHandlers = (state = {
         case ASSIGN_JOB_HANDLER_TO_ROLE:
             if ((action.jobHandlerId) && (!findJobHandlerById(state, action.jobHandlerId))) {
                 console.warn(`Unable to find job handler with id: ${action.jobHandlerId}. Not assigning to role.`);
+                return state;
             }
-            let roleAssignments = state.roleAssignments;
+            let roleAssignments = {...state.roleAssignments};
             if (!action.jobHandlerId) {
                 if (action.role in roleAssignments) {
                     delete roleAssignments[action.role];

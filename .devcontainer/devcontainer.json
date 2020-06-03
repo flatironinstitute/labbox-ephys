@@ -35,7 +35,6 @@
 	"mounts": [
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
 		
-		"source=${localEnv:KACHERY_STORAGE_DIR},target=${localEnv:KACHERY_STORAGE_DIR},type=bind,consistency=delegated",
 		"source=${localEnv:HITHER_SOURCE_DIR},target=/workspaces/hither,type=bind,consistency=delegated",
 		"source=${localEnv:KACHERY_SOURCE_DIR},target=/workspaces/kachery,type=bind,consistency=delegated",
 		"source=${localWorkspaceFolder}/data,target=/data,type=bind,consistency=delegated",
@@ -46,7 +45,7 @@
 	],
 
 	"containerEnv": {
-		"KACHERY_STORAGE_DIR": "${localEnv:KACHERY_STORAGE_DIR}",
+		"KACHERY_STORAGE_DIR": "/data/kachery-storage",
 		"KACHERY_DEFAULT_PASSWORD": "${localEnv:KACHERY_DEFAULT_PASSWORD}"
 	},
 

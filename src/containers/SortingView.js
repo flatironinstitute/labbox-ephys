@@ -31,7 +31,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
 
   return (
     <div>
-      <h3>{`Sorting: ${sortingId} for ${sorting.recordingId}`}</h3>
+      <h3>{`Sorting: ${sorting.sortingLabel} for ${recording.recordingLabel}`}</h3>
       {
         (sortingInfoStatus === 'computing') ? (
           <div><CircularProgress /></div>

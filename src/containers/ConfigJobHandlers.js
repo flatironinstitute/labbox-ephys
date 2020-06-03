@@ -159,6 +159,8 @@ const CJHAdd = ({ onAdd, onCancel }) => {
     const [name, setName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [eventStreamUrl, setEventStreamUrl] = useState('');
+    const [channel, setChannel] = useState('');
+    const [password, setPassword] = useState('');
     const [computeResourceId, setComputeResourceId] = useState('');
     const typeOptions = [
         {
@@ -181,12 +183,22 @@ const CJHAdd = ({ onAdd, onCancel }) => {
                 setErrorMessage('Missing event stream url');
                 return;
             }
+            if (!channel) {
+                setErrorMessage('Missing channel');
+                return;
+            }
+            if (!password) {
+                setErrorMessage('Missing password');
+                return;
+            }
             if (!computeResourceId) {
                 setErrorMessage('Missing compute resource ID');
                 return;
             }
             config = {
                 eventStreamUrl: eventStreamUrl,
+                channel: channel,
+                password: password,
                 computeResourceId: computeResourceId
             };
         }
@@ -223,6 +235,18 @@ const CJHAdd = ({ onAdd, onCancel }) => {
                             label="Event stream URL"
                             value={eventStreamUrl}
                             onSetValue={setEventStreamUrl}
+                        />
+                        <div style={{ paddingBottom: 15 }} />
+                        <TextInputControl
+                            label="Channel"
+                            value={channel}
+                            onSetValue={setChannel}
+                        />
+                        <div style={{ paddingBottom: 15 }} />
+                        <TextInputControl
+                            label="Password"
+                            value={password}
+                            onSetValue={setPassword}
                         />
                         <div style={{ paddingBottom: 15 }} />
                         <TextInputControl

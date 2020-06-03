@@ -65,6 +65,7 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
     onSetSortingJobStatus(sortingJobId, 'finished');
     const sorting = {
       sortingId: sortingJobId,
+      sortingLabel: sorter.algorithm,
       sortingPath: sortingPath,
       sortingObject: sortingObject,
       recordingId: recordingId,
@@ -77,7 +78,7 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
 
   return (
     <div>
-      <h1>Run spike sorting on {recordingId}</h1>
+      <h1>Run spike sorting on {recording.recordingLabel}</h1>
       <div>
         <SelectSpikeSorter sorter={sorter} onSetSorter={setSorter} />
         {sorter && <div><Button onClick={handleRun}>{`Run ${sorter.algorithm}`}</Button></div>}

@@ -4,25 +4,22 @@ import { createHitherJob } from '../hither'
 import { CircularProgress, Button } from '@material-ui/core'
 import NiceTable from './NiceTable'
 
-const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecording }) => {
+const ImportRecordingFromLocalDisk = ({ onDone, onAddRecording }) => {
     const [status, setStatus] = useState('initial');
     const [importableRecordings, setImportableRecordings] = useState(null);
-    const [selectedRecordingId, setSelectedRecordingId] = useState(null);
+    const [selectedRecordingLabel, setSelectedRecordingLabel] = useState(null);
     const [importErrorMessage, setImportErrorMessage] = useState(null);
 
     const selectedRecording = () => {
-        return importableRecordings.filter(r => (r.id === selectedRecordingId))[0];
+        return importableRecordings.filter(r => (r.label === selectedRecordingLabel))[0];
     }
 
     const handleImportSelectedRecording = () => {
         const rec = selectedRecording();
-        if (existingRecordingIds.filter(id => (id === rec.id))[0]) {
-            setImportErrorMessage(`Cannot import. Duplicate id: ${rec.id}`);
-            return;
-        }
         setImportErrorMessage('');
         onAddRecording({
-            recordingId: rec.id,
+            recordingId: randomString(10),
+            recordingLabel: rec.label,
             recordingPath: rec.path,
             recordingObject: rec.recording_object
         })
@@ -58,7 +55,13 @@ const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecor
         return <div>Waiting...</div>;
     }
     else if (status === 'loading') {
-        return <CircularProgress />
+        return (
+            <div>
+                <CircularProgress />
+                Loading importable recordings from disk...
+            </div>
+            
+        )
     }
     else if (status === 'error') {
         return <div>Error loading local data directory.</div>
@@ -68,16 +71,16 @@ const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecor
             <div>
                 <TheTable
                     importableRecordings={importableRecordings}
-                    selectedRecordingId={selectedRecordingId}
-                    onSetSelectedRecordingId={id => {setImportErrorMessage(""); setSelectedRecordingId(id)}}
+                    selectedRecordingLabel={selectedRecordingLabel}
+                    onSetSelectedRecordingLabel={label => {setImportErrorMessage(""); setSelectedRecordingLabel(label)}}
                 />
                 {
-                    selectedRecordingId && (
+                    selectedRecordingLabel && (
                         <Fragment>
                             <Button
                                 onClick={() => handleImportSelectedRecording()}
                             >
-                                Import {selectedRecordingId}
+                                Import {selectedRecordingLabel}
                             </Button>
                             {
                                 importErrorMessage && <span style={{color: 'red'}}>{importErrorMessage}</span>
@@ -94,11 +97,11 @@ const ImportRecordingFromLocalDisk = ({ onDone, existingRecordingIds, onAddRecor
     }
 }
 
-const TheTable = ({ importableRecordings, selectedRecordingId, onSetSelectedRecordingId }) => {
+const TheTable = ({ importableRecordings, selectedRecordingLabel, onSetSelectedRecordingLabel }) => {
     const rows = importableRecordings.map(r => (
         {
-            key: r.id,
-            id: r.id,
+            key: r.label,
+            label: r.label,
             path: r.path,
             recordingObject: r.recording_object,
             numChannels: r.recording_info.channel_ids.length,
@@ -109,7 +112,7 @@ const TheTable = ({ importableRecordings, selectedRecordingId, onSetSelectedReco
     const columns = [
         {
             label: 'Importable recording',
-            key: 'id'
+            key: 'label'
         },
         {
             label: 'Num. channels',
@@ -129,10 +132,18 @@ const TheTable = ({ importableRecordings, selectedRecordingId, onSetSelectedReco
             rows={rows}
             columns={columns}
             selectionMode='single'
-            selectedRowKeys={selectedRecordingId ? [selectedRecordingId] : []}
-            onSelectedRowKeysChanged={(keys) => {onSetSelectedRecordingId(keys[0] || null)}}
+            selectedRowKeys={selectedRecordingLabel ? [selectedRecordingLabel] : []}
+            onSelectedRowKeysChanged={(keys) => {onSetSelectedRecordingLabel(keys[0] || null)}}
         />
     )
+}
+
+function randomString(num_chars) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i < num_chars; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
 }
 
 export default ImportRecordingFromLocalDisk

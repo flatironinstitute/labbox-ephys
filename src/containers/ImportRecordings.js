@@ -3,10 +3,10 @@ import { connect } from 'react-redux'
 import { addRecording } from '../actions'
 import { withRouter } from 'react-router-dom';
 import RadioChoices from '../components/RadioChoices';
-import ImportRecordingsFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
+import ImportRecordingFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 
-const ImportRecordings = ({ existingRecordingIds, onAddRecording, history }) => {
+const ImportRecordings = ({ onAddRecording, history }) => {
     const [method, setMethod] = useState('local');
 
     const handleDone = () => {
@@ -17,7 +17,6 @@ const ImportRecordings = ({ existingRecordingIds, onAddRecording, history }) => 
     if (method === 'spikeforest') {
         form = (
             <ImportRecordingFromSpikeForest
-                existingRecordingIds={existingRecordingIds}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
             />
@@ -27,7 +26,6 @@ const ImportRecordings = ({ existingRecordingIds, onAddRecording, history }) => 
         form = (
             <ImportRecordingFromSpikeForest
                 examplesMode={true}
-                existingRecordingIds={existingRecordingIds}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
             />
@@ -35,8 +33,7 @@ const ImportRecordings = ({ existingRecordingIds, onAddRecording, history }) => 
     }
     else if (method === 'local') {
         form = (
-            <ImportRecordingsFromLocalDisk
-                existingRecordingIds={existingRecordingIds}
+            <ImportRecordingFromLocalDisk
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
             />
@@ -79,7 +76,6 @@ const ImportRecordings = ({ existingRecordingIds, onAddRecording, history }) => 
 }
 
 const mapStateToProps = state => ({
-    existingRecordingIds: state.recordings.map(rec => rec.recordingId)
 })
 
 const mapDispatchToProps = dispatch => ({

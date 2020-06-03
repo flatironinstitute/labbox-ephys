@@ -10,6 +10,9 @@ sudo service nginx restart
 
 # export PATH=$(yarn global bin):~/.local/bin:$PATH
 
+export KACHERY_STORAGE_DIR=/data/kachery-storage
+mkdir -p $KACHERY_STORAGE_DIR
+
 export EVENT_STREAM_PORT=15308
 export EVENT_STREAM_URL=http://localhost:$EVENT_STREAM_PORT
 export EVENT_STREAM_WEBSOCKET_PORT=$EVENT_STREAM_PORT

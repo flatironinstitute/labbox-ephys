@@ -15,7 +15,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo }) => {
         });
     }
 
-    sortings = sortByKey(sortings, 'sortingId');
+    sortings = sortByKey(sortings, 'sortingLabel');
 
     const effect = async () => {
         for (const sor of sortings) {
@@ -51,16 +51,16 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo }) => {
     const rows = sortings.map(s => ({
         sorting: s,
         key: s.sortingId,
-        sortingId: {
-            text: s.sortingId,
-            element: <Link title={"View this sorting"} to={`/sorting/${s.sortingId}`}>{s.sortingId}</Link>,
+        sortingLabel: {
+            text: s.sortingLabel,
+            element: <Link title={"View this sorting"} to={`/sorting/${s.sortingId}`}>{s.sortingLabel}</Link>,
         },
         numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
     }));
 
     const columns = [
         {
-            key: 'sortingId',
+            key: 'sortingLabel',
             label: 'Sorting'
         },
         {

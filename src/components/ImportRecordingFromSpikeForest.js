@@ -4,13 +4,13 @@ import { createHitherJob } from '../hither'
 import { sleep } from '../actions'
 import RecordingInfoView from '../components/RecordingInfoView';
 
-const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRecording, examplesMode }) => {
+const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }) => {
     const [recordingPath, setRecordingPath] = useState('');
     const [recordingObject, setRecordingObject] = useState(null);
     const [recordingInfo, setRecordingInfo] = useState(null);
     const [recordingInfoStatus, setRecordingInfoStatus] = useState('');
     const [downloadStatus, setDownloadStatus] = useState('');
-    const [recordingId, setRecordingId] = useState('');
+    const [recordingLabel, setRecordingLabel] = useState('');
     const [errors, setErrors] = useState({});
 
     const effect = async () => {
@@ -86,18 +86,15 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
     }
     useEffect(() => {effect()});
 
-    if ((!recordingInfo) && (recordingId !== '<>')) {
-        setRecordingId('<>');
+    if ((!recordingInfo) && (recordingLabel !== '<>')) {
+        setRecordingLabel('<>');
     }
 
     const handleImport = () => {
         let newErrors = {};
-        let recordingId2 = recordingId === '<>' ? autoDetermineRecordingIdFromPath(recordingPath) : recordingId;
-        if (!recordingId2) {
-            newErrors.recordingId = { type: 'required' };
-        }
-        if (recordingId2 in Object.fromEntries(existingRecordingIds.map(id => [id, true]))) {
-            newErrors.recordingId2 = { type: 'duplicate-id' };
+        let recordingLabel2 = recordingLabel === '<>' ? autoDetermineRecordingLabelFromPath(recordingPath) : recordingLabel;
+        if (!recordingLabel2) {
+            newErrors.recordingLabel = { type: 'required' };
         }
         if (!recordingPath) {
             newErrors.recordingPath = { type: 'required' };
@@ -107,7 +104,8 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
             return;
         }
         const recording = {
-            recordingId: recordingId2,
+            recordingId: randomString(10),
+            recordingLabel: recordingLabel2,
             recordingPath,
             recordingObject
         }
@@ -141,16 +139,16 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
                     examplesMode={examplesMode}
                     value={recordingPath}
                     disabled={controlsDisabled}
-                    onChange={value => {setRecordingPath(value); setRecordingInfo(null); setRecordingInfoStatus(''); setRecordingId('<>')}}
+                    onChange={value => {setRecordingPath(value); setRecordingInfo(null); setRecordingInfoStatus(''); setRecordingLabel('<>')}}
                     errors={errors}
                 />
 
                 {
                     recordingPath &&
                     (
-                        <RecordingIdControl
-                            value={recordingId === '<>' ? autoDetermineRecordingIdFromPath(recordingPath) : recordingId}
-                            onChange={(val) => setRecordingId(val)}
+                        <RecordingLabelControl
+                            value={recordingLabel === '<>' ? autoDetermineRecordingLabelFromPath(recordingPath) : recordingLabel}
+                            onChange={(val) => setRecordingLabel(val)}
                             disabled={controlsDisabled}
                             errors={errors}
                         />
@@ -201,7 +199,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, existingRecordingIds, onAddRec
     )
 }
 
-function autoDetermineRecordingIdFromPath(path) {
+function autoDetermineRecordingLabelFromPath(path) {
     if (path.startsWith('sha1://') || (path.startsWith('sha1dir://'))) {
         let x = path.split('/').slice(2);
         let y = x[0].split('.');
@@ -223,7 +221,6 @@ const formGroupStyle = {
 
 // Messages
 const required = "This field is required";
-const duplicateId = "Duplicate recording ID";
 const maxLength = "Your input exceeds maximum length";
 
 const errorMessage = error => {
@@ -316,14 +313,22 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode, disabled=
     );
 }
 
-const RecordingIdControl = ({ value, onChange, errors, disabled=false }) => {
-    const e = errors.recordingId || {};
+function randomString(num_chars) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i < num_chars; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
+}
+
+const RecordingLabelControl = ({ value, onChange, errors, disabled=false }) => {
+    const e = errors.recordingLabel || {};
     return (
         <FormGroup style={formGroupStyle}>
             <FormControl>
-                <InputLabel>Recording ID</InputLabel>
+                <InputLabel>Recording Label</InputLabel>
                 <Input
-                    name="recordingId"
+                    name="recordingLabel"
                     readOnly={false}
                     disabled={disabled}
                     value={value}
@@ -331,7 +336,6 @@ const RecordingIdControl = ({ value, onChange, errors, disabled=false }) => {
                 />
             </FormControl>
             {e.type === "required" && errorMessage(required)}
-            {e.type === "duplicate-id" && errorMessage(duplicateId)}
             {e.type === "maxLength" && errorMessage(maxLength)}
         </FormGroup>
     );

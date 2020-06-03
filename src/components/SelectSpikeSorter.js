@@ -5,8 +5,8 @@ const SelectSpikeSorter = ({ sorter, onSetSorter }) => {
     sorter = sorter || {};
 
     const algorithms = [
-        'mountainsort4',
-        'kilosort2'
+        'mountainsort4'
+        // 'kilosort2'
     ];
 
     return (

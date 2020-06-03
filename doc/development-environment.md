@@ -27,8 +27,6 @@ export HITHER_SOURCE_DIR=/home/user/src/hither
 export KACHERY_SOURCE_DIR=/home/user/src/kachery
 ```
 
-Also, make sure that the `KACHERY_STORAGE_DIR` environment variable is set as described in the main installation instructions.
-
 ### Open labbox-ephys in the development container
 
 ```bash

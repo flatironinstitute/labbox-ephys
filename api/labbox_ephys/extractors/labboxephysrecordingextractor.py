@@ -119,24 +119,25 @@ def _try_nrs_create_object(arg: Union[str, dict]) -> Union[None, dict]:
 
 
 def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
+    # if arg is a string ending with .json then replace arg by the object
+    if (isinstance(arg, str)) and (arg.endswith('.json')):
+        path = arg
+        x = ka.load_object(path)
+        if x is None:
+            raise Exception(f'Unable to load object: {path}')
+        return _create_object_for_arg(x)
+    
     # check to see if it already has the recording_format field. If so, just return arg
     if (isinstance(arg, dict)) and ('recording_format' in arg):
         return arg
 
     # if has form dict(path='...') then replace by the string
     if (isinstance(arg, dict)) and ('path' in arg) and (type(arg['path']) == str):
-        arg = arg['path']
+        return _create_object_for_arg(arg['path'])
 
     # if has type LabboxEphysRecordingExtractor, then just get the object from arg.object()
     if isinstance(arg, LabboxEphysRecordingExtractor):
         return arg.object()
-
-    # if arg is a string ending with .json then replace arg by the object
-    if (isinstance(arg, str)) and (arg.endswith('.json')):
-        path = arg
-        arg = ka.load_object(path)
-        if arg is None:
-            raise Exception(f'Unable to load object: {path}')
     
     # See if it has format 'mda'
     obj = _try_mda_create_object(arg)
@@ -191,11 +192,8 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
 class LabboxEphysRecordingExtractor(se.RecordingExtractor):
     def __init__(self, arg: Union[str, dict], download: bool=False):
         super().__init__()
-        if (isinstance(arg, dict)) and ('recording_format' in arg):
-            obj = dict(arg)
-        else:
-            obj = _create_object_for_arg(arg)
-            assert obj is not None, f'Unable to create recording from arg: {arg}'
+        obj = _create_object_for_arg(arg)
+        assert obj is not None
         self._object: dict = obj
         
         recording_format = self._object['recording_format']
@@ -233,6 +231,14 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
 
         self.copy_channel_properties(recording=self._recording)
     
+    @staticmethod
+    def can_load(arg):
+        try:
+            obj = _create_object_for_arg(arg)
+        except:
+            obj = None
+        return (obj is not None)
+
     def object(self) -> dict:
         return deepcopy(self._object)
     

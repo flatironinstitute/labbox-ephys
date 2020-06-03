@@ -15,7 +15,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
         });
     }
 
-    recordings = sortByKey(recordings, 'recordingId');
+    recordings = sortByKey(recordings, 'recordingLabel');
 
     const effect = async () => {
         for (const rec of recordings) {
@@ -51,9 +51,9 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
     const rows = recordings.map(rec => ({
         recording: rec,
         key: rec.recordingId,
-        recordingId: {
-            text: rec.recordingId,
-            element: <Link title={"View this recording"} to={`/recording/${rec.recordingId}`}>{rec.recordingId}</Link>,
+        recordingLabel: {
+            text: rec.recordingLabel,
+            element: <Link title={"View this recording"} to={`/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
         },
         numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
         samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
@@ -62,7 +62,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
 
     const columns = [
         {
-            key: 'recordingId',
+            key: 'recordingLabel',
             label: 'Recording'
         },
         {

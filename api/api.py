@@ -49,8 +49,8 @@ def _create_job_handler_from_config(x):
         return hi.ParallelJobHandler(num_workers=4)
     elif job_handler_type == 'remote':
         event_stream_url = x['config']['eventStreamUrl']
-        channel = 'readwrite'
-        password = 'readwrite'
+        channel = x['config']['channel']
+        password = x['config']['password']
         compute_resource_id = x['config']['computeResourceId']
         esc = hi.EventStreamClient(event_stream_url, channel=channel, password=password)
         jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
@@ -63,6 +63,7 @@ def create_hither_job():
     global global_data
 
     ka.set_config(fr='default_readonly')
+    ka.set_config(use_hard_links=True)
 
     x = request.json
     functionName = x['functionName']
@@ -113,6 +114,7 @@ def hither_job_wait():
             try:
                 job.wait(0)
             except Exception:
+                # print(''.join(traceback.format_tb(job.get_exception().__traceback__)))
                 traceback.print_exc()
                 return dict(
                     error=True,
@@ -306,27 +308,51 @@ def get_state_from_disk():
 def get_local_data_dir():
     return ka.read_dir('/data')
 
-@hi.function('get_importable_recordings', '0.1.1')
+@hi.function('get_importable_recordings', '0.1.2')
 def get_importable_recordings(subdir=''):
-    basedir = '/data' + subdir
+    basedir = _joinpaths('/data/import', subdir)
     ret = []
+    timer = time.time()
+    if not os.path.exists(basedir):
+        return ret
     x = ka.read_dir(basedir)
-    for dirname, _ in x['dirs'].items():
+    elapsed = time.time() - timer
+    if elapsed < 1:
+        time.sleep(1 - elapsed)
+    file_and_dirnames = list(x['dirs'].keys()) + list(x['files'].keys())
+    for name in file_and_dirnames:
         # path = ka.store_dir(f'{basedir}/{dirname}')
-        path = f'{basedir}/{dirname}'
-        try:
-            recording_object = le.LabboxEphysRecordingExtractor(path).object()
-        except:
-            recording_object = None
-        if recording_object is not None:
-            info = le.get_recording_info(recording_object)
-            ret.append(dict(
-                id=dirname,
-                path=path,
-                recording_object=recording_object,
-                recording_info=info
-            ))
+        path = f'{basedir}/{name}'
+        if le.LabboxEphysRecordingExtractor.can_load(path):
+            try:
+                recording_object = le.LabboxEphysRecordingExtractor(path).object()
+            except:
+                print(f'Warning: problem loading recording: {path}')
+                recording_object = None
+            if recording_object is not None:
+                info = le.get_recording_info(recording_object)
+                if name in x['dirs'].keys():
+                    path2 = ka.store_dir(path)
+                else:
+                    path2 = ka.store_file(path)
+                ret.append(dict(
+                    label=_joinpaths(subdir, name),
+                    path=path2,
+                    recording_object=recording_object,
+                    recording_info=info
+                ))
+        else:
+            if name in x['dirs'].keys():
+                ret = ret + get_importable_recordings(subdir = _joinpaths(subdir, name))
+        # TODO: load individual json files
     return ret
+
+def _joinpaths(p1, p2):
+    if not p1:
+        return p2
+    if not p2:
+        return p1
+    return p1 + '/' + p2
     
 @hi.function('test_python_call', '0.1.0')
 def test_python_call():

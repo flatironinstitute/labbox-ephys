@@ -15,16 +15,14 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
 
 ### Create directories and set environment variables
 
-You will need to create some directories. Here we assume that "user" is the name of the logged in user. Rename as desired - you can choose any locations you want.
+You will need to create a data directory. Here we assume that "user" is the name of the logged in user. Rename as desired - you can choose any location you want.
 
-* `/home/user/labbox/kachery-storage` - The system will store large temporary files here
-* `/home/user/labbox/labbox-ephys-data` - For importing data into the system
+* `/home/user/labbox/labbox-ephys-data`
 
-Set environment variables to point to these directories so we can refer to them elsewhere
+Set an environment variable to point to this directory so we can refer to it elsewhere
 
 ```bash
 # Adjust as needed to match above
-export KACHERY_STORAGE_DIR=/home/user/labbox/kachery-storage
 export LABBOX_EPHYS_DATA_DIR=/home/user/labbox/labbox-ephys-data
 ```
 
@@ -47,7 +45,7 @@ This should make the `labbox-launcher` command available from the command line. 
 Launch the labbox-ephys container
 
 ```bash
-labbox-launcher run magland/labbox-ephys:0.1.11-alpha.3 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.11-alpha.5 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
@@ -118,6 +116,12 @@ If you want to use your own computer to run the spike sorting, then you will nee
 * 0.1.11
     - Persist data using event stream [done]
     - Use new version of hither compute resource [done]
+    - Improve import efficiency [done]
+    - Switch to recordingLabel/sortingLabel instead of recordingId/sortingId [done]
+    - Job handler config : use event stream [done]
+    - Use hard linking for kachery storage [done]
+    - Use kachery storage directory inside labbox ephys data directory [done]
+    - Fix issue with switch back to NONE job handler for roles [done]
     - Connect back to sorting job even after page reload #9
     - Additional plots for sorting view
 * Other

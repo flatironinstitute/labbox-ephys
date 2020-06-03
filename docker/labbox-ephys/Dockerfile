@@ -46,18 +46,17 @@ RUN pip install matplotlib mpld3
 # ### Install kachery
 RUN git clone https://github.com/flatironinstitute/kachery /kachery \
     && cd /kachery \
-    && git checkout b2b5ab0d1e4f7d9feb28e9caff0dd8b6ac913ecd \
+    && git checkout f65cbd867c98e7aedbb09517248ec0e43370104a \
     && pip install .
 
 # #########################################
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout 9dc245e9bc6eb8695ebeeca08e65810634f24158 \
+    && git checkout f4363218eff7dc40cbb70023475b8745c9604135 \
     && pip install . \
     && cd /hither/eventstreamserver \
     && yarn install
-
 
 RUN yarn global add serve
 

@@ -6,7 +6,7 @@ import { createHitherJob } from '../hither';
 import { withRouter } from 'react-router-dom';
 import SortingInfoView from '../components/SortingInfoView';
 
-const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSorting, history }) => {
+const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history }) => {
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
@@ -28,7 +28,6 @@ const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSort
                 recordingId={recordingId}
                 recordingPath={recordingPath}
                 recordingObject={recordingObject}
-                existingSortingIds={existingSortingIds}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
             />
@@ -41,7 +40,6 @@ const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSort
                 recordingId={recordingId}
                 recordingPath={recordingPath}
                 recordingObject={recordingObject}
-                existingSortingIds={existingSortingIds}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
             />
@@ -60,7 +58,7 @@ const ImportSortings = ({ recordingId, recordings, existingSortingIds, onAddSort
     return (
         <div>
             <div>
-                <h1>{`Import sorting for ${recordingId}`}</h1>
+                <h1>{`Import sorting for ${recordingLabel}`}</h1>
                 <RadioChoices
                     label="Sorting import method"
                     value={method}
@@ -112,10 +110,10 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
     );
 }
 
-const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
+const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
     const [sortingPath, setSortingPath] = useState('');
     const [sortingObject, setSortingObject] = useState(null);
-    const [sortingId, setSortingId] = useState('');
+    const [sortingLabel, setSortingLabel] = useState('');
     const [errors, setErrors] = useState({});
     const [sortingInfo, setSortingInfo] = useState(null);
     const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
@@ -165,20 +163,17 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
 
     // const srPath = sortingPath + '::::' + recordingPath;
 
-    if ((sortingInfo) && (sortingId === '<>')) {
-        setSortingId(autoDetermineSortingIdFromPath(sortingPath))
+    if ((sortingInfo) && (sortingLabel === '<>')) {
+        setSortingLabel(autoDetermineSortingLabelFromPath(sortingPath))
     }
-    if ((!sortingInfo) && (sortingId !== '<>')) {
-        setSortingId('<>');
+    if ((!sortingInfo) && (sortingLabel !== '<>')) {
+        setSortingLabel('<>');
     }
 
     const handleImport = () => {
         let newErrors = {};
-        if (!sortingId) {
-            newErrors.sortingId = {type: 'required'};
-        }
-        if (sortingId in Object.fromEntries(existingSortingIds.map(id => [id, true]))) {
-            newErrors.sortingId = {type: 'duplicate-id'};
+        if (!sortingLabel) {
+            newErrors.sortingLabel = {type: 'required'};
         }
         if (!sortingPath) {
             newErrors.sortingPath = {type: 'required'};
@@ -188,7 +183,8 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
             return;
         }
         const sorting = {
-            sortingId,
+            sortingId: randomString(10),
+            sortingLabel,
             sortingPath,
             sortingObject,
             recordingId,
@@ -214,9 +210,9 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
 
                 {sortingInfo && (
                     <Fragment>
-                        <SortingIdControl
-                            value={sortingId}
-                            onChange={(val) => setSortingId(val)}
+                        <SortingLabelControl
+                            value={sortingLabel}
+                            onChange={(val) => setSortingLabel(val)}
                             errors={errors}
                         />
                         <FormGroup row={true} style={formGroupStyle}>
@@ -247,7 +243,15 @@ const ImportSortingFromSpikeForest = ({ onDone, existingSortingIds, onAddSorting
     )
 }
 
-function autoDetermineSortingIdFromPath(path) {
+function randomString(num_chars) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i < num_chars; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
+}
+
+function autoDetermineSortingLabelFromPath(path) {
     if (path.startsWith('sha1://') || (path.startsWith('sha1dir://'))) {
         let x = path.split('/').slice(2);
         let y = x[0].split('.');
@@ -269,7 +273,6 @@ const formGroupStyle = {
 
 // Messages
 const required = "This field is required";
-const duplicateId = "Duplicate sorting ID";
 const maxLength = "Your input exceeds maximum length";
 
 const errorMessage = error => {
@@ -372,14 +375,14 @@ const SortingPathControl = ({ value, onChange, errors, examplesMode, recordingPa
     );
 }
 
-const SortingIdControl = ({ value, onChange, errors }) => {
-    const e = errors.sortingId || {};
+const SortingLabelControl = ({ value, onChange, errors }) => {
+    const e = errors.sortingLabel || {};
     return (
         <FormGroup style={formGroupStyle}>
             <FormControl>
-                <InputLabel>Sorting ID</InputLabel>
+                <InputLabel>Sorting Label</InputLabel>
                 <Input
-                    name="sortingId"
+                    name="sortingLabel"
                     readOnly={false}
                     disabled={false}
                     value={value}
@@ -387,7 +390,6 @@ const SortingIdControl = ({ value, onChange, errors }) => {
                 />
             </FormControl>
             {e.type === "required" && errorMessage(required)}
-            {e.type === "duplicate-id" && errorMessage(duplicateId)}
             {e.type === "maxLength" && errorMessage(maxLength)}
         </FormGroup>
     );
@@ -399,8 +401,7 @@ function isEmptyObject(x) {
 
 
 const mapStateToProps = state => ({
-    recordings: state.recordings,
-    existingSortingIds: state.sortings.map(s => s.sortingId)
+    recordings: state.recordings
 })
 
 const mapDispatchToProps = dispatch => ({
