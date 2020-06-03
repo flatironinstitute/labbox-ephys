@@ -127,6 +127,9 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
             showDownloadButton = true;
         }
     }
+    if (downloadStatus === 'downloading') {
+        showDownloadButton = false;
+    }
 
     const controlsDisabled = ((downloadStatus === 'downloading') || (recordingInfoStatus === 'calculating'));
 

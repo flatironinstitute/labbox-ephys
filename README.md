@@ -26,7 +26,7 @@ Set an environment variable to point to this directory so we can refer to it els
 export LABBOX_EPHYS_DATA_DIR=/home/user/labbox/labbox-ephys-data
 ```
 
-To ensure that those environment variables are set with each new terminal session, add those lines to your ~/.bashrc file.
+Ensure that this environment variable is set with each new terminal session by adding that line to your ~/.bashrc file.
 
 ### Install/upgrade labbox-launcher
 
