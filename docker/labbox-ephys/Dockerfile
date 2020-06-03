@@ -21,6 +21,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-tk
 ##### nginx, etc
 RUN apt-get update && apt-get install -y nginx
 
+RUN apt-get update && apt-get install -y sudo
+
 # nano
 RUN apt-get install -y nano
 
