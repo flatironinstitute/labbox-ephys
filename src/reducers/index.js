@@ -7,6 +7,7 @@ import sortingJobs from './sortingJobs'
 import jobHandlers from './jobHandlers'
 import persisting from './persisting'
 import hitherJobs from './hitherJobs'
+import frankLabDataJointConfig from './frankLabDataJointConfig'
 
 export default combineReducers({
     initialLoad,
@@ -16,5 +17,6 @@ export default combineReducers({
     sortingJobs,
     jobHandlers,
     persisting,
-    hitherJobs
+    hitherJobs,
+    frankLabDataJointConfig
 })

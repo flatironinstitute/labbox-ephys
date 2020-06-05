@@ -4,10 +4,11 @@ import { addRecording } from '../actions'
 import { withRouter } from 'react-router-dom';
 import RadioChoices from '../components/RadioChoices';
 import ImportRecordingFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
+import ImportRecordingFromFrankLabDataJoint from '../components/ImportRecordingFromFrankLabDataJoint';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 
-const ImportRecordings = ({ onAddRecording, history }) => {
-    const [method, setMethod] = useState('local');
+const ImportRecordings = ({ onAddRecording, history, frankLabDataJointConfig }) => {
+    const [method, setMethod] = useState('');
 
     const handleDone = () => {
         history.push('/');
@@ -39,8 +40,17 @@ const ImportRecordings = ({ onAddRecording, history }) => {
             />
         )
     }
+    else if (method === 'frankLabDataJoint') {
+        form = (
+            <ImportRecordingFromFrankLabDataJoint
+                frankLabDataJointConfig={frankLabDataJointConfig}
+                onAddRecording={onAddRecording}
+                onDone={handleDone}
+            />
+        )
+    }
     else {
-        form = <span>{`Invalid method: ${method}`}</span>
+        form = <span>{`Select method.`}</span>
     }
     return (
         <div>
@@ -52,7 +62,7 @@ const ImportRecordings = ({ onAddRecording, history }) => {
                     options={[
                         {
                             value: 'local',
-                            label: 'From local computer (in progress)'
+                            label: 'From local disk'
                         },
                         {
                             value: 'examples',
@@ -61,6 +71,10 @@ const ImportRecordings = ({ onAddRecording, history }) => {
                         {
                             value: 'spikeforest',
                             label: 'From SpikeForest'
+                        },
+                        {
+                            value: 'frankLabDataJoint',
+                            label: 'From FrankLab DataJoint'
                         },
                         {
                             value: 'script',
@@ -76,6 +90,7 @@ const ImportRecordings = ({ onAddRecording, history }) => {
 }
 
 const mapStateToProps = state => ({
+    frankLabDataJointConfig: state.frankLabDataJointConfig
 })
 
 const mapDispatchToProps = dispatch => ({

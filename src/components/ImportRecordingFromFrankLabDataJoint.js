@@ -1,39 +1,26 @@
 import React, { useState, useEffect, Fragment } from 'react'
-
 import { createHitherJob } from '../hither'
-import { CircularProgress, Button } from '@material-ui/core'
-import NiceTable from './NiceTable'
+import { CircularProgress, Button } from '@material-ui/core';
+import NiceTable from './NiceTable';
 
-const ImportRecordingFromLocalDisk = ({ onDone, onAddRecording }) => {
+const ImportRecordingFromFrankLabDataJoint = ({ onDone, onAddRecording, frankLabDataJointConfig }) => {
     const [status, setStatus] = useState('initial');
     const [importableRecordings, setImportableRecordings] = useState(null);
     const [selectedRecordingLabel, setSelectedRecordingLabel] = useState(null);
     const [importErrorMessage, setImportErrorMessage] = useState(null);
 
-    const selectedRecording = () => {
-        return importableRecordings.filter(r => (r.label === selectedRecordingLabel))[0];
-    }
-
-    const handleImportSelectedRecording = () => {
-        const rec = selectedRecording();
-        setImportErrorMessage('');
-        onAddRecording({
-            recordingId: randomString(10),
-            recordingLabel: rec.label,
-            recordingPath: rec.path,
-            recordingObject: rec.recording_object
-        })
-        onDone();
-    }
-
+    const validConfig = ((frankLabDataJointConfig.port) && (frankLabDataJointConfig.user));
     const effect = async () => {
+        if (!validConfig) return;
         if (status === 'initial') {
             setStatus('loading');
             let result;
             try {
                 result = await createHitherJob(
-                    'get_importable_recordings',
-                    {},
+                    'get_franklab_datajoint_importable_recordings',
+                    {
+                        config: frankLabDataJointConfig
+                    },
                     {
                         useClientCache: false,
                         wait: true
@@ -51,6 +38,30 @@ const ImportRecordingFromLocalDisk = ({ onDone, onAddRecording }) => {
     }
     useEffect(() => {effect();})
 
+    const selectedRecording = () => {
+        return importableRecordings.filter(r => (r.label === selectedRecordingLabel))[0];
+    }
+
+    const handleImportSelectedRecording = () => {
+        const rec = selectedRecording();
+        setImportErrorMessage('');
+        onAddRecording({
+            recordingId: randomString(10),
+            recordingLabel: rec.label,
+            recordingPath: rec.path,
+            recordingObject: rec.recording_object
+        })
+        onDone();
+    }
+
+    if (!validConfig) {
+        return (
+            <div>
+                You must provide a valid configuration. Use the "CONFIG -> FrankLab DataJoint" page.
+            </div>
+        )
+    }
+
     if (!status) {
         return <div>Waiting...</div>;
     }
@@ -58,13 +69,13 @@ const ImportRecordingFromLocalDisk = ({ onDone, onAddRecording }) => {
         return (
             <div>
                 <CircularProgress />
-                Loading importable recordings from disk...
+                Loading importable recordings from DataJoint...
             </div>
             
         )
     }
     else if (status === 'error') {
-        return <div>Error loading local data directory.</div>
+        return <div>Error loading data.</div>
     }
     else if (status === 'finished') {
         return (
@@ -146,4 +157,4 @@ function randomString(num_chars) {
     return text;
 }
 
-export default ImportRecordingFromLocalDisk
+export default ImportRecordingFromFrankLabDataJoint

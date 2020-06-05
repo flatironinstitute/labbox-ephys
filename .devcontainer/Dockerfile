@@ -92,7 +92,7 @@ RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
-RUN pip install spikeextractors==0.7.2 spiketoolkit==0.5.2 spikesorters==0.2.5
+RUN pip install spikeextractors==0.8.4 spiketoolkit==0.6.3 spikesorters==0.3.3
 RUN pip install requests
 
 RUN pip install bokeh
@@ -107,6 +107,9 @@ RUN apt-get update && apt-get install -y nginx
 COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
 RUN rm /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
+
+RUN pip install datajoint
+RUN pip install pynwb
 
 ENV PYTHONPATH=/workspaces/labbox-ephys/api
 

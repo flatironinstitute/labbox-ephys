@@ -6,6 +6,8 @@ import spikeextractors as se
 import numpy as np
 from .mdaextractors import MdaRecordingExtractor
 
+from .nwbextractors import NwbRecordingExtractor
+
 def _load_geom_from_csv(path: str) -> list:
     return _listify_ndarray(np.genfromtxt(path, delimiter=',').T)
 
@@ -138,6 +140,15 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
     # if has type LabboxEphysRecordingExtractor, then just get the object from arg.object()
     if isinstance(arg, LabboxEphysRecordingExtractor):
         return arg.object()
+
+    # See if it has format 'nwb'
+    if isinstance(arg, str) and arg.endswith('.nwb'):
+        return dict(
+            recording_format='nwb',
+            data=dict(
+                path=arg
+            )
+        )
     
     # See if it has format 'mda'
     obj = _try_mda_create_object(arg)
@@ -202,6 +213,9 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             self._recording: se.RecordingExtractor = MdaRecordingExtractor(timeseries_path=data['raw'], samplerate=data['params']['samplerate'], geom=np.array(data['geom']), download=download)
         elif recording_format == 'nrs':
             self._recording: se.RecordingExtractor = NrsRecordingExtractor(**data)
+        elif recording_format == 'nwb':
+            path0 = ka.load_file(data['path'])
+            self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name='e-series')
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             if 'channel_ids' in data:

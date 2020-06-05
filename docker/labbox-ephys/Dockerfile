@@ -21,8 +21,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-tk
 ##### nginx, etc
 RUN apt-get update && apt-get install -y nginx
 
-RUN apt-get update && apt-get install -y sudo
-
 # nano
 RUN apt-get install -y nano
 
@@ -35,7 +33,7 @@ RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
-RUN pip install spikeextractors==0.7.2 spiketoolkit==0.5.2 spikesorters==0.2.5
+RUN pip install spikeextractors==0.8.4 spiketoolkit==0.6.3 spikesorters==0.3.3
 RUN pip install requests
 
 RUN pip install gunicorn
@@ -43,6 +41,9 @@ RUN yarn global add serve concurrently
 
 RUN pip install bokeh
 RUN pip install matplotlib mpld3
+
+RUN pip install datajoint
+RUN pip install pynwb
 
 # #########################################
 # ### Install kachery
@@ -55,7 +56,7 @@ RUN git clone https://github.com/flatironinstitute/kachery /kachery \
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout f4363218eff7dc40cbb70023475b8745c9604135 \
+    && git checkout e84bc88ad3725cc650cfabc833b5a83161ed356c \
     && pip install . \
     && cd /hither/eventstreamserver \
     && yarn install

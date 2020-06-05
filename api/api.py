@@ -327,6 +327,7 @@ def get_importable_recordings(subdir=''):
             try:
                 recording_object = le.LabboxEphysRecordingExtractor(path).object()
             except:
+                traceback.print_exc()
                 print(f'Warning: problem loading recording: {path}')
                 recording_object = None
             if recording_object is not None:
@@ -344,7 +345,6 @@ def get_importable_recordings(subdir=''):
         else:
             if name in x['dirs'].keys():
                 ret = ret + get_importable_recordings(subdir = _joinpaths(subdir, name))
-        # TODO: load individual json files
     return ret
 
 def _joinpaths(p1, p2):

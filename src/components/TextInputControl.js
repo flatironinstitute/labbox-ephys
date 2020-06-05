@@ -1,7 +1,7 @@
 import React from 'react'
 import { FormGroup, FormControl, InputLabel, Input } from "@material-ui/core"
 
-const TextInputControl = ({ label, value, onSetValue, readOnly = false, disabled = false }) => {
+const TextInputControl = ({ label, value, onSetValue, readOnly = false, disabled = false, type = "text" }) => {
     const formGroupStyle = {
         paddingTop: 25
     };
@@ -12,6 +12,7 @@ const TextInputControl = ({ label, value, onSetValue, readOnly = false, disabled
                 <Input
                     readOnly={readOnly}
                     disabled={disabled}
+                    type={type}
                     value={value}
                     onChange={(event) => { onSetValue && onSetValue(event.target.value); }}
                 />

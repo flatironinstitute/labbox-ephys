@@ -14,7 +14,7 @@ def get_recording_info(recording_object):
     return dict(
         sampling_frequency=recording.get_sampling_frequency(),
         channel_ids=recording.get_channel_ids(),
-        channel_groups=recording.get_channel_groups(),
+        channel_groups=recording.get_channel_groups().tolist(),
         geom=geom_from_recording(recording).tolist(),
         num_frames=recording.get_num_frames(),
         is_local=recording.is_local()

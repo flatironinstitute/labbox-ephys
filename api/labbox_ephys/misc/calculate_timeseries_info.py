@@ -1,3 +1,4 @@
+import time
 import hither as hi
 import numpy as np
 import labbox_ephys as le
@@ -11,6 +12,7 @@ def calculate_timeseries_info(recording_object):
         channel_ids=recording0.get_channel_ids(),
         start_frame=0, end_frame=min(recording0.get_num_frames(), 25000
     ))
+
     y_offsets = -np.mean(traces0, axis=1)
     for m in range(traces0.shape[0]):
         traces0[m, :] = traces0[m, :] + y_offsets[m]

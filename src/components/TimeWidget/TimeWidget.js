@@ -228,7 +228,7 @@ export default class TimeWidget extends Component {
             tr[1] = this.numTimepoints() - 1;
         }
         if (this.props.maxTimeSpan) {
-            if (tr[1] - tr[0] > this.props.maxTimeSpan) {
+            if ((tr[1] - tr[0] > this._timeRange[1] - this._timeRange[0]) && (tr[1] - tr[0] > this.props.maxTimeSpan)) {
                 return;
                 // tr[0] = Math.max(0, Math.floor((tr[0] + tr[1]) / 2 - this.props.maxTimeSpan / 2));
                 // tr[1] = tr[0] + this.props.maxTimeSpan;
@@ -410,6 +410,7 @@ export default class TimeWidget extends Component {
         let innerContainer = (
             <InnerContainer>
                 <SpanWidget
+                    key='span'
                     width={this.props.width}
                     height={this._spanWidgetHeight}
                     info={this.state.spanWidgetInfo || {}}
@@ -417,6 +418,7 @@ export default class TimeWidget extends Component {
                     onTimeRangeChanged={(tr) => {if (tr) {this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime();}}}
                 />
                 <CanvasWidget
+                    key='canvas'
                     layers={layers}
                     width={this.props.width}
                     height={this.props.height - this._spanWidgetHeight - this._bottomBarHeight}
@@ -428,6 +430,7 @@ export default class TimeWidget extends Component {
                     menuOpts={{exportSvg: true}}
                 />
                 <TimeWidgetBottomBar
+                    key='bottom'
                     width={this.props.width}
                     height={this._bottomBarHeight}
                     info={this.state.bottomBarInfo || {}}

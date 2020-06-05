@@ -9,7 +9,7 @@ import labbox_ephys as le
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:latest')
 def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_size):
-    # timer = time.time()
+    import time
     recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)
 
     t1 = segment_num * segment_size * ds_factor

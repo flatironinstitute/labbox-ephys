@@ -47,10 +47,10 @@ Launch the labbox-ephys container
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.1.11-alpha.5 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.12-alpha.1 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.1.11-alpha.5 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.12-alpha.1 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
@@ -127,6 +127,9 @@ If you want to use your own computer to run the spike sorting, then you will nee
     - Use hard linking for kachery storage [done]
     - Use kachery storage directory inside labbox ephys data directory [done]
     - Fix issue with switch back to NONE job handler for roles [done]
+* 0.1.12
+    - Import .nwb files [done]
+    - Integration with franklab datajoint [***]
     - Connect back to sorting job even after page reload #9
     - Additional plots for sorting view
 * Other
