@@ -11,14 +11,15 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
 * Linux or MacOS
 * Docker
     - For Linux, be sure that your non-root user is in the docker group
+    - Recommended test from command line: `docker run hello-world`
 * Python (>= 3.6)
 * git
 
 ### Create directories and set environment variables
 
-You will need to create a data directory. Here we assume that "user" is the name of the logged in user. Rename as desired - you can choose any location you want.
+You will need to create a data directory. You can choose any location you want, but on Linux this could look like the following (where `<user>` is the name of the logged-in user):
 
-* `/home/user/labbox/labbox-ephys-data`
+* `/home/<user>/labbox/labbox-ephys-data-dir`
 
 Set an environment variable to point to this directory so we can refer to it elsewhere
 
@@ -31,7 +32,7 @@ Ensure that this environment variable is set with each new terminal session by a
 
 ### Install/upgrade labbox-launcher
 
-Note: it is recommended that you use a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or a virtualenv when using the `pip` and `python` commands.
+Note: it is recommended that you use a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or a virtualenv when using the `pip` and `python` commands. If you create a conda environment you should target Python 3.7 with Numpy.
 
 Install the latest version of labbox-launcher
 
@@ -45,6 +46,10 @@ This should make the `labbox-launcher` command available from the command line. 
 
 Launch the labbox-ephys container
 
+First double-check that docker is installed properly: `docker run hello-world`
+
+Then:
+
 ```bash
 # On Linux:
 labbox-launcher run magland/labbox-ephys:0.1.12-alpha.1 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
@@ -57,11 +62,11 @@ labbox-launcher run magland/labbox-ephys:0.1.12-alpha.1 --docker_run_opts "-p 15
 
 Now, point your browser (chrome is recommended) to: `http://localhost:15310`
 
-**Important: The terminal output may refer to different ports, but it is important that you use 15310**
+**Note: The terminal output may refer to different ports, but it is important that you use 15310**
 
 ### Optionally host a compute resource server for spike sorting
 
-If you want to use your own computer to run the spike sorting, then you will need to set up a [hither compute resource server](doc/host-compute-resource.md).
+If you want to use your own computer to run the spike sorting, then you will need to set up a hither compute resource server. Instructions for doing this can be found in the "Job handlers" section of the "Config" page in the GUI.
 
 ## Information for developers
 
