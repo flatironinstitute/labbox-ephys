@@ -52,17 +52,17 @@ Then:
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.1.12-alpha.1 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.12-alpha.2 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.1.12-alpha.1 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.12-alpha.2 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
 
 Now, point your browser (chrome is recommended) to: `http://localhost:15310`
 
-**Note: The terminal output may refer to different ports, but it is important that you use 15310**
+**Note: The terminal output may refer to different ports while starting up, but it is important that you use 15310**
 
 ### Optionally host a compute resource server for spike sorting
 

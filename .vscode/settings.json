@@ -6,5 +6,8 @@
     "githubIssues.ignoreCompletionTrigger": [],
     "jshint.options": {
     "esversion": 9
-    }
+    },
+    "cSpell.enableFiletypes": [
+        "!javascript"
+    ]
 }

@@ -9,7 +9,7 @@ import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecordin
 import Home from "./components/Home";
 import About from "./components/About";
 import Prototypes from './components/Prototypes';
-import Config from './components/Config';
+import Config from './containers/Config';
 import SortingView from './containers/SortingView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
 

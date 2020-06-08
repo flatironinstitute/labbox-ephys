@@ -25,6 +25,8 @@ export const SET_SORTING_JOB_STATUS = 'SET_SORTING_JOB_STATUS'
 export const CANCEL_SORTING_JOBS = 'CANCEL_SORTING_JOBS'
 export const CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS = 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS'
 
+export const SET_EXTENSION_ENABLED = 'SET_EXTENSION_ENABLED'
+
 export const sleep = m => new Promise(r => setTimeout(r, m));
 
 // no longer used
@@ -115,4 +117,11 @@ export const cancelSortingJobs = (sortingJobIds) => ({
   type: CANCEL_SORTING_JOBS,
   sortingJobIds,
   persistKey: 'sortingJobs'
+})
+
+export const setExtensionEnabled = (extensionName, value) => ({
+  type: SET_EXTENSION_ENABLED,
+  extensionName,
+  value,
+  persistKey: 'extensionsConfig'
 })

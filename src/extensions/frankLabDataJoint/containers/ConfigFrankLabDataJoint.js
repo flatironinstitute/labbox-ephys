@@ -1,7 +1,7 @@
 import React, { useState, Fragment } from 'react'
-import TextInputControl from '../components/TextInputControl';
+import TextInputControl from '../../../components/TextInputControl';
 import { Button } from '@material-ui/core';
-import { setFrankLabDataJointConfig } from '../actions/frankLabDataJointConfig';
+import { setFrankLabDataJointConfig } from '../actions'
 import { connect } from 'react-redux';
 
 const ConfigFrankLabDataJoint = ({
@@ -63,7 +63,7 @@ function isValidPort(port) {
 }
 
 const mapStateToProps = state => ({
-    frankLabDataJointConfig: state.frankLabDataJointConfig
+    frankLabDataJointConfig: state.extensionsConfig.frankLabDataJoint.config
 })
 
 const mapDispatchToProps = dispatch => ({

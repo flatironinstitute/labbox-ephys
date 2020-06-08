@@ -111,7 +111,7 @@ const listenToActionStream = async (key) => {
     }
   }
 }
-['recordings', 'sortings', 'sortingJobs', 'jobHandlers', 'frankLabDataJointConfig'].forEach(
+['recordings', 'sortings', 'sortingJobs', 'jobHandlers', 'extensionsConfig'].forEach(
   key => listenToActionStream(key)
 )
 
