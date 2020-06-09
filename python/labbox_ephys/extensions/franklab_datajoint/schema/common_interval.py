@@ -1,4 +1,4 @@
-import common_session
+from . import common_session
 import datajoint as dj
 import pynwb
 import numpy as np

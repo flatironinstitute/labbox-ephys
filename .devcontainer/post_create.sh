@@ -11,6 +11,10 @@ echo "export PATH=/workspaces/hither/bin:\$PATH" >> ~/.bashrc
 cd /workspaces/kachery
 pip install --no-deps -e .
 
+# labbox_ephys
+cd /workspaces/labbox-ephys/python
+pip install --no-deps -e .
+
 mkdir -p /data/kachery-storage
 
 cat <<EOT >> ~/.bashrc

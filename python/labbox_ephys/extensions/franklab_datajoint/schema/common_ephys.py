@@ -1,18 +1,18 @@
 import datajoint as dj
 
-import common_session
-import common_region
-import common_interval
-import common_device
-import common_filter
+from . import common_session
+from . import common_region
+from . import common_interval
+from . import common_device
+from . import common_filter
 import spikeinterface as si
 import pynwb
 import re
 import numpy as np
 import json
 import h5py as h5
-import nwb_helper_fn as nh
-import dj_helper_fn as dh
+from . import nwb_helper_fn as nh
+from . import dj_helper_fn as dh
 
 
 

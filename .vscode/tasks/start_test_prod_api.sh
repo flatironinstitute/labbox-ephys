@@ -6,5 +6,5 @@ export EVENT_STREAM_URL=http://localhost:15363
 export EVENT_STREAM_WEBSOCKET_PORT=15363
 
 pip install gunicorn
-cd api
+cd python/api
 ~/.local/bin/gunicorn -b 127.0.0.1:15362 api:app

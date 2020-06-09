@@ -7,7 +7,7 @@ from . import common_device
 from . import common_lab
 from . import common_subject
 import shutil
-
+import kachery as ka
 
 
 [common_lab, common_subject, common_device]
@@ -22,6 +22,7 @@ class Nwbfile(dj.Manual):
     ---
     nwb_file_location: filepath@local  # the datajoint managed location of the NWB file
     nwb_raw_file_name: varchar(80) # The name of the NWB file with the raw ephys data
+    sha1: varchar(40) # SHA-1 hash of the file
     """
     def insert_nwb_file(self, nwb_raw_file_name):
         '''
@@ -30,6 +31,11 @@ class Nwbfile(dj.Manual):
         :param nwb_raw_file_name: string - the name of the nwb file with raw data
         :return: nwb_file_name: string - the full path  of the copied field
         '''
+
+        with ka.config(use_hard_links=True):
+            kachery_path = ka.store_file(nwb_raw_file_name)
+            sha1 = ka.get_file_hash(kachery_path)
+
         nwb_file_root_name, ext  = os.path.splitext(os.path.basename(nwb_raw_file_name))
         nwb_file_name = os.path.join(dj.config['stores']['local']['location'], nwb_file_root_name+'_pp.nwb')
         # TO DO: Create a copy of the NWB file, removing the electrical series object and replacing it with a link to
@@ -43,6 +49,7 @@ class Nwbfile(dj.Manual):
         key['nwb_file_name'] = nwb_file_name
         key['nwb_file_location'] = nwb_file_name
         key['nwb_raw_file_name'] = nwb_raw_file_name
+        key['sha1'] = sha1
         self.insert1(key, skip_duplicates="True")
 
 

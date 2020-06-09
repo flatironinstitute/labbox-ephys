@@ -1,27 +1,31 @@
-# pipeline to populate a schema from an NWB file
-
-import pynwb
-
-import common_behav
-import common_device
-import common_interval
-import common_ephys
-import common_lab
-import common_session
-import common_subject
-import common_task
 import datajoint as dj
+dj.config["enable_python_native_blobs"] = True
+dj.config['stores'] = {
+  'local': dict(  # 'regular' external storage for this pipeline
+                protocol='file',
+                location='/data/nwb_builder_test_data/dj/',
+                stage='/data/nwb_builder_test_data/dj/'),
+  'local-filtered': dict( # 'local_filtered' storage filtered data in hdf5 files
+                protocol='file',
+                location='/data/nwb_builder_test_data/dj/filtered/',
+                stage='/data/nwb_builder_test_data/dj/filtered/')
+}
+dj.config["database.user"] = 'root'
+dj.config["database.password"] = 'tutorial'
 
-import ndx_franklab_novela.probe
+import labbox_ephys as le
 
+from franklab_datajoint.schema import common_session
+from franklab_datajoint.schema import common_lab
+from franklab_datajoint.schema import common_subject
+from franklab_datajoint.schema import common_device
+from franklab_datajoint.schema import common_task
+from franklab_datajoint.schema import common_session
+from franklab_datajoint.schema import common_interval
+from franklab_datajoint.schema import common_ephys
+from franklab_datajoint.schema import common_behav
 
-import franklab_nwb_extensions.fl_extension as fl_extension
-
-conn = dj.conn()
-
-
-def NWBPopulate(file_names):
-
+def nwb_populate(file_names):
     #print('file names:', file_names)
 
     # CHANGE per object when object_ids are implemented in the NWB file
@@ -99,7 +103,4 @@ def NWBPopulate(file_names):
         # common_behav.Speed.populate()
         # common_behav.LinPos.populate()
 
-
-
-
-
+nwb_populate(['/data/import/beans20190718.nwb'])

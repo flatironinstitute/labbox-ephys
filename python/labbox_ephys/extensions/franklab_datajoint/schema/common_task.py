@@ -2,11 +2,11 @@
 import numpy as np
 import pynwb
 
-import common_interval
-import common_session
+from . import common_interval
+from . import common_session
 import datajoint as dj
-import nwb_helper_fn as nh
-import franklab_nwb_extensions.fl_extension as fl_extension
+from . import nwb_helper_fn as nh
+# from .franklab_nwb_extensions import fl_extension as fl_extension
 
 schema = dj.schema("common_task", locals())
 [common_session, common_interval]

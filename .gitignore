@@ -7,6 +7,7 @@ test_server
 
 # python
 __pycache__
+*.egg-info
 
 data
 

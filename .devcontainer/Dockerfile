@@ -111,6 +111,4 @@ RUN rm /etc/nginx/sites-enabled/default && \
 RUN pip install datajoint
 RUN pip install pynwb
 
-ENV PYTHONPATH=/workspaces/labbox-ephys/api
-
 RUN /bin/sh -c "usermod -aG docker vscode && newgrp docker"

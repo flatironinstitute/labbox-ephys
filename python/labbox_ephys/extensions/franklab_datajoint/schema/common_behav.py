@@ -2,10 +2,10 @@
 import pynwb
 import numpy as np
 
-import common_interval
-import common_session
+from . import common_interval
+from . import common_session
 import datajoint as dj
-import nwb_helper_fn as nh
+from . import nwb_helper_fn as nh
 
 [common_session, common_interval]
 

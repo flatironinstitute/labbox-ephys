@@ -49,7 +49,9 @@ async function initializeEventStreamClient() {
   eventStreamClientStatus = 'initializing';
   const x = (await axios.get('/api/get_event_stream_websocket_port')).data;
   const port = x.port;
-  const url = `ws://localhost:${port}` // TODO: generalize this
+  // const url = `ws://localhost:${port}` // TODO: generalize this
+  const ws_protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:';
+  const url = `${ws_protocol}//${window.location.hostname}:${port}`
   const webSocketUrl = url;
   const eventStreamClientOpts = {
     useWebSocket: true,

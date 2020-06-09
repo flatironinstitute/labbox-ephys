@@ -77,7 +77,8 @@ RUN rm /etc/nginx/sites-enabled/default && \
 
 COPY docker/labbox-ephys/run_inside_container.sh /run_inside_container.sh
 
-ENV PYTHONPATH=/labbox-ephys/api
+# Install labbox_ephys
+RUN cd /labbox-ephys/python && pip install .
 
 EXPOSE 15310
 

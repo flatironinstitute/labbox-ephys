@@ -84,6 +84,6 @@
             "label": "build docker deploy",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/build_docker_deploy.sh"
-        },
+        }
     ]
 }

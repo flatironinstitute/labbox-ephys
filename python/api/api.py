@@ -15,7 +15,7 @@ import requests
 import labbox_ephys as le
 
 thisdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(f'{thisdir}/../src')
+sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
 
 app = Flask(__name__)
