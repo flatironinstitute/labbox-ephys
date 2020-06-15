@@ -7,6 +7,7 @@ import sortingJobs from './sortingJobs'
 import jobHandlers from './jobHandlers'
 import persisting from './persisting'
 import hitherJobs from './hitherJobs'
+import documentInfo from './documentInfo'
 import extensionsConfig from '../extensions/reducers'
 
 export default combineReducers({
@@ -18,5 +19,6 @@ export default combineReducers({
     jobHandlers,
     persisting,
     hitherJobs,
-    extensionsConfig
+    extensionsConfig,
+    documentInfo
 })

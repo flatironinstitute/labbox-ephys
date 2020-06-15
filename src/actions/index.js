@@ -27,6 +27,8 @@ export const CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS = 'CANCEL_ALL_SORTING_JOBS_F
 
 export const SET_EXTENSION_ENABLED = 'SET_EXTENSION_ENABLED'
 
+export const SET_DOCUMENT_ID = 'SET_DOCUMENT_ID'
+
 export const sleep = m => new Promise(r => setTimeout(r, m));
 
 // no longer used
@@ -124,4 +126,9 @@ export const setExtensionEnabled = (extensionName, value) => ({
   extensionName,
   value,
   persistKey: 'extensionsConfig'
+})
+
+export const setDocumentId = (documentId) => ({
+  type: SET_DOCUMENT_ID,
+  documentId
 })

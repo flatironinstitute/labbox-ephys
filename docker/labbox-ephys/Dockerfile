@@ -68,8 +68,10 @@ RUN yarn global add serve
 # Be selective in which files we copy
 # Note that the app bundle needs to be built ahead of time (this helps minimize docker layer disk size)
 COPY src /labbox-ephys/src
-COPY api /labbox-ephys/api
+COPY python /labbox-ephys/python
 COPY build /labbox-ephys/build
+
+RUN cd /labbox-ephys/python && pip install -e .
 
 COPY docker/labbox-ephys/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
 RUN rm /etc/nginx/sites-enabled/default && \

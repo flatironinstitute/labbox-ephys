@@ -84,6 +84,11 @@
             "label": "build docker deploy",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/build_docker_deploy.sh"
+        },
+        {
+            "label": "start jupyter lab",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_jupyter_lab.sh"
         }
     ]
 }

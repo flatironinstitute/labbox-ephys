@@ -37,6 +37,14 @@ import { setJobHandlersByRole } from './hither/createHitherJob';
 
 const axios = require('axios');
 
+async function waitForDocumentId(store) {
+  while (true) {
+    const x = store.getState().documentInfo.documentId;
+    if (x) return x;
+    await sleepMsec(100);
+  }
+}
+
 let eventStreamClient = null;
 let eventStreamClientStatus = null;
 async function initializeEventStreamClient() {
@@ -65,7 +73,8 @@ const persistStateMiddleware = store => next => action => {
     if (eventStreamClientStatus !== 'initialized') {
       await initializeEventStreamClient();
     }
-    const stream = eventStreamClient.getStream({ key: key });
+    const documentId = await waitForDocumentId(store);
+    const stream = eventStreamClient.getStream({ key, documentId });
     await stream.writeEvent({
       timestamp: (new Date()).getTime(),
       action: theAction
@@ -86,7 +95,8 @@ const listenToActionStream = async (key) => {
   if (eventStreamClientStatus !== 'initialized') {
     await initializeEventStreamClient();
   }
-  const stream = eventStreamClient.getStream({ key: key });
+  const documentId = await waitForDocumentId(store);
+  const stream = eventStreamClient.getStream({ key, documentId });
   const initialLoad = false;
   const numEvents = await stream.getNumEvents();
   if (!numEvents) {

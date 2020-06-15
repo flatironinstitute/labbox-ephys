@@ -3,8 +3,9 @@ import './Home.css';
 import { Typography, Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import RecordingsTable from '../containers/RecordingsTable';
+import { connect } from 'react-redux';
 
-function Home() {
+function Home({ documentId }) {
   return (
     <div>
       <Typography component="p">
@@ -12,11 +13,21 @@ function Home() {
       </Typography>
       <p />
       <div>
-        <Button component={Link} to="/importRecordings">Import recordings</Button>
+        <Button component={Link} to={`/${documentId}/importRecordings`}>Import recordings</Button>
       </div>
       <RecordingsTable />
     </div>
   );
 }
 
-export default Home;
+const mapStateToProps = state => ({
+  documentId: state.documentInfo.documentId
+})
+
+const mapDispatchToProps = dispatch => ({
+})
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Home)

@@ -2,7 +2,13 @@
 
 set -ex
 
-sudo service nginx restart
+if [ "$EUID" -ne 0 ]; then
+  # not running as root
+  sudo service nginx restart
+else
+  service nginx restart
+fi
+
 
 # yarn global add serve
 # yarn global add concurrently
@@ -44,6 +50,6 @@ echo -e "\e[32mPoint your browser to \e[1mhttp://localhost:15310\e[21m\e[39m"
 echo -e "\e[32m-----------------------------------------------------\e[39m"
 
 
-cd /labbox-ephys/api
+cd /labbox-ephys/python/api
 set -x
 exec gunicorn -b 127.0.0.1:15307 api:app

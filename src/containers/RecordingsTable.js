@@ -6,7 +6,7 @@ import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 
-const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo }) => {
+const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentId }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -53,7 +53,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
         key: rec.recordingId,
         recordingLabel: {
             text: rec.recordingLabel,
-            element: <Link title={"View this recording"} to={`/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
+            element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
         },
         numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
         samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
@@ -92,7 +92,8 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo })
 }
 
 const mapStateToProps = state => ({
-    recordings: state.recordings
+    recordings: state.recordings,
+    documentId: state.documentInfo.documentId
 })
 
 const mapDispatchToProps = dispatch => ({

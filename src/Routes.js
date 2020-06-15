@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
 import RecordingView from "./containers/RecordingView";
 import SortingJobView from "./containers/SortingJobView";
@@ -23,46 +23,67 @@ const Routes = () => {
             <Route path="/about"><About /></Route>
             <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
-            <Route path="/config"><Config /></Route>
-            <Route path="/hitherJobMonitor"><HitherJobMonitor /></Route>
-            <Route path="/importRecordings"><ImportRecordings /></Route>
             <Route
-                path="/importSortingsForRecording/:recordingId*"
+                path="/:documentId/config"
                 render={({ match }) => (
-                    <ImportSortings recordingId={match.params.recordingId} />
+                    <Config documentId={match.params.documentId} />
                 )}
             />
             <Route
-                path="/recording/:recordingId*"
+                path="/:documentId/hitherJobMonitor"
                 render={({ match }) => (
-                    <RecordingView recordingId={match.params.recordingId} />
+                    <HitherJobMonitor documentId={match.params.documentId} />
                 )}
             />
             <Route
-                path="/sorting/:sortingId*"
+                path="/:documentId/importRecordings"
                 render={({ match }) => (
-                    <SortingView sortingId={match.params.sortingId} />
+                    <ImportRecordings documentId={match.params.documentId} />
                 )}
             />
             <Route
-                path="/timeseriesForRecording/:recordingId*"
+                path="/:documentId/importSortingsForRecording/:recordingId*"
                 render={({ match }) => (
-                    <TimeseriesForRecordingView recordingId={match.params.recordingId} />
+                    <ImportSortings recordingId={match.params.recordingId} documentId={match.params.documentId} />
                 )}
             />
             <Route
-                path="/runSpikeSortingForRecording/:recordingId*"
+                path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
-                    <RunSpikeSortingForRecording recordingId={match.params.recordingId} />
+                    <RecordingView recordingId={match.params.recordingId} documentId={match.params.documentId} />
                 )}
             />
             <Route
-                path="/sortingJob/:sortingJobId*"
+                path="/:documentId/sorting/:sortingId*"
                 render={({ match }) => (
-                    <SortingJobView sortingJobId={match.params.sortingJobId} />
+                    <SortingView sortingId={match.params.sortingId} documentId={match.params.documentId} />
                 )}
             />
-            <Route path="/"><Home /></Route>
+            <Route
+                path="/:documentId/timeseriesForRecording/:recordingId*"
+                render={({ match }) => (
+                    <TimeseriesForRecordingView recordingId={match.params.recordingId} documentId={match.params.documentId} />
+                )}
+            />
+            <Route
+                path="/:documentId/runSpikeSortingForRecording/:recordingId*"
+                render={({ match }) => (
+                    <RunSpikeSortingForRecording recordingId={match.params.recordingId} documentId={match.params.documentId} />
+                )}
+            />
+            <Route
+                path="/:documentId/sortingJob/:sortingJobId*"
+                render={({ match }) => (
+                    <SortingJobView sortingJobId={match.params.sortingJobId} documentId={match.params.documentId} />
+                )}
+            />
+            <Route
+                path="/:documentId"
+                render={({ match }) => (
+                    <Home documentId={match.params.sortingJobId} />
+                )}
+            />
+            <Route path="/"><Redirect to="/default" /></Route>
         </Switch>
     );
 }

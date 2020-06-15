@@ -15,6 +15,10 @@ pip install --no-deps -e .
 cd /workspaces/labbox-ephys/python
 pip install --no-deps -e .
 
+# nwb_datajoint
+cd /workspaces/labbox-ephys/nwb_datajoint
+pip install --no-deps -e .
+
 mkdir -p /data/kachery-storage
 
 cat <<EOT >> ~/.bashrc

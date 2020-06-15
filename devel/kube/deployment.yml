@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: labbox-ephys-deployment
+  labels:
+    app: labbox-ephys
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: labbox-ephys
+  template:
+    metadata:
+      labels:
+        app: labbox-ephys
+    spec:
+      volumes:
+        - name: labbox-ephys-pv-storage
+          persistentVolumeClaim:
+            claimName: labbox-ephys-pv-claim
+      containers:
+      - name: labbox-ephys
+        image: magland/labbox-ephys:0.1.12-alpha.4
+        ports:
+        - containerPort: 15310
+        volumeMounts:
+          - mountPath: "/data"
+            name: labbox-ephys-pv-storage

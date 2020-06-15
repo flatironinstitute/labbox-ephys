@@ -63,7 +63,7 @@ function isValidPort(port) {
 }
 
 const mapStateToProps = state => ({
-    frankLabDataJointConfig: state.extensionsConfig.frankLabDataJoint.config
+    frankLabDataJointConfig: state.extensionsConfig.frankLabDataJoint
 })
 
 const mapDispatchToProps = dispatch => ({
