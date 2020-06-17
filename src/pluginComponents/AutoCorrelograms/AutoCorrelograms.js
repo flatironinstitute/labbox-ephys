@@ -2,19 +2,41 @@ import React from 'react'
 import MatplotlibPlot from '../../components/MatplotlibPlot';
 import { Grid } from '@material-ui/core';
 
-const AutoCorrelograms = ({ sorting }) => {
+const AutoCorrelograms = ({ sorting, selectedUnitIds, onSelectedUnitIdsChanged }) => {
+
+    const isSelected = (unitId) => {
+        return selectedUnitIds[unitId] || false;
+    }
+
+    const selectedStyle = {
+        border: 'solid 3px blue'
+    }
+
+    const handleUnitClicked = unitId => {
+        const newSelectedUnitIds = {
+            ...selectedUnitIds,
+            [unitId]: !selectedUnitIds[unitId]
+        };
+        onSelectedUnitIdsChanged(newSelectedUnitIds);
+    }
+
     return (
         <Grid container>
             {
                 sorting.sortingInfo.unit_ids.map(unitId => (
                     <Grid key={unitId} item>
-                        <MatplotlibPlot
-                            functionName='genplot_autocorrelogram'
-                            functionArgs={{
-                                sorting_object: sorting.sortingObject,
-                                unit_id: unitId
-                            }}
-                        />
+                        <div
+                            style={isSelected(unitId) ? selectedStyle : {}}
+                            onClick={() => handleUnitClicked(unitId)}
+                        >
+                            <MatplotlibPlot
+                                functionName='genplot_autocorrelogram'
+                                functionArgs={{
+                                    sorting_object: sorting.sortingObject,
+                                    unit_id: unitId
+                                }}
+                            />
+                        </div>
                     </Grid>
                 ))
             }

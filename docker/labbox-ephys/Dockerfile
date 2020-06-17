@@ -47,10 +47,7 @@ RUN pip install pynwb
 
 # #########################################
 # ### Install kachery
-RUN git clone https://github.com/flatironinstitute/kachery /kachery \
-    && cd /kachery \
-    && git checkout f65cbd867c98e7aedbb09517248ec0e43370104a \
-    && pip install .
+RUN pip install kachery==0.6.2
 
 # #########################################
 # ### Install hither

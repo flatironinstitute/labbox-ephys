@@ -11,6 +11,8 @@ const pluginComponentsList = Object.values(pluginComponents).filter(PluginCompon
 
 const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
+  const [selectedUnitIds, setSelectedUnitIds] = useState({});
+
   const effect = async () => {
     if ((sorting) && (recording) && (!sorting.sortingInfo)) {
       setSortingInfoStatus('computing');
@@ -24,6 +26,10 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
     }
   }
   useEffect(() => {effect()});
+
+  const handleSelectedUnitIdsChanged = (selectedUnitIds) => {
+    setSelectedUnitIds(selectedUnitIds);
+  }
 
   if (!sorting) {
     return <h3>{`Sorting not found: ${sortingId}`}</h3>
@@ -51,6 +57,9 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
                 <PluginComponent
                   {...config.props || {}}
                   sorting={sorting}
+                  recording={recording}
+                  selectedUnitIds={selectedUnitIds}
+                  onSelectedUnitIdsChanged={(selectedUnitIds) => handleSelectedUnitIdsChanged(selectedUnitIds)}
                 />
               </Expandable>
             )

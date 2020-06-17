@@ -5,6 +5,8 @@ import { CircularProgress } from '@material-ui/core';
 const mpld3 = require('./mpld3.v0.3.js');
 
 const MatplotlibPlot = ({ functionName, functionArgs }) => {
+    const randomDivId = `matplotlib-${generateRandomAlphaId()}` // note: it is important not to start id with a digit
+    const [divId, setDivId] = useState(randomDivId);
 
     const [status, setStatus] = useState('')
     const [plotData, setPlotData] = useState(null);
@@ -36,7 +38,11 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
 
         }
         else if ((status === 'finished') && (plotData)) {
-            plotRef.current && mpld3.draw_figure(plotRef.current.id, plotData);
+            if (divId === (plotRef.current || {}).id) {
+                const elmt = document.getElementById(divId);
+                if (elmt) elmt.innerHTML = '';
+                mpld3.draw_figure(divId, plotData);
+            }
         }
     }
     useEffect(() => { effect(); })
@@ -44,7 +50,7 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
         status === 'calculating' ? (
             <div><CircularProgress /></div>
         ) : (
-            <div ref={plotRef} id={`matplotlib-${generateRandomAlphaId()}`} /> // note: it is important not to start id with a digit
+            <div key={divId} ref={plotRef} id={divId} /> 
         )
     );
 }
