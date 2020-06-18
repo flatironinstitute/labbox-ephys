@@ -2,7 +2,8 @@ import React from 'react'
 import MatplotlibPlot from '../../components/MatplotlibPlot';
 import { Grid } from '@material-ui/core';
 
-const AutoCorrelograms = ({ sorting, selectedUnitIds, onSelectedUnitIdsChanged }) => {
+const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedUnitIdsChanged,
+                                onFocusedUnitIdChanged }) => {
 
     const isSelected = (unitId) => {
         return selectedUnitIds[unitId] || false;
@@ -12,11 +13,47 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, onSelectedUnitIdsChanged }
         border: 'solid 3px blue'
     }
 
-    const handleUnitClicked = unitId => {
-        const newSelectedUnitIds = {
-            ...selectedUnitIds,
-            [unitId]: !selectedUnitIds[unitId]
-        };
+    // TODO: move somewhere better
+    const intrange = (a, b) => {
+        const lower = a < b ? a : b;
+        const upper = a < b ? b : a;
+        let arr = [];
+        for (let n = lower; n <= upper; n++) {
+            arr.push(n);
+        }
+        return arr;
+    }
+
+    // TODO: Move somewhere it can be reused
+    const handleUnitClicked = (unitId, event) => {
+        let newSelectedUnitIds = [];
+        if (event.ctrlKey){
+            // if ctrl modifier is set, ignore shift status, then:
+            // 1. Toggle clicked element only (don't touch any existing elements) &
+            // 2. Set focused id to clicked id (regardless of toggle status)
+            newSelectedUnitIds = {
+                ...selectedUnitIds,
+                [unitId]: !(selectedUnitIds[unitId] || false)
+            }
+            onFocusedUnitIdChanged(unitId);
+        }
+        else if (event.shiftKey && focusedUnitId) {
+            // if shift modifier (without ctrl modifier) & a focus exists:
+            // Set selected elements to those between focus and click, inclusive.
+            const intUnitId = parseInt(unitId);
+            newSelectedUnitIds = Object.fromEntries(
+                intrange(intUnitId, focusedUnitId).map(key => [key, true])
+            );
+            // do not reset focus -- no call to onFocusedUnitIdChanged()
+        }
+        else {
+            // simple click, or shift-click without focus.
+            // Select only the clicked element, and set it to focus.
+            newSelectedUnitIds = {
+                [unitId]: !(selectedUnitIds[unitId] || false)
+            }
+            onFocusedUnitIdChanged(unitId);
+        }
         onSelectedUnitIdsChanged(newSelectedUnitIds);
     }
 
@@ -27,7 +64,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, onSelectedUnitIdsChanged }
                     <Grid key={unitId} item>
                         <div
                             style={isSelected(unitId) ? selectedStyle : {}}
-                            onClick={() => handleUnitClicked(unitId)}
+                            onClick={(event) => handleUnitClicked(unitId, event)}
                         >
                             <MatplotlibPlot
                                 functionName='genplot_autocorrelogram'

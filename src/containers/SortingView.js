@@ -12,6 +12,7 @@ const pluginComponentsList = Object.values(pluginComponents).filter(PluginCompon
 const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
   const [selectedUnitIds, setSelectedUnitIds] = useState({});
+  const [focusedUnitId, setFocusedUnitId] = useState(null);
 
   const effect = async () => {
     if ((sorting) && (recording) && (!sorting.sortingInfo)) {
@@ -29,6 +30,10 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
 
   const handleSelectedUnitIdsChanged = (selectedUnitIds) => {
     setSelectedUnitIds(selectedUnitIds);
+  }
+
+  const handleFocusedUnitIdChanged = (focusedUnitId) => {
+    setFocusedUnitId(focusedUnitId);
   }
 
   if (!sorting) {
@@ -59,7 +64,9 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
                   sorting={sorting}
                   recording={recording}
                   selectedUnitIds={selectedUnitIds}
+                  focusedUnitId={focusedUnitId}
                   onSelectedUnitIdsChanged={(selectedUnitIds) => handleSelectedUnitIdsChanged(selectedUnitIds)}
+                  onFocusedUnitIdChanged={(focusedUnitId) => handleFocusedUnitIdChanged(focusedUnitId)}
                 />
               </Expandable>
             )
