@@ -20,7 +20,6 @@ def _plot_correlogram(*, ax, bin_counts, bins, wid, title='', color=None):
            width=wid*kk, color=color, align='edge')
     ax.set_xlabel('dt (msec)')
     ax.set_xticks([bins[0]*kk, bins[len(bins)//2]*kk, bins[-1]*kk])
-    ax.set_title(title)
     # ax.set_yticks([])
 
 
@@ -39,7 +38,7 @@ def _plot_autocorrelogram(ax, sorting, unit_id, window_size_msec, bin_size_msec)
         symmetrize=True
     )
     bins = np.linspace(- window_size / 2, window_size / 2, C.shape[2])
-    _plot_correlogram(ax=ax, bin_counts=C[0, 0, :], bins=bins, wid=bin_size, color='gray', title=f'Unit {unit_id}')
+    _plot_correlogram(ax=ax, bin_counts=C[0, 0, :], bins=bins, wid=bin_size, color='gray')
 
 
 def _plot_crosscorrelogram(ax, sorting, unit_id1, unit_id2, window_size_msec, bin_size_msec):

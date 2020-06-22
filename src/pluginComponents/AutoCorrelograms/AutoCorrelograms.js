@@ -9,8 +9,28 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedU
         return selectedUnitIds[unitId] || false;
     }
 
+    const isFocused = (unitId) => {
+        return (focusedUnitId ?? -1) === unitId;
+    }
+
+    // TODO: Should this go in a stylesheet?
+    const wrapperStyle = {
+        'min-height': '228px',
+        'min-width': '206px',
+    }
+
+    const focusedStyle = {
+        border: 'solid 3px #4287f5',
+        'background-color': '#b5d1ff'
+    }
+
     const selectedStyle = {
-        border: 'solid 3px blue'
+        border: 'solid 3px blue',
+        'background-color': '#b5d1ff'
+    }
+
+    const unselectedStyle = {
+        border: 'solid 3px transparent'
     }
 
     // TODO: move somewhere better
@@ -48,11 +68,11 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedU
         }
         else {
             // simple click, or shift-click without focus.
-            // Select only the clicked element, and set it to focus.
+            // Select only the clicked element, and set it to focus,
             newSelectedUnitIds = {
                 [unitId]: !(selectedUnitIds[unitId] || false)
             }
-            onFocusedUnitIdChanged(unitId);
+            onFocusedUnitIdChanged(isFocused(unitId) ? null : unitId);
         }
         onSelectedUnitIdsChanged(newSelectedUnitIds);
     }
@@ -62,17 +82,23 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedU
             {
                 sorting.sortingInfo.unit_ids.map(unitId => (
                     <Grid key={unitId} item>
-                        <div
-                            style={isSelected(unitId) ? selectedStyle : {}}
-                            onClick={(event) => handleUnitClicked(unitId, event)}
+                        <div style={wrapperStyle}
                         >
-                            <MatplotlibPlot
-                                functionName='genplot_autocorrelogram'
-                                functionArgs={{
-                                    sorting_object: sorting.sortingObject,
-                                    unit_id: unitId
-                                }}
-                            />
+                            <div
+                                style={isFocused(unitId) ? focusedStyle : isSelected(unitId) ? selectedStyle : unselectedStyle}
+                                onClick={(event) => handleUnitClicked(unitId, event)}
+                            >
+                                <div style={{'text-align': 'center'}}>
+                                    <div>Unit {unitId}</div>
+                                </div>
+                                <MatplotlibPlot
+                                    functionName='genplot_autocorrelogram'
+                                    functionArgs={{
+                                        sorting_object: sorting.sortingObject,
+                                        unit_id: unitId
+                                    }}
+                                />
+                            </div>
                         </div>
                     </Grid>
                 ))
