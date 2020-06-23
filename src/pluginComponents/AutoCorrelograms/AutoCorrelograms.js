@@ -85,7 +85,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedU
                         <div style={wrapperStyle}
                         >
                             <div
-                                style={isFocused(unitId) ? focusedStyle : isSelected(unitId) ? selectedStyle : unselectedStyle}
+                                style={isSelected(unitId) ? (isFocused(unitId) ? focusedStyle : selectedStyle) : unselectedStyle}
                                 onClick={(event) => handleUnitClicked(unitId, event)}
                             >
                                 <div style={{'text-align': 'center'}}>
