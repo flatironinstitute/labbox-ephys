@@ -14,19 +14,21 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedU
     }
 
     // TODO: Should this go in a stylesheet?
+    // TODO: In any event it should definitely be shared with other components
+    // Maybe pass in a "styles" object?
     const wrapperStyle = {
-        'min-height': '228px',
-        'min-width': '206px',
+        'minHeight': '228px',
+        'minWidth': '206px',
     }
 
     const focusedStyle = {
         border: 'solid 3px #4287f5',
-        'background-color': '#b5d1ff'
+        'backgroundColor': '#b5d1ff'
     }
 
     const selectedStyle = {
         border: 'solid 3px blue',
-        'background-color': '#b5d1ff'
+        'backgroundColor': '#b5d1ff'
     }
 
     const unselectedStyle = {
@@ -88,7 +90,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId, onSelectedU
                                 style={isSelected(unitId) ? (isFocused(unitId) ? focusedStyle : selectedStyle) : unselectedStyle}
                                 onClick={(event) => handleUnitClicked(unitId, event)}
                             >
-                                <div style={{'text-align': 'center'}}>
+                                <div style={{'textAlign': 'center'}}>
                                     <div>Unit {unitId}</div>
                                 </div>
                                 <MatplotlibPlot

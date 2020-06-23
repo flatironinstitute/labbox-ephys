@@ -47,7 +47,12 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
         (sortingInfoStatus === 'computing') ? (
           <div><CircularProgress /></div>
         ) : (
-          <SortingInfoView sortingInfo={sorting.sortingInfo} />
+          <SortingInfoView sortingInfo={sorting.sortingInfo}
+            selectedUnitIds={selectedUnitIds}
+            focusedUnitId={focusedUnitId}
+            onSelectedUnitIdsChanged={(selectedUnitIds) => handleSelectedUnitIdsChanged(selectedUnitIds)}
+            onFocusedUnitIdChanged={(focusedUnitId) => handleFocusedUnitIdChanged(focusedUnitId)}
+          />
         )
       }
       <div>
