@@ -118,7 +118,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
           <SortingInfoView sortingInfo={sorting.sortingInfo}
             isSelected={isSelected}
             isFocused={isFocused}
-            handleUnitClicked={handleUnitClicked}
+            onUnitClicked={handleUnitClicked}
           />
         )
       }
@@ -139,7 +139,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
                   focusedUnitId={focusedUnitId}
                   isSelected={isSelected}
                   isFocused={isFocused}
-                  handleUnitClicked={handleUnitClicked}
+                  onUnitClicked={handleUnitClicked}
                   plotStyles={plotStyles}
                 />
               </Expandable>

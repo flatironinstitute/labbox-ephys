@@ -2,7 +2,7 @@ import React from 'react'
 import MatplotlibPlot from '../../components/MatplotlibPlot';
 import { Grid } from '@material-ui/core';
 
-const AutoCorrelograms = ({ sorting, isSelected, isFocused, handleUnitClicked, plotStyles }) => {
+const AutoCorrelograms = ({ sorting, isSelected, isFocused, onUnitClicked, plotStyles }) => {
 
     return (
         <Grid container>
@@ -17,7 +17,7 @@ const AutoCorrelograms = ({ sorting, isSelected, isFocused, handleUnitClicked, p
                                         ? plotStyles['plotFocusedStyle']
                                         : plotStyles['plotSelectedStyle']
                                     ) : plotStyles['unselectedStyle'] }
-                                onClick={(event) => handleUnitClicked(unitId, event)}
+                                onClick={(event) => onUnitClicked(unitId, event)}
                             >
                                 <div style={{'textAlign': 'center'}}>
                                     <div>Unit {unitId}</div>
