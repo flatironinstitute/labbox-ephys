@@ -4,7 +4,7 @@ import { Grid } from '@material-ui/core';
 import plotStyles from '../common/plotStyles';
 import sampleSortingViewProps from '../common/sampleSortingViewProps'
 
-const AutoCorrelograms = ({ sorting, isSelected, isFocused, onUnitClicked }) => {
+const AutoCorrelograms = ({ sorting, isSelected=() => {}, isFocused=() => {}, onUnitClicked }) => {
     return (
         <Grid container>
             {
@@ -13,8 +13,8 @@ const AutoCorrelograms = ({ sorting, isSelected, isFocused, onUnitClicked }) => 
                         <div style={plotStyles['plotWrapperStyle']}
                         >
                             <div
-                                style={(isSelected && isSelected(unitId))
-                                    ? ((isFocused && isFocused(unitId))
+                                style={isSelected(unitId)
+                                    ? (isFocused(unitId)
                                         ? plotStyles['plotFocusedStyle']
                                         : plotStyles['plotSelectedStyle']
                                     ) : plotStyles['unselectedStyle']}

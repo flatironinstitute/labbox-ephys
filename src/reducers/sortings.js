@@ -1,4 +1,4 @@
-import { ADD_SORTING, DELETE_SORTINGS, DELETE_ALL_SORTINGS_FOR_RECORDINGS, SET_SORTING_INFO } from '../actions'
+import { ADD_SORTING, DELETE_SORTINGS, DELETE_ALL_SORTINGS_FOR_RECORDINGS, SET_SORTING_INFO, ADD_UNIT_LABEL, REMOVE_UNIT_LABEL } from '../actions'
 
 const sortings = (state = [], action) => {
     switch (action.type) {
@@ -18,17 +18,59 @@ const sortings = (state = [], action) => {
                 !(s.recordingId in excludeRecordingIds)
             ));
         case SET_SORTING_INFO:
-            const s = state.filter(s => (s.sortingId === action.sortingId))[0];
-            if (!s) {
-                throw Error(`Sorting not found: ${action.sortingId}`);
-            }
-            return [
-                ...state.filter(s => (s.sortingId !== action.sortingId)),
-                {
-                    ...s,
-                    sortingInfo: action.sortingInfo
+            {
+                const s = state.filter(s => (s.sortingId === action.sortingId))[0];
+                if (!s) {
+                    throw Error(`Sorting not found: ${action.sortingId}`);
                 }
-            ];
+                return [
+                    ...state.filter(s => (s.sortingId !== action.sortingId)),
+                    {
+                        ...s,
+                        sortingInfo: action.sortingInfo
+                    }
+                ];
+            }
+        case ADD_UNIT_LABEL:
+            {
+                const s = state.filter(s => (s.sortingId === action.sortingId))[0];
+                if (!s) {
+                    throw Error(`Sorting not found: ${action.sortingId}`);
+                }
+                return [
+                    ...state.filter(s => (s.sortingId !== action.sortingId)),
+                    {
+                        ...s,
+                        unitCuration: {
+                            ...(s.unitCuration || {}),
+                            [action.unitId]: {
+                                ...((s.unitCuration || {})[action.unitId] || {}),
+                                labels: [...(((s.unitCuration || {})[action.unitId] || {}).labels || []).filter(l => (l !== action.label)), action.label]
+                            }
+                        }
+                    }
+                ];
+            }
+        case REMOVE_UNIT_LABEL:
+            {
+                const s = state.filter(s => (s.sortingId === action.sortingId))[0];
+                if (!s) {
+                    throw Error(`Sorting not found: ${action.sortingId}`);
+                }
+                return [
+                    ...state.filter(s => (s.sortingId !== action.sortingId)),
+                    {
+                        ...s,
+                        unitCuration: {
+                            ...(s.unitCuration || {}),
+                            [action.unitId]: {
+                                ...((s.unitCuration || {})[action.unitId] || {}),
+                                labels: [...(((s.unitCuration || {})[action.unitId] || {}).labels || []).filter(l => (l !== action.label))]
+                            }
+                        }
+                    }
+                ];
+            }
         default:
             return state
     }

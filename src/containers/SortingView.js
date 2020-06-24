@@ -3,13 +3,13 @@ import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
 import { CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
-import { setSortingInfo } from '../actions';
+import { setSortingInfo, addUnitLabel, removeUnitLabel } from '../actions';
 import { createHitherJob } from '../hither';
 import * as pluginComponents from '../pluginComponents';
 
 const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
 
-const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
+const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
   const [selectedUnitIds, setSelectedUnitIds] = useState({});
   const [focusedUnitId, setFocusedUnitId] = useState(null);
@@ -122,6 +122,8 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
                   isSelected={isSelected}
                   isFocused={isFocused}
                   onUnitClicked={handleUnitClicked}
+                  onAddUnitLabel={onAddUnitLabel}
+                  onRemoveUnitLabel={onRemoveUnitLabel}
                 />
               </Expandable>
             )
@@ -160,7 +162,9 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo }))
+  onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo })),
+  onAddUnitLabel: ({ sortingId, unitId, label }) => dispatch(addUnitLabel({ sortingId, unitId, label })),
+  onRemoveUnitLabel: ({ unitId, label }) => dispatch(removeUnitLabel({ unitId, label })),
 })
 
 export default withRouter(connect(
