@@ -4,7 +4,6 @@ import { Grid } from '@material-ui/core';
 import plotStyles from '../common/plotStyles';
 
 const AutoCorrelograms = ({ sorting, isSelected, isFocused, onUnitClicked }) => {
-    console.log(isSelected)
     return (
         <Grid container>
             {
