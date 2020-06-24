@@ -26,6 +26,9 @@ const NiceTable = ({
                 onSelectedRowKeysChanged && onSelectedRowKeysChanged([key]);
             }
         }
+        else if (selectionMode === 'multiple') {
+            // todo: write this logic. Note, we'll need to also pass in the event to get the ctrl/shift modifiers
+        }
     }
     return (
         <Table className="NiceTable">

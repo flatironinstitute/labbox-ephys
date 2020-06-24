@@ -40,7 +40,7 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked }) 
         return (
             <span
                 key={unitId}
-                style={isSelected(unitId) ? (isFocused(unitId)? focusedStyle: selectedStyle) : unselectedStyle}
+                style={(isSelected && isSelected(unitId)) ? (isFocused(unitId)? focusedStyle: selectedStyle) : unselectedStyle}
                 onClick={(event) => onUnitClicked(unitId, event)}
             >
                 {unitId}{idx === ary.length - 1 ? '' : ', '}

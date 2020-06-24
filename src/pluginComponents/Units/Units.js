@@ -1,51 +1,40 @@
 import React from 'react'
-import MatplotlibPlot from '../../components/MatplotlibPlot';
-import { Grid } from '@material-ui/core';
-import plotStyles from '../common/plotStyles';
+import NiceTable from '../../components/NiceTable'
 
-const AutoCorrelograms = ({ sorting, isSelected, isFocused, onUnitClicked }) => {
-    console.log(isSelected)
+const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked }) => {
+    const selectedRowKeys = []; // TODO: define this based on isSelected
+    const handleSelectedRowKeysChanged = (keys) => {
+        // todo: we need an additional callback to set the selected unit ids
+    }
+    const rows = sorting.sortingInfo.unit_ids.map(unitId => ({
+        key: unitId,
+        unitId: unitId,
+    }))
+    const columns = [
+        {
+            key: 'unitId',
+            label: 'Unit ID'
+        }
+    ];
+    // todo: define additional columns such as: num. events, avg. firing rate, snr, ...
     return (
-        <Grid container>
-            {
-                sorting.sortingInfo.unit_ids.map(unitId => (
-                    <Grid key={unitId} item>
-                        <div style={plotStyles['plotWrapperStyle']}
-                        >
-                            <div
-                                style={(isSelected && isSelected(unitId))
-                                    ? ((isFocused && isFocused(unitId))
-                                        ? plotStyles['plotFocusedStyle']
-                                        : plotStyles['plotSelectedStyle']
-                                    ) : plotStyles['unselectedStyle']}
-                                onClick={(event) => onUnitClicked(unitId, event)}
-                            >
-                                <div style={{ 'textAlign': 'center' }}>
-                                    <div>Unit {unitId}</div>
-                                </div>
-                                <MatplotlibPlot
-                                    functionName='genplot_autocorrelogram'
-                                    functionArgs={{
-                                        sorting_object: sorting.sortingObject,
-                                        unit_id: unitId
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </Grid>
-                ))
-            }
-        </Grid>
+        <NiceTable
+            rows={rows}
+            columns={columns}
+            selectionMode='multiple'
+            selectedRowKeys={selectedRowKeys}
+            onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
+        />
     );
 }
 
-const label = 'Autocorrelograms'
+const label = 'Units'
 
-AutoCorrelograms.sortingViewPlugin = {
+Units.sortingViewPlugin = {
     label: label
 }
 
-AutoCorrelograms.prototypeViewPlugin = {
+Units.prototypeViewPlugin = {
     label: label,
     props: {
         sorting: {
@@ -108,4 +97,4 @@ AutoCorrelograms.prototypeViewPlugin = {
     }
 }
 
-export default AutoCorrelograms
+export default Units
