@@ -1,38 +1,59 @@
 import React from 'react'
-import { Table, TableHead, TableRow, TableBody, TableCell } from '@material-ui/core';
 
-const SortingInfoView = ({ sortingInfo  }) => {
+const SortingInfoView = ({ sortingInfo, isSelected, isFocused, handleUnitClicked }) => {
     const si = sortingInfo;
     if (!si) return <div>No sorting info found</div>;
+
+    const labelStyle = {
+        'minWidth': '200px',
+        'display': 'inline-block'
+    }
+    
+    const focusedStyle = {
+        'fontWeight': 'bold',
+        color: '#4287f5',
+        'backgroundColor': 'white'
+    }
+    
+    const selectedStyle = {
+        'fontWeight': 'bold',
+        color: 'blue',
+        'backgroundColor': 'white'
+    }
+    
+    const unselectedStyle = {
+        'fontWeight': 'normal',
+        color: 'black',
+        'backgroundColor': 'white'
+    }
+    
+    const SortingViewDiv = ({ unit_ids }) => {
+        return (
+            <div style={{ width: 600 }}>
+                <span style={labelStyle}>Unit IDs</span>
+                <span>{unit_ids.map((unitId, idx, ary) => clickabilize(unitId, idx, ary))} </span>
+            </div>
+        )
+    }
+        
+    function clickabilize(unitId, idx, ary) {
+        return (
+            <span
+                key={unitId}
+                style={isSelected(unitId) ? (isFocused(unitId)? focusedStyle: selectedStyle) : unselectedStyle}
+                onClick={(event) => handleUnitClicked(unitId, event)}
+            >
+                {unitId}{idx === ary.length - 1 ? '' : ', '}
+            </span>
+        );
+    }
+
     return (
         <div>
-            <div style={{ width: 600 }}>
-                <SortingViewTable
-                    unit_ids={si.unit_ids}
-                />
-            </div>
+            <SortingViewDiv unit_ids={si.unit_ids}
+            />
         </div>
     );
-}
-
-const SortingViewTable = ({ unit_ids }) => {
-    return (
-        <Table>
-            <TableHead>
-            </TableHead>
-            <TableBody>
-                <TableRow>
-                    <TableCell>Unit IDs</TableCell>
-                    <TableCell>{commasep(unit_ids)}</TableCell>
-                </TableRow>
-            </TableBody>
-        </Table>
-    )
-}
-
-function commasep(x) {
-    if (!x) return JSON.stringify(x);
-    return x.join(', ');
 }
 
 export default SortingInfoView;

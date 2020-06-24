@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { createHitherJob } from '../hither'
 import { sleep } from '../actions';
 import { CircularProgress } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 const mpld3 = require('./mpld3.v0.3.js');
 
 const MatplotlibPlot = ({ functionName, functionArgs }) => {
@@ -48,7 +49,15 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
     useEffect(() => { effect(); })
     return (
         status === 'calculating' ? (
-            <div><CircularProgress /></div>
+            // TODO: Centralize this styling
+            <Box
+                display="flex" 
+                width={200} height={200} 
+            >
+                <Box m="auto">
+                    <CircularProgress />
+                </Box>
+          </Box>
         ) : (
             <div key={divId} ref={plotRef} id={divId} /> 
         )
