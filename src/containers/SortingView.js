@@ -124,6 +124,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
                   onUnitClicked={handleUnitClicked}
                   onAddUnitLabel={onAddUnitLabel}
                   onRemoveUnitLabel={onRemoveUnitLabel}
+                  onSelectedUnitIdsChanged={handleSelectedUnitIdsChanged}
                 />
               </Expandable>
             )

@@ -1,5 +1,36 @@
 import { ADD_SORTING, DELETE_SORTINGS, DELETE_ALL_SORTINGS_FOR_RECORDINGS, SET_SORTING_INFO, ADD_UNIT_LABEL, REMOVE_UNIT_LABEL } from '../actions'
 
+const setAdd = (thelist = [], item) => {
+    return thelist.filter(l => (l !== item)).concat(item).sort()
+}
+
+const setRemove = (thelist = [], item) => {
+    return thelist.filter(l => (l !== item)).sort()
+}
+
+const unitCurationReducer = (curation = { }, action) => {
+    // returns object corresponding to the value of the 'unitCuration' key of a sorting.
+    if (action.type !== ADD_UNIT_LABEL && action.type !== REMOVE_UNIT_LABEL) {
+        return { ...curation }
+    }
+    return {
+        ...curation,
+        [action.unitId]: {
+            ...(curation[action.unitId] || {}),
+            labels: unitLabelReducer((curation[action.unitId] || {}).labels, action)
+        }
+    }
+}
+
+const unitLabelReducer = (labels = [], action) => {
+    if (action.type === ADD_UNIT_LABEL) {
+        return setAdd(labels, action.label);
+    }
+    if (action.type === REMOVE_UNIT_LABEL) {
+        return setRemove(labels, action.label);
+    }
+}
+
 const sortings = (state = [], action) => {
     switch (action.type) {
         case ADD_SORTING:
@@ -32,25 +63,6 @@ const sortings = (state = [], action) => {
                 ];
             }
         case ADD_UNIT_LABEL:
-            {
-                const s = state.filter(s => (s.sortingId === action.sortingId))[0];
-                if (!s) {
-                    throw Error(`Sorting not found: ${action.sortingId}`);
-                }
-                return [
-                    ...state.filter(s => (s.sortingId !== action.sortingId)),
-                    {
-                        ...s,
-                        unitCuration: {
-                            ...(s.unitCuration || {}),
-                            [action.unitId]: {
-                                ...((s.unitCuration || {})[action.unitId] || {}),
-                                labels: [...(((s.unitCuration || {})[action.unitId] || {}).labels || []).filter(l => (l !== action.label)), action.label]
-                            }
-                        }
-                    }
-                ];
-            }
         case REMOVE_UNIT_LABEL:
             {
                 const s = state.filter(s => (s.sortingId === action.sortingId))[0];
@@ -61,13 +73,7 @@ const sortings = (state = [], action) => {
                     ...state.filter(s => (s.sortingId !== action.sortingId)),
                     {
                         ...s,
-                        unitCuration: {
-                            ...(s.unitCuration || {}),
-                            [action.unitId]: {
-                                ...((s.unitCuration || {})[action.unitId] || {}),
-                                labels: [...(((s.unitCuration || {})[action.unitId] || {}).labels || []).filter(l => (l !== action.label))]
-                            }
-                        }
+                        unitCuration: unitCurationReducer(s.unitCuration, action)
                     }
                 ];
             }

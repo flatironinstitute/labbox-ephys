@@ -3,10 +3,13 @@ import NiceTable from '../../components/NiceTable'
 import sampleSortingViewProps from '../common/sampleSortingViewProps'
 import { Button } from '@material-ui/core';
 
-const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAddUnitLabel, onRemoveUnitLabel }) => {
-    const selectedRowKeys = []; // TODO: define this based on isSelected
+const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAddUnitLabel, onRemoveUnitLabel,
+                onSelectedUnitIdsChanged }) => {
+    const selectedRowKeys = sorting.sortingInfo.unit_ids.map((id) => isSelected(id));
     const handleSelectedRowKeysChanged = (keys) => {
-        // todo: we need an additional callback to set the selected unit ids
+        onSelectedUnitIdsChanged(
+            keys.reduce((o, key) => Object.assign(o, {[key]: true}), {})
+        );
     }
     const getLabelsForUnitId = unitId => {
         const unitCuration = sorting.unitCuration || {};
