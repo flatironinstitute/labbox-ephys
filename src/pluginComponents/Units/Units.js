@@ -11,20 +11,41 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
             keys.reduce((o, key) => Object.assign(o, {[key]: true}), {})
         );
     }
+    const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
     const getLabelsForUnitId = unitId => {
         const unitCuration = sorting.unitCuration || {};
         return (unitCuration[unitId] || {}).labels || ['testing', 'test2'];
     }
-    const handleAddExampleLabel = unitId => {
-        onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: 'example'});
+    const handleAddLabel = (unitId, label) => {
+        onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
     }
-    const rows = sorting.sortingInfo.unit_ids.map(unitId => ({
+    const handleRemoveLabel = (unitId, label) => {
+        onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
+    }
+    const handleAddExampleLabel = unitId => {
+        handleAddLabel(unitId, 'example');
+    }
+    const handleRemoveExampleLabel = unitId => {
+        handleRemoveLabel(unitId, 'example');
+    }
+    const handleApplyLabel = (selectedRowKeys, label) => {
+        selectedRowKeys.forEach((val, idx) => val
+            ? handleAddLabel(idx+1, label)
+            : {});
+    };
+    const handlePurgeLabel = (selectedRowKeys, label) => {
+        selectedRowKeys.forEach((val, idx) => val
+            ? handleRemoveLabel(idx+1, label)
+            : {});
+    }
+    const rows = 
+        sorting.sortingInfo.unit_ids.map(unitId => ({
         key: unitId,
         unitId: unitId,
         labels: {
-            element: <span>{getLabelsForUnitId(unitId).join(', ')} <Button onClick={() => handleAddExampleLabel(unitId)}>Add example label</Button></span>
+            element: <span>{getLabelsForUnitId(unitId).join(', ')} </span>
         }
-    }))
+    }));
     const columns = [
         {
             key: 'unitId',
@@ -35,15 +56,23 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
             label: 'Labels',
         }
     ];
-    // todo: define additional columns such as: num. events, avg. firing rate, snr, ...
+    // TODO: define additional columns such as: num. events, avg. firing rate, snr, ...
     return (
-        <NiceTable
-            rows={rows}
-            columns={columns}
-            selectionMode='multiple'
-            selectedRowKeys={selectedRowKeys}
-            onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
-        />
+        <div style={{'width': '100%'}}>
+            <NiceTable
+                rows={rows}
+                columns={columns}
+                selectionMode='multiple'
+                selectedRowKeys={selectedRowKeys}
+                onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
+            />
+            <div>
+                <span>
+                    <Button onClick={() => handleApplyLabel(selectedRowKeys, 'trial')}>Apply "trial" label</Button>
+                    <Button onClick={() => handlePurgeLabel(selectedRowKeys, 'trial')}>Remove "trial" label</Button>
+                </span>
+            </div>
+        </div>
     );
 }
 

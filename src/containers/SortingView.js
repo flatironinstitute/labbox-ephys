@@ -165,7 +165,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = dispatch => ({
   onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo })),
   onAddUnitLabel: ({ sortingId, unitId, label }) => dispatch(addUnitLabel({ sortingId, unitId, label })),
-  onRemoveUnitLabel: ({ unitId, label }) => dispatch(removeUnitLabel({ unitId, label })),
+  onRemoveUnitLabel: ({ sortingId, unitId, label }) => dispatch(removeUnitLabel({ sortingId, unitId, label })),
 })
 
 export default withRouter(connect(
