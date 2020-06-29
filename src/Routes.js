@@ -12,6 +12,7 @@ import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
 import SortingView from './containers/SortingView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
+import DbcRecordingsView from './containers/DbcRecordingsView';
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -75,6 +76,12 @@ const Routes = () => {
                 path="/:documentId/sortingJob/:sortingJobId*"
                 render={({ match }) => (
                     <SortingJobView sortingJobId={match.params.sortingJobId} documentId={match.params.documentId} />
+                )}
+            />
+            <Route
+                path="/:documentId/dbcRecordingsView"
+                render={({ match }) => (
+                    <DbcRecordingsView documentId={match.params.documentId} />
                 )}
             />
             <Route
