@@ -52,10 +52,10 @@ Then:
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.1.12-alpha.5 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.13-alpha.1 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.1.12-alpha.5 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.1.13-alpha.1 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
 ```
 
 ### View in browser
