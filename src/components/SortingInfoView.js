@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SortingInfoView = ({ sortingInfo, isSelected, isFocused, handleUnitClicked }) => {
+const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked }) => {
     const si = sortingInfo;
     if (!si) return <div>No sorting info found</div>;
 
@@ -40,8 +40,8 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, handleUnitClicked
         return (
             <span
                 key={unitId}
-                style={isSelected(unitId) ? (isFocused(unitId)? focusedStyle: selectedStyle) : unselectedStyle}
-                onClick={(event) => handleUnitClicked(unitId, event)}
+                style={(isSelected && isSelected(unitId)) ? (isFocused(unitId)? focusedStyle: selectedStyle) : unselectedStyle}
+                onClick={(event) => onUnitClicked(unitId, event)}
             >
                 {unitId}{idx === ary.length - 1 ? '' : ', '}
             </span>

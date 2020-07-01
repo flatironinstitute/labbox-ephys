@@ -29,6 +29,9 @@ export const SET_EXTENSION_ENABLED = 'SET_EXTENSION_ENABLED'
 
 export const SET_DOCUMENT_ID = 'SET_DOCUMENT_ID'
 
+export const ADD_UNIT_LABEL = 'ADD_UNIT_LABEL'
+export const REMOVE_UNIT_LABEL = 'REMOVE_UNIT_LABEL'
+
 export const sleep = m => new Promise(r => setTimeout(r, m));
 
 // no longer used
@@ -131,4 +134,22 @@ export const setExtensionEnabled = (extensionName, value) => ({
 export const setDocumentId = (documentId) => ({
   type: SET_DOCUMENT_ID,
   documentId
+})
+
+// curation
+
+export const addUnitLabel = ({ sortingId, unitId, label }) => ({
+  type: ADD_UNIT_LABEL,
+  sortingId,
+  unitId,
+  label,
+  persistKey: 'sortings'
+})
+
+export const removeUnitLabel = ({ sortingId, unitId, label }) => ({
+  type: REMOVE_UNIT_LABEL,
+  sortingId,
+  unitId,
+  label,
+  persistKey: 'sortings'
 })

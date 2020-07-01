@@ -3,34 +3,16 @@ import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
 import { CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
-import { setSortingInfo } from '../actions';
+import { setSortingInfo, addUnitLabel, removeUnitLabel } from '../actions';
 import { createHitherJob } from '../hither';
 import * as pluginComponents from '../pluginComponents';
 
 const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
 
-const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
+const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
   const [selectedUnitIds, setSelectedUnitIds] = useState({});
   const [focusedUnitId, setFocusedUnitId] = useState(null);
-
-  const plotStyles = {
-    'plotWrapperStyle': {
-      'minHeight': '228px',
-      'minWidth': '206px'
-    },
-    'plotFocusedStyle': {
-      'border': 'solid 3px #4287f5',
-      'backgroundColor': '#b5d1ff'
-    },
-    'plotSelectedStyle': {
-      'border': 'solid 3px blue',
-      'backgroundColor': '#b5d1ff'
-    },
-    'plotUnselectedStyle': {
-      'border': 'solid 3px transparent'
-    }
-  }
 
   const effect = async () => {
     if ((sorting) && (recording) && (!sorting.sortingInfo)) {
@@ -118,7 +100,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
           <SortingInfoView sortingInfo={sorting.sortingInfo}
             isSelected={isSelected}
             isFocused={isFocused}
-            handleUnitClicked={handleUnitClicked}
+            onUnitClicked={handleUnitClicked}
           />
         )
       }
@@ -139,8 +121,10 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo }) => {
                   focusedUnitId={focusedUnitId}
                   isSelected={isSelected}
                   isFocused={isFocused}
-                  handleUnitClicked={handleUnitClicked}
-                  plotStyles={plotStyles}
+                  onUnitClicked={handleUnitClicked}
+                  onAddUnitLabel={onAddUnitLabel}
+                  onRemoveUnitLabel={onRemoveUnitLabel}
+                  onSelectedUnitIdsChanged={handleSelectedUnitIdsChanged}
                 />
               </Expandable>
             )
@@ -179,7 +163,9 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo }))
+  onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo })),
+  onAddUnitLabel: ({ sortingId, unitId, label }) => dispatch(addUnitLabel({ sortingId, unitId, label })),
+  onRemoveUnitLabel: ({ sortingId, unitId, label }) => dispatch(removeUnitLabel({ sortingId, unitId, label })),
 })
 
 export default withRouter(connect(
