@@ -29,10 +29,11 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
         return 0;
     });
 
-    const selectedRowKeys = sorting.sortingInfo.unit_ids.map((id) => isSelected(id));
+    const selectedRowKeys = sorting.sortingInfo.unit_ids
+        .reduce((obj, id) => ({...obj, [id]: isSelected(id)}), {});
     const handleSelectedRowKeysChanged = (keys) => {
         onSelectedUnitIdsChanged(
-            keys.reduce((o, key) => Object.assign(o, {[key]: true}), {})
+            keys.reduce((o, key) => ({...o, [key]: true}), {})
         );
     }
     const getLabelsForUnitId = unitId => {
@@ -46,13 +47,13 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
         onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
     }
     const handleApplyLabels = (selectedRowKeys, labels) => {
-        selectedRowKeys.forEach((val, idx) => val
-            ? labels.forEach((label) => handleAddLabel(idx+1, label))
+        Object.keys(selectedRowKeys).forEach((key) => key
+            ? labels.forEach((label) => handleAddLabel(key, label))
             : {});
     };
     const handlePurgeLabels = (selectedRowKeys, labels) => {
-        selectedRowKeys.forEach((val, idx) => val
-            ? labels.forEach((label) => handleRemoveLabel(idx+1, label))
+        Object.keys(selectedRowKeys).forEach((key) => key
+            ? labels.forEach((label) => handleRemoveLabel(key, label))
             : {});
     }
     const rows = 

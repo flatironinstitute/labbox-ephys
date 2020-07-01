@@ -11,12 +11,13 @@ const NiceTable = ({
     onEditRow,
     editRowLabel,
     selectionMode='none', // none, single, multiple
-    selectedRowKeys,
+    selectedRowKeys={},
     onSelectedRowKeysChanged
 }) => {
 
     const selectedRowKeysObj = {};
-    selectedRowKeys && selectedRowKeys.forEach((val, idx) => {selectedRowKeysObj[idx+1] = val});
+    console.log(`Selected row keys: ${JSON.stringify(selectedRowKeys)}`)
+    Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
     const handleClickRow = (key) => {
         if (!onSelectedRowKeysChanged || false) return;
         if (selectionMode === 'single') {
@@ -31,6 +32,7 @@ const NiceTable = ({
             // I actually think the UI expectation for a checkbox is such that we shouldn't worry about modifier
             // keys--just treat any click like a ctrl-click. (I would also, if possible, use radio buttons
             // in place of checkboxes for the row selection in single-select mode.)
+            console.log(`Contents of selected row keys obj: ${JSON.stringify(selectedRowKeysObj)}`);
             onSelectedRowKeysChanged(
                 Object.keys(selectedRowKeysObj)
                     // eslint-disable-next-line eqeqeq
@@ -93,6 +95,8 @@ const NiceTable = ({
 };
 
 const makeCell = (x) => {
+    // eslint-disable-next-line eqeqeq
+    if (x == 0) return x;  // !'0' is true, but we shouldn't null out actual 0s
     if (!x) return '';
     if (typeof(x) == "object") {
         if (x.element) return x.element;
