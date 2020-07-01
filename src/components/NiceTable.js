@@ -16,7 +16,6 @@ const NiceTable = ({
 }) => {
 
     const selectedRowKeysObj = {};
-    console.log(`Selected row keys: ${JSON.stringify(selectedRowKeys)}`)
     Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
     const handleClickRow = (key) => {
         if (!onSelectedRowKeysChanged || false) return;
@@ -29,10 +28,6 @@ const NiceTable = ({
         }
         else if (selectionMode === 'multiple') {
             // todo: write this logic. Note, we'll need to also pass in the event to get the ctrl/shift modifiers
-            // I actually think the UI expectation for a checkbox is such that we shouldn't worry about modifier
-            // keys--just treat any click like a ctrl-click. (I would also, if possible, use radio buttons
-            // in place of checkboxes for the row selection in single-select mode.)
-            console.log(`Contents of selected row keys obj: ${JSON.stringify(selectedRowKeysObj)}`);
             onSelectedRowKeysChanged(
                 Object.keys(selectedRowKeysObj)
                     // eslint-disable-next-line eqeqeq
