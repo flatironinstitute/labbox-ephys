@@ -86,6 +86,24 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
     setFocusedUnitId(focusedUnitId);
   }
 
+  const sidebarWidth = '200px'
+
+  const sidebarStyle = {
+    'width': sidebarWidth,
+    'height': '100%',
+    'position': 'absolute',
+    'zIndex': 1,
+    'top': 150,
+    'left': 0,
+    'overflowX': 'hidden',
+    'paddingTop': '20px',
+    'paddingLeft': '20px'
+  }
+
+  const contentWrapperStyle = {
+    'marginLeft': sidebarWidth
+  }
+
   if (!sorting) {
     return <h3>{`Sorting not found: ${sortingId}`}</h3>
   }
@@ -101,10 +119,12 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
             isSelected={isSelected}
             isFocused={isFocused}
             onUnitClicked={handleUnitClicked}
+            curation={sorting.unitCuration || {}}
+            styling={sidebarStyle}
           />
         )
       }
-      <div>
+      <div style={contentWrapperStyle}>
         {
           pluginComponentsList.map(PluginComponent => {
             const config = PluginComponent.sortingViewPlugin;
