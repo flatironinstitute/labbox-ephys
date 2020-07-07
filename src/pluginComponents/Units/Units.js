@@ -47,15 +47,15 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
         onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
     }
     const handleApplyLabels = (selectedRowKeys, labels) => {
-        Object.keys(selectedRowKeys).forEach((key) => key
+        Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
             ? labels.forEach((label) => handleAddLabel(key, label))
             : {});
     };
     const handlePurgeLabels = (selectedRowKeys, labels) => {
-        Object.keys(selectedRowKeys).forEach((key) => key
+        Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
             ? labels.forEach((label) => handleRemoveLabel(key, label))
             : {});
-    }
+    };
     const rows = 
         sorting.sortingInfo.unit_ids.map(unitId => ({
         key: unitId,
