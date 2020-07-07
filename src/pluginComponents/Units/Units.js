@@ -99,7 +99,7 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
     );
 }
 
-const label = 'Units'
+const label = 'Units Table'
 
 Units.sortingViewPlugin = {
     label: label

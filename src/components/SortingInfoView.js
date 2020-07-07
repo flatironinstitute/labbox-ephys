@@ -12,17 +12,22 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, cu
     
     const focusedStyle = {
         'fontWeight': 'bold',
-        color: '#4287f5',
-        'backgroundColor': 'white',
+        'border': 'solid 1px #4287f5',
+        'backgroundColor': '#c0d9ff',
+        'color': 'black'
+        // color: '#4287f5',
+        // 'backgroundColor': 'white',
     }
     
     const selectedStyle = {
+        'border': 'solid 1px blue',
         'fontWeight': 'bold',
-        color: 'blue',
-        'backgroundColor': 'white',
+        color: 'black',
+        'backgroundColor': '#b5d1ff',
     }
     
     const unselectedStyle = {
+        'border': 'transparent 1px solid',
         'fontWeight': 'normal',
         color: 'black',
         'backgroundColor': 'white',
@@ -33,10 +38,19 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, cu
         'paddingTop': '10px'
     }
 
-    const labelListStyle = {
+    const focusedLabelStyle = {
+        'paddingRight': '3px',
+        'color': '#333333'
+    }
+
+    const selectedLabelStyle = {
+        'paddingRight': '3px',
+        'color': '#333333'
+    }
+
+    const unselectedLabelStyle = {
         'paddingRight': '3px',
         'color': '#333333',
-        'backgroundColor': 'white'
     }
     
     const SortingViewDiv = ({ unit_ids }) => {
@@ -47,12 +61,28 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, cu
             </div>
         )
     }
+
+    const GetUnitStyle = (unitId) => {
+        return ((isSelected && isSelected(unitId))
+                ? (isFocused && isFocused(unitId)
+                    ? focusedStyle
+                    : selectedStyle)
+                : unselectedStyle);
+    }
+
+    const GetLabelsStyle = (unitId) => {
+        return ((isSelected && isSelected(unitId))
+                ? ((isFocused && isFocused(unitId))
+                    ? focusedLabelStyle
+                    : selectedLabelStyle)
+                : unselectedLabelStyle);
+    }
         
     function clickabilize(unitId, idx, ary) {
         return (
             <div
                 key={unitId}
-                style={(isSelected && isSelected(unitId)) ? (isFocused(unitId)? focusedStyle: selectedStyle) : unselectedStyle}
+                style={GetUnitStyle(unitId)}
                 onClick={(event) => onUnitClicked(unitId, event)}
             >
                 <span style={unitIdStyle}>{unitId}</span>
@@ -60,7 +90,7 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, cu
                     {((curation[unitId] || {}).labels || [])
                         .map((label) => {
                             return (
-                                <span style={labelListStyle}>
+                                <span style={GetLabelsStyle(unitId)}>
                                     {label}&nbsp;
                                 </span>
                             )
