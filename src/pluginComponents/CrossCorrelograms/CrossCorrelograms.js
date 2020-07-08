@@ -18,7 +18,7 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
 
     const n = chosenPlots.length || 0;
 
-    const computeLayout = (marginInPx, maxSize = 500) => {
+    const computeLayout = (marginInPx, maxSize = 800) => {
         // we need to fit a square of side length n elements into the wrapper's width.
         if (n < 2) return;
         // note adjacent margins will collapse, and we don't care about vertical length
@@ -28,8 +28,6 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
         // Solve for plotWidth = (width - margin*(n+1))/n.
         // And we can't have fractional pixels, so round down.
         const plotWidth = Math.min(maxSize, Math.floor((size.width - marginInPx*(n + 1))/n));
-
-        alert(`Computed side width is ${plotWidth} for ${n} elements and ${size.width} total space`);
         return plotWidth;
     }
 
@@ -46,6 +44,41 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
     const pairs = makePairs();
     const plotWidth = computeLayout(plotMargin);
     const rowBounds = [...Array(pairs.length).keys()].filter(i => i % n === 0);
+
+    const renderRow = ( pairs, plotWidth ) => {
+        return (
+            <Grid>
+                {
+                    pairs.map((pair) => (
+                        <Grid key={pair.xkey + '-' + pair.ykey} item
+                                style={{ 'paddingBottom': '25px',
+                                    'marginBottom': '50px'}}>
+                            <div
+                            >
+                                <div style={{ 'textAlign': 'center', 'fontWeight': 'bold' }}>
+                                    <div>{pair.xkey + ' vs ' + pair.ykey}</div>
+                                </div>
+                                {/* <Box display="flex" width={plotWidth + "px"} height={plotWidth + 'px'}
+                                >
+                                    <CircularProgress />
+                                </Box> */}
+                                <MatplotlibPlot
+                                    functionName='genplot_crosscorrelogram'
+                                    functionArgs={{
+                                        sorting_object: sorting.sortingObject,
+                                        x_unit_id: pair.xkey,
+                                        y_unit_id: pair.ykey,
+                                        plot_edge_size: (plotWidth/100)
+                                    }}
+                                />
+                            </div>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        );
+    }
+
     return (
         <div style={{'width': '100%'}} id={myId}>
             <Grid container>
@@ -55,29 +88,6 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
             </Grid>
             <Button onClick={() => handleUpdateChosenPlots()}>Update selections</Button>
         </div>
-    );
-}
-
-const renderRow = ( pairs, plotWidth ) => {
-    return (
-        <Grid>
-            {
-                pairs.map((pair) => (
-                    <Grid key={pair.xkey + '-' + pair.ykey} item>
-                        <div
-                        >
-                            <div style={{ 'textAlign': 'center' }}>
-                                <div>{pair.xkey + ' vs ' + pair.ykey}</div>
-                            </div>
-                            <Box display="flex" width={plotWidth + "px"} height={plotWidth + 'px'}
-                            >
-                                <CircularProgress />
-                            </Box>
-                        </div>
-                    </Grid>
-                ))
-            }
-        </Grid>
     );
 }
 
