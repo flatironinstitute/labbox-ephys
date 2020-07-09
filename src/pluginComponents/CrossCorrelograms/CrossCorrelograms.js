@@ -4,7 +4,6 @@ import { withSize } from 'react-sizeme';
 import MatplotlibPlot from '../../components/MatplotlibPlot';
 import { Grid } from '@material-ui/core';
 import { Button } from '@material-ui/core';
-import { Box, CircularProgress } from '@material-ui/core'; // this should go away once we're doing actual plots
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
 
 const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, onUnitClicked }) => {
@@ -50,7 +49,7 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
             <Grid>
                 {
                     pairs.map((pair) => (
-                        <Grid key={pair.xkey + '-' + pair.ykey} item
+                        <Grid key={pair.xkey + '-' + pair.ykey + '-' + plotWidth} item
                                 style={{ 'paddingBottom': '25px',
                                     'marginBottom': '50px'}}>
                             <div
@@ -58,10 +57,6 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
                                 <div style={{ 'textAlign': 'center', 'fontWeight': 'bold' }}>
                                     <div>{pair.xkey + ' vs ' + pair.ykey}</div>
                                 </div>
-                                {/* <Box display="flex" width={plotWidth + "px"} height={plotWidth + 'px'}
-                                >
-                                    <CircularProgress />
-                                </Box> */}
                                 <MatplotlibPlot
                                     functionName='genplot_crosscorrelogram'
                                     functionArgs={{
@@ -81,12 +76,12 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
 
     return (
         <div style={{'width': '100%'}} id={myId}>
+            <Button onClick={() => handleUpdateChosenPlots()}>Update</Button>
             <Grid container>
                 {
                     rowBounds.map((start) => renderRow(pairs.slice(start, start + n), plotWidth))
                 }
             </Grid>
-            <Button onClick={() => handleUpdateChosenPlots()}>Update selections</Button>
         </div>
     );
 }
