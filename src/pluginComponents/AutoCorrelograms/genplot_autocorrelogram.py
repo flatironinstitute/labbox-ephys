@@ -31,6 +31,25 @@ def genplot_crosscorrelogram(sorting_object, x_unit_id, y_unit_id, plot_edge_siz
             window_size_msec=50, bin_size_msec=1)
     return mpld3.fig_to_dict(f)
 
+@hi.function('gendata_crosscorrelogram', '0.1.0')
+def gendata_crosscorrelogram(sorting_object, x_unit_id, y_unit_id, plot_edge_size):
+    import labbox_ephys as le
+
+    S = le.LabboxEphysSortingExtractor(sorting_object)
+
+    if x_unit_id != y_unit_id:
+        bins, bin_counts, bin_size_sec = _get_crosscorrelogram_data(
+            sorting=S, unit_id1=x_unit_id,
+            unit_id2=y_unit_id,window_size_msec=50, bin_size_msec=1
+        )
+        return dict(
+            bins=bins,
+            bin_counts=bin_counts,
+            bin_size_sec=bin_size_sec
+        )
+    else:
+        raise Exception('needs to be implemented')
+
 def _plot_correlogram(*, ax, bin_counts, bins, wid, title='', color=None):
     kk = 1000
     ax.bar(x=(bins-wid/2)*kk, height=bin_counts,
@@ -57,8 +76,7 @@ def _plot_autocorrelogram(ax, sorting, unit_id, window_size_msec, bin_size_msec)
     bins = np.linspace(- window_size / 2, window_size / 2, C.shape[2])
     _plot_correlogram(ax=ax, bin_counts=C[0, 0, :], bins=bins, wid=bin_size, color='gray')
 
-
-def _plot_crosscorrelogram(ax, sorting, unit_id1, unit_id2, window_size_msec, bin_size_msec):
+def _get_crosscorrelogram_data(sorting, unit_id1, unit_id2, window_size_msec, bin_size_msec):
     times1 = sorting.get_unit_spike_train(unit_id=unit_id1)
     times2 = sorting.get_unit_spike_train(unit_id=unit_id2)
     times = np.concatenate((times1, times2))
@@ -79,4 +97,10 @@ def _plot_crosscorrelogram(ax, sorting, unit_id1, unit_id2, window_size_msec, bi
         symmetrize=True
     )
     bins = np.linspace(- window_size / 2, window_size / 2, C.shape[2])
-    _plot_correlogram(ax=ax, bin_counts=C[0, 1, :], bins=bins, wid=bin_size, color='gray')
+    bin_counts = C[0, 1, :]
+    bin_size_sec = bin_size_msec / 1000
+    return bins, bin_counts, bin_size_sec
+
+def _plot_crosscorrelogram(ax, sorting, unit_id1, unit_id2, window_size_msec, bin_size_msec):
+    bins, bin_counts, bin_size = _get_crosscorrelogram_data(sorting, unit_id1, unit_id2, window_size_msec, bin_size_msec)
+    _plot_correlogram(ax=ax, bin_counts=bin_counts, bins=bins, wid=bin_size, color='gray')
