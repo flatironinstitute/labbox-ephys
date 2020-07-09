@@ -22,8 +22,13 @@ def genplot_crosscorrelogram(sorting_object, x_unit_id, y_unit_id, plot_edge_siz
     S = le.LabboxEphysSortingExtractor(sorting_object)
 
     f = plt.figure(figsize=(plot_edge_size, plot_edge_size))
-    _plot_crosscorrelogram(ax=plt.gca(), sorting=S, unit_id1=x_unit_id,
-        unit_id2=y_unit_id,window_size_msec=50, bin_size_msec=1)
+
+    if x_unit_id != y_unit_id:
+        _plot_crosscorrelogram(ax=plt.gca(), sorting=S, unit_id1=x_unit_id,
+            unit_id2=y_unit_id,window_size_msec=50, bin_size_msec=1)
+    else:
+        _plot_autocorrelogram(ax=plt.gca(), sorting=S, unit_id=x_unit_id,
+            window_size_msec=50, bin_size_msec=1)
     return mpld3.fig_to_dict(f)
 
 def _plot_correlogram(*, ax, bin_counts, bins, wid, title='', color=None):
