@@ -12,7 +12,7 @@ import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
 import SortingView from './containers/SortingView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
-import DbcRecordingsView from './containers/DbcRecordingsView';
+import HomeDBC from './components/HomeDBC';
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -79,9 +79,9 @@ const Routes = () => {
                 )}
             />
             <Route
-                path="/:documentId/dbcRecordingsView"
+                path="/:documentId/HomeDBC"
                 render={({ match }) => (
-                    <DbcRecordingsView documentId={match.params.documentId} />
+                    <HomeDBC documentId={match.params.sortingJobId} />
                 )}
             />
             <Route
