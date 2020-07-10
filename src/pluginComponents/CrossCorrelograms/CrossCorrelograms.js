@@ -5,6 +5,7 @@ import MatplotlibPlot from '../../components/MatplotlibPlot';
 import { Grid } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
+import { createHitherJob } from '../../hither';
 
 const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, onUnitClicked }) => {
     const plotMargin = 2; // in pixels
@@ -77,6 +78,22 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
     return (
         <div style={{'width': '100%'}} id={myId}>
             <Button onClick={() => handleUpdateChosenPlots()}>Update</Button>
+            <Button onClick={() => {
+                pairs.map(async (pair) => {
+                    let plot_data = await createHitherJob('fetch_plot_data',
+                        {
+                            sorting_object: sorting.sortingObject,
+                            unit_x: pair.xkey,
+                            unit_y: pair.ykey
+                        },
+                        {
+                            auto_substitute_file_objects: true,
+                            wait: true,
+                            useClientCache: true
+                        });
+                    alert(`Got plot data ${JSON.stringify(plot_data)}`);
+                    })
+            }}>Show data</Button>
             <Grid container>
                 {
                     rowBounds.map((start) => renderRow(pairs.slice(start, start + n), plotWidth))
