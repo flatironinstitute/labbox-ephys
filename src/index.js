@@ -35,6 +35,8 @@ import { INITIAL_LOAD } from './actions';
 
 import { setJobHandlersByRole } from './hither/createHitherJob';
 
+import "../node_modules/react-vis/dist/style.css";
+
 const axios = require('axios');
 
 async function waitForDocumentId(store) {

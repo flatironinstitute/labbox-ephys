@@ -1,5 +1,7 @@
 export {default as BokehTest} from './BokehTest/BokehTest'
 export {default as BokehTest2} from './BokehTest2/BokehTest2'
+export {default as ReactVisTest} from './ReactVisTest/ReactVisTest'
+export {default as ReactVisTest2} from './ReactVisTest2/ReactVisTest2'
 export {default as MatplotlibTest} from './MatplotlibTest/MatplotlibTest'
 
 // Sorting views (this order determines the order in which they are shows)
