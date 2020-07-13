@@ -18,6 +18,32 @@ thisdir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
 
+import numpy as np
+def _listify_ndarray(x):
+    if x.ndim == 1:
+        if np.issubdtype(x.dtype, np.integer):
+            return [int(val) for val in x]
+        else:
+            return [float(val) for val in x]
+    elif x.ndim == 2:
+        ret = []
+        for j in range(x.shape[1]):
+            ret.append(_listify_ndarray(x[:, j]))
+        return ret
+    elif x.ndim == 3:
+        ret = []
+        for j in range(x.shape[2]):
+            ret.append(_listify_ndarray(x[:, :, j]))
+        return ret
+    elif x.ndim == 4:
+        ret = []
+        for j in range(x.shape[3]):
+            ret.append(_listify_ndarray(x[:, :, :, j]))
+        return ret
+    else:
+        raise Exception('Cannot listify ndarray with {} dims.'.format(x.ndim))
+
+
 app = Flask(__name__)
 global_data = dict(
     default_job_handler=hi.ParallelJobHandler(num_workers=4),
@@ -197,6 +223,7 @@ def _resolve_files_in_item(x):
         return x
 
 def _serialize_files_in_item(x):
+    print(f"Serializing {x} which is a {type(x)}")
     if isinstance(x, hi.File):
         if x._item_type == 'file':
             return dict(
@@ -204,7 +231,7 @@ def _serialize_files_in_item(x):
                 path=x._sha1_path
             )
         elif x._item_type == 'ndarray':
-            return x.array()
+            return _listify_ndarray(x.array())
         else:
             raise Exception(f'Unexpected item type: {x._item_type}')
     elif type(x) == dict:
@@ -216,6 +243,8 @@ def _serialize_files_in_item(x):
         return [_serialize_files_in_item(val) for val in x]
     elif type(x) == tuple:
         return tuple([_serialize_files_in_item(val) for val in x])
+    elif isinstance(x, np.ndarray):
+        return _listify_ndarray(x)
     else:
         return x
 

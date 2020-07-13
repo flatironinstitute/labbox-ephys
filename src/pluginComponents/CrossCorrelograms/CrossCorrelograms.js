@@ -41,6 +41,24 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
         }, []);
     }
 
+    const testHitherCalls = async (pairs) => {
+        for (let pair of pairs) {
+            let plotData = await createHitherJob('fetch_plot_data',
+                {
+                    sorting_object: sorting.sortingObject,
+                    unit_x: pair.xkey,
+                    unit_y: pair.ykey
+                },
+                {
+                    auto_substitute_file_objects: true,
+                    wait: true,
+                    useClientCache: true
+                }
+            );
+            console.log('plotData:', plotData);
+        }
+    }
+
     const pairs = makePairs();
     const plotWidth = computeLayout(plotMargin);
     const rowBounds = [...Array(pairs.length).keys()].filter(i => i % n === 0);
@@ -79,21 +97,22 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
         <div style={{'width': '100%'}} id={myId}>
             <Button onClick={() => handleUpdateChosenPlots()}>Update</Button>
             <Button onClick={() => {
-                pairs.map(async (pair) => {
-                    let plot_data = await createHitherJob('fetch_plot_data',
-                        {
-                            sorting_object: sorting.sortingObject,
-                            unit_x: pair.xkey,
-                            unit_y: pair.ykey
-                        },
-                        {
-                            auto_substitute_file_objects: true,
-                            wait: true,
-                            useClientCache: true
-                        });
-                    alert(`Got plot data ${JSON.stringify(plot_data)}`);
-                    })
-            }}>Show data</Button>
+                // pairs.map(async (pair) => {
+                //     let plot_data = await createHitherJob('fetch_plot_data',
+                //         {
+                //             sorting_object: sorting.sortingObject,
+                //             unit_x: pair.xkey,
+                //             unit_y: pair.ykey
+                //         },
+                //         {
+                //             auto_substitute_file_objects: true,
+                //             wait: true,
+                //             useClientCache: true
+                //         });
+                //     alert(`Got plot data ${JSON.stringify(plot_data)}`);
+                //     })
+                testHitherCalls(pairs)
+            }}>Log data</Button>
             <Grid container>
                 {
                     rowBounds.map((start) => renderRow(pairs.slice(start, start + n), plotWidth))
