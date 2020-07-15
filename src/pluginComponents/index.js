@@ -1,3 +1,4 @@
+export {default as TestKacheryP2P} from './TestKacheryP2P/TestKacheryP2P'
 export {default as BokehTest} from './BokehTest/BokehTest'
 export {default as BokehTest2} from './BokehTest2/BokehTest2'
 export {default as MatplotlibTest} from './MatplotlibTest/MatplotlibTest'

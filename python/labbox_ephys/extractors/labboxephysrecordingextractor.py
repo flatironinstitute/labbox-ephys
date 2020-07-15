@@ -1,4 +1,5 @@
 from typing import Union
+import kachery_p2p as kp
 import kachery as ka
 from copy import deepcopy
 from .bandpass_filter import bandpass_filter
@@ -39,15 +40,15 @@ def _try_mda_create_object(arg: Union[str, dict]) -> Union[None, dict]:
     if isinstance(arg, str):
         path = arg
         if path.startswith('sha1dir') or path.startswith('/'):
-            dd = ka.read_dir(path)
+            dd = kp.read_dir(path)
             if dd is not None:
                 if 'raw.mda' in dd['files'] and 'params.json' in dd['files'] and 'geom.csv' in dd['files']:
                     raw_path = path + '/raw.mda'
                     params_path = path + '/params.json'
                     geom_path = path + '/geom.csv'
-                    geom_path_resolved = ka.load_file(geom_path)
+                    geom_path_resolved = kp.load_file(geom_path)
                     assert geom_path_resolved is not None, f'Unable to load geom.csv from: {geom_path}'
-                    params = ka.load_object(params_path)
+                    params = kp.load_object(params_path)
                     assert params is not None, f'Unable to load params.json from: {params_path}'
                     geom = _load_geom_from_csv(geom_path_resolved)
                     return dict(
@@ -76,7 +77,7 @@ def _try_nrs_create_object(arg: Union[str, dict]) -> Union[None, dict]:
     if isinstance(arg, str):
         path = arg
         if path.startswith('sha1dir') or path.startswith('/'):
-            dd = ka.read_dir(path)
+            dd = kp.read_dir(path)
             if dd is not None:
                 probe_file = None
                 xml_file = None
@@ -84,7 +85,7 @@ def _try_nrs_create_object(arg: Union[str, dict]) -> Union[None, dict]:
                 dat_file = None
                 for f in dd['files'].keys():
                     if f.endswith('.json'):
-                        obj = ka.load_object(path + '/' + f)
+                        obj = kp.load_object(path + '/' + f)
                         if obj.get('format_version', None) in ['flatiron-probe-0.1', 'flatiron-probe-0.2']:
                             probe_file = path + '/' + f
                     elif f.endswith('.xml'):
@@ -124,7 +125,7 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
     # if arg is a string ending with .json then replace arg by the object
     if (isinstance(arg, str)) and (arg.endswith('.json')):
         path = arg
-        x = ka.load_object(path)
+        x = kp.load_object(path)
         if x is None:
             raise Exception(f'Unable to load object: {path}')
         return _create_object_for_arg(x)
@@ -214,7 +215,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         elif recording_format == 'nrs':
             self._recording: se.RecordingExtractor = NrsRecordingExtractor(**data)
         elif recording_format == 'nwb':
-            path0 = ka.load_file(data['path'])
+            path0 = kp.load_file(data['path'])
             self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name='e-series')
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
@@ -318,10 +319,10 @@ class NrsRecordingExtractor(se.RecordingExtractor):
         se.RecordingExtractor.__init__(self)
         # info = check_load_nrs(dirpath)
         # assert info is not None
-        probe_obj = ka.load_object(probe_file)
-        xml_file = ka.load_file(xml_file)
-        # nrs_file = ka.load_file(nrs_file)
-        dat_file = ka.load_file(dat_file)
+        probe_obj = kp.load_object(probe_file)
+        xml_file = kp.load_file(xml_file)
+        # nrs_file = kp.load_file(nrs_file)
+        dat_file = kp.load_file(dat_file)
 
         from xml.etree import ElementTree as ET
         xml = ET.parse(xml_file)
@@ -409,11 +410,11 @@ def _download_files_in_item(x):
     if type(x) == str:
         if x.startswith('sha1://'):
             if not ka.get_file_info(x, fr=dict(url=None)):
-                a = ka.load_file(x)
+                a = kp.load_file(x)
                 assert a is not None, f'Unable to download file: {x}'
         if x.startswith('sha1dir://') and ka.get_file_info(x):
             if not ka.get_file_info(x, fr=dict(url=None)):
-                a = ka.load_file(x)
+                a = kp.load_file(x)
                 assert a is not None, f'Unable to download file: {x}'
         return
     elif type(x) == dict:

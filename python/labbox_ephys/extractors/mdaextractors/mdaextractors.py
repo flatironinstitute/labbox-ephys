@@ -2,6 +2,7 @@ from spikeextractors import RecordingExtractor
 from spikeextractors import SortingExtractor
 
 import kachery as ka
+import kachery_p2p as kp
 import json
 import numpy as np
 from .mdaio import DiskReadMda, readmda, readmda_header, writemda32, writemda64, writemda, appendmda

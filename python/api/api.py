@@ -9,7 +9,9 @@ from flask import Flask, request, Response
 import hither as hi
 import urllib
 import kachery as ka
+import kachery_p2p as kp
 import requests
+import base64
 
 # this is how the hither functions get registered
 import labbox_ephys as le
@@ -62,9 +64,6 @@ def _create_job_handler_from_config(x):
 def create_hither_job():
     global global_data
 
-    ka.set_config(fr='default_readonly')
-    ka.set_config(use_hard_links=True)
-
     x = request.json
     functionName = x['functionName']
     kwargs = x['kwargs']
@@ -80,13 +79,14 @@ def create_hither_job():
     else:
         job_handler_config = None
 
-    if job_handler_config is not None:
-        hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
-    else:
-        with global_data_lock:
-            hither_config['job_handler'] = global_data['default_job_handler']
-    if hither_config['job_handler'].is_remote:
-        hither_config['container'] = True
+    # if job_handler_config is not None:
+    #     hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
+    # else:
+    #     with global_data_lock:
+    #         hither_config['job_handler'] = global_data['default_job_handler']
+    # if hither_config['job_handler'].is_remote:
+    #     hither_config['container'] = True
+    
     with global_data_lock:
         with ka.config(**kachery_config):
             with hi.Config(**hither_config):
@@ -150,6 +150,129 @@ def hither_job_cancel():
     job.cancel()
     return dict()
 
+@app.route('/api/kachery/feed/getFeedId', methods=['POST'])
+def kachery_feed_get_feed_id():
+    x = request.json
+    feedName = x['feedName']
+    try:
+        feed_id = kp.get_feed_id(feedName, create=False)
+    except Exception as err:
+        return dict(
+            success=False,
+            error=str(err)
+        )
+    return dict(
+        success=True,
+        feedId=feed_id
+    )
+
+@app.route('/api/kachery/feed/getNumMessages', methods=['POST'])
+def kachery_feed_get_num_messages():
+    x = request.json
+    feedId = x['feedId']
+    subfeedName = x['subfeedName']
+    feed = kp.load_feed(f'feed://{feedId}')
+    subfeed = feed.get_subfeed(subfeedName)
+    num_messages = subfeed.get_num_messages()
+    return dict(
+        success=True,
+        numMessages=num_messages
+    )
+
+@app.route('/api/kachery/feed/getMessages', methods=['POST'])
+def kachery_feed_get_messages():
+    x = request.json
+    feedId = x['feedId']
+    subfeedName = x['subfeedName']
+    position = x['position']
+    waitMsec = x['waitMsec']
+    maxNumMessages = x['maxNumMessages']
+    feed = kp.load_feed(f'feed://{feedId}')
+    subfeed = feed.get_subfeed(subfeedName)
+    subfeed.set_position(position)
+    messages = subfeed.get_next_messages(wait_msec=waitMsec, max_num_messages=maxNumMessages)
+    return dict(
+        success=True,
+        messages=messages
+    )
+
+@app.route('/api/kachery/feed/watchForNewMessages', methods=['POST'])
+def kachery_feed_watch_for_new_messages():
+    x = request.json
+    subfeed_watches = x['subfeedWatches']
+    wait_msec = x['waitMsec']
+
+    messages = kp.watch_for_new_messages(subfeed_watches=subfeed_watches, wait_msec=wait_msec)
+    return dict(
+        success=True,
+        messages=messages
+    )
+
+@app.route('/api/kachery/feed/appendMessages', methods=['POST'])
+def kachery_feed_append_messages():
+    x = request.json
+    feedId = x['feedId']
+    subfeedName = x['subfeedName']
+    messages = x['messages']
+    feed = kp.load_feed(f'feed://{feedId}')
+    subfeed = feed.get_subfeed(subfeedName)
+    print('appending messages', feedId, subfeedName, messages)
+    subfeed.append_messages(messages)
+    return dict(
+        success=True
+    )
+
+@app.route('/api/kachery/loadText', methods=['POST'])
+def kachery_load_text():
+    x = request.json
+    uri = x['uri']
+    try:
+        text = kp.load_text(uri)
+    except Exception as err:
+        return dict(
+            success=False,
+            error=str(err)
+        )
+    return dict(
+        success=True,
+        text=text
+    )
+
+@app.route('/api/kachery/loadObject', methods=['POST'])
+def kachery_load_object():
+    x = request.json
+    uri = x['uri']
+    try:
+        obj = kp.load_object(uri)
+    except Exception as err:
+        return dict(
+            success=False,
+            error=str(err)
+        )
+    return dict(
+        success=True,
+        object=obj
+    )
+
+@app.route('/api/kachery/loadBytes', methods=['POST'])
+def kachery_load_bytes():
+    x = request.json
+    uri = x['uri']
+    start = x.get('start', None)
+    end = x.get('end', None)
+    try:
+        buf = kp.load_bytes(uri, start=start, end=end)
+    except Exception as err:
+        return dict(
+            success=False,
+            error=str(err)
+        )
+    return dict(
+        success=True,
+        data_b64=base64.b64encode(buf) 
+    )
+
+
 @app.route('/api/get_event_stream_websocket_port', methods=['GET'])
 def get_event_stream_websocket_port():
     return dict(
@@ -177,7 +300,7 @@ def eventstream(path):
 def _resolve_files_in_item(x):
     if isinstance(x, hi.File):
         if x._item_type == 'file':
-            path = ka.load_file(x._sha1_path)
+            path = kp.load_file(x._sha1_path)
             assert path is not None, f'Unable to load file: {x._sha1_path}'
             return path
         elif x._item_type == 'ndarray':

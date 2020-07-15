@@ -1,6 +1,7 @@
 from copy import deepcopy
 from typing import Union
 import kachery as ka
+import kachery_p2p as kp
 import hither as hi
 import spikeextractors as se
 from .mdaextractors import MdaSortingExtractor
@@ -54,7 +55,7 @@ def _create_object_for_arg(arg: Union[str, dict], samplerate=None) -> Union[dict
     # if arg is a string ending with .json then replace arg by the object
     if (isinstance(arg, str)) and (arg.endswith('.json')):
         path = arg
-        arg = ka.load_object(path)
+        arg = kp.load_object(path)
         if arg is None:
             raise Exception(f'Unable to load object: {path}')
     
@@ -78,7 +79,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
         sorting_format = self._object['sorting_format']
         data: dict = self._object['data']
         if sorting_format == 'mda':
-            firings_path = ka.load_file(data['firings'])
+            firings_path = kp.load_file(data['firings'])
             assert firings_path is not None, f'Unable to load firings file: {data["firings"]}'
             self._sorting: se.SortingExtractor = MdaSortingExtractor(firings_file=firings_path, samplerate=data['samplerate'])
         else:
