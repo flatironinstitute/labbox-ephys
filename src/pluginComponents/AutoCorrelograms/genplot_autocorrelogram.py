@@ -3,43 +3,9 @@ import numpy as np
 import kachery as ka
 from ._correlograms_phy import compute_correlograms
 
-@hi.function('genplot_autocorrelogram', '0.1.0')
-def genplot_autocorrelogram(sorting_object, unit_id):
-    import matplotlib.pyplot as plt, mpld3
-    import labbox_ephys as le
 
-    S = le.LabboxEphysSortingExtractor(sorting_object)
-    bins, bin_counts, bin_size = _get_correlogram_data(sorting=S, unit_id1=unit_id,
-        window_size_msec=50, bin_size_msec=1)
-
-    f = plt.figure(figsize=(2, 2))
-    _plot_correlogram(ax=plt.gca(), bin_counts=bin_counts, bins=bins, wid=bin_size, color='gray')
-    return mpld3.fig_to_dict(f)
-
-@hi.function('genplot_crosscorrelogram', '0.1.0')
-def genplot_crosscorrelogram(sorting_object, x_unit_id, y_unit_id, plot_edge_size):
-    import matplotlib.pyplot as plt, mpld3
-    import labbox_ephys as le
-
-    S = le.LabboxEphysSortingExtractor(sorting_object)
-    f = plt.figure(figsize=(plot_edge_size, plot_edge_size))
-
-    bins, bin_counts, bin_size = _get_correlogram_data(sorting=S, unit_id1=x_unit_id,
-        unit_id2=y_unit_id, window_size_msec=50, bin_size_msec=1)
-    _plot_correlogram(ax=plt.gca(), bin_counts=bin_counts, bins=bins, wid=bin_size, color='gray')
-
-    return mpld3.fig_to_dict(f)
-
-def _plot_correlogram(*, ax, bin_counts, bins, wid, title='', color=None):
-    kk = 1000
-    ax.bar(x=(bins-wid/2)*kk, height=bin_counts,
-           width=wid*kk, color=color, align='edge')
-    ax.set_xlabel('dt (msec)')
-    ax.set_xticks([bins[0]*kk, bins[len(bins)//2]*kk, bins[-1]*kk])
-    # ax.set_yticks([])
-
-@hi.function('fetch_plot_data', '0.1.0')
-def fetch_plot_data(sorting_object, unit_x, unit_y):
+@hi.function('fetch_correlogram_plot_data', '0.1.0')
+def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y):
     import labbox_ephys as le
     S = le.LabboxEphysSortingExtractor(sorting_object)
     data = _get_correlogram_data(sorting=S, unit_id1=unit_x, unit_id2=unit_y,

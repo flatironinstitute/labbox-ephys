@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { withSize } from 'react-sizeme';
-import MatplotlibPlot from '../../components/MatplotlibPlot';
 import ClientSidePlot from '../../components/ClientSidePlot';
 import { Grid } from '@material-ui/core';
 import { Button } from '@material-ui/core';
-import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import Correlogram_rv from './Correlogram_ReactVis';
-import Correlogram_nivo from './Correlogram_nivo';
+import sampleSortingViewProps from '../common/sampleSortingViewProps';
 
 
 const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, onUnitClicked }) => {
     const plotMargin = 2; // in pixels
     const [chosenPlots, setChosenPlots] = useState([]);
-    const [plotType, setPlotType] = useState('react-vis');
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const handleUpdateChosenPlots = () => {
@@ -61,20 +58,8 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
                                 <div style={{ 'textAlign': 'center', 'fontWeight': 'bold' }}>
                                     <div>{pair.xkey + ' vs ' + pair.ykey}</div>
                                 </div>
-                                {
-                                    plotType === 'matplotlibplot' ?
-                                        <MatplotlibPlot
-                                            functionName='genplot_crosscorrelogram'
-                                            functionArgs={{
-                                                sorting_object: sorting.sortingObject,
-                                                x_unit_id: pair.xkey,
-                                                y_unit_id: pair.ykey,
-                                                plot_edge_size: (plotWidth/100)
-                                            }}
-                                        />
-                                    :
                                     <ClientSidePlot
-                                        dataFunctionName='fetch_plot_data'
+                                        dataFunctionName='fetch_correlogram_plot_data'
                                         dataFunctionArgs={{
                                             sorting_object: sorting.sortingObject,
                                             unit_x: pair.xkey,
@@ -84,11 +69,9 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
                                             width: plotWidth,
                                             height: plotWidth
                                         }}
-                                        plotComponent={plotType === 'react-vis' ? Correlogram_rv
-                                                        : Correlogram_nivo}
+                                        plotComponent={Correlogram_rv}
                                         plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
                                     />
-                                }
                             </div>
                         </Grid>
                     ))
@@ -100,12 +83,6 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
     return (
         <div style={{'width': '100%'}} id={myId}>
             <Button onClick={() => handleUpdateChosenPlots()}>Update</Button>
-            {/* <Button onClick={() => {
-                testHitherCalls(pairs)
-            }}>Log data</Button> */}
-            <Button onClick={() => setPlotType('react-vis')}>Use React-Vis</Button>
-            <Button onClick={() => setPlotType('matplotlibplot')}>Use MatPlotLib</Button>
-            <Button onClick={() => setPlotType('nivo')}>Use Nivo</Button>
             <Grid container>
                 {
                     rowBounds.map((start) => renderRow(pairs.slice(start, start + n), plotWidth))
