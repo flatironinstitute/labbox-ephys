@@ -55,7 +55,7 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, cu
     
     const SortingViewDiv = ({ unit_ids }) => {
         return (
-            <div style={styling}>
+            <div style={styling} key={unit_ids}>
                 <div style={labelStyle}>Unit IDs</div>
                 {unit_ids.map((unitId, idx, ary) => clickabilize(unitId, idx, ary))}
             </div>
@@ -85,12 +85,14 @@ const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, cu
                 style={GetUnitStyle(unitId)}
                 onClick={(event) => onUnitClicked(unitId, event)}
             >
-                <span style={unitIdStyle}>{unitId}</span>
-                <span>
+                <span style={unitIdStyle} key={unitId + '-name'}>{unitId}</span>
+                <span key={unitId + '-curationLabels'}>
                     {((curation[unitId] || {}).labels || [])
                         .map((label) => {
                             return (
-                                <span style={GetLabelsStyle(unitId)}>
+                                <span style={GetLabelsStyle(unitId)}
+                                    key={unitId + '-label-' + label}
+                                >
                                     {label}&nbsp;
                                 </span>
                             )

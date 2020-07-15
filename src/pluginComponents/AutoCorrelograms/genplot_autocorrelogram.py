@@ -38,9 +38,17 @@ def _plot_correlogram(*, ax, bin_counts, bins, wid, title='', color=None):
     ax.set_xticks([bins[0]*kk, bins[len(bins)//2]*kk, bins[-1]*kk])
     # ax.set_yticks([])
 
+@hi.function('fetch_plot_data', '0.1.0')
+def fetch_plot_data(sorting_object, unit_x, unit_y):
+    import labbox_ephys as le
+    S = le.LabboxEphysSortingExtractor(sorting_object)
+    data = _get_correlogram_data(sorting=S, unit_id1=unit_x, unit_id2=unit_y,
+        window_size_msec=50, bin_size_msec=1)
+    return data
+
 def _get_correlogram_data(*, sorting, unit_id1, unit_id2=None, window_size_msec, bin_size_msec):
     auto = unit_id2 is None or unit_id2 == unit_id1
-    
+
     times = sorting.get_unit_spike_train(unit_id=unit_id1)
     window_size = window_size_msec / 1000
     bin_size = bin_size_msec / 1000
