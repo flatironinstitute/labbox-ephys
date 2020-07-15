@@ -69,7 +69,7 @@ def decodeURIComponent(x):
 def index():
     return app.send_static_file('index.html')
 
-def _create_job_handler_from_config(x):
+def _create_job_handler_from_config(x): 
     job_handler_type = x['jobHandlerType']
     if job_handler_type == 'default':
         return hi.ParallelJobHandler(num_workers=4)
@@ -223,7 +223,6 @@ def _resolve_files_in_item(x):
         return x
 
 def _serialize_files_in_item(x):
-    print(f"Serializing {x} which is a {type(x)}")
     if isinstance(x, hi.File):
         if x._item_type == 'file':
             return dict(
