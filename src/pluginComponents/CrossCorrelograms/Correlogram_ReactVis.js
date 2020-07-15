@@ -9,6 +9,8 @@ const Correlogram_rv = (boxSize, plotData, argsObject = {id: 0}) => {
         return { x: item, y: plotData[1][index] };
     });
 
+    const xAxisLabel = 'dt (msec)'
+
     // Note that unfortunately neither the ChartLabel method nor the XAxis title method
     // are producing good results for actually labeling the x-axis of the plot outside
     // the axis. (The XAxis title automatically displays above the axis, and if you push
@@ -26,15 +28,10 @@ const Correlogram_rv = (boxSize, plotData, argsObject = {id: 0}) => {
                 width={boxSize.width}
             >
                 <VerticalBarSeries data={data} />
-                <XAxis title='dt (msec)' position='middle'/>
+                <XAxis />
                 <YAxis />
-                <ChartLabel
-                    text='dt (msec)'
-                    includeMargin={false}
-                    xPercent={.5}
-                    yPercent={100}
-                />
             </XYPlot>
+            <div style={{textAlign: 'center', fontSize: '12px'}}>{xAxisLabel}</div>
         </div>
     );
 }
