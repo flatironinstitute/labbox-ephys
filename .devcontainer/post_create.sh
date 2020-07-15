@@ -24,6 +24,7 @@ cd /workspaces/labbox-ephys/nwb_datajoint
 pip install --no-deps -e .
 
 mkdir -p /data/kachery-storage
+mkdir -p /data/kachery-p2p-config
 
 cat <<EOT >> ~/.bashrc
 export PATH=/home/vscode/.local/bin:$PATH
