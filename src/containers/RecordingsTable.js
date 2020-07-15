@@ -6,7 +6,7 @@ import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 
-const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentId }) => {
+const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentId, feedId }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -53,7 +53,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
         key: rec.recordingId,
         recordingLabel: {
             text: rec.recordingLabel,
-            element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
+            element: <Link title={"View this recording"} to={`/f/${feedId}/d/${documentId}/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
         },
         numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
         samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
@@ -93,7 +93,8 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    documentId: state.documentInfo.documentId
+    documentId: state.documentInfo.documentId,
+    feedId: state.documentInfo.feedId,
 })
 
 const mapDispatchToProps = dispatch => ({

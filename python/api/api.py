@@ -50,13 +50,13 @@ def _create_job_handler_from_config(x):
     if job_handler_type == 'default':
         return hi.ParallelJobHandler(num_workers=4)
     elif job_handler_type == 'remote':
-        event_stream_url = x['config']['eventStreamUrl']
-        channel = x['config']['channel']
-        password = x['config']['password']
-        compute_resource_id = x['config']['computeResourceId']
-        esc = hi.EventStreamClient(event_stream_url, channel=channel, password=password)
-        jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
-        return jh
+        # todo: fix this section
+        # event_stream_url = x['config']['eventStreamUrl']
+        # channel = x['config']['channel']
+        # password = x['config']['password']
+        # compute_resource_id = x['config']['computeResourceId']
+        # # jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
+        raise Exception(f'Not yet implemented')
     else:
         raise Exception(f'Unexpected job handler type: {job_handler_type}')
 
@@ -79,14 +79,14 @@ def create_hither_job():
     else:
         job_handler_config = None
 
-    # if job_handler_config is not None:
-    #     hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
-    # else:
-    #     with global_data_lock:
-    #         hither_config['job_handler'] = global_data['default_job_handler']
-    # if hither_config['job_handler'].is_remote:
-    #     hither_config['container'] = True
-    
+    if job_handler_config is not None:
+        hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
+    else:
+        with global_data_lock:
+            hither_config['job_handler'] = global_data['default_job_handler']
+    if hither_config['job_handler'].is_remote:
+        hither_config['container'] = True
+
     with global_data_lock:
         with ka.config(**kachery_config):
             with hi.Config(**hither_config):
@@ -154,8 +154,9 @@ def hither_job_cancel():
 def kachery_feed_get_feed_id():
     x = request.json
     feedName = x['feedName']
+    assert feedName == 'labbox-ephys-default', 'For now, you can only create the labbox-ephys-default named feed'
     try:
-        feed_id = kp.get_feed_id(feedName, create=False)
+        feed_id = kp.get_feed_id(feedName, create=True)
     except Exception as err:
         return dict(
             success=False,
@@ -271,31 +272,6 @@ def kachery_load_bytes():
         success=True,
         data_b64=base64.b64encode(buf) 
     )
-
-
-@app.route('/api/get_event_stream_websocket_port', methods=['GET'])
-def get_event_stream_websocket_port():
-    return dict(
-        port=int(os.environ['EVENT_STREAM_WEBSOCKET_PORT'])
-    )
-
-@app.route('/api/eventstream/<path:path>',methods=['GET', 'POST'])
-def eventstream(path):
-    # thanks: https://medium.com/customorchestrator/simple-reverse-proxy-server-using-flask-936087ce0afb
-    if request.method == 'GET':
-        resp = requests.get(f'{os.environ["EVENT_STREAM_URL"]}/{path}')
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.content, resp.status_code, headers)
-        return response
-    elif request.method=='POST':
-        resp = requests.post(f'{os.environ["EVENT_STREAM_URL"]}/{path}',json=request.get_json())
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.content, resp.status_code, headers)
-        return response
-    else:
-        raise Exception(f'Unexpected method: {request.method}')
 
 def _resolve_files_in_item(x):
     if isinstance(x, hi.File):

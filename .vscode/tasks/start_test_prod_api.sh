@@ -2,8 +2,7 @@
 
 set -ex
 
-export EVENT_STREAM_URL=http://localhost:15363
-export EVENT_STREAM_WEBSOCKET_PORT=15363
+# TODO: set kachery-p2p environment variables here
 
 pip install gunicorn
 cd python/api

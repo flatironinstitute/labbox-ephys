@@ -7,11 +7,6 @@ server {
         proxy_pass http://localhost:15362;
     }
 
-    location /eventstreamserver {
-        include proxy_params;
-        proxy_pass http://localhost:15363;
-    }
-
     location / {
         include proxy_params;
         proxy_pass http://localhost:15361;

@@ -15,9 +15,9 @@
             "command": "bash -ic .vscode/tasks/start_dev_client.sh"
         },
         {
-            "label": "start dev event stream server",
+            "label": "start dev kachery-p2p daemon",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_dev_event_stream_server.sh"
+            "command": "bash -ic .vscode/tasks/start_dev_kachery_p2p_daemon.sh"
         },
         {
             "label": "_start_dev",
@@ -29,9 +29,9 @@
             "type": "shell",
             "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15351'",
             "dependsOn": [
+                "start dev kachery-p2p daemon",
                 "start dev api",
                 "start dev client",
-                "start dev event stream server",
                 "_start_dev"
             ]
         },
@@ -49,11 +49,6 @@
             "label": "start test prod client",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/start_test_prod_client.sh"
-        },
-        {
-            "label": "start test prod event stream server",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_test_prod_event_stream_server.sh"
         },
         {
             "label": "_start_test_prod",

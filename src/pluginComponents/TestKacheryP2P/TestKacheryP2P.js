@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@material-ui/core'
 
-import { getFeedId, loadText, loadObject, loadBytes, appendMessages, getMessages, getNumMessages, FeedClient, watchForNewMessages } from '../../kachery'
+import { getFeedId, loadText, loadObject, loadBytes, appendMessages, getMessages, getNumMessages, watchForNewMessages } from '../../kachery'
 
 const TestKacheryP2P = () => {
     const _handleTest1 = () => {
@@ -61,39 +61,6 @@ const TestKacheryP2P = () => {
             console.info('BYTES::', bytes, bytes.length);
         })();
     }
-    const _handleTest6 = () => {
-        (async () => {
-            const feedId = await getFeedId('labbox-ephys-test')
-            const feedClient = new FeedClient(feedId);
-            const subfeed = feedClient.getSubfeed('default')
-            const messages1 = await subfeed.readMessages({waitMsec: 1000});
-            console.info(messages1);
-            const messages2 = await subfeed.readMessages({waitMsec: 1000});
-            console.info(messages2);
-        })();
-    }
-    const _handleTest7 = () => {
-        (async () => {
-            const feedId = await getFeedId('labbox-ephys-test')
-            const feedClient = new FeedClient(feedId);
-            const subfeed = feedClient.getSubfeed('default')
-            const numMessages = await subfeed.getNumMessages();
-            const subfeedWatches = {
-                'watch1': {
-                    feedId,
-                    subfeedName: 'default',
-                    position: numMessages
-                },
-                'watch2': {
-                    feedId,
-                    subfeedName: 'default2',
-                    position: 0
-                }
-            }
-            const messages = await watchForNewMessages({subfeedWatches, waitMsec: 5000});
-            console.info(messages);
-        })();
-    }
 
     return (
         <div>
@@ -102,8 +69,6 @@ const TestKacheryP2P = () => {
             <Button onClick={_handleTest3}>TEST 3: load text</Button>
             <Button onClick={_handleTest4}>TEST 4: load object</Button>
             <Button onClick={_handleTest5}>TEST 5: load bytes</Button>
-            <Button onClick={_handleTest6}>TEST 6: feed client</Button>
-            <Button onClick={_handleTest7}>TEST 7: feed watch</Button>
         </div>
     );
 }

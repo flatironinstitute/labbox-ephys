@@ -381,11 +381,9 @@ class NrsRecordingExtractor(se.RecordingExtractor):
 
 def _all_files_are_local_in_item(x):
     if type(x) == str:
-        if x.startswith('sha1://'):
+        if x.startswith('sha1://') or x.startswith('sha1dir://'):
             if not ka.get_file_info(x, fr=dict(url=None)):
-                return False
-        if x.startswith('sha1dir://') and ka.get_file_info(x):
-            if not ka.get_file_info(x, fr=dict(url=None)):
+                print('returning false')
                 return False
         return True
     elif type(x) == dict:
@@ -408,11 +406,7 @@ def _all_files_are_local_in_item(x):
 
 def _download_files_in_item(x):
     if type(x) == str:
-        if x.startswith('sha1://'):
-            if not ka.get_file_info(x, fr=dict(url=None)):
-                a = kp.load_file(x)
-                assert a is not None, f'Unable to download file: {x}'
-        if x.startswith('sha1dir://') and ka.get_file_info(x):
+        if x.startswith('sha1://') or x.startswith('sha1dir://'):
             if not ka.get_file_info(x, fr=dict(url=None)):
                 a = kp.load_file(x)
                 assert a is not None, f'Unable to download file: {x}'

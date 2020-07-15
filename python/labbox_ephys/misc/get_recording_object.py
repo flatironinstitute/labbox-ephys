@@ -10,7 +10,5 @@ import labbox_ephys as le
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:latest')
 def get_recording_object(recording_path):
-    print('---- debug 1')
     recording = le.LabboxEphysRecordingExtractor(recording_path, download=False)
-    print('---- debug 2')
     return recording.object()

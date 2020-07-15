@@ -7,11 +7,11 @@ import ImportRecordingFromLocalDisk from '../components/ImportRecordingFromLocal
 import ImportRecordingFromFrankLabDataJoint from '../extensions/frankLabDataJoint/components/ImportRecordingFromFrankLabDataJoint';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 
-const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentId }) => {
+const ImportRecordings = ({ onAddRecording, history, extensionsConfig, feedId, documentId }) => {
     const [method, setMethod] = useState('');
 
     const handleDone = () => {
-        history.push(`/${documentId}`);
+        history.push(`/f/${feedId}/d/${documentId}`);
     }
 
     let form;
@@ -89,7 +89,8 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentI
 
 const mapStateToProps = state => ({
     extensionsConfig: state.extensionsConfig,
-    documentId: state.documentInfo.documentId
+    documentId: state.documentInfo.documentId,
+    feedId: state.documentInfo.feedId
 })
 
 const mapDispatchToProps = dispatch => ({
