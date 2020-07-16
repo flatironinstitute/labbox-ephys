@@ -15,6 +15,7 @@ import theme from './theme';
 import './index.css';
 import './styles.css';
 import { ThemeProvider } from '@material-ui/core/styles';
+import "../node_modules/react-vis/dist/style.css";
 
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
