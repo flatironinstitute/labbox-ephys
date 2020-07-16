@@ -58,20 +58,20 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
                                 <div style={{ 'textAlign': 'center', 'fontWeight': 'bold' }}>
                                     <div>{pair.xkey + ' vs ' + pair.ykey}</div>
                                 </div>
-                                    <ClientSidePlot
-                                        dataFunctionName='fetch_correlogram_plot_data'
-                                        dataFunctionArgs={{
-                                            sorting_object: sorting.sortingObject,
-                                            unit_x: pair.xkey,
-                                            unit_y: pair.ykey
-                                        }}
-                                        boxSize={{
-                                            width: plotWidth,
-                                            height: plotWidth
-                                        }}
-                                        plotComponent={Correlogram_rv}
-                                        plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
-                                    />
+                                <ClientSidePlot
+                                    dataFunctionName='fetch_correlogram_plot_data'
+                                    dataFunctionArgs={{
+                                        sorting_object: sorting.sortingObject,
+                                        unit_x: pair.xkey,
+                                        unit_y: pair.ykey
+                                    }}
+                                    boxSize={{
+                                        width: plotWidth,
+                                        height: plotWidth
+                                    }}
+                                    plotComponent={Correlogram_rv}
+                                    plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
+                                />
                             </div>
                         </Grid>
                     ))

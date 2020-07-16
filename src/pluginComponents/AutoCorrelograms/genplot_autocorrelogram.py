@@ -3,9 +3,8 @@ import numpy as np
 import kachery as ka
 from ._correlograms_phy import compute_correlograms
 
-
 @hi.function('fetch_correlogram_plot_data', '0.1.0')
-def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y):
+def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
     import labbox_ephys as le
     S = le.LabboxEphysSortingExtractor(sorting_object)
     data = _get_correlogram_data(sorting=S, unit_id1=unit_x, unit_id2=unit_y,
