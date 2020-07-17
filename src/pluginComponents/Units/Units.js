@@ -57,7 +57,6 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
                     wait: true,
                     useClientCache: true
                 });
-                console.log('rate data:', rateData);
             }
             catch (err) {
                 console.error(err);
@@ -119,15 +118,14 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
     };
     const rows = 
         sorting.sortingInfo.unit_ids.map(unitId => {
-            console.log('Unit is ', unitId, 'Ratedata looks like: ', queryData)
             return {
-            key: unitId,
-            unitId: unitId,
-            labels: {
-                element: <span>{getLabelsForUnitId(unitId).join(', ')} </span>
-            },
-            eventCount: queryData[unitId].count,
-            firingRate: queryData[unitId].rate
+                key: unitId,
+                unitId: unitId,
+                labels: {
+                    element: <span>{getLabelsForUnitId(unitId).join(', ')} </span>
+                },
+                eventCount: queryData[unitId].count,
+                firingRate: queryData[unitId].rate
     }});
     const columns = [
         {
