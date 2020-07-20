@@ -224,7 +224,11 @@ export default class TimeseriesWidget extends Component {
             painter.drawPath(pp);
         }
         // Note that using width=2 here had some bad side-effects on the rendering - and I think it's the browser's fault
-        painter.setPen({ 'color': this.channel_colors[m % this.channel_colors.length], width: 1 });
+        // painter.setPen({ 'color': this.channel_colors[m % this.channel_colors.length], width: 1 });
+        // dbc: color needs to be assigned to each channel group
+        painter.setPen({ 
+            'color': this.channel_colors[Math.floor(m / Math.floor(this.props.num_channels / this.channel_colors.length))], width: 0.6 
+        });
         painter.drawPath(pp);
     }
     _zoomAmplitude = (factor) => {
@@ -244,7 +248,7 @@ export default class TimeseriesWidget extends Component {
             {
                 key: 'select-electrodes',
                 title: "Select electrodes",
-                icon: <SelectElectrodesIcon />,
+                icon: <SelectElectrodesIcon size="0.7em"/>,
                 render: () => (
                     <SelectElectrodes
                         num_channels={this.props.num_channels}
@@ -265,13 +269,13 @@ export default class TimeseriesWidget extends Component {
             {
                 callback: () => {this._zoomAmplitude(1.15)},
                 title: 'Scale amplitude up [up arrow]',
-                icon: <FaArrowUp />,
+                icon: <FaArrowUp size="0.7em"/>,
                 key: 38
             },
             {
                 callback: () => {this._zoomAmplitude(1 / 1.15)},
                 title: 'Scale amplitude down [down arrow]',
-                icon: <FaArrowDown />,
+                icon: <FaArrowDown size="0.7em"/>,
                 key: 40
             },
             {
@@ -333,9 +337,13 @@ function determine_downsample_factor_from_num_timepoints(target_num_pix, num) {
 
 function mv_default_channel_colors() {
     var ret = [];
-    ret.push('rgb(80,80,80)');
-    ret.push('rgb(104,42,42)');
-    ret.push('rgb(42,104,42)');
-    ret.push('rgb(42,42,152)');
+    // ret.push('rgb(80,80,80)');
+    // ret.push('rgb(104,42,42)');
+    // ret.push('rgb(42,104,42)');
+    // ret.push('rgb(42,42,152)');
+    ret.push('#ff0000');
+    ret.push('#ffff00');
+    ret.push('#ff55ff');
+    ret.push('#55ff00');
     return ret;
 }

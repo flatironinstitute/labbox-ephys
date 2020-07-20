@@ -17,25 +17,25 @@ export default class TimeWidgetToolBar extends Component {
             type: 'button',
             title: "Time zoom in (+)",
             onClick: this.props.onZoomIn,
-            icon: <FaSearchPlus />
+            icon: <FaSearchPlus size="0.7em"/>
         });
         buttons.push({
             type: 'button',
             title: "Time zoom out (-)",
             onClick: this.props.onZoomOut,
-            icon: <FaSearchMinus />
+            icon: <FaSearchMinus size="0.7em"/>
         });
         buttons.push({
             type: 'button',
             title: "Shift time left [left arrow]",
             onClick: this.props.onShiftTimeLeft,
-            icon: <FaArrowLeft />
+            icon: <FaArrowLeft size="0.7em"/>
         });
         buttons.push({
             type: 'button',
             title: "Shift time right [right arrow]",
             onClick: this.props.onShiftTimeRight,
-            icon: <FaArrowRight />
+            icon: <FaArrowRight size="0.7em"/>
         });
         buttons.push({
             type: 'divider'

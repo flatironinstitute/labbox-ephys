@@ -42,7 +42,7 @@ export default class SelectElectrodes extends Component {
         let prefs = this.props.prefs || {};
         return (
             <React.Fragment>
-                <h3>Select electrodes</h3>
+                <h4>Select electrodes</h4>
                 <EditableText
                     key="editable-text"
                     text={this._toHuman(this.props.selectedElectrodeIds)}

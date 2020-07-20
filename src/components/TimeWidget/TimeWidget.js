@@ -20,7 +20,7 @@ export default class TimeWidget extends Component {
 
         this._anchorTimeRange = null;
         this._dragging = false;
-        this._toolbarWidth = 50;
+        this._toolbarWidth = 40;
         this._spanWidgetHeight = 50;
         this._bottomBarHeight = 0;
         this._paintPanelIndex = 0;
