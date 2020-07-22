@@ -38,9 +38,9 @@ export const getNumMessages = async ({feedId, subfeedName}) => {
     }
 }
 
-export const getMessages = async ({feedId, subfeedName, position, maxNumMessages, waitMsec}) => {
+export const getMessages = async ({feedUri, subfeedName, position, maxNumMessages, waitMsec}) => {
     const url = `/api/kachery/feed/getMessages`;
-    const result = await axios.post(url, {feedId, subfeedName, position, maxNumMessages, waitMsec});
+    const result = await axios.post(url, {feedUri, subfeedName, position, maxNumMessages, waitMsec});
     if (result.data.success) {
         return result.data.messages;
     }

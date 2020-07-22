@@ -3,6 +3,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
 import { setDocumentId, setFeedUri } from './actions';
+import * as QueryString from "query-string";
 
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import Typography from '@material-ui/core/Typography';
@@ -64,11 +65,12 @@ const AppContainer = ({ location, initialLoad, children, documentId, onSetDocume
             <Switch>
                 <Route
                     path="/:documentId/:path*"
-                    render={({ match }) => {
+                    render={({ match, location }) => {
+                        const query = QueryString.parse(location.search);
                         return <SetDocumentId
                             documentId={match.params.documentId}
                             onSetDocumentId={onSetDocumentId}
-                            feedUri={""}
+                            feedUri={query.feed || 'default'}
                             onSetFeedUri={onSetFeedUri}
                         />
                     }}

@@ -34,7 +34,7 @@ import { sleepMsec } from './hither/createHitherJob';
 import { INITIAL_LOAD } from './actions';
 
 import { setJobHandlersByRole } from './hither/createHitherJob';
-import { watchForNewMessages, appendMessage, feedIdFromUri } from './kachery';
+import { watchForNewMessages, appendMessage, feedIdFromUri, getMessages } from './kachery';
 
 const axios = require('axios');
 
@@ -81,6 +81,31 @@ const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddlewar
 const listenToFeeds = async (keys) => {
   const documentId = await waitForDocumentId(store);
   const feedUri = await waitForFeedUri(store);
+
+  const initialLoad = {};
+
+  if (feedUri.startsWith('sha1://')) {
+    for (let key of keys) {
+      const events = await getMessages({ feedUri, subfeedName: {key, documentId}, position: 0, waitMsec: 100, maxNumMessages: 0});
+      for (let e of events) {
+        let action = e.action;
+        action.source = 'fromActionStream';
+        store.dispatch(action);
+      }
+    }
+    for (let key2 of keys) {
+      if (!initialLoad[key2]) {
+        store.dispatch({
+          type: INITIAL_LOAD,
+          key: key2
+        });
+        initialLoad[key2] = true;
+      }
+    }
+    
+    return;
+  }
+
   const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
   if (!feedId) {
     throw Error(`Unable to get feed id from uri: ${feedUri}`);
@@ -95,8 +120,6 @@ const listenToFeeds = async (keys) => {
     };
   })
 
-  const initialLoad = {};
-
   let waitMsec = 100; // first call
   while (true) {
     const messages = await watchForNewMessages({subfeedWatches, waitMsec});
@@ -109,14 +132,14 @@ const listenToFeeds = async (keys) => {
         action.source = 'fromActionStream';
         store.dispatch(action);
       }
-      for (let key2 of keys) {
-        if (!initialLoad[key2]) {
-          store.dispatch({
-            type: INITIAL_LOAD,
-            key: key2
-          });
-          initialLoad[key2] = true;
-        }
+    }
+    for (let key2 of keys) {
+      if (!initialLoad[key2]) {
+        store.dispatch({
+          type: INITIAL_LOAD,
+          key: key2
+        });
+        initialLoad[key2] = true;
       }
     }
 

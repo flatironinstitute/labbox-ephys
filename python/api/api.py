@@ -215,10 +215,11 @@ def kachery_feed_get_num_messages():
 @app.route('/api/kachery/feed/getMessages', methods=['POST'])
 def kachery_feed_get_messages():
     x = request.json
-    feedId = x['feedId']
-    if feedId == 'default':
+    feedUri = x['feedUri']
+    if feedUri == 'default':
         feedId = get_default_feed_id()
-    feed = kp.load_feed('feed://' + feedId)
+        feedUri = 'feed://' + feedId
+    feed = kp.load_feed(feedUri)
     subfeedName = x['subfeedName']
     position = x['position']
     waitMsec = x['waitMsec']

@@ -13,7 +13,7 @@ const TestKacheryP2P = () => {
             })
             console.info(`Num. messages: ${numMessages}`);
             const messages = await getMessages({
-                feedId,
+                feedUri: 'feed://' + feedId,
                 subfeedName: 'default',
                 position: 0,
                 maxNumMessages: 1000,
