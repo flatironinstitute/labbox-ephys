@@ -2,6 +2,7 @@ from spikeextractors import RecordingExtractor
 from spikeextractors import SortingExtractor
 
 import kachery as ka
+import kachery_p2p as kp
 import json
 import numpy as np
 from .mdaio import DiskReadMda, readmda, readmda_header, writemda32, writemda64, writemda, appendmda
@@ -18,7 +19,7 @@ class MdaRecordingExtractor(RecordingExtractor):
             params_path = recording_directory + '/params.json'
         self._timeseries_path = timeseries_path
         if params_path:
-            self._dataset_params = ka.load_object(params_path)
+            self._dataset_params = kp.load_object(params_path)
             if not self._dataset_params:
                 raise Exception('Unable to load recording params: {}'.format(params_path))
             self._samplerate = self._dataset_params['samplerate']
@@ -29,16 +30,16 @@ class MdaRecordingExtractor(RecordingExtractor):
             self._samplerate = samplerate
         
         if download:
-            path0 = ka.load_file(path=self._timeseries_path)
+            path0 = kp.load_file(path=self._timeseries_path)
             if not path0:
                 raise Exception('Unable to download file: ' + self._timeseries_path)
         else:
             path0 = self._timeseries_path
         if geom_path is not None:
-            if not ka.load_file(geom_path):
+            if not kp.load_file(geom_path):
                 raise Exception('Unable to download file: ' + geom_path)
         if params_path is not None:
-            if not ka.load_file(params_path):
+            if not kp.load_file(params_path):
                 raise Exception('Unable to download file: ' + params_path)
         self._timeseries_path = path0
 
@@ -49,7 +50,7 @@ class MdaRecordingExtractor(RecordingExtractor):
         if geom is not None:
             self._geom = geom
         elif geom_path:
-            geom_path2 = ka.load_file(geom_path)
+            geom_path2 = kp.load_file(geom_path)
             self._geom = np.genfromtxt(geom_path2, delimiter=',')
         else:
             self._geom = np.zeros((X.N1(), 2))
@@ -60,8 +61,12 @@ class MdaRecordingExtractor(RecordingExtractor):
             print('WARNING: Incompatible dimensions between geom.csv and timeseries file {} <> {}'.format(self._geom.shape[0], X.N1()))
             self._geom = np.zeros((X.N1(), 2))
         
+        if self._timeseries_path.startswith('sha1://') or self._timeseries_path.startswith('sha1dir://'):
+            timeseries_hash_path = self._timeseries_path
+        else:
+            timeseries_hash_path = 'sha1://' + ka.get_file_hash(self._timeseries_path)
         self._hash = ka.get_object_hash(dict(
-            timeseries=ka.get_file_hash(self._timeseries_path),
+            timeseries=timeseries_hash_path,
             samplerate=self._samplerate,
             geom=_json_serialize(self._geom)
         ))
@@ -127,7 +132,7 @@ class MdaRecordingExtractor(RecordingExtractor):
 class MdaSortingExtractor(SortingExtractor):
     def __init__(self, firings_file, samplerate):
         SortingExtractor.__init__(self)
-        self._firings_path = ka.load_file(firings_file)
+        self._firings_path = kp.load_file(firings_file)
         if not self._firings_path:
             raise Exception('Unable to load firings file: ' + firings_file)
 

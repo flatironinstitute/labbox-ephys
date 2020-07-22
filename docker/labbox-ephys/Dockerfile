@@ -47,16 +47,14 @@ RUN pip install pynwb
 
 # #########################################
 # ### Install kachery
-RUN pip install kachery==0.6.2
+RUN pip install kachery==0.6.4
 
 # #########################################
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
     && git checkout e84bc88ad3725cc650cfabc833b5a83161ed356c \
-    && pip install . \
-    && cd /hither/eventstreamserver \
-    && yarn install
+    && pip install .
 
 RUN yarn global add serve
 

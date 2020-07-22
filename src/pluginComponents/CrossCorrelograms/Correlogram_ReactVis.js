@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartLabel, XYPlot, XAxis, YAxis, VerticalBarSeries } from 'react-vis';
+import { XYPlot, XAxis, YAxis, VerticalBarSeries } from 'react-vis';
 
 const Correlogram_rv = (boxSize, plotData, argsObject = {id: 0}) => {
     // plotData will be an array of [x-vals], [y-vals], and x-stepsize.
@@ -11,12 +11,6 @@ const Correlogram_rv = (boxSize, plotData, argsObject = {id: 0}) => {
 
     const xAxisLabel = 'dt (msec)'
 
-    // Note that unfortunately neither the ChartLabel method nor the XAxis title method
-    // are producing good results for actually labeling the x-axis of the plot outside
-    // the axis. (The XAxis title automatically displays above the axis, and if you push
-    // the displacement on the ChartLabel beyond 110%, it just disappears.)
-    // On ChartLabel: https://github.com/uber/react-vis/blob/master/docs/chart-label.md
-    // Maybe NiVo will look better?
     return (
         <div className="App" width={boxSize.width} height={boxSize.height} display="flex"
             padding={10}

@@ -11,6 +11,10 @@ echo "export PATH=/workspaces/hither/bin:\$PATH" >> ~/.bashrc
 cd /workspaces/kachery
 pip install --no-deps -e .
 
+# kachery-p2p
+cd /workspaces/kachery-p2p
+pip install --no-deps -e .
+
 # labbox_ephys
 cd /workspaces/labbox-ephys/python
 pip install --no-deps -e .
@@ -20,8 +24,11 @@ cd /workspaces/labbox-ephys/nwb_datajoint
 pip install --no-deps -e .
 
 mkdir -p /data/kachery-storage
+mkdir -p /data/kachery-p2p-config
 
 cat <<EOT >> ~/.bashrc
+export PATH=/home/vscode/.local/bin:$PATH
+
 alias gs="git status"
 alias gpl="git pull"
 alias gps="git push"

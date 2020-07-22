@@ -37,6 +37,7 @@
 		
 		"source=${localEnv:HITHER_SOURCE_DIR},target=/workspaces/hither,type=bind,consistency=delegated",
 		"source=${localEnv:KACHERY_SOURCE_DIR},target=/workspaces/kachery,type=bind,consistency=delegated",
+		"source=${localEnv:KACHERY_P2P_SOURCE_DIR},target=/workspaces/kachery-p2p,type=bind,consistency=delegated",
 		"source=${localWorkspaceFolder}/data,target=/data,type=bind,consistency=delegated",
 
 		// So that installed vscode extensions persist between builds
@@ -46,7 +47,8 @@
 
 	"containerEnv": {
 		"KACHERY_STORAGE_DIR": "/data/kachery-storage",
-		"KACHERY_DEFAULT_PASSWORD": "${localEnv:KACHERY_DEFAULT_PASSWORD}"
+		"KACHERY_P2P_CONFIG_DIR": "/data/kachery-p2p-config",
+		"KACHERY_P2P_API_PORT": "15381"
 	},
 
 	"runArgs": [

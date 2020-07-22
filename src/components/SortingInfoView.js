@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, curation, styling }) => {
+const SortingInfoView = ({ sortingInfo, isSelected, isFocused, onUnitClicked, curation={}, styling }) => {
     const si = sortingInfo;
     if (!si) return <div>No sorting info found</div>;
 

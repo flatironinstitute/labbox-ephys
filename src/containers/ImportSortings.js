@@ -5,8 +5,9 @@ import { addSorting, sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { withRouter } from 'react-router-dom';
 import SortingInfoView from '../components/SortingInfoView';
+import { getPathQuery } from '../kachery';
 
-const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history, documentId }) => {
+const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history, documentId, feedUri }) => {
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
@@ -17,7 +18,7 @@ const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting,
     const recordingObject = recording.recordingObject;
 
     const handleDone = () => {
-        history.push(`/${documentId}/recording/${recordingId}`);
+        history.push(`/${documentId}/recording/${recordingId}${getPathQuery({feedUri})}`);
     }
 
     let form;
@@ -402,7 +403,8 @@ function isEmptyObject(x) {
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    documentId: state.documentInfo.documentId
+    documentId: state.documentInfo.documentId,
+    feedUri: state.documentInfo.feedUri
 })
 
 const mapDispatchToProps = dispatch => ({

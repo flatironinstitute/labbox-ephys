@@ -4,5 +4,4 @@ set -ex
 
 # TODO: set kachery-p2p environment variables here
 
-cd python/api
-python -m flask run -p 15352 --no-debugger
+kachery-p2p-start-daemon --method dev --verbose 200 --channel spikeforest

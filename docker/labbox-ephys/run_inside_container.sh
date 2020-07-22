@@ -19,15 +19,14 @@ fi
 export KACHERY_STORAGE_DIR=/data/kachery-storage
 mkdir -p $KACHERY_STORAGE_DIR
 
-export EVENT_STREAM_PORT=15308
-export EVENT_STREAM_URL=http://localhost:$EVENT_STREAM_PORT
-export EVENT_STREAM_WEBSOCKET_PORT=$EVENT_STREAM_PORT
+# TODO: set kachery-p2p environment variables here
 
-export EVENT_STREAM_SERVER_DIR=/data/eventstreamdata
-export PORT=$EVENT_STREAM_PORT
-mkdir -p $EVENT_STREAM_SERVER_DIR
-cp /hither/eventstreamserver/eventstreamserver_open.json $EVENT_STREAM_SERVER_DIR/eventstreamserver.json
-node --experimental-modules /hither/eventstreamserver/server/main.js &
+# TODO: run the kachery-p2p daemon instead of the event stream server
+# export EVENT_STREAM_SERVER_DIR=/data/eventstreamdata
+# export PORT=$EVENT_STREAM_PORT
+# mkdir -p $EVENT_STREAM_SERVER_DIR
+# cp /hither/eventstreamserver/eventstreamserver_open.json $EVENT_STREAM_SERVER_DIR/eventstreamserver.json
+# node --experimental-modules /hither/eventstreamserver/server/main.js &
 
 cd /labbox-ephys
 # concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"

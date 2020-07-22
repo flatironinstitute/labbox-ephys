@@ -27,55 +27,55 @@ const Routes = () => {
             <Route
                 path="/:documentId/config"
                 render={({ match }) => (
-                    <Config documentId={match.params.documentId} />
+                    <Config />
                 )}
             />
             <Route
                 path="/:documentId/hitherJobMonitor"
                 render={({ match }) => (
-                    <HitherJobMonitor documentId={match.params.documentId} />
+                    <HitherJobMonitor />
                 )}
             />
             <Route
                 path="/:documentId/importRecordings"
                 render={({ match }) => (
-                    <ImportRecordings documentId={match.params.documentId} />
+                    <ImportRecordings />
                 )}
             />
             <Route
                 path="/:documentId/importSortingsForRecording/:recordingId*"
                 render={({ match }) => (
-                    <ImportSortings recordingId={match.params.recordingId} documentId={match.params.documentId} />
+                    <ImportSortings recordingId={match.params.recordingId} />
                 )}
             />
             <Route
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
-                    <RecordingView recordingId={match.params.recordingId} documentId={match.params.documentId} />
+                    <RecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
                 path="/:documentId/sorting/:sortingId*"
                 render={({ match }) => (
-                    <SortingView sortingId={match.params.sortingId} documentId={match.params.documentId} />
+                    <SortingView sortingId={match.params.sortingId} />
                 )}
             />
             <Route
                 path="/:documentId/timeseriesForRecording/:recordingId*"
                 render={({ match }) => (
-                    <TimeseriesForRecordingView recordingId={match.params.recordingId} documentId={match.params.documentId} />
+                    <TimeseriesForRecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
                 path="/:documentId/runSpikeSortingForRecording/:recordingId*"
                 render={({ match }) => (
-                    <RunSpikeSortingForRecording recordingId={match.params.recordingId} documentId={match.params.documentId} />
+                    <RunSpikeSortingForRecording recordingId={match.params.recordingId} />
                 )}
             />
             <Route
                 path="/:documentId/sortingJob/:sortingJobId*"
                 render={({ match }) => (
-                    <SortingJobView sortingJobId={match.params.sortingJobId} documentId={match.params.documentId} />
+                    <SortingJobView sortingJobId={match.params.sortingJobId} />
                 )}
             />
             <Route
@@ -87,7 +87,7 @@ const Routes = () => {
             <Route
                 path="/:documentId"
                 render={({ match }) => (
-                    <Home documentId={match.params.sortingJobId} />
+                    <Home />
                 )}
             />
             <Route path="/"><Redirect to="/default" /></Route>

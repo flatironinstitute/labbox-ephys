@@ -155,6 +155,7 @@ const CJHRoles = ({ jobHandlers, roleAssignments, onAssignJobHandlerToRole }) =>
 }
 
 const CJHAdd = ({ onAdd, onCancel }) => {
+    // TODO: fix this
     const [jobHandlerType, setJobHandlerType] = useState('remote');
     const [name, setName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');

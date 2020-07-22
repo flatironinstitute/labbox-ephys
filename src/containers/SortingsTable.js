@@ -6,7 +6,7 @@ import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 
-const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentId }) => {
+const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentId, feedUri }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -84,7 +84,8 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
 const mapStateToProps = (state, ownProps) => (
     {
         sortings: ownProps.sortings || state.sortings,
-        documentId: state.documentInfo.documentId
+        documentId: state.documentInfo.documentId,
+        feedUri: state.documentInfo.feedUri
     }
 )
 

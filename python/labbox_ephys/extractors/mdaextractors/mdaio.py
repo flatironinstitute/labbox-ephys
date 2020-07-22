@@ -5,6 +5,7 @@ import requests
 import tempfile
 import traceback
 import kachery as ka
+import kachery_p2p as kp
 import io
 
 
@@ -129,7 +130,7 @@ class DiskReadMda:
         start_byte = self._header.header_size + self._header.num_bytes_per_entry * i
         end_byte = start_byte + self._header.num_bytes_per_entry * N
         try:
-            bytes0 = ka.load_bytes(self._path, start=int(start_byte), end=int(end_byte))
+            bytes0 = kp.load_bytes(self._path, start=int(start_byte), end=int(end_byte))
         except:
             info0 = ka.get_file_info(self._path)
             if info0 is None:
@@ -158,10 +159,10 @@ def is_url(path):
         'kbucket://') or path.startswith('sha1://') or path.startswith('sha1dir://')
 
 def _read_header(path, verbose=True):
-    info0 = ka.get_file_info(path)
-    if info0 is None:
-        raise Exception(f'Unable to find file: {path}')
-    bytes0 = ka.load_bytes(path, start=0, end=min(200, info0['size']))
+    try:
+        bytes0 = kp.load_bytes(path, start=0, end=200)
+    except:
+        raise Exception(f'Unable to load header of file: {path}')
     if bytes0 is None:
         raise Exception('Unable to load header bytes from {}'.format(path))
     f = io.BytesIO(bytes0)
@@ -289,7 +290,7 @@ def _write_header(path, H, rewrite=False):
 def readmda(path):
     if (file_extension(path) == '.npy'):
         return readnpy(path)
-    path = ka.load_file(path)
+    path = kp.load_file(path)
     H = _read_header(path)
     if (H is None):
         print("Problem reading header of: {}".format(path))

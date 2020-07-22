@@ -120,7 +120,7 @@ const HitherJobInfoView = ({ job }) => {
                     }
                 </TableBody>
             </Table>
-            <ConsoleOutView consoleOut={job.runtime_info.console_out} />
+            <ConsoleOutView consoleOut={(job.runtime_info || {}).console_out} />
         </div>
     )
 }
@@ -194,6 +194,8 @@ const CancelJobButton = ({ onClick }) => {
 }
 
 const ConsoleOutView = ({ consoleOut, includeTimestamps=true }) => {
+    if (!consoleOut) return <div></div>;
+    if (!consoleOut.lines) return <div></div>;
     let txt;
     if (includeTimestamps) {
         txt = consoleOut.lines.map(line => `${line.timestamp}: ${line.text}`).join('\n');

@@ -4,8 +4,9 @@ import { Typography, Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import RecordingsTable from '../containers/RecordingsTable';
 import { connect } from 'react-redux';
+import { getPathQuery } from '../kachery';
 
-function Home({ documentId }) {
+function Home({ documentId, feedUri }) {
   return (
     <div>
       <Typography component="p">
@@ -13,7 +14,7 @@ function Home({ documentId }) {
       </Typography>
       <p />
       <div>
-        <Button component={Link} to={`/${documentId}/importRecordings`}>Import recordings</Button>
+        <Button component={Link} to={`/${documentId}/importRecordings${getPathQuery({feedUri})}`}>Import recordings</Button>
       </div>
       <RecordingsTable />
     </div>
@@ -21,7 +22,8 @@ function Home({ documentId }) {
 }
 
 const mapStateToProps = state => ({
-  documentId: state.documentInfo.documentId
+  documentId: state.documentInfo.documentId,
+  feedUri: state.documentInfo.feedUri
 })
 
 const mapDispatchToProps = dispatch => ({

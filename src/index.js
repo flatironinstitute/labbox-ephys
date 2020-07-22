@@ -29,12 +29,12 @@ import AppContainer from './AppContainer';
 // Custom routes
 import Routes from './Routes';
 
-import EventStreamClient from './eventstreamclient/EventStreamClient'
 import { sleepMsec } from './hither/createHitherJob';
 
 import { INITIAL_LOAD } from './actions';
 
 import { setJobHandlersByRole } from './hither/createHitherJob';
+import { watchForNewMessages, appendMessage, feedIdFromUri, getMessages } from './kachery';
 
 const axios = require('axios');
 
@@ -46,40 +46,25 @@ async function waitForDocumentId(store) {
   }
 }
 
-let eventStreamClient = null;
-let eventStreamClientStatus = null;
-async function initializeEventStreamClient() {
-  if (eventStreamClientStatus === 'initializing') {
-    while (eventStreamClientStatus !== 'initialized') {
-      await sleepMsec(100);
-    }
-    return;
+async function waitForFeedUri(store) {
+  while (true) {
+    const feedUri = store.getState().documentInfo.feedUri;
+    if (feedUri) return feedUri;
+    await sleepMsec(100);
   }
-  eventStreamClientStatus = 'initializing';
-  const x = (await axios.get('/api/get_event_stream_websocket_port')).data;
-  const port = x.port;
-  // const url = `ws://localhost:${port}` // TODO: generalize this
-  const ws_protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:';
-  const url = `${ws_protocol}//${window.location.hostname}:${port}`
-  const webSocketUrl = url;
-  const eventStreamClientOpts = {
-    useWebSocket: true,
-    webSocketUrl: webSocketUrl
-  }
-  eventStreamClient = new EventStreamClient('/api/eventstream', 'readwrite', 'readwrite', eventStreamClientOpts);
-  eventStreamClientStatus = 'initialized';
 }
+
 const persistStateMiddleware = store => next => action => {
   const writeAction = async (key, theAction) => {
-    if (eventStreamClientStatus !== 'initialized') {
-      await initializeEventStreamClient();
-    }
     const documentId = await waitForDocumentId(store);
-    const stream = eventStreamClient.getStream({ key, documentId });
-    await stream.writeEvent({
+    const feedUri = await waitForFeedUri(store);
+
+    const subfeedName = { key, documentId };
+    const message = {
       timestamp: (new Date()).getTime(),
       action: theAction
-    });
+    };
+    await appendMessage({feedUri, subfeedName, message })
   }
 
   if ((action.persistKey) && (action.source !== 'fromActionStream')) {
@@ -92,41 +77,77 @@ const persistStateMiddleware = store => next => action => {
 // Create the store
 const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 
-const listenToActionStream = async (key) => {
-  if (eventStreamClientStatus !== 'initialized') {
-    await initializeEventStreamClient();
-  }
+
+const listenToFeeds = async (keys) => {
   const documentId = await waitForDocumentId(store);
-  const stream = eventStreamClient.getStream({ key, documentId });
-  const initialLoad = false;
-  const numEvents = await stream.getNumEvents();
-  if (!numEvents) {
-    store.dispatch({
-      type: INITIAL_LOAD,
-      key: key
-    });
-  }
-  while (true) {
-    await sleepMsec(100);
-    const events = await stream.readEvents(12000);
-    for (let e of events) {
-      let action = e.action;
-      action.source = 'fromActionStream';
-      store.dispatch(action);
-    }
-    if (events.length > 0) {
-      if (!initialLoad) {
-        store.dispatch({
-          type: INITIAL_LOAD,
-          key: key
-        });
+  const feedUri = await waitForFeedUri(store);
+
+  const initialLoad = {};
+
+  if (feedUri.startsWith('sha1://')) {
+    for (let key of keys) {
+      const events = await getMessages({ feedUri, subfeedName: {key, documentId}, position: 0, waitMsec: 100, maxNumMessages: 0});
+      for (let e of events) {
+        let action = e.action;
+        action.source = 'fromActionStream';
+        store.dispatch(action);
       }
     }
+    for (let key2 of keys) {
+      if (!initialLoad[key2]) {
+        store.dispatch({
+          type: INITIAL_LOAD,
+          key: key2
+        });
+        initialLoad[key2] = true;
+      }
+    }
+    
+    return;
+  }
+
+  const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
+  if (!feedId) {
+    throw Error(`Unable to get feed id from uri: ${feedUri}`);
+  }
+
+  const subfeedWatches = {};
+  keys.forEach(key => {
+    subfeedWatches[key] = {
+      feedId,
+      subfeedName: {key, documentId},
+      position: 0
+    };
+  })
+
+  let waitMsec = 100; // first call
+  while (true) {
+    const messages = await watchForNewMessages({subfeedWatches, waitMsec});
+    waitMsec = 6000; // subsequent calls
+    for (let key of keys) {
+      const events = messages[key] || [];
+      subfeedWatches[key].position += events.length;
+      for (let e of events) {
+        let action = e.action;
+        action.source = 'fromActionStream';
+        store.dispatch(action);
+      }
+    }
+    for (let key2 of keys) {
+      if (!initialLoad[key2]) {
+        store.dispatch({
+          type: INITIAL_LOAD,
+          key: key2
+        });
+        initialLoad[key2] = true;
+      }
+    }
+
+    await sleepMsec(100);
   }
 }
-['recordings', 'sortings', 'sortingJobs', 'jobHandlers', 'extensionsConfig'].forEach(
-  key => listenToActionStream(key)
-)
+const feedKeys = ['recordings', 'sortings', 'sortingJobs', 'jobHandlers', 'extensionsConfig'];
+listenToFeeds(feedKeys);
 
 store.subscribe(() => {
   const state = store.getState().jobHandlers;
