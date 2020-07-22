@@ -47,7 +47,7 @@ RUN pip install pynwb
 
 # #########################################
 # ### Install kachery
-RUN pip install kachery==0.6.2
+RUN pip install kachery==0.6.4
 
 # #########################################
 # ### Install hither
