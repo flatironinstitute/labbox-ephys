@@ -39,7 +39,7 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
     }
     useEffect(() => { effect(); });
 
-    if (calculationStatus === 'pending' || calculationStatus === 'running') {
+    if (calculationStatus === 'pending' || calculationStatus === 'calculating' || calculationStatus === 'running') {
         return (
             <Box display="flex" width={boxSize.width} height={boxSize.height}
             >
