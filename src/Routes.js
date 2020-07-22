@@ -25,72 +25,72 @@ const Routes = () => {
             <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
             <Route
-                path="/f/:feedId/d/:documentId/config"
+                path="/:documentId/config"
                 render={({ match }) => (
                     <Config />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/hitherJobMonitor"
+                path="/:documentId/hitherJobMonitor"
                 render={({ match }) => (
                     <HitherJobMonitor />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/importRecordings"
+                path="/:documentId/importRecordings"
                 render={({ match }) => (
                     <ImportRecordings />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/importSortingsForRecording/:recordingId*"
+                path="/:documentId/importSortingsForRecording/:recordingId*"
                 render={({ match }) => (
                     <ImportSortings recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/recording/:recordingId*"
+                path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
                     <RecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/sorting/:sortingId*"
+                path="/:documentId/sorting/:sortingId*"
                 render={({ match }) => (
                     <SortingView sortingId={match.params.sortingId} />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/timeseriesForRecording/:recordingId*"
+                path="/:documentId/timeseriesForRecording/:recordingId*"
                 render={({ match }) => (
                     <TimeseriesForRecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/runSpikeSortingForRecording/:recordingId*"
+                path="/:documentId/runSpikeSortingForRecording/:recordingId*"
                 render={({ match }) => (
                     <RunSpikeSortingForRecording recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/sortingJob/:sortingJobId*"
+                path="/:documentId/sortingJob/:sortingJobId*"
                 render={({ match }) => (
                     <SortingJobView sortingJobId={match.params.sortingJobId} />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId/dbcRecordingsView"
+                path="/:documentId/dbcRecordingsView"
                 render={({ match }) => (
                     <DbcRecordingsView />
                 )}
             />
             <Route
-                path="/f/:feedId/d/:documentId"
+                path="/:documentId"
                 render={({ match }) => (
                     <Home />
                 )}
             />
-            <Route path="/"><Redirect to="/f/default/d/default" /></Route>
+            <Route path="/"><Redirect to="/default" /></Route>
         </Switch>
     );
 }

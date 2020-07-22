@@ -176,18 +176,22 @@ def hither_job_cancel():
     job.cancel()
     return dict()
 
-@app.route('/api/kachery/feed/getFeedId', methods=['POST'])
-def kachery_feed_get_feed_id():
-    x = request.json
-    feedName = x['feedName']
-    assert feedName == 'labbox-ephys-default', 'For now, you can only create the labbox-ephys-default named feed'
+def get_default_feed_id(feed_name='labbox-ephys-default'):
     try:
-        feed_id = kp.get_feed_id(feedName, create=True)
+        feed_id = kp.get_feed_id(feed_name, create=True)
     except Exception as err:
         return dict(
             success=False,
             error=str(err)
         )
+    return feed_id
+
+@app.route('/api/kachery/feed/getFeedId', methods=['POST'])
+def kachery_feed_get_feed_id():
+    x = request.json
+    feedName = x['feedName']
+    assert feedName == 'labbox-ephys-default', 'For now, you can only create the labbox-ephys-default named feed'
+    feed_id = get_default_feed_id(feedName)
     return dict(
         success=True,
         feedId=feed_id
@@ -197,8 +201,10 @@ def kachery_feed_get_feed_id():
 def kachery_feed_get_num_messages():
     x = request.json
     feedId = x['feedId']
+    if feedId == 'default':
+        feedId = get_default_feed_id()
+    feed = kp.load_feed('feed://' + feedId)
     subfeedName = x['subfeedName']
-    feed = kp.load_feed(f'feed://{feedId}')
     subfeed = feed.get_subfeed(subfeedName)
     num_messages = subfeed.get_num_messages()
     return dict(
@@ -210,11 +216,13 @@ def kachery_feed_get_num_messages():
 def kachery_feed_get_messages():
     x = request.json
     feedId = x['feedId']
+    if feedId == 'default':
+        feedId = get_default_feed_id()
+    feed = kp.load_feed('feed://' + feedId)
     subfeedName = x['subfeedName']
     position = x['position']
     waitMsec = x['waitMsec']
     maxNumMessages = x['maxNumMessages']
-    feed = kp.load_feed(f'feed://{feedId}')
     subfeed = feed.get_subfeed(subfeedName)
     subfeed.set_position(position)
     messages = subfeed.get_next_messages(wait_msec=waitMsec, max_num_messages=maxNumMessages)
@@ -227,6 +235,9 @@ def kachery_feed_get_messages():
 def kachery_feed_watch_for_new_messages():
     x = request.json
     subfeed_watches = x['subfeedWatches']
+    for w in subfeed_watches.values():
+        if w['feedId'] == 'default':
+            w['feedId'] = get_default_feed_id()
     wait_msec = x['waitMsec']
 
     messages = kp.watch_for_new_messages(subfeed_watches=subfeed_watches, wait_msec=wait_msec)
@@ -239,9 +250,11 @@ def kachery_feed_watch_for_new_messages():
 def kachery_feed_append_messages():
     x = request.json
     feedId = x['feedId']
+    if feedId == 'default':
+        feedId = get_default_feed_id()
+    feed = kp.load_feed('feed://' + feedId)
     subfeedName = x['subfeedName']
     messages = x['messages']
-    feed = kp.load_feed(f'feed://{feedId}')
     subfeed = feed.get_subfeed(subfeedName)
     print('appending messages', feedId, subfeedName, messages)
     subfeed.append_messages(messages)

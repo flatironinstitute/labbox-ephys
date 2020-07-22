@@ -4,7 +4,7 @@ import NiceTable from '../components/NiceTable'
 import { cancelSortingJobs } from '../actions';
 import { Link } from 'react-router-dom';
 
-const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedId }) => {
+const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedUri }) => {
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -20,7 +20,7 @@ const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedId
         key: s.sortingJobId,
         algorithm: {
             text: s.sorter.algorithm,
-            element: <Link title={"View this sorting job"} to={`/f/${feedId}/d/${documentId}/sortingJob/${s.sortingJobId}`}>{s.sorter.algorithm}</Link>,
+            element: <Link title={"View this sorting job"} to={`/${documentId}/sortingJob/${s.sortingJobId}`}>{s.sorter.algorithm}</Link>,
         },
         recording: s.recordingId,
         status: s.status
@@ -57,7 +57,7 @@ const mapStateToProps = (state, ownProps) => (
     {
         sortingJobs: ownProps.sortingJobs || state.sortingJobs,
         documentId: state.documentInfo.documentId,
-        feedId: state.documentInfo.feedId
+        feedUri: state.documentInfo.feedUri
     }
 )
 

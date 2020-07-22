@@ -34,7 +34,7 @@ import { sleepMsec } from './hither/createHitherJob';
 import { INITIAL_LOAD } from './actions';
 
 import { setJobHandlersByRole } from './hither/createHitherJob';
-import { watchForNewMessages, appendMessage } from './kachery';
+import { watchForNewMessages, appendMessage, feedIdFromUri } from './kachery';
 
 const axios = require('axios');
 
@@ -46,10 +46,10 @@ async function waitForDocumentId(store) {
   }
 }
 
-async function waitForFeedId(store) {
+async function waitForFeedUri(store) {
   while (true) {
-    const feedId = store.getState().documentInfo.feedId;
-    if (feedId) return feedId;
+    const feedUri = store.getState().documentInfo.feedUri;
+    if (feedUri) return feedUri;
     await sleepMsec(100);
   }
 }
@@ -57,14 +57,14 @@ async function waitForFeedId(store) {
 const persistStateMiddleware = store => next => action => {
   const writeAction = async (key, theAction) => {
     const documentId = await waitForDocumentId(store);
-    const feedId = await waitForFeedId(store);
+    const feedUri = await waitForFeedUri(store);
 
     const subfeedName = { key, documentId };
     const message = {
       timestamp: (new Date()).getTime(),
       action: theAction
     };
-    await appendMessage({feedId, subfeedName, message })
+    await appendMessage({feedUri, subfeedName, message })
   }
 
   if ((action.persistKey) && (action.source !== 'fromActionStream')) {
@@ -80,7 +80,11 @@ const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddlewar
 
 const listenToFeeds = async (keys) => {
   const documentId = await waitForDocumentId(store);
-  const feedId = await waitForFeedId(store);
+  const feedUri = await waitForFeedUri(store);
+  const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
+  if (!feedId) {
+    throw Error(`Unable to get feed id from uri: ${feedUri}`);
+  }
 
   const subfeedWatches = {};
   keys.forEach(key => {

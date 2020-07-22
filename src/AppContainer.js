@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
-import { setDocumentId, setFeedId } from './actions';
+import { setDocumentId, setFeedUri } from './actions';
 
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import Typography from '@material-ui/core/Typography';
@@ -12,18 +12,19 @@ import { Home } from '@material-ui/icons';
 import PersistStateControl from './containers/PersistStateControl';
 import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
 import { connect } from 'react-redux';
-import { getFeedId } from './kachery';
-const ToolBarContent = ({ feedId, documentId }) => {
+import { getPathQuery } from './kachery';
+
+const ToolBarContent = ({ feedUri, documentId }) => {
     return (
         <Fragment>
-            <Button color="inherit" component={Link} to={`/f/${feedId}/d/${documentId}`}>
+            <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
                 <Home />&nbsp;
                 <Typography variant="h6">
                     Labbox-ephys
                 </Typography>
             </Button>
             <span style={{marginLeft: 'auto'}} />
-            <Button color="inherit" component={Link} to={`/f/${feedId}/d/${documentId}/config`} style={{marginLeft: 'auto'}}>Config</Button>
+            <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} style={{marginLeft: 'auto'}}>Config</Button>
             <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
@@ -33,20 +34,23 @@ const ToolBarContent = ({ feedId, documentId }) => {
 }
 //////////////////////////////////////////////////////////////
 
-const SetDocumentId = ({ documentId, onSetDocumentId, feedId, onSetFeedId }) => {
+const SetDocumentId = ({ documentId, onSetDocumentId, feedUri, onSetFeedUri }) => {
     useEffect(() => {
         (async () => {
             onSetDocumentId(documentId);
-            if ((!feedId) || (feedId === 'default')) {
-                feedId = await getFeedId('labbox-ephys-default');
+            if ((!feedUri) || (feedUri === 'default')) {
+                // const id0 = await getFeedId('labbox-ephys-default');
+                //
+                feedUri = 'default';
             }
-            onSetFeedId(feedId);
+            console.info(`Using feed: ${feedUri}`);
+            onSetFeedUri(feedUri);
         })();
     })
     return <div>Setting document id...</div>
 }
 
-const AppContainer = ({ location, initialLoad, children, documentId, onSetDocumentId, feedId, onSetFeedId }) => {
+const AppContainer = ({ location, initialLoad, children, documentId, onSetDocumentId, feedUri, onSetFeedUri }) => {
     let loaded = true;
     ['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
         key => {
@@ -59,17 +63,17 @@ const AppContainer = ({ location, initialLoad, children, documentId, onSetDocume
         return (
             <Switch>
                 <Route
-                    path="/f/:feedId/d/:documentId/:path*"
+                    path="/:documentId/:path*"
                     render={({ match }) => {
                         return <SetDocumentId
                             documentId={match.params.documentId}
                             onSetDocumentId={onSetDocumentId}
-                            feedId={match.params.feedId}
-                            onSetFeedId={onSetFeedId}
+                            feedUri={""}
+                            onSetFeedUri={onSetFeedUri}
                         />
                     }}
                 />
-                <Route path="/"><Redirect to="/f/default/d/default" /></Route>
+                <Route path="/"><Redirect to="/default" /></Route>
             </Switch>
         )
     }
@@ -78,7 +82,7 @@ const AppContainer = ({ location, initialLoad, children, documentId, onSetDocume
         <div className={"TheAppBar"}>
             <AppBar position="static">
                 <Toolbar>
-                    <ToolBarContent documentId={documentId} feedId={feedId} />
+                    <ToolBarContent documentId={documentId} feedUri={feedUri} />
                 </Toolbar>
             </AppBar>
             <div style={{padding: 30}}>
@@ -98,13 +102,13 @@ const mapStateToProps = state => {
     return {
         initialLoad: state.initialLoad,
         documentId: state.documentInfo.documentId,
-        feedId: state.documentInfo.feedId
+        feedUri: state.documentInfo.feedUri
     }
 }
 
 const mapDispatchToProps = dispatch => ({
     onSetDocumentId: documentId => dispatch(setDocumentId(documentId)),
-    onSetFeedId: feedId => dispatch(setFeedId(feedId))
+    onSetFeedUri: feedUri => dispatch(setFeedUri(feedUri))
 })
 
 export default withRouter(connect(

@@ -6,7 +6,7 @@ import { getFeedId, loadText, loadObject, loadBytes, appendMessages, getMessages
 const TestKacheryP2P = () => {
     const _handleTest1 = () => {
         (async () => {
-            const feedId = await getFeedId('labbox-ephys-test');
+            const feedId = 'default';
             const numMessages = await getNumMessages({
                 feedId,
                 subfeedName: 'default'
@@ -27,7 +27,7 @@ const TestKacheryP2P = () => {
 
     const _handleTest2 = () => {
         (async () => {
-            const feedId = await getFeedId('labbox-ephys-test')
+            const feedId = 'default'
             await appendMessages({
                 feedId,
                 subfeedName: 'default',

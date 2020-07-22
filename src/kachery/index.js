@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+export const feedIdFromUri = (uri) => {
+    if (!uri.startsWith('feed://')) {
+        return null;
+    }
+    const list0 = uri.split('/');
+    return list0[2];
+}
+
 export const getFeedId = async (feedName) => {
     const url = `/api/kachery/feed/getFeedId`;
     const d = {
@@ -12,6 +20,11 @@ export const getFeedId = async (feedName) => {
     else {
         throw Error(result.data.error);
     }
+}
+
+export const getPathQuery = ({feedUri}) => {
+    if (feedUri === 'default') return '';
+    else return `?feed=${feedUri}`;
 }
 
 export const getNumMessages = async ({feedId, subfeedName}) => {
@@ -47,11 +60,15 @@ export const watchForNewMessages = async ({subfeedWatches, waitMsec}) => {
     }
 }
 
-export const appendMessage = async ({feedId, subfeedName, message}) => {
-    await appendMessages({feedId, subfeedName, messages: [message]});
+export const appendMessage = async ({feedUri, subfeedName, message}) => {
+    await appendMessages({feedUri, subfeedName, messages: [message]});
 }
 
-export const appendMessages = async ({feedId, subfeedName, messages}) => {
+export const appendMessages = async ({feedUri, subfeedName, messages}) => {
+    const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
+    if (!feedId) {
+        throw Error(`Unable to get feedId from uri: ${feedUri}`);
+    }
     const url = `/api/kachery/feed/appendMessages`;
     const result = await axios.post(url, {feedId, subfeedName, messages});
     if (result.data.success) {

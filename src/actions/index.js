@@ -28,7 +28,7 @@ export const CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS = 'CANCEL_ALL_SORTING_JOBS_F
 export const SET_EXTENSION_ENABLED = 'SET_EXTENSION_ENABLED'
 
 export const SET_DOCUMENT_ID = 'SET_DOCUMENT_ID'
-export const SET_FEED_ID = 'SET_FEED_ID'
+export const SET_FEED_URI = 'SET_FEED_URI'
 
 export const ADD_UNIT_LABEL = 'ADD_UNIT_LABEL'
 export const REMOVE_UNIT_LABEL = 'REMOVE_UNIT_LABEL'
@@ -137,9 +137,9 @@ export const setDocumentId = (documentId) => ({
   documentId
 })
 
-export const setFeedId = (feedId) => ({
-  type: SET_FEED_ID,
-  feedId
+export const setFeedUri = (feedUri) => ({
+  type: SET_FEED_URI,
+  feedUri
 })
 
 // curation

@@ -6,12 +6,13 @@ import RadioChoices from '../components/RadioChoices';
 import ImportRecordingFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
 import ImportRecordingFromFrankLabDataJoint from '../extensions/frankLabDataJoint/components/ImportRecordingFromFrankLabDataJoint';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
+import { getPathQuery } from '../kachery';
 
-const ImportRecordings = ({ onAddRecording, history, extensionsConfig, feedId, documentId }) => {
+const ImportRecordings = ({ onAddRecording, history, extensionsConfig, feedUri, documentId }) => {
     const [method, setMethod] = useState('');
 
     const handleDone = () => {
-        history.push(`/f/${feedId}/d/${documentId}`);
+        history.push(`/${documentId}${getPathQuery({feedUri})}`);
     }
 
     let form;
@@ -90,7 +91,7 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, feedId, d
 const mapStateToProps = state => ({
     extensionsConfig: state.extensionsConfig,
     documentId: state.documentInfo.documentId,
-    feedId: state.documentInfo.feedId
+    feedUri: state.documentInfo.feedUri
 })
 
 const mapDispatchToProps = dispatch => ({
