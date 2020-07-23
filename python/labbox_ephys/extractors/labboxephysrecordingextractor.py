@@ -6,6 +6,7 @@ from .bandpass_filter import bandpass_filter
 import spikeextractors as se
 import numpy as np
 from .mdaextractors import MdaRecordingExtractor
+from .binextractors import Bin1RecordingExtractor
 
 from .nwbextractors import NwbRecordingExtractor
 
@@ -217,6 +218,8 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         elif recording_format == 'nwb':
             path0 = kp.load_file(data['path'])
             self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name='e-series')
+        elif recording_format == 'bin1':
+            self._recording: se.RecordingExtractor = Bin1RecordingExtractor(**data, p2p=True)
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             if 'channel_ids' in data:

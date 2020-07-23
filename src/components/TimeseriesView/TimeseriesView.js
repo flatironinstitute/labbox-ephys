@@ -48,7 +48,7 @@ const TimeseriesViewInner = ({
                             job_handler_role: 'general'
                         },
                         useClientCache: true,
-                        auto_substitute_file_objects: true
+                        auto_substitute_file_objects: false
                     }
                 );
                 info = await infoJob.wait();
@@ -88,7 +88,7 @@ const TimeseriesViewInner = ({
                                 job_handler_role: 'general'
                             },
                             useClientCache: true,
-                            auto_substitute_file_objects: true
+                            auto_substitute_file_objects: false
                         }
                     );
                     result = await resultJob.wait();

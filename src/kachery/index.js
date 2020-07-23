@@ -65,6 +65,11 @@ export const appendMessage = async ({feedUri, subfeedName, message}) => {
 }
 
 export const appendMessages = async ({feedUri, subfeedName, messages}) => {
+    if (feedUri.startsWith('sha1://'))  {
+        console.info(messages);
+        console.warn(`Unable to append messages to readonly feed (subfeed=${subfeedName.key})`);
+        return;
+    }
     const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
     if (!feedId) {
         throw Error(`Unable to get feedId from uri: ${feedUri}`);
