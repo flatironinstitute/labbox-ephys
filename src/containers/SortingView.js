@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
-import { CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
+import { CircularProgress, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import { setSortingInfo, addUnitLabel, removeUnitLabel } from '../actions';
 import { createHitherJob } from '../hither';
@@ -161,14 +161,14 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
 
 const Expandable = ({ label, children }) => {
   return (
-    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
-      <ExpansionPanelSummary>
+    <Accordion TransitionProps={{ unmountOnExit: true }}>
+      <AccordionSummary>
         {label}
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
+      </AccordionSummary>
+      <AccordionDetails>
         {children}
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+      </AccordionDetails>
+    </Accordion>
   )
 }
 

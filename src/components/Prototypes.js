@@ -1,5 +1,5 @@
 import React from 'react'
-import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
+import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
 import * as pluginComponents from '../pluginComponents';
 
 const pluginComponentsList = Object.values(pluginComponents);
@@ -31,14 +31,14 @@ const Prototypes = () => {
 
 const Expandable = ({ label, children }) => {
   return (
-    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
-      <ExpansionPanelSummary>
+    <Accordion TransitionProps={{ unmountOnExit: true }}>
+      <AccordionSummary>
         {label}
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
+      </AccordionSummary>
+      <AccordionDetails>
         {children}
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+      </AccordionDetails>
+    </Accordion>
   )
 }
 
