@@ -34,7 +34,7 @@ const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo
                             hither_config: {
                                 job_handler_role: 'general'
                             },
-                            auto_substitute_file_objects: true,
+                            auto_substitute_file_objects: false,
                             useClientCache: true
                         }
                     )
