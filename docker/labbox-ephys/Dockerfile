@@ -53,7 +53,7 @@ RUN pip install kachery==0.6.4
 # ### Install kachery-p2p
 RUN git clone https://github.com/magland/kachery-p2p /kachery-p2p \
     && cd /kachery-p2p \
-    && git checkout c68f79d16d0096c99337ddfd35db5285041a1458 \
+    && git checkout 350a255c71254fef4e48580f0bbf7f8465c01cff \
     && pip install .
 
 # #########################################
