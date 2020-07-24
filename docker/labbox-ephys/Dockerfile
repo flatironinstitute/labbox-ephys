@@ -50,10 +50,17 @@ RUN pip install pynwb
 RUN pip install kachery==0.6.4
 
 # #########################################
+# ### Install kachery-p2p
+RUN git clone https://github.com/magland/kachery-p2p /kachery-p2p \
+    && cd /kachery-p2p \
+    && git checkout c68f79d16d0096c99337ddfd35db5285041a1458 \
+    && pip install .
+
+# #########################################
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout e84bc88ad3725cc650cfabc833b5a83161ed356c \
+    && git checkout a81e2d9946ce27ad5b07947161cd07b9148a78ee \
     && pip install .
 
 RUN yarn global add serve

@@ -13,8 +13,9 @@ import { Typography, Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import RecordingsTableDBC from '../containers/RecordingsTableDBC';
 import { connect } from 'react-redux';
+import { getPathQuery } from '../kachery';
 
-function HomeDBC({ documentId }) {
+function HomeDBC({ documentId, feedUri }) {
   return (
     <div>
       <Typography component="p">
@@ -22,7 +23,7 @@ function HomeDBC({ documentId }) {
       </Typography>
       <p />
       <div>
-        <Button component={Link} to={`/${documentId}/importRecordings`}>Import recordings</Button>
+        <Button component={Link} to={`/${documentId}/importRecordings${getPathQuery({feedUri})}`}>Import recordings</Button>
       </div>
       <RecordingsTableDBC />
     </div>
@@ -30,7 +31,8 @@ function HomeDBC({ documentId }) {
 }
 
 const mapStateToProps = state => ({
-  documentId: state.documentInfo.documentId
+  documentId: state.documentInfo.documentId,
+  feedUri: state.documentInfo.feedUri
 })
 
 const mapDispatchToProps = dispatch => ({

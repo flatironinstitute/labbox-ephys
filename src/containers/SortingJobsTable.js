@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable'
 import { cancelSortingJobs } from '../actions';
 import { Link } from 'react-router-dom';
+import { getPathQuery } from '../kachery';
 
 const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedUri }) => {
 
@@ -20,7 +21,7 @@ const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedUr
         key: s.sortingJobId,
         algorithm: {
             text: s.sorter.algorithm,
-            element: <Link title={"View this sorting job"} to={`/${documentId}/sortingJob/${s.sortingJobId}`}>{s.sorter.algorithm}</Link>,
+            element: <Link title={"View this sorting job"} to={`/${documentId}/sortingJob/${s.sortingJobId}${getPathQuery({feedUri})}`}>{s.sorter.algorithm}</Link>,
         },
         recording: s.recordingId,
         status: s.status

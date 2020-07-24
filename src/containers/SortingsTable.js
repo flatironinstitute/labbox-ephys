@@ -5,6 +5,7 @@ import { deleteSortings, setSortingInfo, sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
+import { getPathQuery } from '../kachery';
 
 const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentId, feedUri }) => {
 
@@ -53,7 +54,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
         key: s.sortingId,
         sortingLabel: {
             text: s.sortingLabel,
-            element: <Link title={"View this sorting"} to={`/${documentId}/sorting/${s.sortingId}`}>{s.sortingLabel}</Link>,
+            element: <Link title={"View this sorting"} to={`/${documentId}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
         },
         numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
     }));

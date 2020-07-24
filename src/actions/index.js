@@ -77,8 +77,7 @@ export const deleteRecordings = recordingIds => {
 export const setRecordingInfo = ({ recordingId, recordingInfo }) => ({
   type: SET_RECORDING_INFO,
   recordingId,
-  recordingInfo,
-  persistKey: 'recordings'
+  recordingInfo
 })
 
 export const addSorting = sorting => ({

@@ -5,6 +5,7 @@ import { deleteRecordings, setRecordingInfo, sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
+import { getPathQuery } from '../kachery';
 
 const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentId, feedUri }) => {
 
@@ -53,7 +54,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
         key: rec.recordingId,
         recordingLabel: {
             text: rec.recordingLabel,
-            element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
+            element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
         },
         numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
         samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
