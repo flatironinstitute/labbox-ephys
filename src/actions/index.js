@@ -136,9 +136,10 @@ export const setDocumentId = (documentId) => ({
   documentId
 })
 
-export const setFeedUri = (feedUri) => ({
+export const setFeedUri = (feedUri, resolvedFeedUri) => ({
   type: SET_FEED_URI,
-  feedUri
+  feedUri,
+  resolvedFeedUri
 })
 
 // curation

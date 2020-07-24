@@ -46,7 +46,9 @@ const ConfigJobHandlers = ({
     }
     return (
         <div>
-            <h1>Job handler configuration</h1>
+            <h1>Under construction</h1>
+            <p>Note: this page needs to be updated.</p>
+            <h3>Job handler configuration</h3>
             <CJHRoles jobHandlers={jobHandlers} roleAssignments={roleAssignments} onAssignJobHandlerToRole={onAssignJobHandlerToRole} />
             <div style={{ paddingBottom: 15 }} />
             {content}

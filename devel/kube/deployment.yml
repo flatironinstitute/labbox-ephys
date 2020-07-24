@@ -21,6 +21,9 @@ spec:
       containers:
       - name: labbox-ephys
         image: magland/labbox-ephys:0.2.2
+        env:
+        - name: HOME
+          value: /tmp
         ports:
         - containerPort: 15310
         volumeMounts:

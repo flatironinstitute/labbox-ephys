@@ -13,7 +13,7 @@ import { Home } from '@material-ui/icons';
 import PersistStateControl from './containers/PersistStateControl';
 import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
 import { connect } from 'react-redux';
-import { getPathQuery } from './kachery';
+import { getPathQuery, getFeedId } from './kachery';
 
 const ToolBarContent = ({ feedUri, documentId }) => {
     return (
@@ -39,13 +39,14 @@ const SetDocumentId = ({ documentId, onSetDocumentId, feedUri, onSetFeedUri }) =
     useEffect(() => {
         (async () => {
             onSetDocumentId(documentId);
+            let resolvedFeedUri = feedUri;
             if ((!feedUri) || (feedUri === 'default')) {
-                // const id0 = await getFeedId('labbox-ephys-default');
-                //
+                const feedId = await getFeedId('labbox-ephys-default');
                 feedUri = 'default';
+                resolvedFeedUri = `feed://${feedId}`;
             }
-            console.info(`Using feed: ${feedUri}`);
-            onSetFeedUri(feedUri);
+            console.info(`Using feed: ${feedUri} ${resolvedFeedUri}`);
+            onSetFeedUri(feedUri, resolvedFeedUri);
         })();
     })
     return <div>Setting document id...</div>
@@ -110,7 +111,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     onSetDocumentId: documentId => dispatch(setDocumentId(documentId)),
-    onSetFeedUri: feedUri => dispatch(setFeedUri(feedUri))
+    onSetFeedUri: (feedUri, resolvedFeedUri) => dispatch(setFeedUri(feedUri, resolvedFeedUri))
 })
 
 export default withRouter(connect(
