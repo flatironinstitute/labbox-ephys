@@ -17,6 +17,7 @@ To use open labbox-ephys in a development environment, you should clone the sour
 cd /home/user/src
 git clone https://github.com/laboratorybox/labbox-ephys labbox-ephys
 git clone https://github.com/flatironinstitute/kachery kachery
+git clone https://github.com/flatironinstitute/kachery-p2p kachery-p2p
 git clone https://github.com/flatironinstitute/hither hither
 ```
 
@@ -25,6 +26,7 @@ and be sure that the following environment variables are set
 # Adjust the source path to match above
 export HITHER_SOURCE_DIR=/home/user/src/hither
 export KACHERY_SOURCE_DIR=/home/user/src/kachery
+export KACHERY_P2P_SOURCE_DIR=/home/user/src/kachery-p2p
 ```
 
 ### Open labbox-ephys in the development container
