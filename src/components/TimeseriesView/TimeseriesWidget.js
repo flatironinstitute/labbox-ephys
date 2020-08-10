@@ -9,7 +9,7 @@ export default class TimeseriesWidget extends Component {
         super(props);
         this.state = {
             panels: [],
-            timeRange: [0, 30000],
+            timeRange: undefined, // determined below
             currentTime: null,
             leftPanelMode: null,
             selectedElectrodeIds: {},
@@ -24,6 +24,19 @@ export default class TimeseriesWidget extends Component {
         this.y_scale_factor = this.props.y_scale_factor;
 
         if (this.props.timeseriesModel) {
+            if (!this.state.timeRange) {
+                // determine initial time range
+                const numChannels = this.props.timeseriesModel.numChannels();
+                const numTimepoints = this.props.timeseriesModel.numTimepoints();
+                const mb_per_timepoint = numChannels * 2 / 1e6;
+                const max_mb_to_load = 1;
+                const max_timepoints = Math.min(30000, max_mb_to_load / mb_per_timepoint);
+                const t1 = Math.floor(numTimepoints / 2 - max_timepoints / 2);
+                const t2 = Math.floor(numTimepoints / 2 + max_timepoints / 2);
+                if (t1 < 0) t1 = 0;
+                if (t2 > numTimepoints - 1) t2 = numTimepoints - 1;
+                this.setState({timeRange: [t1, t2]});
+            }
             // this happens when the timeseries model receives new data
             this.props.timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
                 let trange = this.timeRange();

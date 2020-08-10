@@ -49,7 +49,8 @@ def _listify_ndarray(x):
 app = Flask(__name__)
 global_data = dict(
     default_job_handler=hi.ParallelJobHandler(num_workers=4),
-    jobs_by_id=dict()
+    jobs_by_id=dict(),
+    default_job_cache=hi.JobCache(use_tempdir=True)
 )
 global_data_lock = threading.Lock()
 def iterate_worker_thread():
@@ -112,6 +113,10 @@ def create_hither_job():
             hither_config['job_handler'] = global_data['default_job_handler']
     if hither_config['job_handler'].is_remote:
         hither_config['container'] = True
+    if 'use_job_cache' in hither_config:
+        if hither_config['use_job_cache']:
+            hither_config['job_cache'] = global_data['default_job_cache']
+        del hither_config['use_job_cache']
 
     with global_data_lock:
         with ka.config(**kachery_config):

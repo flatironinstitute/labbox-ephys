@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import { getPathQuery } from '../kachery';
 
-const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentId, feedUri }) => {
+const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -76,7 +77,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this sorting"}
-                onDeleteRow={(row) => onDeleteSortings([row.sorting.sortingId])}
+                onDeleteRow={readonly ? null : (row) => onDeleteSortings([row.sorting.sortingId])}
             />
         </div>
     );
@@ -85,8 +86,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
 const mapStateToProps = (state, ownProps) => (
     {
         sortings: ownProps.sortings || state.sortings,
-        documentId: state.documentInfo.documentId,
-        feedUri: state.documentInfo.feedUri
+        documentInfo: state.documentInfo
     }
 )
 

@@ -9,7 +9,8 @@ import { CircularProgress } from '@material-ui/core';
 import { getPathQuery } from "../kachery";
 
 
-const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentId, feedUri }) => {
+const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -145,8 +146,7 @@ const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    documentId: state.documentInfo.documentId,
-    feedUri: state.documentId.feedUri
+    documentInfo: state.documentInfo.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

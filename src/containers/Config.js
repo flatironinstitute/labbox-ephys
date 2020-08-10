@@ -23,10 +23,10 @@ const Config = ({ extensionsConfig }) => {
   const [currentTabLabel, setCurrentTabLabel] = React.useState(null);
 
   let tabs = [];
-  tabs.push({
-    label: 'Job handlers',
-    component: <ConfigJobHandlers />
-  })
+  // tabs.push({
+  //   label: 'Job handlers',
+  //   component: <ConfigJobHandlers />
+  // })
   tabs.push({
     label: 'Sharing',
     component: <ConfigSharing />

@@ -15,7 +15,8 @@ import RecordingsTableDBC from '../containers/RecordingsTableDBC';
 import { connect } from 'react-redux';
 import { getPathQuery } from '../kachery';
 
-function HomeDBC({ documentId, feedUri }) {
+function HomeDBC({ documentInfo }) {
+  const { documentId, feedUri, readonly } = documentInfo;
   return (
     <div>
       <Typography component="p">
@@ -31,8 +32,7 @@ function HomeDBC({ documentId, feedUri }) {
 }
 
 const mapStateToProps = state => ({
-  documentId: state.documentInfo.documentId,
-  feedUri: state.documentInfo.feedUri
+  documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

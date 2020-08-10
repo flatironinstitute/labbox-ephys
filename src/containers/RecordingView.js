@@ -6,7 +6,8 @@ import { withRouter, Link } from 'react-router-dom';
 import SortingsView from '../components/SortingsView';
 import { getPathQuery } from '../kachery';
 
-const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history, feedUri, documentId }) => {
+const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo }) => {
+  const { documentId, feedUri, readonly } = documentInfo;
   if (!recording) {
     return <h3>{`Recording not found: ${recordingId}`}</h3>
   }
@@ -26,8 +27,8 @@ const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history,
         </Grid>
 
         <Grid item xs={12} lg={6}>
-          <Link to={`/${documentId}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link>
-          <SortingsView sortings={sortings} sortingJobs={sortingJobs} onImportSortings={handleImportSortings} />
+          {/* <Link to={`/${documentId}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
+          <SortingsView sortings={sortings} sortingJobs={sortingJobs} onImportSortings={readonly ? null : handleImportSortings} />
         </Grid>
       </Grid>
     </div>
@@ -39,8 +40,7 @@ const mapStateToProps = (state, ownProps) => ({
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
   sortingJobs: state.sortingJobs.filter(s => (s.recordingId === ownProps.recordingId)),
-  documentId: state.documentInfo.documentId,
-  feedUri: state.documentInfo.feedUri
+  documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

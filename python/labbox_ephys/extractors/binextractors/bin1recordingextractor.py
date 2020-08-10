@@ -47,7 +47,7 @@ class Bin1RecordingExtractor(se.RecordingExtractor):
         X = np.frombuffer(buf, dtype=np.int16).reshape((end_frame - start_frame, self._raw_num_channels))
         
         ret = np.zeros((M, N))
-        for m in range(M):
-            ret[m, :] = X[:, self._channel_map[str(m)]]
+        for ii, ch_id in enumerate(channel_ids):
+            ret[ii, :] = X[:, self._channel_map[str(ch_id)]]
         
         return ret

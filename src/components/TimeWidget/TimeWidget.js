@@ -49,7 +49,7 @@ export default class TimeWidget extends Component {
         if (this.props.currentTime !== undefined) {
             this._currentTime = this.props.currentTime;            
         }
-        if (this.props.timeRange !== undefined) {
+        if (this.props.timeRange) {
             this.setTimeRange(this.props.timeRange);
         }
         this.updateLayout();
@@ -150,6 +150,7 @@ export default class TimeWidget extends Component {
         let W = this._timeAxisLayer.width();
         let H = this._timeAxisLayer.height();
         this._timeAxisLayer.setMargins(50, 10, H-50, 0);
+        console.log(this._timeRange);
         this._timeAxisLayer.setCoordXRange(this._timeRange[0], this._timeRange[1]);
         this._timeAxisLayer.setCoordYRange(0, 1);
         painter.useCoords();
@@ -213,6 +214,7 @@ export default class TimeWidget extends Component {
         }
     }
     setTimeRange(trange) {
+        if (!trange) return;
         let tr = clone(trange);
         if (tr[1] >= this.numTimepoints()) {
             let delta = this.numTimepoints() -1 - tr[1];
