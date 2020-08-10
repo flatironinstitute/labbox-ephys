@@ -6,24 +6,35 @@ import RecordingsTable from '../containers/RecordingsTable';
 import { connect } from 'react-redux';
 import { getPathQuery } from '../kachery';
 
-function Home({ documentId, feedUri }) {
+function Home({ documentInfo }) {
+  const { documentId, feedUri, readonly } = documentInfo;
   return (
     <div>
+      {
+        readonly && (
+          <Typography component="p" style={{fontStyle: "italic"}}>
+            VIEW ONLY
+          </Typography>
+        )
+      }
       <Typography component="p">
         Analysis and visualization of neurophysiology recordings and spike sorting results.
       </Typography>
       <p />
-      <div>
-        <Button component={Link} to={`/${documentId}/importRecordings${getPathQuery({feedUri})}`}>Import recordings</Button>
-      </div>
+      {
+        !readonly && (
+          <div>
+            <Button component={Link} to={`/${documentId}/importRecordings${getPathQuery({feedUri})}`}>Import recordings</Button>
+          </div>
+        )
+      }
       <RecordingsTable />
     </div>
   );
 }
 
 const mapStateToProps = state => ({
-  documentId: state.documentInfo.documentId,
-  feedUri: state.documentInfo.feedUri
+  documentInfo: state.documentInfo,
 })
 
 const mapDispatchToProps = dispatch => ({

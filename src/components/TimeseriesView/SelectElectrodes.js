@@ -6,7 +6,7 @@ export default class SelectElectrodes extends Component {
     _toHuman(ids) {
         let list = Object.keys(ids);
         if (list.length === 0)
-            return 'none';
+            return 'none selected';
         return list.join(', ');
     }
     _fromHuman(txt) {

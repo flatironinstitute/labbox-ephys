@@ -5,8 +5,9 @@ import { Link } from 'react-router-dom';
 import { getPathQuery } from '../kachery';
 
 const HitherJobMonitorControl = ({
-    allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, dispatch, documentId, feedUri
+    allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, dispatch, documentInfo
 }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
     setDispatch(dispatch);
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;
@@ -25,8 +26,7 @@ const mapStateToProps = state => ({
     runningJobs: state.hitherJobs.filter(j => (j.status === 'running')),
     finishedJobs: state.hitherJobs.filter(j => (j.status === 'finished')),
     erroredJobs: state.hitherJobs.filter(j => (j.status === 'error')),
-    documentId: state.documentInfo.documentId,
-    feedUri: state.documentInfo.feedUri
+    documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
-import { setDocumentId, setFeedUri } from './actions';
+import { setDocumentInfo } from './actions';
 import * as QueryString from "query-string";
 
 // LABBOX-CUSTOM /////////////////////////////////////////////
@@ -13,9 +13,10 @@ import { Home } from '@material-ui/icons';
 import PersistStateControl from './containers/PersistStateControl';
 import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
 import { connect } from 'react-redux';
-import { getPathQuery } from './kachery';
+import { getPathQuery, getFeedId } from './kachery';
 
-const ToolBarContent = ({ feedUri, documentId }) => {
+const ToolBarContent = ({ documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
     return (
         <Fragment>
             <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
@@ -35,23 +36,30 @@ const ToolBarContent = ({ feedUri, documentId }) => {
 }
 //////////////////////////////////////////////////////////////
 
-const SetDocumentId = ({ documentId, onSetDocumentId, feedUri, onSetFeedUri }) => {
+const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
         (async () => {
-            onSetDocumentId(documentId);
+            let resolvedFeedUri = feedUri;
             if ((!feedUri) || (feedUri === 'default')) {
-                // const id0 = await getFeedId('labbox-ephys-default');
-                //
+                const feedId = await getFeedId('labbox-ephys-default');
                 feedUri = 'default';
+                resolvedFeedUri = `feed://${feedId}`;
             }
-            console.info(`Using feed: ${feedUri}`);
-            onSetFeedUri(feedUri);
+            console.info(`Using feed: ${feedUri} ${resolvedFeedUri}`);
+            const readonly = resolvedFeedUri ? resolvedFeedUri.startsWith('sha1://') : false;
+            onSetDocumentInfo({
+                documentId,
+                feedUri,
+                resolvedFeedUri,
+                readonly
+            });
         })();
     })
     return <div>Setting document id...</div>
 }
 
-const AppContainer = ({ location, initialLoad, children, documentId, onSetDocumentId, feedUri, onSetFeedUri }) => {
+const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocumentInfo }) => {
+    const { documentId, feedId } = documentInfo;
     let loaded = true;
     ['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
         key => {
@@ -67,11 +75,10 @@ const AppContainer = ({ location, initialLoad, children, documentId, onSetDocume
                     path="/:documentId/:path*"
                     render={({ match, location }) => {
                         const query = QueryString.parse(location.search);
-                        return <SetDocumentId
+                        return <SetDocumentInfo
                             documentId={match.params.documentId}
-                            onSetDocumentId={onSetDocumentId}
                             feedUri={query.feed || 'default'}
-                            onSetFeedUri={onSetFeedUri}
+                            onSetDocumentInfo={onSetDocumentInfo}
                         />
                     }}
                 />
@@ -84,7 +91,7 @@ const AppContainer = ({ location, initialLoad, children, documentId, onSetDocume
         <div className={"TheAppBar"}>
             <AppBar position="static">
                 <Toolbar>
-                    <ToolBarContent documentId={documentId} feedUri={feedUri} />
+                    <ToolBarContent documentInfo={documentInfo} />
                 </Toolbar>
             </AppBar>
             <div style={{padding: 30}}>
@@ -103,14 +110,12 @@ const AppContainer = ({ location, initialLoad, children, documentId, onSetDocume
 const mapStateToProps = state => {
     return {
         initialLoad: state.initialLoad,
-        documentId: state.documentInfo.documentId,
-        feedUri: state.documentInfo.feedUri
+        documentInfo: state.documentInfo
     }
 }
 
 const mapDispatchToProps = dispatch => ({
-    onSetDocumentId: documentId => dispatch(setDocumentId(documentId)),
-    onSetFeedUri: feedUri => dispatch(setFeedUri(feedUri))
+    onSetDocumentInfo: documentInfo => dispatch(setDocumentInfo(documentInfo))
 })
 
 export default withRouter(connect(

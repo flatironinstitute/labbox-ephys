@@ -7,7 +7,8 @@ import { withRouter } from 'react-router-dom';
 import SortingInfoView from '../components/SortingInfoView';
 import { getPathQuery } from '../kachery';
 
-const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history, documentId, feedUri }) => {
+const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history, documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
@@ -403,8 +404,7 @@ function isEmptyObject(x) {
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    documentId: state.documentInfo.documentId,
-    feedUri: state.documentInfo.feedUri
+    documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

@@ -20,7 +20,10 @@ spec:
             claimName: labbox-ephys-pv-claim
       containers:
       - name: labbox-ephys
-        image: magland/labbox-ephys:0.1.13-alpha.1
+        image: magland/labbox-ephys:0.2.4
+        env:
+        - name: HOME
+          value: /tmp
         ports:
         - containerPort: 15310
         volumeMounts:

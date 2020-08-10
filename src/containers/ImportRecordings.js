@@ -8,7 +8,9 @@ import ImportRecordingFromFrankLabDataJoint from '../extensions/frankLabDataJoin
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 import { getPathQuery } from '../kachery';
 
-const ImportRecordings = ({ onAddRecording, history, extensionsConfig, feedUri, documentId }) => {
+const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
+
     const [method, setMethod] = useState('');
 
     const handleDone = () => {
@@ -90,8 +92,7 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, feedUri, 
 
 const mapStateToProps = state => ({
     extensionsConfig: state.extensionsConfig,
-    documentId: state.documentInfo.documentId,
-    feedUri: state.documentInfo.feedUri
+    documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

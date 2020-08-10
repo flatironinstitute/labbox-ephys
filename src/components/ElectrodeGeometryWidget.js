@@ -147,22 +147,27 @@ class ElectrodeGeometryWidgetInner extends Component {
         let x1 = this.xmin - this.mindist, x2 = this.xmax + this.mindist;
         let y1 = this.ymin - this.mindist, y2 = this.ymax + this.mindist;
         let w0 = x2 - x1, h0 = y2 - y1;
-        let offset, scale;
+        let offset, xscale, yscale;
         if (w0 * H1 > h0 * W1) {
-            scale = W1 / w0;
-            offset = [0 - x1 * scale, (H1 - h0 * scale) / 2 - y1 * scale];
+            xscale = W1 / w0;
+            yscale = xscale;
+            offset = [0 - x1 * xscale, (H1 - h0 * yscale) / 2 - y1 * yscale];
         } else {
-            scale = H1 / h0;
-            offset = [(W1 - w0 * scale) / 2 - x1 * scale, 0 - y1 * scale];
+            yscale = H1 / h0;
+            xscale = yscale;
+            if (h0 > w0 * 8) {
+                xscale = xscale * 5;
+            }
+            offset = [(W1 - w0 * xscale) / 2 - x1 * xscale, 0 - y1 * yscale];
         }
         this.channel_rects = {};
         if (this.props.locations) {
             for (let i in this.props.locations) {
                 let id0 = ids[i];
                 let pt0 = this.props.locations[i];
-                let x = pt0[0] * scale + offset[0];
-                let y = pt0[1] * scale + offset[1];
-                let rad = this.mindist * scale / 3;
+                let x = pt0[0] * xscale + offset[0];
+                let y = pt0[1] * yscale + offset[1];
+                let rad = this.mindist * Math.min(xscale, yscale) / 3;
                 let x1 = x, y1 = y;
                 if (this.transpose) {
                     x1 = y;

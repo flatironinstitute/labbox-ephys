@@ -1,16 +1,10 @@
-import { SET_DOCUMENT_ID, SET_FEED_URI } from '../actions'
+import { SET_DOCUMENT_INFO } from '../actions'
 
-const documentInfo = (state = {documentId: null, feedUri: null}, action) => {
+const documentInfo = (state = {documentId: null, feedUri: null, resolvedFeedUri: null, readonly: null}, action) => {
     switch (action.type) {
-        case SET_DOCUMENT_ID:
+        case SET_DOCUMENT_INFO:
             return {
-                ...state,
-                documentId: action.documentId
-            };
-        case SET_FEED_URI:
-            return {
-                ...state,
-                feedUri: action.feedUri
+                ...action.documentInfo
             };
         default:
             return state

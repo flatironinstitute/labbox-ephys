@@ -45,7 +45,8 @@ const TimeseriesViewInner = ({
                     { recording_object: recordingObject },
                     {
                         hither_config: {
-                            job_handler_role: 'general'
+                            job_handler_role: 'general',
+                            use_job_cache: true
                         },
                         useClientCache: true,
                         auto_substitute_file_objects: false

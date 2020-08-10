@@ -51,6 +51,11 @@
             "command": "bash -ic .vscode/tasks/start_test_prod_client.sh"
         },
         {
+            "label": "start test prod kachery-p2p daemon",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start_test_prod_kachery_p2p_daemon.sh"
+        },
+        {
             "label": "_start_test_prod",
             "type": "shell",
             "command": "echo 'This will start the test prod api and client as well as the nginx server. Point your browser to http://localhost:15371'"
@@ -60,7 +65,7 @@
             "dependsOn": [
                 "start test prod api",
                 "start test prod client",
-                "start test prod event stream server",
+                "start test prod kachery-p2p daemon",
                 "start nginx",
                 "_start_test_prod"
             ]

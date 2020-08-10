@@ -6,9 +6,11 @@ import { deleteRecordings, setRecordingInfo, sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
+import { getPathQuery } from "../kachery";
 
 
-const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentId }) => {
+const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -55,7 +57,7 @@ const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo
         recording: rec,
         key: rec.recordingId,
         // recordingLabel: rec.recordingLabel,
-        recordingLabel: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}`}>{rec.recordingLabel}</Link>,
+        recordingLabel: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
         numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
         samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : 'N/A',
         durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : 'N/A'
@@ -144,7 +146,7 @@ const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    documentId: state.documentInfo.documentId
+    documentInfo: state.documentInfo.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

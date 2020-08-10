@@ -19,14 +19,11 @@ fi
 export KACHERY_STORAGE_DIR=/data/kachery-storage
 mkdir -p $KACHERY_STORAGE_DIR
 
-# TODO: set kachery-p2p environment variables here
+export KACHERY_P2P_CONFIG_DIR=/data/kachery-p2p-config
+export KACHERY_P2P_API_PORT=15320
+mkdir -p $KACHERY_P2P_CONFIG_DIR
 
-# TODO: run the kachery-p2p daemon instead of the event stream server
-# export EVENT_STREAM_SERVER_DIR=/data/eventstreamdata
-# export PORT=$EVENT_STREAM_PORT
-# mkdir -p $EVENT_STREAM_SERVER_DIR
-# cp /hither/eventstreamserver/eventstreamserver_open.json $EVENT_STREAM_SERVER_DIR/eventstreamserver.json
-# node --experimental-modules /hither/eventstreamserver/server/main.js &
+kachery-p2p-start-daemon --method npx --verbose 1 --channel spikeforest &
 
 cd /labbox-ephys
 # concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"
@@ -51,4 +48,8 @@ echo -e "\e[32m-----------------------------------------------------\e[39m"
 
 cd /labbox-ephys/python/api
 set -x
-exec gunicorn -b 127.0.0.1:15307 api:app
+
+# gunicorn maybe has some advantages, but by default it only handles one request at a time
+# exec gunicorn -b 127.0.0.1:15307 api:app
+
+python -m flask run -p 15307 --no-debugger

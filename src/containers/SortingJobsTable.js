@@ -3,8 +3,10 @@ import { connect } from 'react-redux'
 import NiceTable from '../components/NiceTable'
 import { cancelSortingJobs } from '../actions';
 import { Link } from 'react-router-dom';
+import { getPathQuery } from '../kachery';
 
-const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedUri }) => {
+const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentInfo }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -20,7 +22,7 @@ const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedUr
         key: s.sortingJobId,
         algorithm: {
             text: s.sorter.algorithm,
-            element: <Link title={"View this sorting job"} to={`/${documentId}/sortingJob/${s.sortingJobId}`}>{s.sorter.algorithm}</Link>,
+            element: <Link title={"View this sorting job"} to={`/${documentId}/sortingJob/${s.sortingJobId}${getPathQuery({feedUri})}`}>{s.sorter.algorithm}</Link>,
         },
         recording: s.recordingId,
         status: s.status
@@ -56,8 +58,7 @@ const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentId, feedUr
 const mapStateToProps = (state, ownProps) => (
     {
         sortingJobs: ownProps.sortingJobs || state.sortingJobs,
-        documentId: state.documentInfo.documentId,
-        feedUri: state.documentInfo.feedUri
+        documentInfo: state.documentInfo
     }
 )
 

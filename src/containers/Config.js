@@ -5,6 +5,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
 import ConfigJobHandlers from './ConfigJobHandlers'
+import ConfigSharing from './ConfigSharing'
 import ConfigExtensions from './ConfigExtensions'
 import ConfigFrankLabDataJoint from '../extensions/frankLabDataJoint/containers/ConfigFrankLabDataJoint'
 import { Box, Typography } from '@material-ui/core';
@@ -22,9 +23,13 @@ const Config = ({ extensionsConfig }) => {
   const [currentTabLabel, setCurrentTabLabel] = React.useState(null);
 
   let tabs = [];
+  // tabs.push({
+  //   label: 'Job handlers',
+  //   component: <ConfigJobHandlers />
+  // })
   tabs.push({
-    label: 'Job handlers',
-    component: <ConfigJobHandlers />
+    label: 'Sharing',
+    component: <ConfigSharing />
   })
   if (extensionsConfig.enabled.frankLabDataJoint) {
     tabs.push({
