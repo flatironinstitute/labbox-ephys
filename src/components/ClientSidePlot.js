@@ -26,7 +26,7 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
                         useClientCache: true,
                         hither_config: {
                             job_handler_role: 'general',
-                            use_job_cache: true
+                            use_job_cache: false
                         }
                     }
                 )

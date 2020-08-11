@@ -16,3 +16,4 @@ RUN pip install numpy
 RUN pip install scipy
 RUN pip install spikeextractors==0.7.2 spiketoolkit==0.5.2 spikesorters==0.2.5
 RUN pip install requests
+RUN pip install h5py

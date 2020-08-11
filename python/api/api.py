@@ -145,7 +145,7 @@ def hither_job_wait():
             try:
                 job.wait(0)
             except Exception:
-                # print(''.join(traceback.format_tb(job.get_exception().__traceback__)))
+                print(''.join(traceback.format_tb(job.get_exception().__traceback__)))
                 traceback.print_exc()
                 return dict(
                     error=True,
