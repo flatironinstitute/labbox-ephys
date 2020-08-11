@@ -138,11 +138,11 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
         },
         {
             key: 'eventCount',
-            label: 'Number of Events',
+            label: 'Num. events',
         },
         {
             key: 'firingRate',
-            label: 'Firing Rate',
+            label: 'Firing rate (Hz)',
         }
     ];
     // TODO: define additional columns such as: num. events, avg. firing rate, snr, ...
