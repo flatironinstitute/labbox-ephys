@@ -23,7 +23,7 @@ export KACHERY_P2P_CONFIG_DIR=/data/kachery-p2p-config
 export KACHERY_P2P_API_PORT=15320
 mkdir -p $KACHERY_P2P_CONFIG_DIR
 
-kachery-p2p-start-daemon --method npx --verbose 1 --channel spikeforest &
+kachery-p2p-start-daemon --method dev --verbose 1 --channel spikeforest &
 
 cd /labbox-ephys
 # concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"

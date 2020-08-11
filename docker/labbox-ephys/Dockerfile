@@ -1,10 +1,10 @@
 FROM ubuntu:18.04
 
 #########################################
-### Node 12 and yarn
+### Node 14 and yarn
 ### best to do this before python
 RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get update && apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get update && apt-get install -y nodejs
 RUN npm install -g yarn
 
 #########################################
