@@ -95,8 +95,8 @@ def create_hither_job():
     functionName = x['functionName']
     kwargs = x['kwargs']
     opts = x['opts']
-    if opts.get('auto_substitute_file_objects', False):
-        kwargs = _auto_substitute_file_objects_in_item(kwargs)
+    # if opts.get('auto_substitute_file_objects', False):
+    #     kwargs = _auto_substitute_file_objects_in_item(kwargs)
     kwargs = _deserialize_files_in_item(kwargs)
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})

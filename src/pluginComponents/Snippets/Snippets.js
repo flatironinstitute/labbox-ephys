@@ -10,6 +10,7 @@ const Snippets = ({ sorting, recording, isSelected, isFocused, onUnitClicked }) 
 const label = 'Snippets'
 
 Snippets.sortingViewPlugin = {
+    development: true,
     label: label
 }
 

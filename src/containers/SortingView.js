@@ -9,7 +9,7 @@ import * as pluginComponents from '../pluginComponents';
 
 const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
 
-const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel }) => {
+const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
   const [selectedUnitIds, setSelectedUnitIds] = useState({});
   const [focusedUnitId, setFocusedUnitId] = useState(null);
@@ -126,7 +126,11 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
       }
       <div style={contentWrapperStyle}>
         {
-          pluginComponentsList.map(PluginComponent => {
+          pluginComponentsList.filter(
+            c => (
+              (!c.sortingViewPlugin.development) || (extensionsConfig.enabled.development)
+            )
+          ).map(PluginComponent => {
             const config = PluginComponent.sortingViewPlugin;
             return (
               <Expandable
@@ -179,7 +183,8 @@ function findRecordingForId(state, id) {
 const mapStateToProps = (state, ownProps) => ({
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
-  recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId)
+  recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
+  extensionsConfig: state.extensionsConfig
 })
 
 const mapDispatchToProps = dispatch => ({

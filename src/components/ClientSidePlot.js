@@ -23,7 +23,11 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
                     {
                         auto_substitute_file_objects: true,
                         wait: true,
-                        useClientCache: true
+                        useClientCache: true,
+                        hither_config: {
+                            job_handler_role: 'general',
+                            use_job_cache: true
+                        }
                     }
                 )
             }

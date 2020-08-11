@@ -9,6 +9,11 @@ const ConfigExtensions = ({
 }) => {
     const extensions = [];
     extensions.push({
+        label: 'Development',
+        enabled: extensionsConfig.enabled.development === true,
+        onClick: () => onSetExtensionEnabled('development', !extensionsConfig.enabled.development)
+    });
+    extensions.push({
         label: 'FrankLab DataJoint',
         enabled: extensionsConfig.enabled.frankLabDataJoint === true,
         onClick: () => onSetExtensionEnabled('frankLabDataJoint', !extensionsConfig.enabled.frankLabDataJoint)

@@ -43,8 +43,7 @@ export const setDatabaseConfig = databaseConfig => ({
 export const setSortingInfo = ({ sortingId, sortingInfo }) => ({
     type: SET_SORTING_INFO,
     sortingId,
-    sortingInfo,
-    persistKey: 'sortings'
+    sortingInfo
 })
 
 export const addRecording = recording => ({
@@ -126,8 +125,7 @@ export const cancelSortingJobs = (sortingJobIds) => ({
 export const setExtensionEnabled = (extensionName, value) => ({
   type: SET_EXTENSION_ENABLED,
   extensionName,
-  value,
-  persistKey: 'extensionsConfig'
+  value
 })
 
 export const setDocumentInfo = (documentInfo) => ({
