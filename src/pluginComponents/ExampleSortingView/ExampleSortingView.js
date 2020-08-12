@@ -10,6 +10,7 @@ const ExampleSortingView = ({ sorting, recording, isSelected, isFocused, onUnitC
 const label = 'Example sorting view'
 
 ExampleSortingView.sortingViewPlugin = {
+    development: true,
     label: label
 }
 

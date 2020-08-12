@@ -10,6 +10,7 @@ const SpikeSprays = ({ sorting, recording, isSelected, isFocused, onUnitClicked 
 const label = 'Spike sprays'
 
 SpikeSprays.sortingViewPlugin = {
+    development: true,
     label: label
 }
 

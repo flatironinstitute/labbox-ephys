@@ -11,6 +11,7 @@ const RawSortingView = ({ sorting }) => {
 }
 
 RawSortingView.sortingViewPlugin = {
+    development: true,
     label: 'Raw sorting data'
 }
 
