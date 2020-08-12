@@ -7,14 +7,40 @@ import SelectElectrodes from './SelectElectrodes';
 export default class TimeseriesWidget extends Component {
     constructor(props) {
         super(props);
-        this.state = {
+
+        const defaultState = {
             panels: [],
             timeRange: undefined, // determined below
             currentTime: null,
             leftPanelMode: null,
             selectedElectrodeIds: {},
-            selectElectrodesPrefs: {viewOnlySelectedChannels: false}
+            selectElectrodesPrefs: {
+                viewOnlySelectedChannels: false
+            }
         }
+
+        const numChannels = props.num_channels;
+        const channelIds = props.channel_ids;
+        const numTimepoints = this.props.num_timepoints;
+        if (numChannels > 32) {
+            for (let i=0; i<32; i++) {
+                defaultState.selectedElectrodeIds[channelIds[i]] = true;
+            }
+            defaultState.selectElectrodesPrefs.viewOnlySelectedChannels = true;
+            defaultState.leftPanelMode = 'select-electrodes';
+        }
+
+        // determine initial time range
+        const mb_per_timepoint = numChannels * 2 / 1e6;
+        const max_mb_to_load = 1;
+        const max_timepoints = Math.min(30000, max_mb_to_load / mb_per_timepoint);
+        const t1 = Math.floor(numTimepoints / 2 - max_timepoints / 2);
+        const t2 = Math.floor(numTimepoints / 2 + max_timepoints / 2);
+        if (t1 < 0) t1 = 0;
+        if (t2 > numTimepoints - 1) t2 = numTimepoints - 1;
+        defaultState.timeRange = [t1, t2];
+
+        this.state = defaultState;
         this._downsampleFactor = 1;
         this.channel_colors = mv_default_channel_colors(); // colors of the channel traces
         this.y_scale_factor = 1;
@@ -24,19 +50,6 @@ export default class TimeseriesWidget extends Component {
         this.y_scale_factor = this.props.y_scale_factor;
 
         if (this.props.timeseriesModel) {
-            if (!this.state.timeRange) {
-                // determine initial time range
-                const numChannels = this.props.timeseriesModel.numChannels();
-                const numTimepoints = this.props.timeseriesModel.numTimepoints();
-                const mb_per_timepoint = numChannels * 2 / 1e6;
-                const max_mb_to_load = 1;
-                const max_timepoints = Math.min(30000, max_mb_to_load / mb_per_timepoint);
-                const t1 = Math.floor(numTimepoints / 2 - max_timepoints / 2);
-                const t2 = Math.floor(numTimepoints / 2 + max_timepoints / 2);
-                if (t1 < 0) t1 = 0;
-                if (t2 > numTimepoints - 1) t2 = numTimepoints - 1;
-                this.setState({timeRange: [t1, t2]});
-            }
             // this happens when the timeseries model receives new data
             this.props.timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
                 let trange = this.timeRange();

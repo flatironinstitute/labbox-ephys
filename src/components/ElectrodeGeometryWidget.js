@@ -15,7 +15,7 @@ export default class ElectrodeGeometryWidget extends Component {
                                 ElectrodeGeometryWidgetInner
                                 {...this.props}
                                 width={size.width} 
-                                maxHeight={600}
+                                maxHeight={1800}
                             />
                         </div>;
                     }
@@ -77,8 +77,8 @@ class ElectrodeGeometryWidgetInner extends Component {
         if (!W) W = 400;
 
         let H = this.props.height;
-        let x1 = this.xmin - this.mindist, x2 = this.xmax + this.mindist;
-        let y1 = this.ymin - this.mindist, y2 = this.ymax + this.mindist;
+        let x1 = this.xmin - this.mindist * 3, x2 = this.xmax + this.mindist * 3;
+        let y1 = this.ymin - this.mindist * 3, y2 = this.ymax + this.mindist * 3;
         let w0 = x2 - x1, h0 = y2 - y1;
         if (this.transpose) {
             let w0_tmp = w0;
