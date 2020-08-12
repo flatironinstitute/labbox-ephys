@@ -20,7 +20,7 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
 
     const computeLayout = (marginInPx, maxSize = 800) => {
         // we need to fit a square of side length n elements into the wrapper's width.
-        if (n < 2) return;
+        if (n < 1) return;
         // note adjacent margins will collapse, and we don't care about vertical length
         // (the user can scroll). So: horizontal space taken is:
         // width = n*plotWidth + 2*margin (2 outer margins) + (n-1)*margin (gutters between plots)
