@@ -28,6 +28,7 @@
     "react-scripts": "3.4.1",
     "react-sizeme": "^2.6.12",
     "react-vis": "^1.11.7",
+    "react-visibility-sensor": "^5.1.1",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0"
   },

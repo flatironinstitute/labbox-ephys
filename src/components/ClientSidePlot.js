@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { Box, CircularProgress } from '@material-ui/core';
+import VisibilitySensor from 'react-visibility-sensor';
 
 const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
-                            boxSize = {width: 200, height: 200},
-                            plotComponent, plotComponentArgs }) => {
-    const [calculationStatus, setCalculationStatus] = useState('pending');
+    boxSize = { width: 200, height: 200 },
+    plotComponent, plotComponentArgs }) => {
+    const [calculationStatus, setCalculationStatus] = useState('waitingForVisible');
     const [calculationError, setCalculationError] = useState(null);
     const [plotData, setPlotData] = useState(null);
 
@@ -43,6 +44,25 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
     }
     useEffect(() => { effect(); });
 
+    if (calculationStatus === 'waitingForVisible') {
+        return (
+            <VisibilitySensor partialVisibility={true}>
+                {({ isVisible }) => {
+                    if (isVisible) {
+                        setCalculationStatus('pending');
+                    }
+                    return (
+                        <Box display="flex" width={boxSize.width} height={boxSize.height}
+                        >
+                            <Box m="auto">
+                                <div>waiting-for-visible</div>
+                            </Box>
+                        </Box>
+                    )
+                }}
+            </VisibilitySensor>
+        );
+    }
     if (calculationStatus === 'pending' || calculationStatus === 'calculating' || calculationStatus === 'running') {
         return (
             <Box display="flex" width={boxSize.width} height={boxSize.height}

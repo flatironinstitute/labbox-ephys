@@ -92,11 +92,11 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
           if ((timeout !== undefined) && (elapsed > timeout)) {
             return null;
           }
-          await sleepMsec(100);
+          await sleepMsec(10);
         }
       }
       else {
-        await sleepMsec(50);
+        await sleepMsec(10);
       }
     }
     
