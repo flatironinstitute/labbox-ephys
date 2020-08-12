@@ -8,7 +8,7 @@ def get_firing_data(sorting_object, recording_object):
     ids = S.get_unit_ids()
     train = [S.get_unit_spike_train(id).size for id in ids]
     keyedCount = dict(zip(
-        [id for id in ids],
+        [str(id) for id in ids],
         [{'count': t,
           'rate': f"{Decimal(t / elapsed).quantize(Decimal('.01'))}"} for t in train]))
     return keyedCount

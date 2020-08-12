@@ -14,7 +14,6 @@ const NiceTable = ({
     selectedRowKeys={},
     onSelectedRowKeysChanged
 }) => {
-
     const selectedRowKeysObj = {};
     Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
     const handleClickRow = (key) => {

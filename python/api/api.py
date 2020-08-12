@@ -145,7 +145,7 @@ def hither_job_wait():
             try:
                 job.wait(0)
             except Exception:
-                print(''.join(traceback.format_tb(job.get_exception().__traceback__)))
+                # print(''.join(traceback.format_tb(job.get_exception())))
                 traceback.print_exc()
                 return dict(
                     error=True,
@@ -156,6 +156,17 @@ def hither_job_wait():
                 result = job.get_result()
                 result = _serialize_files_in_item(result)
                 print(f'======== Finished hither job: {job_id} {job.get_label()}')
+                try:
+                    json.dumps(result)
+                except:
+                    traceback.print_exc()
+                    print(result)
+                    print('Problem json-serializing result of hither job')
+                    return dict(
+                        error=True,
+                        error_message='Problem json-serializing result of hither job',
+                        runtime_info=job.get_runtime_info()
+                    )
                 return dict(
                     error=False,
                     result=result,
