@@ -93,7 +93,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
     'height': '100%',
     'position': 'absolute',
     'zIndex': 1,
-    'top': 150,
+    'top': 165,
     'left': 0,
     'overflowX': 'hidden',
     'paddingTop': '20px',

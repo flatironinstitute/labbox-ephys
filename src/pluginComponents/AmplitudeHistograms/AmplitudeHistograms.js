@@ -10,6 +10,7 @@ const AmplitudeHistograms = ({ sorting, recording, isSelected, isFocused, onUnit
 const label = 'Amplitude histograms'
 
 AmplitudeHistograms.sortingViewPlugin = {
+    development: true,
     label: label
 }
 

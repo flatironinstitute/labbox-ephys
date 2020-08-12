@@ -10,6 +10,7 @@ const SpikeAmplitudes = ({ sorting, recording, isSelected, isFocused, onUnitClic
 const label = 'Spike amplitudes'
 
 SpikeAmplitudes.sortingViewPlugin = {
+    development: true,
     label: label
 }
 
