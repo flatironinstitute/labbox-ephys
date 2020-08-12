@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NiceTable from '../../components/NiceTable';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import { sleep } from '../../actions';
-import { Button } from '@material-ui/core';
+import { Button, Paper } from '@material-ui/core';
 import { createHitherJob } from '../../hither';
 import MultiComboBox from '../../components/MultiComboBox';
 
@@ -55,7 +55,11 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
                 {
                     auto_substitute_file_objects: true,
                     wait: true,
-                    useClientCache: true
+                    useClientCache: true,
+                    hither_config: {
+                        job_handler_role: 'general',
+                        use_job_cache: true
+                    }
                 });
             }
             catch (err) {
@@ -116,17 +120,19 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
             ? labels.forEach((label) => handleRemoveLabel(key, label))
             : {});
     };
-    const rows = 
-        sorting.sortingInfo.unit_ids.map(unitId => {
-            return {
-                key: unitId,
-                unitId: unitId,
-                labels: {
-                    element: <span>{getLabelsForUnitId(unitId).join(', ')} </span>
-                },
-                eventCount: queryData[unitId].count,
-                firingRate: queryData[unitId].rate
-    }});
+
+    const rows = sorting.sortingInfo.unit_ids.map(unitId => {
+        return {
+            key: unitId,
+            unitId: unitId,
+            labels: {
+                element: <span>{getLabelsForUnitId(unitId).join(', ')} </span>
+            },
+            eventCount: queryData[unitId].count,
+            firingRate: queryData[unitId].rate
+        }
+    });
+    
     const columns = [
         {
             key: 'unitId',
@@ -148,6 +154,7 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
     // TODO: define additional columns such as: num. events, avg. firing rate, snr, ...
     return (
         <div style={{'width': '100%'}}>
+            <Paper style={{maxHeight: 350, overflow: 'auto'}}>
             <NiceTable
                 rows={rows}
                 columns={columns}
@@ -155,6 +162,7 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
                 selectedRowKeys={selectedRowKeys}
                 onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
             />
+            </Paper>
             <div>
                 <MultiComboBox
                     id="label-selection"

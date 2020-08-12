@@ -35,7 +35,7 @@ const TestKacheryP2P = () => {
                     {name: randomString(6), note: 'example messsage'}
                 ]
             })
-            console.log('appended message.');
+            console.info('appended message.');
         })();
     }
 

@@ -46,15 +46,8 @@ RUN pip install datajoint
 RUN pip install pynwb
 
 # #########################################
-# ### Install kachery
-RUN pip install kachery==0.6.6
-
-# #########################################
 # ### Install kachery-p2p
-RUN git clone https://github.com/magland/kachery-p2p /kachery-p2p \
-    && cd /kachery-p2p \
-    && git checkout a62db52b5c64683d435e79b6a111927633f4d7f1 \
-    && pip install .
+RUN pip install kachery-p2p==0.4.19
 
 # #########################################
 # ### Install hither

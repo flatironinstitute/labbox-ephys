@@ -6,6 +6,7 @@ import { createHitherJob } from '../hither';
 import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import { getPathQuery } from '../kachery';
+import { getRecordingInfo } from '../actions/getRecordingInfo';
 
 const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
     const { documentId, feedUri, readonly } = documentInfo;
@@ -22,23 +23,8 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
     const effect = async () => {
         for (const rec of recordings) {
             if (!rec.recordingInfo) {
-                let info;
                 try {
-                    // for a nice gui effect
-                    await sleep(400);
-                    const recordingInfoJob = await createHitherJob(
-                        'get_recording_info',
-                        { recording_object: rec.recordingObject },
-                        {
-                            kachery_config: {},
-                            hither_config: {
-                                job_handler_role: 'general'
-                            },
-                            auto_substitute_file_objects: false,
-                            useClientCache: true
-                        }
-                    )
-                    info = await recordingInfoJob.wait();
+                    const info = await getRecordingInfo({recordingObject: rec.recordingObject});
                     onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
                 }
                 catch (err) {

@@ -50,12 +50,16 @@ const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, n
                     <TableCell>{num_frames / sampling_frequency / 60}</TableCell>
                 </TableRow>
                 <TableRow>
+                    <TableCell>Num. channels</TableCell>
+                    <TableCell>{channel_ids.length}</TableCell>
+                </TableRow>
+                <TableRow>
                     <TableCell>Channel IDs</TableCell>
-                    <TableCell>{commasep(channel_ids)}</TableCell>
+                    <TableCell>{channel_ids.length < 20 ? commasep(channel_ids) : commasep(channel_ids.slice(0, 20)) + ' ...'}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>Channel groups</TableCell>
-                    <TableCell>{commasep(channel_groups)}</TableCell>
+                    <TableCell>{channel_groups.length < 20 ? commasep(channel_groups) : commasep(channel_groups.slice(0, 20)) + ' ...'}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>Downloaded</TableCell>
