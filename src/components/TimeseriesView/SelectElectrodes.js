@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ElectrodeGeometryWidget from '../ElectrodeGeometryWidget';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox, Paper } from '@material-ui/core';
 
 export default class SelectElectrodes extends Component {
     _toHuman(ids) {
@@ -49,15 +49,17 @@ export default class SelectElectrodes extends Component {
                     onChange={this._handleTextEdit}
                 />
                 <Checkbox key="checkbox1" checked={prefs.viewOnlySelectedChannels} onClick={() => {this._toggleViewOnlySelectedChannels()}} /> View only selected channels
-                <ElectrodeGeometryWidget
-                    key="electrode-geometry"
-                    labels={labels}
-                    locations={locations}
-                    width={this.props.width}
-                    selectedElectrodeIds={this.props.selectedElectrodeIds}
-                    onSelectedElectrodeIdsChanged={(ids) => {this.props.onChange(ids)}}
-                    noTranspose={true}
-                />                
+                <Paper style={{maxHeight: 500, overflow: 'auto'}}>
+                    <ElectrodeGeometryWidget
+                        key="electrode-geometry"
+                        labels={labels}
+                        locations={locations}
+                        width={this.props.width}
+                        selectedElectrodeIds={this.props.selectedElectrodeIds}
+                        onSelectedElectrodeIdsChanged={(ids) => {this.props.onChange(ids)}}
+                        noTranspose={true}
+                    />                
+                </Paper>
             </React.Fragment>
         );
     }
