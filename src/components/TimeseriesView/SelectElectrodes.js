@@ -48,6 +48,7 @@ export default class SelectElectrodes extends Component {
                     text={this._toHuman(this.props.selectedElectrodeIds)}
                     onChange={this._handleTextEdit}
                 />
+                <Checkbox key="checkbox1" checked={prefs.viewOnlySelectedChannels} onClick={() => {this._toggleViewOnlySelectedChannels()}} /> View only selected channels
                 <ElectrodeGeometryWidget
                     key="electrode-geometry"
                     labels={labels}
@@ -55,8 +56,8 @@ export default class SelectElectrodes extends Component {
                     width={this.props.width}
                     selectedElectrodeIds={this.props.selectedElectrodeIds}
                     onSelectedElectrodeIdsChanged={(ids) => {this.props.onChange(ids)}}
-                />
-                <Checkbox key="checkbox1" checked={prefs.viewOnlySelectedChannels} onClick={() => {this._toggleViewOnlySelectedChannels()}} /> View only selected channels
+                    noTranspose={true}
+                />                
             </React.Fragment>
         );
     }
