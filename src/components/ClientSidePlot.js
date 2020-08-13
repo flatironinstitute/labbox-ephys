@@ -49,7 +49,10 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
             <VisibilitySensor partialVisibility={true}>
                 {({ isVisible }) => {
                     if (isVisible) {
-                        setCalculationStatus('pending');
+                        // the setTimeout may be needed here to prevent a warning message
+                        setTimeout(() => {
+                            setCalculationStatus('pending');
+                        }, 0);
                     }
                     return (
                         <Box display="flex" width={boxSize.width} height={boxSize.height}
@@ -74,7 +77,12 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs,
         );
     } else if (calculationStatus === 'error') {
         return (
-            <div>Error in calculation: <pre>{calculationError}</pre></div>
+            <Box display="flex" width={boxSize.width} height={boxSize.height}
+            >
+                <Box m="auto">
+                    <div>Error in calculation: <pre>{calculationError}</pre></div>
+                </Box>
+            </Box>
         );
     } else if (calculationStatus === 'finished') {
         // TODO: Follow-up on distinction b/w this and <PlotComponent arg1={} arg2={} ... />

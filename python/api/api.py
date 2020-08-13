@@ -56,7 +56,18 @@ global_data_lock = threading.Lock()
 def iterate_worker_thread():
     global global_data
     with global_data_lock:
-        pass
+        job_ids = list(global_data['jobs_by_id'].keys())
+        for job_id in job_ids:
+            job = global_data['jobs_by_id'][job_id]
+            if job.get_status() == hi.JobStatus.FINISHED or job.get_status() == hi.JobStatus.ERROR:
+                del global_data['jobs_by_id'][job_id]
+            else:
+                elapsed = time.time() - getattr(job, '_last_wait_timestamp')
+                if elapsed > 10:
+                    print(f'Canceling job {job_id}: {job.get_label()}')
+                    job.cancel()
+                    del global_data['jobs_by_id'][job_id]
+
     thread = threading.Timer(3, iterate_worker_thread, ())
     thread.start()
 def start_worker_thread():
@@ -122,6 +133,7 @@ def create_hither_job():
         with ka.config(**kachery_config):
             with hi.Config(**hither_config):
                 job = hi.run(functionName, **kwargs)
+                setattr(job, '_last_wait_timestamp', time.time())
                 job_id = job._job_id
                 global_data['jobs_by_id'][job_id] = job
                 print(f'======== Created hither job: {job_id} {functionName}')
@@ -152,6 +164,7 @@ def hither_job_wait():
                     error_message=str(job.get_exception()),
                     runtime_info=job.get_runtime_info()
                 )
+            setattr(job, '_last_wait_timestamp', time.time())
             if job.get_status() == hi.JobStatus.FINISHED:
                 result = job.get_result()
                 result = _serialize_files_in_item(result)
@@ -516,4 +529,4 @@ def test_python_call():
     return 'output-from-test-python-call'
 
 
-# start_worker_thread()
+start_worker_thread()
