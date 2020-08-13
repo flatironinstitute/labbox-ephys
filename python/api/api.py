@@ -48,18 +48,25 @@ def _listify_ndarray(x):
 
 app = Flask(__name__)
 global_data = dict(
-    default_job_handler=hi.ParallelJobHandler(num_workers=4),
+    job_handlers=dict(
+        default=hi.ParallelJobHandler(num_workers=4),
+        calculation=hi.ParallelJobHandler(num_workers=4),
+        timeseries=hi.ParallelJobHandler(num_workers=4)
+    ),
     jobs_by_id=dict(),
     default_job_cache=hi.JobCache(use_tempdir=True)
 )
 global_data_lock = threading.Lock()
 def iterate_worker_thread():
+    # i don't think this works in prod
     global global_data
     with global_data_lock:
         pass
+
     thread = threading.Timer(3, iterate_worker_thread, ())
     thread.start()
 def start_worker_thread():
+    # i don't think this works in prod
     thread = threading.Timer(1, iterate_worker_thread, ())
     thread.start()
 
@@ -72,24 +79,41 @@ def decodeURIComponent(x):
 def index():
     return app.send_static_file('index.html')
 
-def _create_job_handler_from_config(x): 
-    job_handler_type = x['jobHandlerType']
-    if job_handler_type == 'default':
-        return hi.ParallelJobHandler(num_workers=4)
-    elif job_handler_type == 'remote':
-        # todo: fix this section
-        # event_stream_url = x['config']['eventStreamUrl']
-        # channel = x['config']['channel']
-        # password = x['config']['password']
-        # compute_resource_id = x['config']['computeResourceId']
-        # # jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
-        raise Exception(f'Not yet implemented')
-    else:
-        raise Exception(f'Unexpected job handler type: {job_handler_type}')
+# def _create_job_handler_from_config(x): 
+#     job_handler_type = x['jobHandlerType']
+#     if job_handler_type == 'default':
+#         return hi.ParallelJobHandler(num_workers=4)
+#     elif job_handler_type == 'remote':
+#         # todo: fix this section
+#         # event_stream_url = x['config']['eventStreamUrl']
+#         # channel = x['config']['channel']
+#         # password = x['config']['password']
+#         # compute_resource_id = x['config']['computeResourceId']
+#         # # jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
+#         raise Exception(f'Not yet implemented')
+#     else:
+#         raise Exception(f'Unexpected job handler type: {job_handler_type}')
+
+def _cleanup_old_hither_jobs():
+    global global_data
+    with global_data_lock:
+        job_ids = list(global_data['jobs_by_id'].keys())
+        for job_id in job_ids:
+            job = global_data['jobs_by_id'][job_id]
+            if job.get_status() == hi.JobStatus.FINISHED or job.get_status() == hi.JobStatus.ERROR:
+                pass
+            else:
+                elapsed = time.time() - getattr(job, '_last_wait_timestamp')
+                if elapsed > 30:
+                    print(f'Canceling old job {job_id}: {job.get_label()}')
+                    job.cancel()
 
 @app.route('/api/create_hither_job', methods=['POST'])
 def create_hither_job():
     global global_data
+
+    # todo: put this in a more appropriate place that will get called regularly
+    _cleanup_old_hither_jobs()
 
     x = request.json
     functionName = x['functionName']
@@ -100,17 +124,20 @@ def create_hither_job():
     kwargs = _deserialize_files_in_item(kwargs)
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})
+    job_handler_name = opts.get('job_handler_name', 'default')
     if 'job_handler_config' in hither_config:
-        job_handler_config = hither_config.get('job_handler_config')
+        # job_handler_config = hither_config.get('job_handler_config')
         del hither_config['job_handler_config']
     else:
-        job_handler_config = None
+        pass
+        # job_handler_config = None
 
-    if job_handler_config is not None:
-        hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
-    else:
-        with global_data_lock:
-            hither_config['job_handler'] = global_data['default_job_handler']
+    # if job_handler_config is not None:
+    #     hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
+    # else:
+    #     with global_data_lock:
+    #         hither_config['job_handler'] = global_data['job_handlers'][job_handler_name]
+    hither_config['job_handler'] = global_data['job_handlers'][job_handler_name]
     if hither_config['job_handler'].is_remote:
         hither_config['container'] = True
     if 'use_job_cache' in hither_config:
@@ -122,9 +149,10 @@ def create_hither_job():
         with ka.config(**kachery_config):
             with hi.Config(**hither_config):
                 job = hi.run(functionName, **kwargs)
+                setattr(job, '_last_wait_timestamp', time.time())
                 job_id = job._job_id
                 global_data['jobs_by_id'][job_id] = job
-                print(f'======== Created hither job: {job_id} {functionName}')
+                print(f'======== Created hither job: {job_id} {functionName} ({job_handler_name})')
                 return dict(
                     job_id=job_id
                 )
@@ -137,7 +165,12 @@ def hither_job_wait():
     assert job_id, 'Missing job_id'
     global global_data
     with global_data_lock:
-        assert job_id in global_data['jobs_by_id'], f'No job with id: {job_id}'
+        if job_id not in global_data['jobs_by_id']:
+            return dict(
+                error=True,
+                error_message=f'No job with id: {job_id}',
+                runtime_info=None
+            )
         job: hi.Job = global_data['jobs_by_id'][job_id]
     timer = time.time()
     while True:
@@ -152,6 +185,7 @@ def hither_job_wait():
                     error_message=str(job.get_exception()),
                     runtime_info=job.get_runtime_info()
                 )
+            setattr(job, '_last_wait_timestamp', time.time())
             if job.get_status() == hi.JobStatus.FINISHED:
                 result = job.get_result()
                 result = _serialize_files_in_item(result)
@@ -516,4 +550,5 @@ def test_python_call():
     return 'output-from-test-python-call'
 
 
+# i don't think this works in prod
 # start_worker_thread()

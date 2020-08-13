@@ -15,7 +15,7 @@ import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
 import { connect } from 'react-redux';
 import { getPathQuery, getFeedId } from './kachery';
 
-const ToolBarContent = ({ documentInfo }) => {
+const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
     const { documentId, feedUri, readonly } = documentInfo;
     return (
         <Fragment>
@@ -27,7 +27,9 @@ const ToolBarContent = ({ documentInfo }) => {
             </Button>
             <span style={{marginLeft: 'auto'}} />
             <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} style={{marginLeft: 'auto'}}>Config</Button>
-            <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
+            {
+                extensionsConfig.enabled.development && <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
+            }
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
             <HitherJobMonitorControl />
@@ -58,7 +60,7 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     return <div>Setting document id...</div>
 }
 
-const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocumentInfo }) => {
+const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
     const { documentId, feedId } = documentInfo;
     let loaded = true;
     ['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
@@ -91,7 +93,7 @@ const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocu
         <div className={"TheAppBar"}>
             <AppBar position="static">
                 <Toolbar>
-                    <ToolBarContent documentInfo={documentInfo} />
+                    <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
                 </Toolbar>
             </AppBar>
             <div style={{padding: 30}}>
@@ -110,7 +112,8 @@ const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocu
 const mapStateToProps = state => {
     return {
         initialLoad: state.initialLoad,
-        documentInfo: state.documentInfo
+        documentInfo: state.documentInfo,
+        extensionsConfig: state.extensionsConfig
     }
 }
 

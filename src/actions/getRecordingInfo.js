@@ -6,8 +6,9 @@ export const getRecordingInfo = async ({recordingObject}) => {
         { recording_object: recordingObject },
         {
             kachery_config: {},
+            job_handler_name: 'default',
             hither_config: {
-                job_handler_role: 'general'
+                
             },
             auto_substitute_file_objects: false,
             useClientCache: true

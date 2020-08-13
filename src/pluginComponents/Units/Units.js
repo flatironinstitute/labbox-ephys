@@ -57,9 +57,9 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
                     wait: true,
                     useClientCache: true,
                     hither_config: {
-                        job_handler_role: 'general',
                         use_job_cache: true
-                    }
+                    },
+                    job_handler_name: 'calculation'
                 });
             }
             catch (err) {

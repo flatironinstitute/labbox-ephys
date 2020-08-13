@@ -34,8 +34,8 @@ const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo
                         {
                             kachery_config: {},
                             hither_config: {
-                                job_handler_role: 'general'
                             },
+                            job_handler_name: 'default',
                             auto_substitute_file_objects: false,
                             useClientCache: true
                         }
