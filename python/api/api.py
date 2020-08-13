@@ -54,23 +54,15 @@ global_data = dict(
 )
 global_data_lock = threading.Lock()
 def iterate_worker_thread():
+    # i don't think this works in prod
     global global_data
     with global_data_lock:
-        job_ids = list(global_data['jobs_by_id'].keys())
-        for job_id in job_ids:
-            job = global_data['jobs_by_id'][job_id]
-            if job.get_status() == hi.JobStatus.FINISHED or job.get_status() == hi.JobStatus.ERROR:
-                del global_data['jobs_by_id'][job_id]
-            else:
-                elapsed = time.time() - getattr(job, '_last_wait_timestamp')
-                if elapsed > 10:
-                    print(f'Canceling job {job_id}: {job.get_label()}')
-                    job.cancel()
-                    del global_data['jobs_by_id'][job_id]
+        pass
 
     thread = threading.Timer(3, iterate_worker_thread, ())
     thread.start()
 def start_worker_thread():
+    # i don't think this works in prod
     thread = threading.Timer(1, iterate_worker_thread, ())
     thread.start()
 
@@ -98,9 +90,26 @@ def _create_job_handler_from_config(x):
     else:
         raise Exception(f'Unexpected job handler type: {job_handler_type}')
 
+def _cleanup_old_hither_jobs():
+    global global_data
+    with global_data_lock:
+        job_ids = list(global_data['jobs_by_id'].keys())
+        for job_id in job_ids:
+            job = global_data['jobs_by_id'][job_id]
+            if job.get_status() == hi.JobStatus.FINISHED or job.get_status() == hi.JobStatus.ERROR:
+                pass
+            else:
+                elapsed = time.time() - getattr(job, '_last_wait_timestamp')
+                if elapsed > 30:
+                    print(f'Canceling old job {job_id}: {job.get_label()}')
+                    job.cancel()
+
 @app.route('/api/create_hither_job', methods=['POST'])
 def create_hither_job():
     global global_data
+
+    # todo: put this in a more appropriate place that will get called regularly
+    _cleanup_old_hither_jobs()
 
     x = request.json
     functionName = x['functionName']
@@ -149,7 +158,12 @@ def hither_job_wait():
     assert job_id, 'Missing job_id'
     global global_data
     with global_data_lock:
-        assert job_id in global_data['jobs_by_id'], f'No job with id: {job_id}'
+        if job_id not in global_data['jobs_by_id']:
+            return dict(
+                error=True,
+                error_message=f'No job with id: {job_id}',
+                runtime_info=None
+            )
         job: hi.Job = global_data['jobs_by_id'][job_id]
     timer = time.time()
     while True:
@@ -529,4 +543,5 @@ def test_python_call():
     return 'output-from-test-python-call'
 
 
-start_worker_thread()
+# i don't think this works in prod
+# start_worker_thread()
