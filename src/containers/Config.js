@@ -4,11 +4,10 @@ import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import ConfigJobHandlers from './ConfigJobHandlers'
+import ConfigComputeResource from './ConfigComputeResource';
 import ConfigSharing from './ConfigSharing'
 import ConfigExtensions from './ConfigExtensions'
 import ConfigFrankLabDataJoint from '../extensions/frankLabDataJoint/containers/ConfigFrankLabDataJoint'
-import { Box, Typography } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { Fragment } from 'react';
 
@@ -30,6 +29,10 @@ const Config = ({ extensionsConfig }) => {
   tabs.push({
     label: 'Sharing',
     component: <ConfigSharing />
+  })
+  tabs.push({
+    label: 'Compute Resource',
+    component: <ConfigComputeResource />
   })
   if (extensionsConfig.enabled.frankLabDataJoint) {
     tabs.push({

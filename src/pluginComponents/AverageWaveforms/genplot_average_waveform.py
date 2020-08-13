@@ -4,7 +4,9 @@ import kachery as ka
 import spikeextractors as se
 import spiketoolkit as st
 
-@hi.function('fetch_average_waveform_plot_data', '0.1.12')
+@hi.function('fetch_average_waveform_plot_data', '0.1.13')
+@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_average_waveform_plot_data(recording_object, sorting_object, unit_id):
     import labbox_ephys as le
     R = le.LabboxEphysRecordingExtractor(recording_object)

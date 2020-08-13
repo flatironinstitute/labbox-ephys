@@ -50,7 +50,8 @@ app = Flask(__name__)
 global_data = dict(
     job_handlers=dict(
         default=hi.ParallelJobHandler(num_workers=4),
-        calculation=hi.ParallelJobHandler(num_workers=4),
+        calculation=hi.RemoteJobHandler(uri='feed://82a4286f85b50866c290fe5650bbe52c507362aee420ba0185b3d9c7fa638da9?name=ccmlin008.flatironinstitute.org'),
+        # calculation=hi.RemoteJobHandler(uri='feed://f1d9866eb5f06f03d964bdee69175612463c81f2ef01cabfc418897e02bf02f6?name=dubb'),
         timeseries=hi.ParallelJobHandler(num_workers=4)
     ),
     jobs_by_id=dict(),
@@ -235,6 +236,13 @@ def get_default_feed_id(feed_name='labbox-ephys-default'):
             error=str(err)
         )
     return feed_id
+
+@app.route('/api/kachery/getNodeId', methods=['POST'])
+def kachery_feed_get_node_id():
+    x = request.json
+    return dict(
+        nodeId=kp.get_node_id()
+    )
 
 @app.route('/api/kachery/feed/getFeedId', methods=['POST'])
 def kachery_feed_get_feed_id():

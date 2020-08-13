@@ -2,4 +2,4 @@
 
 set -ex
 
-docker push magland/labbox-ephys-processing:latest
+docker push magland/labbox-ephys-processing:0.2.18

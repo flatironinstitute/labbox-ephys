@@ -51,7 +51,6 @@ const AverageWaveforms = ({ sorting, recording, isSelected=() => {}, isFocused=(
 const label = 'Average waveforms'
 
 AverageWaveforms.sortingViewPlugin = {
-    development: true,
     label: label
 }
 

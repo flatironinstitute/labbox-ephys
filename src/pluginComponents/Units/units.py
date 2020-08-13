@@ -1,6 +1,8 @@
 import hither as hi
 
-@hi.function('get_firing_data', '0.1.0')
+@hi.function('get_firing_data', '0.1.2')
+@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.local_modules(['../../../python/labbox_ephys'])
 def get_firing_data(sorting_object, recording_object):
     from decimal import Decimal
     S, R = get_structure(sorting_object, recording_object)

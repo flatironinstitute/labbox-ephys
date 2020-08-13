@@ -20,7 +20,7 @@ spec:
             claimName: labbox-ephys-pv-claim
       containers:
       - name: labbox-ephys
-        image: magland/labbox-ephys:0.2.18
+        image: magland/labbox-ephys:0.2.20
         env:
         - name: HOME
           value: /tmp

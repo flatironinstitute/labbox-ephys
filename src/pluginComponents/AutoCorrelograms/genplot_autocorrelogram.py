@@ -4,6 +4,8 @@ import kachery as ka
 from ._correlograms_phy import compute_correlograms
 
 @hi.function('fetch_correlogram_plot_data', '0.1.0')
+@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
     import labbox_ephys as le
     S = le.LabboxEphysSortingExtractor(sorting_object)

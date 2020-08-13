@@ -8,7 +8,6 @@ const ConfigSharing = ({
     return (
         <div>
             <h1>Sharing</h1>
-            {resolvedFeedUri}
             <p>You can share the following information:</p>
             <pre>{`Feed URI: ${resolvedFeedUri}`}</pre>
             <pre>{`document ID: ${documentId}`}</pre>

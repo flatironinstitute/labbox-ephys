@@ -8,7 +8,7 @@ import labbox_ephys as le
 
 @hi.function('get_sorting_object', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
-@hi.container('docker://magland/labbox-ephys-processing:latest')
+@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 def get_sorting_object(sorting_path, recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     sorting = le.LabboxEphysSortingExtractor(sorting_path, samplerate=recording.get_sampling_frequency())

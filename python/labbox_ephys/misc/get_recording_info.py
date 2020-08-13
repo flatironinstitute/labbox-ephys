@@ -9,7 +9,7 @@ import labbox_ephys as le
 @hi.function('get_recording_info', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
 
-@hi.container('docker://magland/labbox-ephys-processing:latest')
+@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 def get_recording_info(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     return dict(
@@ -23,7 +23,7 @@ def get_recording_info(recording_object):
 
 @hi.function('download_recording', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
-@hi.container('docker://magland/labbox-ephys-processing:latest')
+@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 def download_recording(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     recording.download()
