@@ -144,8 +144,8 @@ const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, reco
                     {
                         kachery_config: {},
                         hither_config: {
-                            job_handler_role: 'general'
                         },
+                        job_handler_name: 'default',
                         wait: true,
                         auto_substitute_file_objects: true,
                         useClientCache: false

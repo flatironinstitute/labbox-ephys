@@ -40,8 +40,8 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
                     {
                         kachery_config: {},
                         hither_config: {
-                            job_handler_role: 'general'
                         },
+                        job_handler_name: 'default',
                         // if we do not substitute file objects, then it does not get downloaded
                         auto_substitute_file_objects: false,
                         wait: true,

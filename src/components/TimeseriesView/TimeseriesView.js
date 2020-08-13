@@ -5,8 +5,7 @@ import TimeseriesModel from "./TimeseriesModel";
 import { createHitherJob } from '../../hither';
 const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
-    recordingObject,
-    hitherConfig
+    recordingObject
 }) => {
     // handle filter opts stuff
     const leftPanels = [];
@@ -45,9 +44,9 @@ const TimeseriesViewInner = ({
                     { recording_object: recordingObject },
                     {
                         hither_config: {
-                            job_handler_role: 'general',
                             use_job_cache: true
                         },
+                        job_handler_name: 'timeseries',
                         useClientCache: true,
                         auto_substitute_file_objects: false
                     }
@@ -86,8 +85,8 @@ const TimeseriesViewInner = ({
                         },
                         {
                             hither_config: {
-                                job_handler_role: 'general'
                             },
+                            job_handler_name: 'timeseries',
                             useClientCache: true,
                             auto_substitute_file_objects: false
                         }

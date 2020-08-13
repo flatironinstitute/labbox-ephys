@@ -32,8 +32,8 @@ const RunSpikeSortingForRecording = ({ recordingId, recording, sortings, sorting
         {
           kachery_config: {},
           hither_config: {
-            job_handler_role: 'sorting'
           },
+          job_handler_name: 'default',
           auto_substitute_file_objects: true,
           wait: true,
           useClientCache: false

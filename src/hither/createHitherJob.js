@@ -33,12 +33,6 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     const job0 = await createHitherJob(functionName, kwargs, {...opts, wait: false});
     return await job0.wait();
   }
-  if ((opts.hither_config) && (opts.hither_config.job_handler_role)) {
-    if (opts.hither_config.job_handler_role in globalJobHandlersByRole) {
-      opts.hither_config.job_handler_config = globalJobHandlersByRole[opts.hither_config.job_handler_role];
-    }
-    opts.hither_config.job_handler_role = undefined;
-  }
   const kwargs2 = serializeFileObjectsInItem(kwargs);
   const jobHash = objectHash({
     functionName: functionName,

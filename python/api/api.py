@@ -48,7 +48,11 @@ def _listify_ndarray(x):
 
 app = Flask(__name__)
 global_data = dict(
-    default_job_handler=hi.ParallelJobHandler(num_workers=4),
+    job_handlers=dict(
+        default=hi.ParallelJobHandler(num_workers=4),
+        calculation=hi.ParallelJobHandler(num_workers=4),
+        timeseries=hi.ParallelJobHandler(num_workers=4)
+    ),
     jobs_by_id=dict(),
     default_job_cache=hi.JobCache(use_tempdir=True)
 )
@@ -75,20 +79,20 @@ def decodeURIComponent(x):
 def index():
     return app.send_static_file('index.html')
 
-def _create_job_handler_from_config(x): 
-    job_handler_type = x['jobHandlerType']
-    if job_handler_type == 'default':
-        return hi.ParallelJobHandler(num_workers=4)
-    elif job_handler_type == 'remote':
-        # todo: fix this section
-        # event_stream_url = x['config']['eventStreamUrl']
-        # channel = x['config']['channel']
-        # password = x['config']['password']
-        # compute_resource_id = x['config']['computeResourceId']
-        # # jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
-        raise Exception(f'Not yet implemented')
-    else:
-        raise Exception(f'Unexpected job handler type: {job_handler_type}')
+# def _create_job_handler_from_config(x): 
+#     job_handler_type = x['jobHandlerType']
+#     if job_handler_type == 'default':
+#         return hi.ParallelJobHandler(num_workers=4)
+#     elif job_handler_type == 'remote':
+#         # todo: fix this section
+#         # event_stream_url = x['config']['eventStreamUrl']
+#         # channel = x['config']['channel']
+#         # password = x['config']['password']
+#         # compute_resource_id = x['config']['computeResourceId']
+#         # # jh = hi.RemoteJobHandler(event_stream_client=esc, compute_resource_id=compute_resource_id)
+#         raise Exception(f'Not yet implemented')
+#     else:
+#         raise Exception(f'Unexpected job handler type: {job_handler_type}')
 
 def _cleanup_old_hither_jobs():
     global global_data
@@ -120,17 +124,20 @@ def create_hither_job():
     kwargs = _deserialize_files_in_item(kwargs)
     kachery_config = opts.get('kachery_config', {})
     hither_config = opts.get('hither_config', {})
+    job_handler_name = opts.get('job_handler_name', 'default')
     if 'job_handler_config' in hither_config:
-        job_handler_config = hither_config.get('job_handler_config')
+        # job_handler_config = hither_config.get('job_handler_config')
         del hither_config['job_handler_config']
     else:
-        job_handler_config = None
+        pass
+        # job_handler_config = None
 
-    if job_handler_config is not None:
-        hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
-    else:
-        with global_data_lock:
-            hither_config['job_handler'] = global_data['default_job_handler']
+    # if job_handler_config is not None:
+    #     hither_config['job_handler'] = _create_job_handler_from_config(job_handler_config)
+    # else:
+    #     with global_data_lock:
+    #         hither_config['job_handler'] = global_data['job_handlers'][job_handler_name]
+    hither_config['job_handler'] = global_data['job_handlers'][job_handler_name]
     if hither_config['job_handler'].is_remote:
         hither_config['container'] = True
     if 'use_job_cache' in hither_config:
@@ -145,7 +152,7 @@ def create_hither_job():
                 setattr(job, '_last_wait_timestamp', time.time())
                 job_id = job._job_id
                 global_data['jobs_by_id'][job_id] = job
-                print(f'======== Created hither job: {job_id} {functionName}')
+                print(f'======== Created hither job: {job_id} {functionName} ({job_handler_name})')
                 return dict(
                     job_id=job_id
                 )
