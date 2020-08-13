@@ -4,7 +4,7 @@ import kachery as ka
 import spikeextractors as se
 import spiketoolkit as st
 
-@hi.function('fetch_average_waveform_plot_data', '0.1.11')
+@hi.function('fetch_average_waveform_plot_data', '0.1.12')
 def fetch_average_waveform_plot_data(recording_object, sorting_object, unit_id):
     import labbox_ephys as le
     R = le.LabboxEphysRecordingExtractor(recording_object)
@@ -37,5 +37,5 @@ def fetch_average_waveform_plot_data(recording_object, sorting_object, unit_id):
 
     return dict(
         channel_id=maxchan_id,
-        average_waveform=average_waveform[maxchan_id, :]
+        average_waveform=average_waveform[maxchan_id, :].tolist()
     )
