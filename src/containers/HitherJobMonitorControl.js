@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { getPathQuery } from '../kachery';
 
 const HitherJobMonitorControl = ({
-    allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, dispatch, documentInfo
+    allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, dispatch, documentInfo, websocketStatus
 }) => {
     const { documentId, feedUri, readonly } = documentInfo;
     setDispatch(dispatch);
@@ -15,7 +15,7 @@ const HitherJobMonitorControl = ({
     const title = `Jobs: ${numRunning} running | ${numFinished} finished | ${numErrored} errored`
     return (
         <Link to={`/${documentId}/hitherJobMonitor${getPathQuery({feedUri})}`} style={{color: 'white'}} title={title}>
-            <span style={{fontFamily: "courier"}}>{numRunning}:{numFinished}:{numErrored}</span>
+            <span style={{fontFamily: "courier", backgroundColor: (websocketStatus==='connected') ? '' :'red'}}>{numRunning}:{numFinished}:{numErrored}</span>
         </Link>
     );
 }
@@ -26,7 +26,8 @@ const mapStateToProps = state => ({
     runningJobs: state.hitherJobs.filter(j => (j.status === 'running')),
     finishedJobs: state.hitherJobs.filter(j => (j.status === 'finished')),
     erroredJobs: state.hitherJobs.filter(j => (j.status === 'error')),
-    documentInfo: state.documentInfo
+    documentInfo: state.documentInfo,
+    websocketStatus: state.serverConnection.websocketStatus
 })
 
 const mapDispatchToProps = dispatch => ({

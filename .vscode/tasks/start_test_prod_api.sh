@@ -10,4 +10,5 @@ cd python/api
 # pip install gunicorn
 # ~/.local/bin/gunicorn -b 127.0.0.1:15362 api:app
 
-python -m flask run -p 15362 --no-debugger
+# python -m flask run -p 15362 --no-debugger
+python api.py

@@ -59,7 +59,7 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
                     hither_config: {
                         use_job_cache: true
                     },
-                    job_handler_name: 'calculation'
+                    job_handler_name: 'calculation3'
                 });
             }
             catch (err) {

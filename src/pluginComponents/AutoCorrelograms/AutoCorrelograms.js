@@ -36,6 +36,8 @@ const AutoCorrelograms = ({ sorting, isSelected=() => {}, isFocused=() => {}, on
                                     }}
                                     plotComponent={Correlogram_rv}
                                     plotComponentArgs={{ id: 'plot-'+unitId }}
+                                    useJobCache={true}
+                                    jobHandlerName="calculation1"
                                 />
                             </div>
                         </div>

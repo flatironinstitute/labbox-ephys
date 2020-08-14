@@ -38,6 +38,7 @@ const AverageWaveforms = ({ sorting, recording, isSelected=() => {}, isFocused=(
                                     plotComponent={AverageWaveform_rv}
                                     plotComponentArgs={{ id: 'plot-'+unitId }}
                                     useJobCache={true}
+                                    jobHandlerName="calculation2"
                                 />
                             </div>
                         </div>

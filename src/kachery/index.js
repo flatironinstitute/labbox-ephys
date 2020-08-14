@@ -8,19 +8,19 @@ export const feedIdFromUri = (uri) => {
     return list0[2];
 }
 
-export const getFeedId = async (feedName) => {
-    const url = `/api/kachery/feed/getFeedId`;
-    const d = {
-        feedName
-    }
-    const result = await axios.post(url, d);
-    if (result.data.success) {
-        return result.data.feedId;
-    }
-    else {
-        throw Error(result.data.error);
-    }
-}
+// export const getFeedId = async (feedName) => {
+//     const url = `/api/kachery/feed/getFeedId`;
+//     const d = {
+//         feedName
+//     }
+//     const result = await axios.post(url, d);
+//     if (result.data.success) {
+//         return result.data.feedId;
+//     }
+//     else {
+//         throw Error(result.data.error);
+//     }
+// }
 
 export const getPathQuery = ({feedUri}) => {
     if (feedUri === 'default') return '';

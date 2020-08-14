@@ -28,7 +28,7 @@ kachery-p2p-start-daemon --verbose 1 --channel spikeforest &
 cd /labbox-ephys
 # concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"
 
-serve -s build -l 15306 &
+serve -s build -l 15310 &
 
 # The following is just to make sure the user is not confused by the message of the serve command
 set +x
@@ -52,4 +52,4 @@ set -x
 # gunicorn maybe has some advantages, but by default it only handles one request at a time
 # exec gunicorn -b 127.0.0.1:15307 api:app
 
-python -m flask run -p 15307 --no-debugger
+python api.py

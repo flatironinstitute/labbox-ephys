@@ -1,4 +1,4 @@
-__version__ = "0.2.20"
+__version__ = "0.3.0"
 
 from .extractors import LabboxEphysRecordingExtractor, LabboxEphysSortingExtractor
 from .extractors import MdaRecordingExtractor, MdaSortingExtractor

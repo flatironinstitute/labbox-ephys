@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux'
-import initialLoad from './initialLoad'
+import serverConnection from './serverConnection'
 import databaseConfig from './databaseConfig'
 import recordings from './recordings'
 import sortings from './sortings'
@@ -8,16 +8,18 @@ import jobHandlers from './jobHandlers'
 import persisting from './persisting'
 import hitherJobs from './hitherJobs'
 import documentInfo from './documentInfo'
+import serverInfo from './serverInfo'
 import extensionsConfig from '../extensions/reducers'
 
 export default combineReducers({
-    initialLoad,
     databaseConfig,
     recordings,
+    serverInfo,
     sortings,
     sortingJobs,
     jobHandlers,
     persisting,
+    serverConnection,
     hitherJobs,
     extensionsConfig,
     documentInfo

@@ -17,9 +17,9 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN apt-get install -y locales && locale-gen en_US.UTF-8
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-tk
 
-# See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
-##### nginx, etc
-RUN apt-get update && apt-get install -y nginx
+# # See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+# ##### nginx, etc
+# RUN apt-get update && apt-get install -y nginx
 
 # nano
 RUN apt-get install -y nano
@@ -29,7 +29,6 @@ RUN pip install numpy
 
 RUN pip install ipython jupyter jupyterlab
 RUN pip install pymongo dnspython
-RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
@@ -68,9 +67,9 @@ COPY build /labbox-ephys/build
 
 RUN cd /labbox-ephys/python && pip install -e .
 
-COPY docker/labbox-ephys/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
-RUN rm /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
+# COPY docker/labbox-ephys/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+# RUN rm /etc/nginx/sites-enabled/default && \
+#     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 
 COPY docker/labbox-ephys/run_inside_container.sh /run_inside_container.sh
 

@@ -102,7 +102,7 @@ const HitherJobInfoView = ({ job }) => {
         },
         {
             label: 'Message',
-            value: job.errorMessage
+            value: job.error_message
         }
     ]
     return (

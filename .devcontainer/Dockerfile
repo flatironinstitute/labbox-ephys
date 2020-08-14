@@ -88,7 +88,6 @@ RUN apt-get update && \
 
 RUN pip install ipython jupyter jupyterlab
 RUN pip install pymongo dnspython
-RUN pip install flask
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
@@ -101,12 +100,12 @@ RUN pip install matplotlib mpld3
 # nano
 RUN apt-get install -y nano
 
-# See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
-##### nginx, etc
-RUN apt-get update && apt-get install -y nginx
-COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
-RUN rm /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
+# # See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
+# ##### nginx, etc
+# RUN apt-get update && apt-get install -y nginx
+# COPY labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
+# RUN rm /etc/nginx/sites-enabled/default && \
+#     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
 
 RUN pip install datajoint
 RUN pip install pynwb

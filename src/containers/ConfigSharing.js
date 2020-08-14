@@ -4,17 +4,17 @@ import { connect } from 'react-redux';
 const ConfigSharing = ({
     documentInfo
 }) => {
-    const {feedUri, resolvedFeedUri, documentId} = documentInfo;
+    const {feedUri, documentId} = documentInfo;
     return (
         <div>
             <h1>Sharing</h1>
             <p>You can share the following information:</p>
-            <pre>{`Feed URI: ${resolvedFeedUri}`}</pre>
+            <pre>{`Feed URI: ${feedUri}`}</pre>
             <pre>{`document ID: ${documentId}`}</pre>
             {
-                resolvedFeedUri && (
+                feedUri && (
                     <pre>
-                        {`.../${documentId}?feed=${resolvedFeedUri}`}
+                        {`.../${documentId}?feed=${feedUri}`}
                     </pre>
                 )
             }

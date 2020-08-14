@@ -71,6 +71,8 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
                                     }}
                                     plotComponent={Correlogram_rv}
                                     plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
+                                    useJobCache={true}
+                                    jobHandlerName="calculation1"
                                 />
                             </div>
                         </Grid>
