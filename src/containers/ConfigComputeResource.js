@@ -1,50 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux';
-import axios from 'axios';
 
-const ConfigComputeResource = ({
-}) => {
-    const [status, setStatus] = useState('pending');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [nodeId, setNodeId] = useState(null);
-
-    const effect = async () => {
-        if (status === 'pending') {
-            setStatus('running');
-            try {
-                const url = `/api/kachery/getNodeId`;
-                const result = await axios.post(url, {});
-                if (!result.data) {
-                    setStatus('error');
-                    setErrorMessage('result.data is null');
-                    return;
-                }
-                setNodeId(result.data.nodeId);
-                setStatus('finished');
-            }
-            catch (err) {
-                setStatus('error');
-                setErrorMessage('Error fetching node ID.')
-            }
-        }
-    }
-    useEffect(() => {effect()});
-
+const ConfigComputeResource = ({nodeId}) => {
     const Content = () => {
-        if ((status === 'pending') || (status === 'running')) {
-            return <div>Retrieving node ID....</div>;
-        }
-        else if (status === 'error') {
-            return <div>Error: <pre>{errorMessage}</pre></div>;
-        }
-        else if (status === 'finished') {
-            return <div>
-                <pre>kachery-p2p node ID: {nodeId}</pre>
-            </div>
-        }
-        else {
-            return <div>Unexpected</div>;
-        }
+        return <div>
+            <pre>kachery-p2p node ID: {nodeId}</pre>
+        </div>
     }
 
     return (
@@ -57,6 +18,7 @@ const ConfigComputeResource = ({
 
 
 const mapStateToProps = state => ({
+    nodeId: state.serverInfo.nodeId
 })
 
 const mapDispatchToProps = dispatch => ({

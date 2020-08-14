@@ -56,7 +56,7 @@ You can learn more about vscode tasks [here](https://code.visualstudio.com/docs/
 The following ports are used by the development container:
 
 * 15351 - development client (yarn start)
-* 15352 - development api server (flask `api/`)
+* 15308 - development api server (flask `api/`)
 * 15353 - development event stream server
 * 15353 - development websocket for event stream server
 * 15361 - test production client (serving `build/` directory)

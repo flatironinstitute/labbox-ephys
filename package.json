@@ -55,7 +55,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:15352",
+  "proxyDisable": "http://localhost:15308",
   "devDependencies": {
     "serve": "^11.3.0"
   }

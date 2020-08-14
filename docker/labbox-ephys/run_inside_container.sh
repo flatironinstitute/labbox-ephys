@@ -2,12 +2,12 @@
 
 set -ex
 
-if [ "$EUID" -ne 0 ]; then
-  # not running as root
-  sudo service nginx restart
-else
-  service nginx restart
-fi
+# if [ "$EUID" -ne 0 ]; then
+#   # not running as root
+#   sudo service nginx restart
+# else
+#   service nginx restart
+# fi
 
 
 # yarn global add serve

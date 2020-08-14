@@ -57,6 +57,8 @@ RUN git clone https://github.com/flatironinstitute/hither /hither \
 
 RUN yarn global add serve
 
+RUN pip install websockets
+
 # #########################################
 # ### Install labbox-ephys
 # Be selective in which files we copy

@@ -44,7 +44,7 @@ const store = createStore(rootReducer, {}, applyMiddleware(thunk))
 // connect to the server api
 class ApiConnection {
   constructor() {
-    const url = `ws://${window.location.hostname}:15352`;
+    const url = `ws://${window.location.hostname}:15308`;
 
     this._ws = new WebSocket(url);
     console.log(this._ws);

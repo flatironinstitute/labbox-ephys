@@ -111,5 +111,6 @@ RUN pip install datajoint
 RUN pip install pynwb
 RUN pip install ghostipy
 RUN pip install spikeinterface
+RUN pip install websockets
 
 RUN /bin/sh -c "usermod -aG docker vscode && newgrp docker"
