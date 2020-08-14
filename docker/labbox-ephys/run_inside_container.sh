@@ -52,4 +52,4 @@ set -x
 # gunicorn maybe has some advantages, but by default it only handles one request at a time
 # exec gunicorn -b 127.0.0.1:15307 api:app
 
-python api.py
+exec python -u api.py

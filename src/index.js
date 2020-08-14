@@ -60,7 +60,7 @@ class ApiConnection {
     });
     this._ws.addEventListener('message', evt => {
       const x = JSON.parse(evt.data);
-      console.log('--- INCOMING MESSAGE', x);
+      console.info('INCOMING MESSAGE', x);
       this._onMessageCallbacks.forEach(cb => cb(x));
     });
     this._ws.addEventListener('close', () => {
@@ -91,7 +91,7 @@ class ApiConnection {
       this._queuedMessages.push(msg);
       return;
     }
-    console.log('--- OUTGOING MESSAGE', msg);
+    console.info('OUTGOING MESSAGE', msg);
     this._ws.send(JSON.stringify(msg));
   }
   async _start() {

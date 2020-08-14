@@ -28,8 +28,8 @@ PACKAGE_VERSION=$(cat package.json \
 
 echo "version from package.json is: ${PACKAGE_VERSION}"
 
-# rm -rf build
-# yarn build
+rm -rf build
+yarn build
 
 IMAGE_NAME="magland/labbox-ephys:${PACKAGE_VERSION}"
 
