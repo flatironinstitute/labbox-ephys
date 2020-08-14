@@ -48,7 +48,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
 
   const handleUnitClicked = (unitId, event) => {
     let newSelectedUnitIds = [];
-    if (event.ctrlKey){
+    if (event.ctrlKey) {
         // if ctrl modifier is set, ignore shift status, then:
         // 1. Toggle clicked element only (don't touch any existing elements) &
         // 2. Set focused id to clicked id (regardless of toggle status)
@@ -116,8 +116,8 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
           <div><CircularProgress /></div>
         ) : (
           <SortingInfoView sortingInfo={sorting.sortingInfo}
-            isSelected={isSelected}
-            isFocused={isFocused}
+            selections={selectedUnitIds}
+            focus={focusedUnitId}
             onUnitClicked={handleUnitClicked}
             curation={sorting.unitCuration || {}}
             styling={sidebarStyle}
