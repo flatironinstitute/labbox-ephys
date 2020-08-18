@@ -111,8 +111,8 @@ class ClientHitherJob {
   }
   async wait() {
     return new Promise((resolve, reject) => {
-      this.onFinished(() => {
-        resolve(this._result);
+      this.onFinished((result) => {
+        resolve(result);
       });
       this.onError(err => {
         reject(err);
@@ -131,9 +131,15 @@ class ClientHitherJob {
   }
   onFinished(cb) {
     this._onFinishedCallbacks.push(cb);
+    if (this._status === 'finished') {
+      cb(this._result);
+    }
   }
   onError(cb) {
     this._onErrorCallbacks.push(cb);
+    if (this._status === 'error') {
+      cb(new Error(this._error_message));
+    }
   }
   _handleHitherJobCreated({jobId}) {
     this._jobId = jobId;
@@ -157,7 +163,7 @@ class ClientHitherJob {
     if (this._jobId in globalData.runningJobIds) {
       delete globalData.runningJobIds[this._jobId];
     }
-    this._onFinishedCallbacks.forEach(cb => cb());
+    this._onFinishedCallbacks.forEach(cb => cb(this._result));
   }
 }
 

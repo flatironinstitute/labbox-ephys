@@ -20,7 +20,7 @@ spec:
             claimName: labbox-ephys-pv-claim
       containers:
       - name: labbox-ephys
-        image: magland/labbox-ephys:0.3.7
+        image: magland/labbox-ephys:0.3.8
         imagePullPolicy: Always
         env:
         - name: HOME
