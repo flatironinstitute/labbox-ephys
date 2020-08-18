@@ -23,11 +23,11 @@ labbox_config = {
         },
         'calculation2': {
             'type': 'remote',
-            'uri': 'feed://fae110e69522c5d5605b2b3e149b62311b0ec3e682a04498f65c9f6da23f0977?name=ccmlin008-ephys1-1'
+            'uri': 'feed://9f0a732a660ff9cb29d7f6e3f4e7fbf43392ba569058df83ae807d200e79117f?name=ccmlin008-ephys1-2'
         },
         'calculation3': {
             'type': 'remote',
-            'uri': 'feed://fae110e69522c5d5605b2b3e149b62311b0ec3e682a04498f65c9f6da23f0977?name=ccmlin008-ephys1-1'
+            'uri': 'feed://96b4879d17c55fdd414b1f03e52d9c54c16467488ff42adabedb3c9386ee5397?name=ccmlin008-ephys1-3'
         },
         'timeseries': {
             'type': 'local'
@@ -43,7 +43,11 @@ local_job_handlers = dict(
     timeseries=hi.ParallelJobHandler(4)
 )
 
-default_job_cache=hi.JobCache(use_tempdir=True)
+# default_job_cache=hi.JobCache(use_tempdir=True)
+job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
+if not os.path.exists(job_cache_path):
+    os.mkdir(job_cache_path)
+default_job_cache=hi.JobCache(path=job_cache_path)
 
 class Session:
     def __init__(self):

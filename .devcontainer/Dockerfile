@@ -109,7 +109,6 @@ RUN apt-get install -y nano
 
 RUN pip install datajoint
 RUN pip install pynwb
-RUN pip install ghostipy
 RUN pip install spikeinterface
 RUN pip install websockets
 RUN pip install click

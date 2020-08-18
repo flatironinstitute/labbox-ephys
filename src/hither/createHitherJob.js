@@ -19,13 +19,10 @@ export const handleHitherJobCreated = (msg) => {
     return;
   }
   const job = globalData.hitherJobs[msg.client_job_id];
+  job._handleHitherJobCreated({jobId: msg.job_id});
   globalData.hitherJobs[msg.job_id] = job;
   delete globalData.hitherJobs[job.clientJobId];
-  job.jobId = msg.job_id;
-  if (job.status === 'pending') {
-    job.status = 'running'; // not really running, but okay for now
-    globalData.runningJobIds[job.jobId] = true;
-  }
+  dispatchAddHitherJob(job.object());
 }
 
 export const handleHitherJobCreationError = (msg) => {
@@ -34,8 +31,11 @@ export const handleHitherJobCreationError = (msg) => {
     return;
   }
   const job = globalData.hitherJobs[msg.client_job_id];
-  job.status = 'error';
-  job.error_message = `Error creating job ${job.functionName}: ${msg.error}`;
+  const errorString = `Error creating job ${job._functionName}: ${msg.error}`;
+  job._handleHitherJobCreationError({
+    errorString,
+    runtime_info: null
+  });
   delete globalData.hitherJobs[job.clientJobId];
 }
 
@@ -45,13 +45,11 @@ export const handleHitherJobFinished = (msg) => {
     console.warn(`job not found (handleHitherJobFinished): ${msg.job_id} ${msg.client_job_id}`);
     return;
   }
-  job.result = msg.result;
-  job.runtime_info = msg.runtime_info;
-  job.status = 'finished';
-  if (job.jobId in globalData.runningJobIds) {
-    delete globalData.runningJobIds[job.jobId];
-  }
-  dispatchUpdateHitherJob({jobId: job.jobId, job});
+  job._handleHitherJobFinished({
+    result: msg.result,
+    runtime_info: msg.runtime_info
+  })
+  dispatchUpdateHitherJob({jobId: job._jobId, update: job.object()});
 }
 
 export const handleHitherJobError = (msg) => {
@@ -60,13 +58,11 @@ export const handleHitherJobError = (msg) => {
     console.warn(`job not found (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
     return;
   }
-  job.error_message = msg.error_message;
-  job.runtime_info = msg.runtime_info;
-  job.status = 'error';
-  if (job.jobId in globalData.runningJobIds) {
-    delete globalData.runningJobIds[job.jobId];
-  }
-  dispatchUpdateHitherJob({jobId: job.jobId, job});
+  job._handleHitherJobError({
+    errorString: msg.error_message,
+    runtime_info: msg.runtime_info
+  })
+  dispatchUpdateHitherJob({jobId: job._jobId, update: job.object()});
 }
 
 const dispatchAddHitherJob = (job) => {
@@ -87,6 +83,84 @@ export const setApiConnection = (apiConnection) => {
   globalData.apiConnection = apiConnection;
 }
 
+class ClientHitherJob {
+  constructor({functionName, kwargs, opts}) {
+    this._functionName = functionName;
+    this._kwargs = kwargs;
+    this._opts = opts;
+    this._clientJobId = randomString(10) + '-client';
+    this._jobId = null; // not known yet
+    this._result = null;
+    this._runtime_info = null;
+    this._error_message = null;
+    this._status = 'pending';
+    this._onFinishedCallbacks = [];
+    this._onErrorCallbacks = [];
+  }
+  object() {
+    return {
+      jobId: this._jobId,
+      kwargs: this._kwargs,
+      opts: this._opts,
+      clientJobId: this._clientJobId,
+      result: this._result,
+      runtime_info: this._runtime_info,
+      error_message: this._error_message,
+      status: this._status
+    };
+  }
+  async wait() {
+    return new Promise((resolve, reject) => {
+      this.onFinished(() => {
+        resolve(this._result);
+      });
+      this.onError(err => {
+        reject(err);
+      });
+    });
+  }
+  cancel() {
+    if (!this._jobId) {
+      console.warn('Cannot cancel job that has not yet been created on the server.');
+      return;
+    }
+    globalData.apiConnection.sendMessage({
+      type: 'hitherCancelJob',
+      job_id: this._jobId
+    });
+  }
+  onFinished(cb) {
+    this._onFinishedCallbacks.push(cb);
+  }
+  onError(cb) {
+    this._onErrorCallbacks.push(cb);
+  }
+  _handleHitherJobCreated({jobId}) {
+    this._jobId = jobId;
+    if (this._status === 'pending') {
+      this._status = 'running'; // not really running, but okay for now
+      globalData.runningJobIds[this._jobId] = true;
+    }
+  }
+  _handleHitherJobError({errorString}) {
+    this._status = 'error';
+    this._error_message = errorString;
+    this._onErrorCallbacks.forEach(cb => cb(new Error(this._error_message)));
+    if (this._jobId in globalData.runningJobIds) {
+      delete globalData.runningJobIds[this._jobId];
+    }
+  }
+  _handleHitherJobFinished({result, runtime_info}) {
+    this._result = result;
+    this._runtime_info = runtime_info;
+    this._status = 'finished';
+    if (this._jobId in globalData.runningJobIds) {
+      delete globalData.runningJobIds[this._jobId];
+    }
+    this._onFinishedCallbacks.forEach(cb => cb());
+  }
+}
+
 const createHitherJob = async (functionName, kwargs, opts={}) => {
   if (opts.wait) {
     const job0 = await createHitherJob(functionName, kwargs, {...opts, wait: false});
@@ -101,59 +175,22 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     const existingJob = globalData.hitherClientJobCache[jobHash];
     if (existingJob) return existingJob;
   }
-  const clientJobId = randomString(10) + '-client';
-  const job = {
-    clientJobId,
-    jobId: null, // not known yet
-    jobHash: jobHash,
-    functionName,
-    kwargs,
-    opts,
-    result: null,
-    runtime_info: null,
-    error_message: null,
-    status: 'pending'
-  }
-  job.wait = async (timeout=undefined) => {
-    while (true) {
-      if (job.status === 'finished') {
-        return job.result;
-      }
-      else if (job.status === 'error') {
-        throw new Error(`Job error: ${job.error_message}`);
-      }
-      else {
-        await sleepMsec(10);
-      }
-    } 
-  }
-  job.cancel = async () => {
-    if (!job.jobId) {
-      console.warn('Cannot cancel job that has not yet been created on the server.');
-      return;
-    }
-    globalData.apiConnection.sendMessage({
-      type: 'hitherCancelJob',
-      job_id: job.jobId
-    });
-  }
+  const J = new ClientHitherJob({functionName, kwargs, opts});
+  globalData.hitherJobs[J._clientJobId] = J;
+
   if (opts.useClientCache) {
-    globalData.hitherClientJobCache[job.jobHash] = job;
+    globalData.hitherClientJobCache[jobHash] = J;
   }
-  globalData.hitherJobs[clientJobId] = job;
+
   globalData.apiConnection.sendMessage({
     type: 'hitherCreateJob',
-    functionName,
-    kwargs,
-    opts,
-    clientJobId
+    functionName: J._functionName,
+    kwargs: J._kwargs,
+    opts: J._opts,
+    clientJobId: J._clientJobId
   })
-  while (job.status === 'pending') {
-    // wait for job to be created on the server
-    await sleepMsec(20);
-  }
-  dispatchAddHitherJob(job);
-  return job;
+
+  return J;
 }
 
 function randomString(num_chars) {
