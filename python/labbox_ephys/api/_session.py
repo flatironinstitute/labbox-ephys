@@ -45,6 +45,12 @@ class Session:
 def _run_worker_session(pipe_to_parent, labbox_config):
     from ._workersession import WorkerSession
     WS = WorkerSession(labbox_config=labbox_config)
+    def handle_message(msg):
+        pipe_to_parent.send(dict(
+            type='outgoing_message',
+            message=msg
+        ))
+    WS.on_message(handle_message)
     while True:
         while pipe_to_parent.poll():
             x = pipe_to_parent.recv()
@@ -65,10 +71,4 @@ def _run_worker_session(pipe_to_parent, labbox_config):
                 print(x)
                 raise Exception('Unexpected message in _run_worker_session')
         WS.check_jobs()
-        outgoing_messages = WS.check_for_outgoing_messages()
-        for msg in outgoing_messages:
-            pipe_to_parent.send(dict(
-                type='outgoing_message',
-                message=msg
-            ))
         time.sleep(0.05)

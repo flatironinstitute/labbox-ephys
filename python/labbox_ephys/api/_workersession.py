@@ -26,7 +26,7 @@ class WorkerSession:
         self._readonly = None
         self._jobs_by_id = {}
         self._remote_job_handlers = {}
-        self._queued_outgoing_messages = []
+        self._on_message_callbacks = []
 
         node_id = kp.get_node_id()
 
@@ -135,12 +135,11 @@ class WorkerSession:
                     'runtime_info': runtime_info
                 }
                 self._send_message(msg)
-    def check_for_outgoing_messages(self):
-        x = self._queued_outgoing_messages
-        self._queued_outgoing_messages = []
-        return x
+    def on_message(self, callback):
+        self._on_message_callbacks.append(callback)
     def _send_message(self, msg):
-        self._queued_outgoing_messages.append(msg)
+        for cb in self._on_message_callbacks:
+            cb(msg)
     def _get_remote_job_handler(self, job_handler_name, uri):
         if job_handler_name not in self._remote_job_handlers:
             self._remote_job_handlers[job_handler_name] = hi.RemoteJobHandler(uri=uri)
