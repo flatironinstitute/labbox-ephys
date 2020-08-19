@@ -1,28 +1,20 @@
 import React from 'react';
 
 const SortingInfoUnitEntry = React.memo(({
-    unitId, labels = [], unitIdStyle = {}, unitStyle = {}, labelStyle = {},
-    onUnitClicked
+    unitId, labels = "", unitStatus = 'unselected', onUnitClicked
 }) => {
-    console.log(`Rendering unit ${unitId}`)
+    const unitClass =
+        unitStatus === 'selected' ? 'selectedUnitEntry'
+        : unitStatus === 'focused' ? 'focusedUnitEntry'
+        : 'unselectedUnitEntry'; // default to unselected
+    console.log(`Rendering unit ${unitId} with ${labels}:${unitStatus}`)
     return (
         <div
-            key={unitId}
-            style={unitStyle}
+            className={unitClass}
             onClick={(event) => onUnitClicked(unitId, event)}
         >
-            <span style={unitIdStyle} key={unitId + '-name'}>{unitId}</span>
-            <span key={unitId + '-curationLabels'}>
-                { labels.map((label) => {
-                        return (
-                            <span style={labelStyle}
-                                key={unitId + '-label-' + label}
-                            >
-                                {label}&nbsp;
-                            </span>
-                        )
-                    })}
-            </span>
+            <span className={'unitEntryBase'}>{ unitId }</span>
+            <span className={'unitLabelsStyle'}>{ labels }</span>
         </div>
     );
 })

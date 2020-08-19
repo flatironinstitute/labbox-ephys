@@ -7,13 +7,15 @@ import Correlogram_rv from './Correlogram_ReactVis';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
 
 
-const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, onUnitClicked }) => {
+const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
     const plotMargin = 2; // in pixels
     const [chosenPlots, setChosenPlots] = useState([]);
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const handleUpdateChosenPlots = () => {
-        setChosenPlots(sorting.sortingInfo.unit_ids.filter((key) => isSelected(key)));
+        setChosenPlots(Object.keys(selectedUnitIds)
+            .map((x) => parseInt(x))
+            .filter(x => !isNaN(x)));
     };
 
     const n = chosenPlots.length || 0;
@@ -55,7 +57,7 @@ const CrossCorrelograms = ({ size, sorting, recording, isSelected, isFocused, on
                                     'marginBottom': '50px'}}>
                             <div
                             >
-                                <div style={{ 'textAlign': 'center', 'fontWeight': 'bold' }}>
+                                <div className='plotUnitLabel'>
                                     <div>{pair.xkey + ' vs ' + pair.ykey}</div>
                                 </div>
                                 <ClientSidePlot
