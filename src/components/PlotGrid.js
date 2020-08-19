@@ -7,8 +7,10 @@ const isSelected = (query, selections = {}) => (selections[query]);
 const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
     dataFunctionName, dataFunctionArgsCallback = () => {},
     boxSize = { width: 200, height: 200},
-    plotComponent, plotComponentArgsCallback = () => {}},
-    useJobCache = false) => {
+    plotComponent, plotComponentArgsCallback = () => {},
+    useJobCache = false,
+    jobHandlerName = null
+}) => {
         return (
             <Grid container>
                 {
@@ -34,6 +36,7 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                                         plotComponent={plotComponent}
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
                                         useJobCache={useJobCache}
+                                        jobHandlerName={jobHandlerName}
                                     />
                                 </div>
                             </div>

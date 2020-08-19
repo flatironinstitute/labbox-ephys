@@ -21,6 +21,8 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
             plotComponentArgsCallback={(unitId) => ({
                 id: 'plot-'+unitId
             })}
+            useJobCache={true}
+            jobHandlerName="calculation1"
         />
     );
 }
