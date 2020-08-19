@@ -6,7 +6,8 @@ import { Button, Paper } from '@material-ui/core';
 import { createHitherJob } from '../../hither';
 import MultiComboBox from '../../components/MultiComboBox';
 
-const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAddUnitLabel, onRemoveUnitLabel,
+const Units = ({ sorting, recording, selectedUnitIds,
+                onAddUnitLabel, onRemoveUnitLabel,
                 onSelectedUnitIdsChanged }) => {
     const [activeOptions, setActiveOptions] = useState([]);
 
@@ -94,8 +95,9 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
     //https://ourcodeworld.com/articles/read/317/how-to-check-if-a-javascript-promise-has-been-fulfilled-rejected-or-resolved
 
     const selectedRowKeys = sorting.sortingInfo.unit_ids
-        .reduce((obj, id) => ({...obj, [id]: isSelected(id)}), {});
+        .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
     const handleSelectedRowKeysChanged = (keys) => {
+        console.log(`Requested key change to: ${JSON.stringify(keys)}`);
         onSelectedUnitIdsChanged(
             keys.reduce((o, key) => ({...o, [key]: true}), {})
         );
@@ -176,63 +178,6 @@ const Units = ({ sorting, recording, isSelected, isFocused, onUnitClicked, onAdd
             </div>
         </div>
     );
-
-    // return (
-    //     // <div style={{'width': '100%'}}>
-    //     //     <Async promiseFn={getRateData}>
-    //     //         <Async.Loading>Loading...</Async.Loading>
-    //     //         <Async.Rejected>{error => `Loading error: ${error.message}`}</Async.Rejected>
-    //     //         <Async.Fulfilled>
-    //     //             <NiceTable
-    //     //                 rows={rows}
-    //     //                 columns={columns}
-    //     //                 selectionMode='multiple'
-    //     //                 selectedRowKeys={selectedRowKeys}
-    //     //                 onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
-    //     //             />
-    //     //             <div>
-    //     //                 <MultiComboBox
-    //     //                     id="label-selection"
-    //     //                     label='Choose labels'
-    //     //                     placeholder='Add label'
-    //     //                     onSelectionsChanged={(event, value) => setActiveOptions(value)}
-    //     //                     options={labelOptions}
-    //     //                 />
-    //     //                 <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
-    //     //                 <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
-    //     //             </div>
-    //     //         </Async.Fulfilled>
-    //     //     </Async>
-    //     // </div>
-    //     <Async promiseFn={getRateData}>
-    //         {({ data, err, isLoading }) => {
-    //             if (isLoading) return "Loading..."
-    //             if (err) return `Loading error: ${err.message}`
-    //             if (data) return (
-    //                 <div style={{'width': '100%'}}>
-    //                     <NiceTable
-    //                         rows={rows}
-    //                         columns={columns}
-    //                         selectionMode='multiple'
-    //                         selectedRowKeys={selectedRowKeys}
-    //                         onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
-    //                     />
-    //                     <div>
-    //                         <MultiComboBox
-    //                             id="label-selection"
-    //                             label='Choose labels'
-    //                             placeholder='Add label'
-    //                             onSelectionsChanged={(event, value) => setActiveOptions(value)}
-    //                             options={labelOptions}
-    //                         />
-    //                         <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
-    //                         <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
-    //                     </div>
-    //                 </div>
-    //             )
-    //         }}
-    //     </Async>
-    // );
 }
 
 const label = 'Units Table'

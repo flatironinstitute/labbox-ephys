@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
 import { CircularProgress, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
@@ -9,10 +9,58 @@ import * as pluginComponents from '../pluginComponents';
 
 const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
 
+const intrange = (a, b) => {
+  const lower = a < b ? a : b;
+  const upper = a < b ? b : a;
+  let arr = [];
+  for (let n = lower; n <= upper; n++) {
+      arr.push(n);
+  }
+  return arr;
+}
+
+const updateSelections = (state, [mode = 'simple', target]) => {
+  const focus = state['focus'] || null;
+  if (focus === null && mode === 'additive') {
+    mode = 'simple';
+  }
+
+  switch(mode) {
+    case 'simple':  // unmodified click, or shift w/out focus set.
+      // Target is toggled and set as focus. Reset any prior selections.
+      return {
+        'focus': target,
+        [target]: !(state[target] || false)
+      };
+    case 'picked': // ctrl modifier in effect.
+      // Toggle selected item & make it the focus. Keep other existing selections.
+      return {
+        ...state,
+        'focus': target,
+        [target]: !(state[target] || false)
+      };
+    case 'additive':  // shift-click; assume focus set.
+      // Keep prior focus & set selection to the inclusive interval from
+      // target to focus.
+      const intUnitId = parseInt(target);
+      return {
+        ...Object.fromEntries(intrange(intUnitId, focus).map(key => [key, true])),
+        'focus': state['focus']
+      };
+    case 'checkbox': // from the checkbox view in the units list.
+                     // Drop focus & reset selection to select exactly the chosen targets
+                     // (which is a list in this context)
+      return Object.fromEntries(Object.keys(target).map(key => [key, true]));
+    default:
+      alert(`Bad selection-update mode ${mode}`);
+      console.log('State: ', state, "\ntarget:", target);
+      return state;
+  }
+}
+
 const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
-  const [selectedUnitIds, setSelectedUnitIds] = useState({});
-  const [focusedUnitId, setFocusedUnitId] = useState(null);
+  const [selectedUnitIds, setSelectedUnitIds] = useReducer(updateSelections, {});
 
   const effect = async () => {
     if ((sorting) && (recording) && (!sorting.sortingInfo)) {
@@ -28,63 +76,17 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
   }
   useEffect(() => {effect()});
 
-  const intrange = (a, b) => {
-    const lower = a < b ? a : b;
-    const upper = a < b ? b : a;
-    let arr = [];
-    for (let n = lower; n <= upper; n++) {
-        arr.push(n);
+  const handleUnitClicked = useCallback((unitId, event) => {
+    if (event.ctrlKey) {
+      setSelectedUnitIds(['picked', unitId]);
     }
-    return arr;
-  }
-
-  const isSelected = (unitId) => {
-    return selectedUnitIds[unitId] || false;
-  }
-
-  const isFocused = (unitId) => {
-      return (focusedUnitId ?? -1) === unitId;
-  }
-
-  const handleUnitClicked = (unitId, event) => {
-    let newSelectedUnitIds = [];
-    if (event.ctrlKey){
-        // if ctrl modifier is set, ignore shift status, then:
-        // 1. Toggle clicked element only (don't touch any existing elements) &
-        // 2. Set focused id to clicked id (regardless of toggle status)
-        newSelectedUnitIds = {
-            ...selectedUnitIds,
-            [unitId]: !(selectedUnitIds[unitId] || false)
-        }
-        handleFocusedUnitIdChanged(unitId);
-    }
-    else if (event.shiftKey && focusedUnitId) {
-        // if shift modifier (without ctrl modifier) & a focus exists:
-        // Set selected elements to those between focus and click, inclusive.
-        const intUnitId = parseInt(unitId);
-        newSelectedUnitIds = Object.fromEntries(
-            intrange(intUnitId, focusedUnitId).map(key => [key, true])
-        );
-        // do not reset focus -- no call to onFocusedUnitIdChanged()
+    else if (event.shiftKey) {
+      setSelectedUnitIds(['additive', unitId]);
     }
     else {
-        // simple click, or shift-click without focus.
-        // Select only the clicked element, and set it to focus,
-        newSelectedUnitIds = {
-            [unitId]: !(selectedUnitIds[unitId] || false)
-        }
-        handleFocusedUnitIdChanged(isFocused(unitId) ? null : unitId);
+      setSelectedUnitIds(['simple', unitId]);
     }
-    handleSelectedUnitIdsChanged(newSelectedUnitIds);
-  }
-
-  const handleSelectedUnitIdsChanged = (selectedUnitIds) => {
-    setSelectedUnitIds(selectedUnitIds);
-  }
-
-  const handleFocusedUnitIdChanged = (focusedUnitId) => {
-    setFocusedUnitId(focusedUnitId);
-  }
+  }, [setSelectedUnitIds]);
 
   const sidebarWidth = '200px'
 
@@ -116,8 +118,8 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
           <div><CircularProgress /></div>
         ) : (
           <SortingInfoView sortingInfo={sorting.sortingInfo}
-            isSelected={isSelected}
-            isFocused={isFocused}
+            selections={selectedUnitIds}
+            focus={selectedUnitIds['focus']}
             onUnitClicked={handleUnitClicked}
             curation={sorting.unitCuration || {}}
             styling={sidebarStyle}
@@ -142,13 +144,13 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
                   sorting={sorting}
                   recording={recording}
                   selectedUnitIds={selectedUnitIds}
-                  focusedUnitId={focusedUnitId}
-                  isSelected={isSelected}
-                  isFocused={isFocused}
+                  focusedUnitId={selectedUnitIds['focus']}
                   onUnitClicked={handleUnitClicked}
                   onAddUnitLabel={onAddUnitLabel}
                   onRemoveUnitLabel={onRemoveUnitLabel}
-                  onSelectedUnitIdsChanged={handleSelectedUnitIdsChanged}
+                  onSelectedUnitIdsChanged={(list) => {
+                    return setSelectedUnitIds(['checkbox', list]);
+                  }}
                 />
               </Expandable>
             )

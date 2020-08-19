@@ -17,6 +17,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import theme from './theme';
 import './index.css';
 import './styles.css';
+import './localStyles.css';
 import { ThemeProvider } from '@material-ui/core/styles';
 import "../node_modules/react-vis/dist/style.css";
 
