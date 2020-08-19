@@ -9,7 +9,7 @@ const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}) => {
     //     return { x: item, y: plotData[1][index] };
     // });
 
-    console.log(plotData);
+    // console.log(plotData);
     if (!plotData.average_waveform) {
         // assume no events
         return <div />;
