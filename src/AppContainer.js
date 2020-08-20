@@ -42,7 +42,7 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
         (async () => {
             console.info(`Using feed: ${feedUri}`);
-            const readonly = feedUri.startsWith('sha1://') ? true : false;
+            const readonly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
             onSetDocumentInfo({
                 documentId,
                 feedUri,
@@ -65,7 +65,7 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
                         const query = QueryString.parse(location.search);
                         return <SetDocumentInfo
                             documentId={match.params.documentId}
-                            feedUri={query.feed || 'sha1://eab32b0c4b338c29d95b30b9e072cd709af48ae5/feed.json'}
+                            feedUri={query.feed || null}
                             onSetDocumentInfo={onSetDocumentInfo}
                         />
                     }}

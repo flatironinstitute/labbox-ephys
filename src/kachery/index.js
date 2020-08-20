@@ -24,7 +24,7 @@ export const feedIdFromUri = (uri) => {
 
 export const getPathQuery = ({feedUri}) => {
     if (feedUri === 'default') return '';
-    else return `?feed=${feedUri}`;
+    else return `?feed=${feedUri || ''}`;
 }
 
 export const getNumMessages = async ({feedId, subfeedName}) => {

@@ -35,12 +35,30 @@ import Routes from './Routes';
 
 import { sleepMsec, handleHitherJobFinished, handleHitherJobError, setApiConnection, handleHitherJobCreated, handleHitherJobCreationError } from './hither/createHitherJob';
 
-import { REPORT_INITIAL_LOAD_COMPLETE, SET_NODE_ID, SET_WEBSOCKET_STATUS } from './actions';
+import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 
 import { watchForNewMessages, getMessages } from './kachery';
 
+
+const persistStateMiddleware = store => next => action => {
+  const writeAction = async (key, theAction) => {
+    delete theAction['persistKey'];
+    apiConnection.sendMessage({
+      type: 'appendDocumentAction',
+      key,
+      action: theAction
+    });
+  }
+
+  if (action.persistKey) {
+    writeAction(action.persistKey, action);
+    return;
+  }
+  return next(action);
+}
+
 // Create the store
-const store = createStore(rootReducer, {}, applyMiddleware(thunk))
+const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 
 // connect to the server api
 class ApiConnection {
@@ -109,14 +127,19 @@ apiConnection.onConnect(() => {
 apiConnection.onMessage(msg => {
   const type0 = msg.type;
   if (type0 === 'reportServerInfo') {
-    const { nodeId } = msg.serverInfo;
+    const { nodeId, defaultFeedId } = msg.serverInfo;
     store.dispatch({
-      type: SET_NODE_ID,
-      nodeId
+      type: SET_SERVER_INFO,
+      nodeId,
+      defaultFeedId
     });
   }
   else if (type0 === 'action') {
     let action = msg.action;
+    if ('persistKey' in action) {
+      // just to be safe
+      delete action['persistKey'];
+    }
     store.dispatch(action);
   }
   else if (type0 === 'reportInitialLoadComplete') {
@@ -144,7 +167,7 @@ setApiConnection(apiConnection);
 const waitForDocumentInfo = async () => {
   while (true) {
     const documentInfo = store.getState().documentInfo;
-    if (documentInfo.feedUri) {
+    if (documentInfo.documentId) {
       apiConnection.sendMessage({
         type: 'reportClientInfo',
         clientInfo: {

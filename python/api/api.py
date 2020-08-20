@@ -15,28 +15,50 @@ sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
 pluginComponents
 
-labbox_config = {
-    'job_handlers': {
-        'default': {
-            'type': 'local'
-        },
-        'calculation1': {
-            'type': 'remote',
-            'uri': 'feed://fae110e69522c5d5605b2b3e149b62311b0ec3e682a04498f65c9f6da23f0977?name=ccmlin008-ephys1-1'
-        },
-        'calculation2': {
-            'type': 'remote',
-            'uri': 'feed://9f0a732a660ff9cb29d7f6e3f4e7fbf43392ba569058df83ae807d200e79117f?name=ccmlin008-ephys1-2'
-        },
-        'calculation3': {
-            'type': 'remote',
-            'uri': 'feed://96b4879d17c55fdd414b1f03e52d9c54c16467488ff42adabedb3c9386ee5397?name=ccmlin008-ephys1-3'
-        },
-        'timeseries': {
-            'type': 'local'
+# todo: manage this with configuration feeds
+if os.environ.get('LABBOX_EPHYS_DEPLOY') == 'ephys1':
+    labbox_config = {
+        'job_handlers': {
+            'default': {
+                'type': 'local'
+            },
+            'calculation1': {
+                'type': 'remote',
+                'uri': 'feed://fae110e69522c5d5605b2b3e149b62311b0ec3e682a04498f65c9f6da23f0977?name=ccmlin008-ephys1-1'
+            },
+            'calculation2': {
+                'type': 'remote',
+                'uri': 'feed://9f0a732a660ff9cb29d7f6e3f4e7fbf43392ba569058df83ae807d200e79117f?name=ccmlin008-ephys1-2'
+            },
+            'calculation3': {
+                'type': 'remote',
+                'uri': 'feed://96b4879d17c55fdd414b1f03e52d9c54c16467488ff42adabedb3c9386ee5397?name=ccmlin008-ephys1-3'
+            },
+            'timeseries': {
+                'type': 'local'
+            }
         }
     }
-}
+else:
+    labbox_config = {
+        'job_handlers': {
+            'default': {
+                'type': 'local'
+            },
+            'calculation1': {
+                'type': 'local'
+            },
+            'calculation2': {
+                'type': 'local'
+            },
+            'calculation3': {
+                'type': 'local'
+            },
+            'timeseries': {
+                'type': 'local'
+            }
+        }
+    }
 
 local_job_handlers = dict(
     default=hi.ParallelJobHandler(4),

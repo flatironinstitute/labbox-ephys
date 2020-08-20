@@ -52,7 +52,7 @@ RUN pip install kachery-p2p==0.4.23
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout 499bd55b3140046b832a221e5f48f048e4d6d447 \
+    && git checkout 1d565850f95915b286042721b841427b01b8933e \
     && pip install .
 
 RUN yarn global add serve
