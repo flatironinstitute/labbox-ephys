@@ -40,8 +40,23 @@ import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } f
 import { watchForNewMessages, getMessages } from './kachery';
 
 
+/*
+What does this middleware do?
+
+It allows us to dispatch actions to manipulate the redux state
+in the usual way, but if the action has a persistKey field,
+then this middleware redirects the action to the server for
+persistence. Once the server has applied the action to the live
+feed, the new messages on the feed will propagate back to the
+client side (there is a feed listener) and at that time the action
+will actually be played out on the redux state (because the
+persistKey will have been stripped).
+*/
 const persistStateMiddleware = store => next => action => {
-  const writeAction = async (key, theAction) => {
+  // this middleware is applied to the redux store
+  // it inserts itself as part
+  // of the action-processesing pipeline
+  const sendAction = async (key, theAction) => {
     delete theAction['persistKey'];
     apiConnection.sendMessage({
       type: 'appendDocumentAction',
@@ -51,16 +66,20 @@ const persistStateMiddleware = store => next => action => {
   }
 
   if (action.persistKey) {
-    writeAction(action.persistKey, action);
+    // if the action has persistKey field, then
+    // send it to the server
+    sendAction(action.persistKey, action);
     return;
   }
   return next(action);
 }
 
-// Create the store
+// Create the store and apply middleware
+// persistStateMiddleware is described above
+// thunk allows asynchronous actions
 const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 
-// connect to the server api
+// This is an open 2-way connection with server (websocket)
 class ApiConnection {
   constructor() {
     const url = `ws://${window.location.hostname}:15308`;
@@ -85,14 +104,14 @@ class ApiConnection {
     this._ws.addEventListener('close', () => {
       console.warn('Websocket disconnected.');
       this._connected = false;
-      this._disconnected = true;
+      this._isDisconnected = true;
       store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
     })
 
     this._onMessageCallbacks = [];
     this._onConnectCallbacks = [];
     this._connected = false;
-    this._disconnected = false;
+    this._isDisconnected = false;
     this._queuedMessages = [];
     this._start();
   }
@@ -101,9 +120,12 @@ class ApiConnection {
   }
   onConnect(cb) {
     this._onConnectCallbacks.push(cb);
+    if (this._connected) {
+      cb();
+    }
   }
-  disconnected() {
-    return this._disconnected;
+  isDisconnected() {
+    return this._isDisconnected;
   }
   sendMessage(msg) {
     if (!this._connected) {

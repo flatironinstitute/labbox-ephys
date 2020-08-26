@@ -66,7 +66,10 @@ export const handleHitherJobError = (msg) => {
 }
 
 const dispatchAddHitherJob = (job) => {
-  if (!globalData.dispatch) return;
+  if (!globalData.dispatch) {
+    console.warn(`Unexpected: globalData.dispatch has not been set.`)
+    return;
+  }
   globalData.dispatch(addHitherJob(job));
 }
 

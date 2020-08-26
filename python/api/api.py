@@ -13,7 +13,7 @@ import labbox_ephys as le
 thisdir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
-pluginComponents
+pluginComponents # just keep the linter happy - we only need to import pluginComponents to register the hither functions
 
 # todo: manage this with configuration feeds
 if os.environ.get('LABBOX_EPHYS_DEPLOY') == 'ephys1':
