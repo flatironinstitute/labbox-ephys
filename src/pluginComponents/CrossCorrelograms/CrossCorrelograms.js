@@ -8,12 +8,17 @@ import sampleSortingViewProps from '../common/sampleSortingViewProps';
 
 
 const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
+    const filteredIds = Object.fromEntries(
+        Object.keys(selectedUnitIds).filter(k => selectedUnitIds[k])
+        .filter(id => sorting.sortingInfo.unit_ids.includes(parseInt(id)))
+        .map(id => [id, true]));
+
     const plotMargin = 2; // in pixels
     const [chosenPlots, setChosenPlots] = useState([]);
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const handleUpdateChosenPlots = () => {
-        setChosenPlots(Object.keys(selectedUnitIds)
+        setChosenPlots(Object.keys(filteredIds)
             .map((x) => parseInt(x))
             .filter(x => !isNaN(x)));
     };
@@ -36,8 +41,8 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
     // pairs are objects of the form '{ xkey: unitId, ykey: unitId }'
     // This function should return a list of the pairs, in row-major order.
     const makePairs = () => {
-        return chosenPlots.reduce((list, xItem) => {
-            return list.concat(chosenPlots.map((yItem) => {
+        return chosenPlots.reduce((list, yItem) => {
+            return list.concat(chosenPlots.map((xItem) => {
                 return {xkey: xItem, ykey: yItem}
             }))
         }, []);
