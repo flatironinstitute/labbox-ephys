@@ -22,7 +22,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
                 id: 'plot-'+unitId
             })}
             useJobCache={true}
-            jobHandlerName="calculation1"
+            jobHandlerName="partition1"
         />
     );
 }

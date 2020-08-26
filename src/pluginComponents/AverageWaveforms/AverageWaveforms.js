@@ -23,7 +23,7 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
                 id: 'plot-'+unitId
             })}
             useJobCache={true}
-            jobHandlerName="calculation2"
+            jobHandlerName="partition2"
         />
     );
 }

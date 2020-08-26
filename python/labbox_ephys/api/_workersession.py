@@ -13,9 +13,9 @@ class WorkerSession:
         self._labbox_config = labbox_config
         self._local_job_handlers = dict(
             default=hi.ParallelJobHandler(4),
-            calculation1=hi.ParallelJobHandler(4),
-            calculation2=hi.ParallelJobHandler(4),
-            calculation3=hi.ParallelJobHandler(4),
+            partition1=hi.ParallelJobHandler(4),
+            partition2=hi.ParallelJobHandler(4),
+            partition3=hi.ParallelJobHandler(4),
             timeseries=hi.ParallelJobHandler(4)
         )
         self._default_job_cache = job_cache
@@ -92,6 +92,7 @@ class WorkerSession:
             client_job_id = msg['clientJobId']
             hither_config = opts.get('hither_config', {})
             job_handler_name = opts.get('job_handler_name', 'default')
+            required_files = opts.get('required_files', {})
             assert job_handler_name in self._labbox_config['job_handlers'], f'Job handler not found in config: {job_handler_name}'
             a = self._labbox_config['job_handlers'][job_handler_name]
             if a['type'] == 'local':
@@ -101,6 +102,7 @@ class WorkerSession:
             else:
                 raise Exception(f'Unexpected job handler type: {a["type"]}')
             hither_config['job_handler'] = jh
+            hither_config['required_files'] = required_files
             if hither_config['job_handler'].is_remote:
                 hither_config['container'] = True
             if 'use_job_cache' in hither_config:
@@ -184,6 +186,6 @@ class WorkerSession:
             cb(msg)
     def _get_remote_job_handler(self, job_handler_name, uri):
         if job_handler_name not in self._remote_job_handlers:
-            self._remote_job_handlers[job_handler_name] = hi.RemoteJobHandler(uri=uri)
+            self._remote_job_handlers[job_handler_name] = hi.RemoteJobHandler(compute_resource_uri=uri)
         return self._remote_job_handlers[job_handler_name]
     

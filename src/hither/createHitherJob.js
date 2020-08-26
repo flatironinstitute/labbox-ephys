@@ -195,7 +195,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     type: 'hitherCreateJob',
     functionName: J._functionName,
     kwargs: J._kwargs,
-    opts: J._opts,
+    opts: J._opts, 
     clientJobId: J._clientJobId
   })
 

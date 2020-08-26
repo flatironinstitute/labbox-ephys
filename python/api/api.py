@@ -15,24 +15,57 @@ sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
 pluginComponents # just keep the linter happy - we only need to import pluginComponents to register the hither functions
 
+print(f"LABBOX_EPHYS_DEPLOY: {os.environ.get('LABBOX_EPHYS_DEPLOY')}")
+
 # todo: manage this with configuration feeds
 if os.environ.get('LABBOX_EPHYS_DEPLOY') == 'ephys1':
+    crfeed_uri = 'feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1'
     labbox_config = {
         'job_handlers': {
             'default': {
                 'type': 'local'
             },
-            'calculation1': {
+            'partition1': {
                 'type': 'remote',
-                'uri': 'feed://fae110e69522c5d5605b2b3e149b62311b0ec3e682a04498f65c9f6da23f0977?name=ccmlin008-ephys1-1'
+                'uri': crfeed_uri,
+                'cr_paritition': 'partition1'
             },
-            'calculation2': {
+            'partition2': {
                 'type': 'remote',
-                'uri': 'feed://9f0a732a660ff9cb29d7f6e3f4e7fbf43392ba569058df83ae807d200e79117f?name=ccmlin008-ephys1-2'
+                'uri': crfeed_uri,
+                'cr_paritition': 'partition2'
             },
-            'calculation3': {
+            'partition3': {
                 'type': 'remote',
-                'uri': 'feed://96b4879d17c55fdd414b1f03e52d9c54c16467488ff42adabedb3c9386ee5397?name=ccmlin008-ephys1-3'
+                'uri': crfeed_uri,
+                'cr_paritition': 'partition3'
+            },
+            'timeseries': {
+                'type': 'local'
+            }
+        }
+    }
+elif os.environ.get('LABBOX_EPHYS_DEPLOY') == 'dubb':
+    crfeed_uri = 'feed://4dd6d6aa9e1d7be35e7374e6b35315bffefcfec27a9af36fa2e30bfd6753c5dc?name=dubb'
+    labbox_config = {
+        'job_handlers': {
+            'default': {
+                'type': 'local'
+            },
+            'partition1': {
+                'type': 'remote',
+                'uri': crfeed_uri,
+                'cr_paritition': 'partition1'
+            },
+            'partition2': {
+                'type': 'remote',
+                'uri': crfeed_uri,
+                'cr_paritition': 'partition2'
+            },
+            'partition3': {
+                'type': 'remote',
+                'uri': crfeed_uri,
+                'cr_paritition': 'partition3'
             },
             'timeseries': {
                 'type': 'local'
@@ -45,13 +78,13 @@ else:
             'default': {
                 'type': 'local'
             },
-            'calculation1': {
+            'partition1': {
                 'type': 'local'
             },
-            'calculation2': {
+            'partition2': {
                 'type': 'local'
             },
-            'calculation3': {
+            'partition3': {
                 'type': 'local'
             },
             'timeseries': {
@@ -62,9 +95,9 @@ else:
 
 local_job_handlers = dict(
     default=hi.ParallelJobHandler(4),
-    calculation1=hi.ParallelJobHandler(4),
-    calculation2=hi.ParallelJobHandler(4),
-    calculation3=hi.ParallelJobHandler(4),
+    partition1=hi.ParallelJobHandler(4),
+    partition2=hi.ParallelJobHandler(4),
+    partition3=hi.ParallelJobHandler(4),
     timeseries=hi.ParallelJobHandler(4)
 )
 

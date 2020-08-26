@@ -46,13 +46,13 @@ RUN pip install pynwb
 
 # #########################################
 # ### Install kachery-p2p
-RUN pip install kachery-p2p==0.4.23
+RUN pip install kachery-p2p==0.4.28
 
 # #########################################
 # ### Install hither
 RUN git clone https://github.com/flatironinstitute/hither /hither \
     && cd /hither \
-    && git checkout 1d565850f95915b286042721b841427b01b8933e \
+    && git checkout 3d76095b23ab57b747ab5d5dbf2b413eae799e06 \
     && pip install .
 
 RUN yarn global add serve
