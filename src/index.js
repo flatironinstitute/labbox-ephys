@@ -2,6 +2,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// socket.io-client
+import io from 'socket.io-client';
+
 // redux
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
@@ -30,138 +33,177 @@ import AppContainer from './AppContainer';
 // Custom routes
 import Routes from './Routes';
 
-import { sleepMsec } from './hither/createHitherJob';
+import { sleepMsec, handleHitherJobFinished, handleHitherJobError, setApiConnection, handleHitherJobCreated, handleHitherJobCreationError } from './hither/createHitherJob';
 
-import { INITIAL_LOAD } from './actions';
+import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 
-import { setJobHandlersByRole } from './hither/createHitherJob';
-import { watchForNewMessages, appendMessage, feedIdFromUri, getMessages } from './kachery';
+import { watchForNewMessages, getMessages } from './kachery';
 
-const axios = require('axios');
 
-async function waitForDocumentId(store) {
-  while (true) {
-    const x = store.getState().documentInfo.documentId;
-    if (x) return x;
-    await sleepMsec(100);
-  }
-}
+/*
+What does this middleware do?
 
-async function waitForFeedUri(store) {
-  while (true) {
-    const feedUri = store.getState().documentInfo.feedUri;
-    if (feedUri) return feedUri;
-    await sleepMsec(100);
-  }
-}
-
+It allows us to dispatch actions to manipulate the redux state
+in the usual way, but if the action has a persistKey field,
+then this middleware redirects the action to the server for
+persistence. Once the server has applied the action to the live
+feed, the new messages on the feed will propagate back to the
+client side (there is a feed listener) and at that time the action
+will actually be played out on the redux state (because the
+persistKey will have been stripped).
+*/
 const persistStateMiddleware = store => next => action => {
-  const writeAction = async (key, theAction) => {
-    const documentId = await waitForDocumentId(store);
-    const feedUri = await waitForFeedUri(store);
-
-    const subfeedName = { key, documentId };
-    const message = {
-      timestamp: (new Date()).getTime(),
+  // this middleware is applied to the redux store
+  // it inserts itself as part
+  // of the action-processesing pipeline
+  const sendAction = async (key, theAction) => {
+    delete theAction['persistKey'];
+    apiConnection.sendMessage({
+      type: 'appendDocumentAction',
+      key,
       action: theAction
-    };
-    await appendMessage({feedUri, subfeedName, message })
+    });
   }
 
-  if ((action.persistKey) && (action.source !== 'fromActionStream')) {
-    writeAction(action.persistKey, action);
+  if (action.persistKey) {
+    // if the action has persistKey field, then
+    // send it to the server
+    sendAction(action.persistKey, action);
     return;
   }
   return next(action);
 }
 
-// Create the store
+// Create the store and apply middleware
+// persistStateMiddleware is described above
+// thunk allows asynchronous actions
 const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 
+// This is an open 2-way connection with server (websocket)
+class ApiConnection {
+  constructor() {
+    const url = `ws://${window.location.hostname}:15308`;
 
-const listenToFeeds = async (keys) => {
-  const documentId = await waitForDocumentId(store);
-  const feedUri = await waitForFeedUri(store);
-
-  const initialLoad = {};
-
-  if (feedUri.startsWith('sha1://')) {
-    for (let key of keys) {
-      const events = await getMessages({ feedUri, subfeedName: {key, documentId}, position: 0, waitMsec: 100, maxNumMessages: 0});
-      for (let e of events) {
-        let action = e.action;
-        action.source = 'fromActionStream';
-        store.dispatch(action);
+    this._ws = new WebSocket(url);
+    console.log(this._ws);
+    this._ws.addEventListener('open', () => {
+      this._connected = true;
+      const qm = this._queuedMessages;
+      this._queuedMessages = [];
+      for (let m of qm) {
+        this.sendMessage(m);
       }
-    }
-    for (let key2 of keys) {
-      if (!initialLoad[key2]) {
-        store.dispatch({
-          type: INITIAL_LOAD,
-          key: key2
-        });
-        initialLoad[key2] = true;
-      }
-    }
-    
-    return;
+      this._onConnectCallbacks.forEach(cb => cb());
+      store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'connected'});
+    });
+    this._ws.addEventListener('message', evt => {
+      const x = JSON.parse(evt.data);
+      console.info('INCOMING MESSAGE', x);
+      this._onMessageCallbacks.forEach(cb => cb(x));
+    });
+    this._ws.addEventListener('close', () => {
+      console.warn('Websocket disconnected.');
+      this._connected = false;
+      this._isDisconnected = true;
+      store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
+    })
+
+    this._onMessageCallbacks = [];
+    this._onConnectCallbacks = [];
+    this._connected = false;
+    this._isDisconnected = false;
+    this._queuedMessages = [];
+    this._start();
   }
-
-  const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
-  if (!feedId) {
-    throw Error(`Unable to get feed id from uri: ${feedUri}`);
+  onMessage(cb) {
+    this._onMessageCallbacks.push(cb);
   }
-
-  const subfeedWatches = {};
-  keys.forEach(key => {
-    subfeedWatches[key] = {
-      feedId,
-      subfeedName: {key, documentId},
-      position: 0
-    };
-  })
-
-  let waitMsec = 100; // first call
-  while (true) {
-    const messages = await watchForNewMessages({subfeedWatches, waitMsec});
-    waitMsec = 6000; // subsequent calls
-    for (let key of keys) {
-      const events = messages[key] || [];
-      subfeedWatches[key].position += events.length;
-      for (let e of events) {
-        let action = e.action;
-        action.source = 'fromActionStream';
-        store.dispatch(action);
-      }
+  onConnect(cb) {
+    this._onConnectCallbacks.push(cb);
+    if (this._connected) {
+      cb();
     }
-    for (let key2 of keys) {
-      if (!initialLoad[key2]) {
-        store.dispatch({
-          type: INITIAL_LOAD,
-          key: key2
-        });
-        initialLoad[key2] = true;
-      }
+  }
+  isDisconnected() {
+    return this._isDisconnected;
+  }
+  sendMessage(msg) {
+    if (!this._connected) {
+      this._queuedMessages.push(msg);
+      return;
     }
-
-    await sleepMsec(100);
+    console.info('OUTGOING MESSAGE', msg);
+    this._ws.send(JSON.stringify(msg));
+  }
+  async _start() {
+    while (true) {
+      await sleepMsec(17000);
+      this.sendMessage({type: 'keepAlive'});
+    }
   }
 }
-const feedKeys = ['recordings', 'sortings', 'sortingJobs', 'jobHandlers', 'extensionsConfig'];
-listenToFeeds(feedKeys);
-
-store.subscribe(() => {
-  const state = store.getState().jobHandlers;
-  const jobHandlersByRole = {};
-  for (let role in state.roleAssignments) {
-    const handlerId = state.roleAssignments[role];
-    const handlerConfig = state.jobHandlers.filter(jh => (jh.jobHandlerId === handlerId))[0];
-    if (handlerConfig) {
-      jobHandlersByRole[role] = handlerConfig;
-    }
-  }
-  setJobHandlersByRole(jobHandlersByRole);
+const apiConnection = new ApiConnection();
+apiConnection.onConnect(() => {
+  console.info('Connected to API server');
 })
+apiConnection.onMessage(msg => {
+  const type0 = msg.type;
+  if (type0 === 'reportServerInfo') {
+    const { nodeId, defaultFeedId } = msg.serverInfo;
+    store.dispatch({
+      type: SET_SERVER_INFO,
+      nodeId,
+      defaultFeedId
+    });
+  }
+  else if (type0 === 'action') {
+    let action = msg.action;
+    if ('persistKey' in action) {
+      // just to be safe
+      delete action['persistKey'];
+    }
+    store.dispatch(action);
+  }
+  else if (type0 === 'reportInitialLoadComplete') {
+    store.dispatch({
+      type: REPORT_INITIAL_LOAD_COMPLETE
+    });
+  }
+  else if (type0 === 'hitherJobFinished') {
+    handleHitherJobFinished(msg);
+  }
+  else if (type0 === 'hitherJobError') {
+    handleHitherJobError(msg);
+  }
+  else if (type0 === 'hitherJobCreated') {
+    handleHitherJobCreated(msg);
+  }
+  else if (type0 === 'hitherJobCreationError') {
+    handleHitherJobCreationError(msg);
+  }
+  else {
+    console.warn(`Unregognized message type from server: ${type0}`)
+  }
+});
+setApiConnection(apiConnection);
+const waitForDocumentInfo = async () => {
+  while (true) {
+    const documentInfo = store.getState().documentInfo;
+    if (documentInfo.documentId) {
+      apiConnection.sendMessage({
+        type: 'reportClientInfo',
+        clientInfo: {
+          feedUri: documentInfo.feedUri,
+          documentId: documentInfo.documentId,
+          readonly: documentInfo.readonly
+        }
+      })
+      return;
+    }
+    await sleepMsec(10);
+  }
+}
+waitForDocumentInfo();
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

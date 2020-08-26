@@ -14,4 +14,8 @@ spec:
       protocol: TCP
       port: 15308
       targetPort: 15308
+    - name: kacherynode
+      protocol: TCP
+      port: 14107
+      targetPort: 14107
     type: LoadBalancer

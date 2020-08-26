@@ -20,10 +20,15 @@ spec:
             claimName: labbox-ephys-pv-claim
       containers:
       - name: labbox-ephys
-        image: magland/labbox-ephys:0.2.18
+        image: magland/labbox-ephys:0.3.13
+        imagePullPolicy: Always
         env:
         - name: HOME
           value: /tmp
+        - name: KACHERY_P2P_START_DAEMON_OPTS
+          value: --port 14107 --host ephys1.laboratorybox.org
+        - name: LABBOX_EPHYS_DEPLOY
+          value: ephys1
         ports:
         - containerPort: 15310
         volumeMounts:

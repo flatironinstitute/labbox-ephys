@@ -9,7 +9,10 @@ const hitherJobs = (state = [], action) => {
             ];
         case UPDATE_HITHER_JOB:
             const j = state.filter(j => (j.jobId === action.jobId))[0];
-            if (!j) throw Error(`Unable to find job with id: ${action.jobId}`);
+            if (!j) {
+                console.warn(`Unable to find job with id: ${action.jobId}`);
+                return state;
+            }
             return [
                 ...state.filter(j => (j.jobId !==action.jobId)),
                 {

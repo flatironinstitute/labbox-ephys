@@ -13,7 +13,7 @@ import { Home } from '@material-ui/icons';
 import PersistStateControl from './containers/PersistStateControl';
 import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
 import { connect } from 'react-redux';
-import { getPathQuery, getFeedId } from './kachery';
+import { getPathQuery } from './kachery';
 
 const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
     const { documentId, feedUri, readonly } = documentInfo;
@@ -41,34 +41,20 @@ const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
 const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
         (async () => {
-            let resolvedFeedUri = feedUri;
-            if ((!feedUri) || (feedUri === 'default')) {
-                const feedId = await getFeedId('labbox-ephys-default');
-                feedUri = 'default';
-                resolvedFeedUri = `feed://${feedId}`;
-            }
-            console.info(`Using feed: ${feedUri} ${resolvedFeedUri}`);
-            const readonly = resolvedFeedUri ? resolvedFeedUri.startsWith('sha1://') : false;
+            console.info(`Using feed: ${feedUri}`);
+            const readonly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
             onSetDocumentInfo({
                 documentId,
                 feedUri,
-                resolvedFeedUri,
                 readonly
             });
         })();
     })
-    return <div>Setting document id...</div>
+    return <div>Setting document info...</div>
 }
 
-const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
-    const { documentId, feedId } = documentInfo;
-    let loaded = true;
-    ['recordings', 'sortings', 'sortingJobs', 'jobHandlers'].forEach(
-        key => {
-            if (!initialLoad[key])
-                loaded = false;
-        }
-    )
+const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
+    const { documentId, feedUri, readonly } = documentInfo;
 
     if (!documentId) {
         return (
@@ -79,7 +65,7 @@ const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocu
                         const query = QueryString.parse(location.search);
                         return <SetDocumentInfo
                             documentId={match.params.documentId}
-                            feedUri={query.feed || 'default'}
+                            feedUri={query.feed || null}
                             onSetDocumentInfo={onSetDocumentInfo}
                         />
                     }}
@@ -98,7 +84,7 @@ const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocu
             </AppBar>
             <div style={{padding: 30}}>
                 {
-                    loaded ? (
+                    initialLoadComplete ? (
                         children
                     ) : (
                         <div>Loading...</div>
@@ -111,7 +97,7 @@ const AppContainer = ({ location, initialLoad, children, documentInfo, onSetDocu
 
 const mapStateToProps = state => {
     return {
-        initialLoad: state.initialLoad,
+        initialLoadComplete: state.serverConnection.initialLoadComplete,
         documentInfo: state.documentInfo,
         extensionsConfig: state.extensionsConfig
     }

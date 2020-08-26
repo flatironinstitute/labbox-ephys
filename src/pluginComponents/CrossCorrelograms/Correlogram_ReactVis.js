@@ -5,6 +5,9 @@ const Correlogram_rv = (boxSize, plotData, argsObject = {id: 0}) => {
     // plotData will be an array of [x-vals], [y-vals], and x-stepsize.
     // need to convert to an array of objects with x-y pairs.
     // We'll be doing this a LOT, it belongs elsewhere
+    if (!plotData) {
+        return <div>No data</div>;
+    }
     const data = plotData[0].map((item, index) => {
         return { x: item, y: plotData[1][index] };
     });

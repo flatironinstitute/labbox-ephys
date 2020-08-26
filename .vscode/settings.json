@@ -8,6 +8,7 @@
     "esversion": 9
     },
     "cSpell.enableFiletypes": [
-        "!javascript"
+        "!javascript",
+        "!python"
     ]
 }

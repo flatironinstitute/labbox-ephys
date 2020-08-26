@@ -1,6 +1,6 @@
 {
   "name": "labbox-ephys",
-  "version": "0.2.18",
+  "version": "0.3.13",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
@@ -30,14 +30,15 @@
     "react-vis": "^1.11.7",
     "react-visibility-sensor": "^5.1.1",
     "redux": "^4.0.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "socket.io-client": "^2.3.0"
   },
   "scripts": {
     "start": "PORT=15351 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start-api": "cd python/api && python -m flask run --no-debugger"
+    "start-api": "cd python/api && python api.py"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -54,7 +55,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:15352",
+  "proxyDisable": "http://localhost:15308",
   "devDependencies": {
     "serve": "^11.3.0"
   }

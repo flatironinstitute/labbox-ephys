@@ -2,13 +2,13 @@ import React from 'react'
 import { connect } from 'react-redux';
 
 const ConfigSharing = ({
-    documentInfo
+    documentInfo, defaultFeedId
 }) => {
-    const {feedUri, resolvedFeedUri, documentId} = documentInfo;
+    const {feedUri, documentId} = documentInfo;
+    const resolvedFeedUri = feedUri || 'feed://' + defaultFeedId;
     return (
         <div>
             <h1>Sharing</h1>
-            {resolvedFeedUri}
             <p>You can share the following information:</p>
             <pre>{`Feed URI: ${resolvedFeedUri}`}</pre>
             <pre>{`document ID: ${documentId}`}</pre>
@@ -25,7 +25,8 @@ const ConfigSharing = ({
 
 
 const mapStateToProps = state => ({
-    documentInfo: state.documentInfo
+    documentInfo: state.documentInfo,
+    defaultFeedId: state.serverInfo.defaultFeedId
 })
 
 const mapDispatchToProps = dispatch => ({

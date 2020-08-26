@@ -23,6 +23,7 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
                 id: 'plot-'+unitId
             })}
             useJobCache={true}
+            jobHandlerName="partition2"
         />
     );
 }
@@ -30,7 +31,6 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
 const label = 'Average waveforms'
 
 AverageWaveforms.sortingViewPlugin = {
-    development: true,
     label: label
 }
 

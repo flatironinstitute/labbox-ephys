@@ -18,7 +18,7 @@ def _path(x):
 def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None, dict]:
     if isinstance(arg, str):
         path = arg
-        if not ka.get_file_info(path):
+        if not kp.load_file(path):
             return None
         return dict(
             sorting_format='mda',

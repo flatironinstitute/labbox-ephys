@@ -60,7 +60,8 @@ const Units = ({ sorting, recording, selectedUnitIds,
                     hither_config: {
                         use_job_cache: true
                     },
-                    job_handler_name: 'calculation'
+                    job_handler_name: 'partition3',
+                    required_files: sorting.sortingObject
                 });
             }
             catch (err) {
