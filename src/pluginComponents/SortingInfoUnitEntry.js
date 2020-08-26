@@ -7,7 +7,6 @@ const SortingInfoUnitEntry = React.memo(({
         unitStatus === 'selected' ? 'selectedUnitEntry'
         : unitStatus === 'focused' ? 'focusedUnitEntry'
         : 'unselectedUnitEntry'; // default to unselected
-    console.log(`Rendering unit ${unitId} with ${labels}:${unitStatus}`)
     return (
         <div
             className={unitClass}

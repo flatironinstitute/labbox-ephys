@@ -39,17 +39,25 @@ const updateSelections = (state, [mode = 'simple', target]) => {
         'focus': target,
         [target]: !(state[target] || false)
       };
-    case 'additive':  // shift-click; assume focus set.
+    case 'additive':  // shift-click w/ focus set.
       // Keep prior focus & set selection to the inclusive interval from
       // target to focus.
+      // Note this does lead to entries that point nowhere when unit ids
+      // are non-contiguous. Be alert to this.
       const intUnitId = parseInt(target);
       return {
         ...Object.fromEntries(intrange(intUnitId, focus).map(key => [key, true])),
         'focus': state['focus']
       };
-    case 'checkbox': // from the checkbox view in the units list.
-                     // Drop focus & reset selection to select exactly the chosen targets
-                     // (which is a list in this context)
+    case 'toggle': // checkbox from new units list. It just passes the checkbox to toggle.
+                   // this is identical to picked mode except we delete the focus.
+      return {
+        ...state,
+        [target]: !(state[target] || false)
+      };
+    case 'exact': // from the units list, which uses checkboxes so the precise set is specified.
+                  // Drop focus & reset selection to select exactly the chosen targets
+                  // (which is a list in this context)
       return Object.fromEntries(Object.keys(target).map(key => [key, true]));
     default:
       alert(`Bad selection-update mode ${mode}`);
@@ -149,7 +157,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
                   onAddUnitLabel={onAddUnitLabel}
                   onRemoveUnitLabel={onRemoveUnitLabel}
                   onSelectedUnitIdsChanged={(list) => {
-                    return setSelectedUnitIds(['checkbox', list]);
+                    return setSelectedUnitIds(['toggle', list]);
                   }}
                 />
               </Expandable>

@@ -1,15 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import NiceTable from '../../components/NiceTable';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import { sleep } from '../../actions';
 import { Button, Paper } from '@material-ui/core';
 import { createHitherJob } from '../../hither';
 import MultiComboBox from '../../components/MultiComboBox';
+import * as pluginComponents from './metricPlugins';
+
+// const [computeStatus, setComputeStatus] = useState('pending');
+// const [computeMetrics, setComputedMetrics] = useState({})
+//
+// const effect = async () => {
+//   if (computeStatus === 'pending') {
+//     setComputeStatus('calculating');
+//     metricPlugins.forEach(mp => {
+//       (async () => {
+//         const result1 = await mp.computeMetric(sorting);
+//           ...
+//         ).wait();
+//         setComputedMetrics({
+//           ...computedMetrics,
+//           [mp.pluginName()]: result1
+//         });
+//       })();
+//     });
+//   }
+// }
+
+const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
+
+const metricPlugins = Object.values(pluginComponents)
+                            .filter(plugin => (plugin.metricPlugin));
+
+// TODO: Filter with a Development flag?
+
+const TIMEOUT = (ms) => (new Promise(resolve => setTimeout(resolve, ms)));
+
+const updateMetricData = (state, [metricName, status, dataObject]) => {
+    if (state[metricName] && state[metricName]['status'] === 'completed') {
+        // something went wrong
+        console.warn(`Updating status of completed metric ${metricName}??`);
+        return state;
+    }
+    return {
+        ...state,
+        [metricName]: {
+            'status': status,
+            'data': status === 'completed' ? dataObject : [NaN],
+            'error': status === 'error' ? dataObject : ''
+        }
+    }
+}
+
 
 const Units = ({ sorting, recording, selectedUnitIds,
                 onAddUnitLabel, onRemoveUnitLabel,
                 onSelectedUnitIdsChanged }) => {
     const [activeOptions, setActiveOptions] = useState([]);
+    const [metrics, updateMetrics] = useReducer(updateMetricData, {});
+
+    const fetchMetric = async (metric = {metricName: '', hitherFnName: '', hitherConfig: {}}) => {
+        const name = metric.metricName;
+
+        if (name in metrics) {
+            console.log(`Cache hit, got value ${metrics[name]['data']}`);
+            return metrics[name];
+        }
+        // new request. Add state to cache, dispatch job, then update state as results come back.
+        updateMetrics([metric.metricName, 'initiating', '']);
+        try {
+            const data = await createHitherJob(metric.hitherFnName,
+                {
+                    sorting_object: sorting.sortingObject,
+                    recording_object: recording.recordingObject
+                },
+                metric.hitherConfig);
+            // await TIMEOUT(2000);
+            updateMetrics([metric.metricName, 'completed', data]);
+            console.log(`Data should now be ${JSON.stringify(data)}`)
+        } catch (err) {
+            console.error(err);
+            updateMetrics([metric.metricName, 'error', err]);
+        }
+    }
+
 
     // TODO: it might be worthwhile to add a way to interact with hither using the fetch
     // interface or conventional promises, so that react async can be used to handle
@@ -20,7 +94,6 @@ const Units = ({ sorting, recording, selectedUnitIds,
     const [asyncCallError, setAsyncCallError] = useState(null);
     const [queryData, setQueryData] = useState(null);
 
-    const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
     const labelOptions = [...new Set(
         defaultLabelOptions.concat(
             Object.keys(sorting.unitCuration || {})
@@ -41,7 +114,10 @@ const Units = ({ sorting, recording, selectedUnitIds,
         return 0;
     });
 
+    // This RECOMPUTES on every RERENDER???
     const fetchFiringData = async () => {
+        console.log(`All metric plugins: ${JSON.stringify(metricPlugins)}`)
+        await fetchMetric(metricPlugins[0]['metricPlugin']);
         if (!asyncCallStatus) {
             setAsyncCallStatus('running');
             let rateData;
@@ -76,6 +152,10 @@ const Units = ({ sorting, recording, selectedUnitIds,
     }
     useEffect(() => { fetchFiringData(); });
 
+    // TIMING, MANUAL STYLE
+    // const pretime = Date.now()
+    // console.log(`Computing firing data took ${Date.now() - pretime} ms.`)
+
     if (asyncCallStatus === 'pending' || asyncCallStatus === 'active' || asyncCallStatus === 'running') {
         return (
             <div>Loading...</div>
@@ -98,7 +178,6 @@ const Units = ({ sorting, recording, selectedUnitIds,
     const selectedRowKeys = sorting.sortingInfo.unit_ids
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
     const handleSelectedRowKeysChanged = (keys) => {
-        console.log(`Requested key change to: ${JSON.stringify(keys)}`);
         onSelectedUnitIdsChanged(
             keys.reduce((o, key) => ({...o, [key]: true}), {})
         );

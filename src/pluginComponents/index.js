@@ -5,6 +5,7 @@ export {default as MatplotlibTest} from './MatplotlibTest/MatplotlibTest'
 
 // Sorting views (this order determines the order in which they are shows)
 export {default as Units} from './Units/Units'
+export {default as NewUnits} from './Units/NewUnits'
 export {default as AutoCorrelograms} from './AutoCorrelograms/AutoCorrelograms'
 export {default as CrossCorrelograms} from './CrossCorrelograms/CrossCorrelograms'
 export {default as AverageWaveforms} from './AverageWaveforms/AverageWaveforms'
