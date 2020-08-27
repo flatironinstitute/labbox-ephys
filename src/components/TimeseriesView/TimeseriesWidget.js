@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import TimeWidget, { PainterPath, TimeWidgetPanel } from '../TimeWidget/TimeWidget';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { MdGridOn as SelectElectrodesIcon } from 'react-icons/md';
+import { MdGridOn as SelectFilterIcon } from 'react-icons/md';
 import SelectElectrodes from './SelectElectrodes';
+import SelectFilter from './SelectFilter';
 
 export default class TimeseriesWidget extends Component {
     constructor(props) {
@@ -74,6 +76,9 @@ export default class TimeseriesWidget extends Component {
             this.updatePanels();
         }
         else if (this.state.selectElectrodesPrefs.viewOnlySelectedChannels !== prevState.selectElectrodesPrefs.viewOnlySelectedChannels) {
+            this.updatePanels();
+        }
+        else if (this.props.filterPrefs !== prevProps.filterPrefs) {
             this.updatePanels();
         }
         else if (this.state.timeRange !== prevState.timeRange) {
@@ -280,6 +285,17 @@ export default class TimeseriesWidget extends Component {
                         onChange={this._handleSelectedElectrodeIdsChanged}
                         prefs={this.state.selectElectrodesPrefs}
                         onPrefsChange={(prefs) => {this.setState({selectElectrodesPrefs: prefs})}}
+                    />
+                )
+            },
+            {
+                key: 'select-filter',
+                title: "Select filter",
+                icon: <SelectFilterIcon />,
+                render: () => (
+                    <SelectFilter
+                        filterPrefs={this.props.filterPrefs}
+                        onFilterPrefsChanged={(filterPrefs) => {this.props.onFilterPrefsChanged(filterPrefs)}}
                     />
                 )
             }

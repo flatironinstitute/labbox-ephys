@@ -4,13 +4,22 @@ import io
 import base64
 # import time
 import labbox_ephys as le
+import spiketoolkit as st
 
 @hi.function('get_timeseries_segment', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
-def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_size):
+def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_size, filter_prefs):
     import time
     recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)
+
+    filter_type = filter_prefs['filterType']
+    if filter_type == 'none':
+        pass
+    elif filter_type == 'bandpass':
+        recording0 = st.preprocessing.bandpass_filter(recording=recording0)
+    else:
+        raise Exception(f'Unexpected filter type: {filter_type}')
 
     t1 = segment_num * segment_size * ds_factor
     t2 = ((segment_num + 1) * segment_size * ds_factor)

@@ -7,7 +7,9 @@ const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
     recordingObject
 }) => {
-    // handle filter opts stuff
+
+    const [filterPrefs, setFilterPrefs] = useState({filterType: 'none'});
+
     const leftPanels = [];
     return (
         <TimeseriesViewInner
@@ -17,6 +19,8 @@ const TimeseriesView = ({
             maxHeight={maxHeight}
             leftPanels={leftPanels}
             recordingObject={recordingObject}
+            filterPrefs={filterPrefs}
+            onFilterPrefsChanged={filterPrefs => setFilterPrefs(filterPrefs)}
         />
     );
 }
@@ -24,7 +28,9 @@ const TimeseriesView = ({
 const TimeseriesViewInner = ({
     width, height, maxWidth, maxHeight,
     leftPanels,
-    recordingObject
+    recordingObject,
+    filterPrefs,
+    onFilterPrefsChanged
 }) => {
 
     const [timeseriesInfo, setTimeseriesInfo] = useState(null);
@@ -34,14 +40,24 @@ const TimeseriesViewInner = ({
     const [widgetKey, setWidgetKey] = useState(0);
 
     const effect = async () => {
+        // todo: find a better way to do this
+        if ((timeseriesModel) && (timeseriesModel.filterPrefs !== filterPrefs)) {
+            setTimeseriesInfo(null);
+            setStatus('pending');
+        }
+
         if ((!timeseriesInfo) && (status !== 'error')) {
             let info;
+            setTimeseriesModel(null);
             setStatus('calculating');
             setStatusMessage('Calculating timeseries info');
             try {
                 const infoJob = await createHitherJob(
                     'calculate_timeseries_info',
-                    { recording_object: recordingObject },
+                    {
+                        recording_object: recordingObject,
+                        filter_prefs: filterPrefs
+                    },
                     {
                         hither_config: {
                             use_job_cache: true
@@ -81,7 +97,8 @@ const TimeseriesViewInner = ({
                             recording_object: recordingObject,
                             ds_factor: ds_factor,
                             segment_num: segment_num,
-                            segment_size: info.segment_size
+                            segment_size: info.segment_size,
+                            filter_prefs: filterPrefs
                         },
                         {
                             hither_config: {
@@ -101,6 +118,9 @@ const TimeseriesViewInner = ({
                 X.setFromBase64(result.data_b64);
                 model.setDataSegment(ds_factor, segment_num, X);
             });
+            // todo: find a better way to do this
+            model.filterPrefs = filterPrefs;
+
             setTimeseriesModel(model);
             setWidgetKey(Math.random());
             setStatus('finished');
@@ -139,6 +159,8 @@ const TimeseriesViewInner = ({
                 width={width0}
                 height={height0}
                 leftPanels={leftPanels}
+                filterPrefs={filterPrefs}
+                onFilterPrefsChanged={onFilterPrefsChanged}
             />
         </div>
     )

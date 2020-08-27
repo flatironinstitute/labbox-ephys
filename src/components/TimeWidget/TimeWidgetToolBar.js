@@ -57,16 +57,16 @@ export default class TimeWidgetToolBar extends Component {
                             let color = 'inherit';
                             if (button.selected) color = 'primary';
                             return (
-                                <IconButton title={button.title} onClick={button.onClick} key={ii} color={color}>
+                                <IconButton key={"icon-" + ii} title={button.title} onClick={button.onClick} key={ii} color={color}>
                                     {button.icon}
                                 </IconButton>
                             );
                         }
                         else if (button.type === 'divider') {
-                            return <hr key={ii} />;
+                            return <hr key={"divider-" + ii} />;
                         }
                         else {
-                            return <span />;
+                            return <span key={"span-" + ii}  />;
                         }
                     })
                 }
