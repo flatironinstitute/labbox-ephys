@@ -17,11 +17,6 @@ const STATES = {
     error: 'error'
 }
 
-
-// TIMING, MANUAL STYLE
-// const pretime = Date.now()
-// console.log(`Computing firing data took ${Date.now() - pretime} ms.`)
-
 const updateMetricData = (state, [metricName, status, dataObject]) => {
     if (state[metricName] && state[metricName]['status'] === 'completed') {
         console.warn(`Updating status of completed metric ${metricName}??`);
@@ -46,7 +41,6 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
     const activeMetricPlugins = metricPlugins.filter(
         p => (!p.metricPlugin.development || (extensionsConfig.enabled.development)));
 
-    console.log(`Render starting: ${Date.now()}.`)
     const labelOptions = [...new Set(
         defaultLabelOptions.concat(
             Object.keys(sorting.unitCuration || {})
@@ -73,9 +67,9 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
         if (name in metrics) {
             return metrics[name];
         }
-        // new request. Add state to cache, dispatch job, then update state as results come back.
         // TODO: FIXME! THIS STATE IS NOT PRESERVED BETWEEN UNFOLDINGS!!!
         // TODO: May need to bump this up to the parent!!!
+        // new request. Add state to cache, dispatch job, then update state as results come back.
         updateMetrics([metric.metricName, STATES.executing, '']);
         try {
             const data = await createHitherJob(metric.hitherFnName,
@@ -83,7 +77,10 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                     sorting_object: sorting.sortingObject,
                     recording_object: recording.recordingObject
                 },
-                metric.hitherConfig);
+                {
+                    ...metric.hitherConfig,
+                    required_files: sorting.sortingObject
+                });
             updateMetrics([metric.metricName, STATES.completed, data]);
         } catch (err) {
             console.error(err);
@@ -100,21 +97,17 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
 
     const handleAddLabel = (unitId, label) => {
-        console.log(`HandleAddLabel (${unitId}): ${Date.now()}.`)
         onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
     }
     const handleRemoveLabel = (unitId, label) => {
-        console.log(`HandleRemoveLabel (${unitId}): ${Date.now()}.`)
         onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
     }
     const handleApplyLabels = (selectedRowKeys, labels) => {
-        console.log(`HandleApplyLabels (${JSON.stringify(selectedRowKeys)}): ${Date.now()}.`)
         Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
             ? labels.forEach((label) => handleAddLabel(key, label))
             : {});
     };
     const handlePurgeLabels = (selectedRowKeys, labels) => {
-        console.log(`HandlePurgeLabels (${JSON.stringify(selectedRowKeys)}): ${Date.now()}.`)
         Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
             ? labels.forEach((label) => handleRemoveLabel(key, label))
             : {});

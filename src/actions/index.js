@@ -139,7 +139,6 @@ export const setDocumentInfo = (documentInfo) => ({
 // curation
 
 export const addUnitLabel = ({ sortingId, unitId, label }) => {
-  console.log(`deep addUnitLabel (${sortingId}, ${unitId}, ${label}): ${Date.now()}.`)
   return ({
   type: ADD_UNIT_LABEL,
   sortingId,
