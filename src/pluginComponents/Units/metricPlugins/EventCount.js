@@ -1,16 +1,15 @@
 import React from 'react';
-import { LinearProgress } from '@material-ui/core';
 
 const EventCount = React.memo(({record}) => {
-    const ready = !record || !record.count || isNaN(record.count);
     return (
-        ready
-            ? <span>{record.count}</span>
-            : <span><LinearProgress /></span>
+        <span>{record.count}</span>
     );
 });
 
-const hitherConfig = {
+EventCount.metricName = 'EventCount';
+EventCount.columnLabel = 'Num. events';
+EventCount.hitherFnName = 'get_firing_data';
+EventCount.hitherConfig = {
     auto_substitute_file_objects: true,
     wait: true,
     useClientCache: true,
@@ -20,13 +19,9 @@ const hitherConfig = {
     job_handler_name: 'calculation'
 }
 
-const metricName = 'EventCount';
 
 EventCount.metricPlugin = {
-    metricName: metricName,
-    columnLabel: 'Num. events',
-    hitherFnName: 'get_firing_data',
-    hitherConfig: hitherConfig
+    development: false
 }
 
 export default EventCount;

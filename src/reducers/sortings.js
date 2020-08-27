@@ -65,6 +65,7 @@ const sortings = (state = [], action) => {
         case ADD_UNIT_LABEL:
         case REMOVE_UNIT_LABEL:
             {
+                console.log(`executing deep add/removeUnitLabel: ${Date.now()}.`)
                 const s = state.filter(s => (s.sortingId === action.sortingId))[0];
                 if (!s) {
                     throw Error(`Sorting not found: ${action.sortingId}`);

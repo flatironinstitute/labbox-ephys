@@ -152,6 +152,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
                   sorting={sorting}
                   recording={recording}
                   selectedUnitIds={selectedUnitIds}
+                  extensionsConfig={extensionsConfig}
                   focusedUnitId={selectedUnitIds['focus']}
                   onUnitClicked={handleUnitClicked}
                   onAddUnitLabel={onAddUnitLabel}

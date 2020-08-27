@@ -138,13 +138,16 @@ export const setDocumentInfo = (documentInfo) => ({
 
 // curation
 
-export const addUnitLabel = ({ sortingId, unitId, label }) => ({
+export const addUnitLabel = ({ sortingId, unitId, label }) => {
+  console.log(`deep addUnitLabel (${sortingId}, ${unitId}, ${label}): ${Date.now()}.`)
+  return ({
   type: ADD_UNIT_LABEL,
   sortingId,
   unitId,
   label,
   persistKey: 'sortings'
-})
+});
+}
 
 export const removeUnitLabel = ({ sortingId, unitId, label }) => ({
   type: REMOVE_UNIT_LABEL,
