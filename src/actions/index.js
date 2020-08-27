@@ -138,15 +138,13 @@ export const setDocumentInfo = (documentInfo) => ({
 
 // curation
 
-export const addUnitLabel = ({ sortingId, unitId, label }) => {
-  return ({
+export const addUnitLabel = ({ sortingId, unitId, label }) => ({
   type: ADD_UNIT_LABEL,
   sortingId,
   unitId,
   label,
   persistKey: 'sortings'
-});
-}
+})
 
 export const removeUnitLabel = ({ sortingId, unitId, label }) => ({
   type: REMOVE_UNIT_LABEL,
