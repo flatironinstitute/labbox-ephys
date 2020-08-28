@@ -9,6 +9,7 @@ const FiringRate = React.memo(({record = {}}) => {
 FiringRate.metricName = 'FiringRate';
 FiringRate.columnLabel = 'Firing rate (Hz)';
 FiringRate.hitherFnName = 'get_firing_data';
+FiringRate.metricFnParams = {};
 FiringRate.hitherConfig = {
     auto_substitute_file_objects: true,
     wait: true,

@@ -49,7 +49,7 @@ const MetricCell = React.memo(({error = '', data, PayloadComponent}) => {
     if (error !== '') {
         return (<TableCell><span>{`Error: ${error}`}</span></TableCell>);
     }
-    if (!data || data === '') {
+    if (data === null || data === '') { // 0 is a valid value!!
         return (<TableCell><LinearProgress style={{'width': '60%'}}/></TableCell>);
     } else {
         return (
@@ -88,8 +88,8 @@ const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = 
                                         <MetricCell
                                             key = {metricName + '_' + unitId}
                                             data = {((metric['data']) === '' || 
-                                                    !metric['data'][unitId])
-                                                ? NaN : metric['data'][unitId]}
+                                                    !(unitId in metric['data']))
+                                                ? null : metric['data'][unitId]}
                                             error = {metric['error']}
                                             PayloadComponent = {mp}
                                         />
