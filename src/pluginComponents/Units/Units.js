@@ -1,26 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import NiceTable from '../../components/NiceTable';
+import React, { useState, useCallback, useEffect, useReducer } from 'react';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
-import { sleep } from '../../actions';
-import { Button, Paper } from '@material-ui/core';
+import { Button, Paper, CircularProgress } from '@material-ui/core';
 import { createHitherJob } from '../../hither';
 import MultiComboBox from '../../components/MultiComboBox';
+import UnitsTable from './UnitsTable';
+import * as pluginComponents from './metricPlugins';
 
-const Units = ({ sorting, recording, selectedUnitIds,
+const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
+
+const metricPlugins = Object.values(pluginComponents)
+                            .filter(plugin => (plugin.metricPlugin))
+
+const STATES = {
+    completed: 'completed',
+    executing: 'executing',
+    error: 'error'
+}
+
+const updateMetricData = (state, [metricName, status, dataObject]) => {
+    if (state[metricName] && state[metricName]['status'] === 'completed') {
+        console.warn(`Updating status of completed metric ${metricName}??`);
+        return state;
+    }
+    return {
+        ...state,
+        [metricName]: {
+            'status': status,
+            'data': status === STATES.completed ? dataObject : '',
+            'error': status === STATES.error ? dataObject : ''
+        }
+    }
+}
+
+
+const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                 onAddUnitLabel, onRemoveUnitLabel,
                 onSelectedUnitIdsChanged }) => {
     const [activeOptions, setActiveOptions] = useState([]);
+    const [metrics, updateMetrics] = useReducer(updateMetricData, {});
+    const activeMetricPlugins = metricPlugins.filter(
+        p => (!p.metricPlugin.development || (extensionsConfig.enabled.development)));
 
-    // TODO: it might be worthwhile to add a way to interact with hither using the fetch
-    // interface or conventional promises, so that react async can be used to handle
-    // rendering of data-store-bound elements.
-    // For now we can continue to use the effects hook, like we do for plotting, but it would
-    // reduce overhead to use the libraries directly--if I could figure out how...
-    const [asyncCallStatus, setAsyncCallStatus] = useState('');
-    const [asyncCallError, setAsyncCallError] = useState(null);
-    const [queryData, setQueryData] = useState(null);
-
-    const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
     const labelOptions = [...new Set(
         defaultLabelOptions.concat(
             Object.keys(sorting.unitCuration || {})
@@ -41,72 +61,41 @@ const Units = ({ sorting, recording, selectedUnitIds,
         return 0;
     });
 
-    const fetchFiringData = async () => {
-        if (!asyncCallStatus) {
-            setAsyncCallStatus('running');
-            let rateData;
-            try {
-                setAsyncCallStatus('active');
-                await sleep(50);
-                rateData = await createHitherJob('get_firing_data',
+    const fetchMetric = useCallback(async (metric = {metricName: '', hitherFnName: '', hitherConfig: {}}) => {
+        const name = metric.metricName;
+
+        if (name in metrics) {
+            return metrics[name];
+        }
+        // TODO: FIXME! THIS STATE IS NOT PRESERVED BETWEEN UNFOLDINGS!!!
+        // TODO: May need to bump this up to the parent!!!
+        // new request. Add state to cache, dispatch job, then update state as results come back.
+        updateMetrics([metric.metricName, STATES.executing, '']);
+        try {
+            const data = await createHitherJob(metric.hitherFnName,
                 {
                     sorting_object: sorting.sortingObject,
                     recording_object: recording.recordingObject
                 },
                 {
-                    auto_substitute_file_objects: true,
-                    wait: true,
-                    useClientCache: true,
-                    hither_config: {
-                        use_job_cache: true
-                    },
-                    job_handler_name: 'partition3',
+                    ...metric.hitherConfig,
                     required_files: sorting.sortingObject
                 });
-            }
-            catch (err) {
-                console.error(err);
-                setAsyncCallError(err.message);
-                setAsyncCallStatus('error');
-                return;
-            }
-            setQueryData(rateData);
-            setAsyncCallStatus('finished');
+            updateMetrics([metric.metricName, STATES.completed, data]);
+        } catch (err) {
+            console.error(err);
+            updateMetrics([metric.metricName, STATES.error, err]);
         }
-    }
-    useEffect(() => { fetchFiringData(); });
+    }, [metrics, sorting.sortingObject, recording.recordingObject]);
 
-    if (asyncCallStatus === 'pending' || asyncCallStatus === 'active' || asyncCallStatus === 'running') {
-        return (
-            <div>Loading...</div>
-        );
-    }
-    if (asyncCallStatus === 'error') {
-        return (
-            <div>Error fetching data: <pre>{asyncCallError}</pre></div>
-        )
-    }
-    if (asyncCallStatus !== 'finished') {
-        return (
-        <div>ERROR: Unhandled status for async call: {asyncCallStatus}</div>
-        )
-    }
+    useEffect(() => { 
+        activeMetricPlugins.forEach(async mp => await fetchMetric(mp));
+    }, [activeMetricPlugins, metrics, fetchMetric]);
 
-    // Possible resource:
-    //https://ourcodeworld.com/articles/read/317/how-to-check-if-a-javascript-promise-has-been-fulfilled-rejected-or-resolved
 
     const selectedRowKeys = sorting.sortingInfo.unit_ids
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
-    const handleSelectedRowKeysChanged = (keys) => {
-        console.log(`Requested key change to: ${JSON.stringify(keys)}`);
-        onSelectedUnitIdsChanged(
-            keys.reduce((o, key) => ({...o, [key]: true}), {})
-        );
-    }
-    const getLabelsForUnitId = unitId => {
-        const unitCuration = sorting.unitCuration || {};
-        return (unitCuration[unitId] || {}).labels || [];
-    }
+
     const handleAddLabel = (unitId, label) => {
         onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
     }
@@ -124,47 +113,27 @@ const Units = ({ sorting, recording, selectedUnitIds,
             : {});
     };
 
-    const rows = sorting.sortingInfo.unit_ids.map(unitId => {
-        return {
-            key: unitId,
-            unitId: unitId,
-            labels: {
-                element: <span>{getLabelsForUnitId(unitId).join(', ')} </span>
-            },
-            eventCount: queryData[unitId].count,
-            firingRate: queryData[unitId].rate
-        }
-    });
-    
-    const columns = [
-        {
-            key: 'unitId',
-            label: 'Unit ID'
-        },
-        {
-            key: 'labels',
-            label: 'Labels',
-        },
-        {
-            key: 'eventCount',
-            label: 'Num. events',
-        },
-        {
-            key: 'firingRate',
-            label: 'Firing rate (Hz)',
-        }
-    ];
+    const units = sorting.sortingInfo.unit_ids;
+
     // TODO: define additional columns such as: num. events, avg. firing rate, snr, ...
+    if (Object.keys(metrics).length === 0 ) { // empty object
+        return (
+            <div style={{'width': '100%'}}>
+                <CircularProgress />
+            </div>
+        );
+    }
     return (
         <div style={{'width': '100%'}}>
             <Paper style={{maxHeight: 350, overflow: 'auto'}}>
-            <NiceTable
-                rows={rows}
-                columns={columns}
-                selectionMode='multiple'
-                selectedRowKeys={selectedRowKeys}
-                onSelectedRowKeysChanged={(keys) => {handleSelectedRowKeysChanged(keys)}}
-            />
+                <UnitsTable 
+                    metricPlugins={activeMetricPlugins}
+                    units={units}
+                    metrics={metrics}
+                    selectedUnitIds={selectedUnitIds}
+                    sorting={sorting}
+                    onSelectedUnitIdsChanged={onSelectedUnitIdsChanged}
+                />
             </Paper>
             <div>
                 <MultiComboBox
@@ -192,4 +161,4 @@ Units.prototypeViewPlugin = {
     props: sampleSortingViewProps()
 }
 
-export default Units
+export default Units;

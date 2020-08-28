@@ -2,9 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// socket.io-client
-import io from 'socket.io-client';
-
 // redux
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'

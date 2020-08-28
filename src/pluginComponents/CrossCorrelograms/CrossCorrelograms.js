@@ -54,7 +54,7 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
 
     const renderRow = ( pairs, plotWidth ) => {
         return (
-            <Grid key={'range-'+pairs[0].xkey+'-to-'+pairs[pairs.length -1].xkey}>
+            <Grid key={'range-'+pairs[0].ykey+'-to-'+pairs[pairs.length -1].ykey}>
                 {
                     pairs.map((pair) => (
                         <Grid key={pair.xkey + '-' + pair.ykey + '-' + plotWidth} item
