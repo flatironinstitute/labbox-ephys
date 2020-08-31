@@ -56,7 +56,7 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
         <div className={"TheAppBar"}>
             <RootAppBar documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
             <div className={classes.container}>
-                {!initialLoadComplete ? (children) : (<div className={classes.container}>Loading...</div>)}
+                {initialLoadComplete ? (children) : (<div className={classes.container}>Loading...</div>)}
             </div>
         </div>
     )
