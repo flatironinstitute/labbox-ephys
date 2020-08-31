@@ -1,16 +1,22 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
 // LABBOX-CUSTOM ////////////////
-import { deepPurple, indigo } from '@material-ui/core/colors';
+import { indigo } from '@material-ui/core/colors';
 
-const themeOptions = {
-    palette: {
-        primary: deepPurple,
-        secondary: indigo,
-    }
-}
-/////////////////////////////////
+export const theme = (mode) =>
+    createMuiTheme({
+        palette: {
+            type: mode,
+            main: {
+                primary: mode === 'light' ? '#0CB4CE' : '#121212',
+                secondary: indigo,
+            },
+            colors: {
+                white: '#fff'
+            }
+        }
+    });
 
-const theme = createMuiTheme(themeOptions);
+
 
 export default theme;

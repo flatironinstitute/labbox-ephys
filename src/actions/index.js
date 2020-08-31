@@ -19,6 +19,7 @@ export const INIT_FETCH_SORTING_INFO = 'INIT_FETCH_SORTING_INFO'
 export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
 
 export const SET_PERSIST_STATUS = 'SET_PERSIST_STATUS'
+export const SET_DARK_MODE = 'SET_DARK_MODE'
 
 export const ADD_SORTING_JOB = 'ADD_SORTING_JOB'
 export const START_SORTING_JOB = 'START_SORTING_JOB'
@@ -44,9 +45,9 @@ export const setDatabaseConfig = databaseConfig => ({
 })
 
 export const setSortingInfo = ({ sortingId, sortingInfo }) => ({
-    type: SET_SORTING_INFO,
-    sortingId,
-    sortingInfo
+  type: SET_SORTING_INFO,
+  sortingId,
+  sortingInfo
 })
 
 export const addRecording = recording => ({
@@ -56,7 +57,7 @@ export const addRecording = recording => ({
 })
 
 export const deleteRecordings = recordingIds => {
-  return function(dispatch) {
+  return function (dispatch) {
     dispatch({
       type: 'CANCEL_ALL_SORTING_JOBS_FOR_RECORDINGS',
       recordingIds: recordingIds,
@@ -152,4 +153,9 @@ export const removeUnitLabel = ({ sortingId, unitId, label }) => ({
   unitId,
   label,
   persistKey: 'sortings'
+})
+
+export const setDarkMode = status => ({
+  type: SET_DARK_MODE,
+  status: status
 })

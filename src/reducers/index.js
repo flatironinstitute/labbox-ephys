@@ -10,6 +10,7 @@ import hitherJobs from './hitherJobs'
 import documentInfo from './documentInfo'
 import serverInfo from './serverInfo'
 import extensionsConfig from '../extensions/reducers'
+import darkMode from './darkMode'
 
 export default combineReducers({
     databaseConfig,
@@ -22,5 +23,6 @@ export default combineReducers({
     serverConnection,
     hitherJobs,
     extensionsConfig,
-    documentInfo
+    documentInfo,
+    darkMode
 })
