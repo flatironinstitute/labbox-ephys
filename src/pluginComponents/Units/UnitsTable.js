@@ -7,7 +7,7 @@ const getLabelsForUnitId = (unitId, sorting) => {
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo(({pluginLabels}) => {
+const HeaderRow = React.memo(({plugins}) => {
     return (
         <TableHead>
             <TableRow>
@@ -15,11 +15,13 @@ const HeaderRow = React.memo(({pluginLabels}) => {
                 <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
-                    pluginLabels.map(plugin => (
-                        <TableCell key={plugin + '_header'}>
-                            <span>{plugin}</span>
-                        </TableCell>
-                    ))
+                    plugins.map(plugin => {
+                        return (
+                            <TableCell key={plugin.columnLabel + '_header'}>
+                                <span title={plugin.tooltip}>{plugin.columnLabel}</span>
+                            </TableCell>
+                        );
+                    })
                 }
             </TableRow>
         </TableHead>
@@ -65,7 +67,7 @@ const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = 
     return (
         <Table className="NiceTable">
             <HeaderRow 
-                pluginLabels={metricPlugins.map(mp => mp['columnLabel'])}
+                plugins={metricPlugins}
             />
             <TableBody>
                 {
