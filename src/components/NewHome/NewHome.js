@@ -18,7 +18,7 @@ const NewHome = ({ documentInfo }) => {
             <Grid item xs={12}>
                 <Header documentInfo={documentInfo} />
             </Grid>
-            <Grid xs={12} >
+            <Grid item xs={12} >
                 <RecordingsTable />
             </Grid>
         </Grid>
