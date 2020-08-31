@@ -84,7 +84,7 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
             </AppBar>
             <div style={{padding: 30}}>
                 {
-                    initialLoadComplete ? (
+                    !initialLoadComplete ? (
                         children
                     ) : (
                         <div>Loading...</div>
