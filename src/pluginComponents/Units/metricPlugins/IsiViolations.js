@@ -2,7 +2,7 @@ import React from 'react';
 
 const IsiViolations = React.memo(({record = {}}) => {
     return (
-        <span>{record}</span>
+        <span>{record.toFixed(6)}</span>
     );
 });
 
