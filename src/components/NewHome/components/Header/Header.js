@@ -1,9 +1,12 @@
 import React from 'react'
-import { Grid, Typography, Button } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../../../kachery';
-import { makeStyles } from '@material-ui/core'
+import { makeStyles, useTheme } from '@material-ui/core'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import cn from 'classnames'
 
 const useStyles = makeStyles((theme) => ({
     titlecontainer: {
@@ -16,17 +19,19 @@ const useStyles = makeStyles((theme) => ({
     viewOnly: {
         fontStyle: "italic"
     },
-    lightButton: {
-        color: 'rgba(12, 180, 206, 1)',
-        backgroundColor: 'rgba(12, 180, 206, 0.05)',
+    baseButton: {
         padding: '10px 18px',
         borderRadius: 6,
         '&:hover': {
-            backgroundColor: 'rgba(12, 180, 206, 0.3)'
+            backgroundColor: theme.palette.colors.lightBlue1
         }
     },
+    lightButton: {
+        color: theme.palette.colors.lightBlue,
+        backgroundColor: theme.palette.colors.lightBlue2,
+    },
     darkButton: {
-
+        backgroundColor: theme.palette.colors.lightBlue,
     }
 }))
 
@@ -34,6 +39,8 @@ const useStyles = makeStyles((theme) => ({
 const Header = ({ documentInfo }) => {
     const { documentId, feedUri, readonly } = documentInfo;
     const classes = useStyles()
+    const theme = useTheme()
+    const showDark = theme.palette.type === 'dark'
 
     return (
         <Grid container >
@@ -49,7 +56,10 @@ const Header = ({ documentInfo }) => {
                 {!readonly &&
                     <Button
                         startIcon={<CloudUploadIcon />}
-                        className={classes.lightButton}
+                        className={showDark
+                            ? cn(classes.baseButton, classes.darkButton)
+                            : cn(classes.baseButton, classes.lightButton)
+                        }
                         component={Link}
                         to={`/${documentId}/importRecordings${getPathQuery({ feedUri })}`}>
                         Import recordings

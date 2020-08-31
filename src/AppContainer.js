@@ -1,42 +1,19 @@
-import React, { Fragment, useEffect } from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
+import React, { useEffect } from 'react';
 import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
 import { setDocumentInfo } from './actions';
 import * as QueryString from "query-string";
 
 // LABBOX-CUSTOM /////////////////////////////////////////////
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
-import { Home } from '@material-ui/icons';
-import PersistStateControl from './containers/PersistStateControl';
-import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
+import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { getPathQuery } from './kachery';
+import RootAppBar from './components/RootAppBar';
 
-const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
-    return (
-        <Fragment>
-            <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
-                <Home />&nbsp;
-                <Typography variant="h6">
-                    Labbox-ephys
-                </Typography>
-            </Button>
-            <span style={{marginLeft: 'auto'}} />
-            <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} style={{marginLeft: 'auto'}}>Config</Button>
-            {
-                extensionsConfig.enabled.development && <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
-            }
-            <Button color="inherit" component={Link} to="/about">About</Button>
-            <PersistStateControl />
-            <HitherJobMonitorControl />
-        </Fragment>
-    )
-}
-//////////////////////////////////////////////////////////////
+const useStyles = makeStyles(() => ({
+    container: {
+        padding: '60px 20px'
+    }
+}));
+
 
 const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
@@ -54,8 +31,8 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
 }
 
 const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
-
+    const { documentId } = documentInfo;
+    const classes = useStyles();
     if (!documentId) {
         return (
             <Switch>
@@ -77,19 +54,9 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
 
     return (
         <div className={"TheAppBar"}>
-            <AppBar position="static">
-                <Toolbar>
-                    <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
-                </Toolbar>
-            </AppBar>
-            <div style={{padding: 30}}>
-                {
-                    !initialLoadComplete ? (
-                        children
-                    ) : (
-                        <div>Loading...</div>
-                    )
-                }
+            <RootAppBar documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
+            <div className={classes.container}>
+                {!initialLoadComplete ? (children) : (<div className={classes.container}>Loading...</div>)}
             </div>
         </div>
     )
@@ -100,6 +67,7 @@ const mapStateToProps = state => {
         initialLoadComplete: state.serverConnection.initialLoadComplete,
         documentInfo: state.documentInfo,
         extensionsConfig: state.extensionsConfig
+
     }
 }
 
@@ -108,6 +76,6 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default withRouter(connect(
-  mapStateToProps,
-  mapDispatchToProps
+    mapStateToProps,
+    mapDispatchToProps
 )(AppContainer))
