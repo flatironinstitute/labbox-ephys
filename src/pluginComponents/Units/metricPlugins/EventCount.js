@@ -8,7 +8,9 @@ const EventCount = React.memo(({record}) => {
 
 EventCount.metricName = 'EventCount';
 EventCount.columnLabel = 'Num. events';
+EventCount.tooltip = 'Number of firing events';
 EventCount.hitherFnName = 'get_firing_data';
+EventCount.metricFnParams = {};
 EventCount.hitherConfig = {
     auto_substitute_file_objects: true,
     wait: true,
