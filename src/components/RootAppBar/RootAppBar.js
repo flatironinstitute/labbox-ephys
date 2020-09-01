@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%'
     },
     app: {
-        backgroundColor: theme.palette.main.primary
+        backgroundColor: theme.palette.primary.main
     },
     grow: {
         flexGrow: 1

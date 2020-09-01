@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
     },
     darkButton: {
         backgroundColor: theme.palette.colors.lightBlue,
+    },
+    container: {
+        padding: '20px 20px'
     }
 }))
 
@@ -43,7 +46,7 @@ const Header = ({ documentInfo }) => {
     const showDark = theme.palette.type === 'dark'
 
     return (
-        <Grid container >
+        <Grid container className={classes.container}>
             {readonly && <Grid item xs={12}>
                 <Typography className={classes.viewOnly}>
                     VIEW ONLY
