@@ -11,7 +11,7 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
             selections={selectedUnitIds}
             focus={focusedUnitId}
             onUnitClicked={onUnitClicked}
-            dataFunctionName={'fetch_average_waveform_plot_data'}
+            dataFunctionName={'createjob_fetch_average_waveform_plot_data'}
             dataFunctionArgsCallback={(unitId) => ({
                 sorting_object: sorting.sortingObject,
                 recording_object: recording.recordingObject,
@@ -22,8 +22,7 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
             plotComponentArgsCallback={(unitId) => ({
                 id: 'plot-'+unitId
             })}
-            useJobCache={true}
-            jobHandlerName="partition2"
+            newHitherJobMethod={true}
         />
     );
 }
