@@ -28,17 +28,17 @@ if os.environ.get('LABBOX_EPHYS_DEPLOY') == 'ephys1':
             'partition1': {
                 'type': 'remote',
                 'uri': crfeed_uri,
-                'cr_paritition': 'partition1'
+                'cr_partition': 'partition1'
             },
             'partition2': {
                 'type': 'remote',
                 'uri': crfeed_uri,
-                'cr_paritition': 'partition2'
+                'cr_partition': 'partition2'
             },
             'partition3': {
                 'type': 'remote',
                 'uri': crfeed_uri,
-                'cr_paritition': 'partition3'
+                'cr_partition': 'partition3'
             },
             'timeseries': {
                 'type': 'local'
@@ -55,17 +55,17 @@ elif os.environ.get('LABBOX_EPHYS_DEPLOY') == 'dubb':
             'partition1': {
                 'type': 'remote',
                 'uri': crfeed_uri,
-                'cr_paritition': 'partition1'
+                'cr_partition': 'partition1'
             },
             'partition2': {
                 'type': 'remote',
                 'uri': crfeed_uri,
-                'cr_paritition': 'partition2'
+                'cr_partition': 'partition2'
             },
             'partition3': {
                 'type': 'remote',
                 'uri': crfeed_uri,
-                'cr_paritition': 'partition3'
+                'cr_partition': 'partition3'
             },
             'timeseries': {
                 'type': 'local'

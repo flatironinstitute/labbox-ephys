@@ -4,7 +4,7 @@ import { createHitherJob } from '../hither';
 import { Box, CircularProgress } from '@material-ui/core';
 import VisibilitySensor from 'react-visibility-sensor';
 
-const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, jobHandlerName, requiredFiles,
+const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, jobHandlerName, requiredFiles,
     boxSize = { width: 200, height: 200 },
     plotComponent, plotComponentArgs }) => {
     const [calculationStatus, setCalculationStatus] = useState('waitingForVisible');
@@ -28,7 +28,8 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, jobHa
                         hither_config: {
                             use_job_cache: useJobCache ? true : false
                         },
-                        job_handler_name: jobHandlerName || 'partition1',
+                        newHitherJobMethod: newHitherJobMethod ? true : false,
+                        job_handler_name: jobHandlerName || 'default',
                         required_files: requiredFiles || {}
                     }
                 )
