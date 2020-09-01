@@ -2,7 +2,6 @@ import React from 'react'
 import FiberManualRecordRoundedIcon from '@material-ui/icons/FiberManualRecordRounded';
 import { makeStyles } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
-import cn from 'classnames'
 
 const useStyles = makeStyles((theme) => ({
     container: {
