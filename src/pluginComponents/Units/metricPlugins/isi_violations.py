@@ -1,6 +1,6 @@
 import hither as hi
 
-@hi.function('get_isi_violation_rates', '0.1.0')
+@hi.function('get_isi_violation_rates', '0.1.1')
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 @hi.local_modules(['../../../../python/labbox_ephys'])
 def get_isi_violation_rates(sorting_object, recording_object, configuration={}):
@@ -24,3 +24,18 @@ def get_isi_violation_rates(sorting_object, recording_object, configuration={}):
             isi_threshold=isi_threshold_msec / 1000 * samplerate
         )
     return ret
+
+@hi.function('createjob_get_isi_violation_rates', '')
+def createjob_get_isi_violation_rates(labbox, sorting_object, recording_object, configuration={}):
+    jh = labbox.get_job_handler('partition3')
+    jc = labbox.get_default_job_cache()
+    with hi.Config(
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
+    ):
+        return get_isi_violation_rates.run(
+            sorting_object=sorting_object,
+            recording_object=recording_object,
+            configuration=configuration
+        )

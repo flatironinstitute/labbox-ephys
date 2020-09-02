@@ -11,7 +11,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
             selections={selectedUnitIds}
             focus={focusedUnitId}
             onUnitClicked={onUnitClicked}
-            dataFunctionName={'fetch_correlogram_plot_data'}
+            dataFunctionName={'createjob_fetch_correlogram_plot_data'}
             dataFunctionArgsCallback={(unitId) => ({
                 sorting_object: sorting.sortingObject,
                 unit_x: unitId
@@ -21,8 +21,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
             plotComponentArgsCallback={(unitId) => ({
                 id: 'plot-'+unitId
             })}
-            useJobCache={true}
-            jobHandlerName="partition1"
+            newHitherJobMethod={true}
         />
     );
 }

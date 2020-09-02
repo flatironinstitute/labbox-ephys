@@ -9,7 +9,7 @@ const IsiViolations = React.memo(({record = {}}) => {
 IsiViolations.metricName = 'IsiViolations';
 IsiViolations.columnLabel = 'ISI viol.';
 IsiViolations.tooltip = 'ISI violation rate';
-IsiViolations.hitherFnName = 'get_isi_violation_rates';
+IsiViolations.hitherFnName = 'createjob_get_isi_violation_rates';
 IsiViolations.metricFnParams = {
     'isi_threshold_msec': 2.5
     // need to sort out how to pass unit ids list?
@@ -17,11 +17,8 @@ IsiViolations.metricFnParams = {
 IsiViolations.hitherConfig = {
     auto_substitute_file_objects: true,
     wait: true,
-    useClientCache: true,
-    hither_config: {
-        use_job_cache: true
-    },
-    job_handler_name: 'partition3'
+    newHitherJobMethod: true,
+    useClientCache: true
 }
 
 IsiViolations.metricPlugin = {

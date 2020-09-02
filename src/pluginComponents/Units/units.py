@@ -15,6 +15,21 @@ def get_firing_data(sorting_object, recording_object, configuration):
           'rate': f"{Decimal(t / elapsed).quantize(Decimal('.01'))}"} for t in train]))
     return keyedCount
 
+@hi.function('createjob_get_firing_data', '')
+def createjob_get_firing_data(labbox, sorting_object, recording_object, configuration):
+    jh = labbox.get_job_handler('partition3')
+    jc = labbox.get_default_job_cache()
+    with hi.Config(
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
+    ):
+        return get_firing_data.run(
+            sorting_object=sorting_object,
+            recording_object=recording_object,
+            configuration=configuration
+        )
+
 
 def get_structure(sorting_object, recording_object):
     import labbox_ephys as le
