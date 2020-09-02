@@ -63,7 +63,7 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
     const classes = useStyles();
     const { documentId, feedUri } = documentInfo;
 
-    const handleDarkMode = () => onSetDarkMode(!darkMode.status)
+    const handleDarkMode = () => onSetDarkMode()
 
     const pathQuery = getPathQuery({ feedUri })
 
@@ -84,7 +84,7 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
                         </Grid>
                         <Grid item className={classes.appbarActionsContainer}>
                             <Checkbox
-                                checked={darkMode.status}
+                                checked={darkMode}
                                 onClick={handleDarkMode}
                                 disableRipple
                                 icon={<Brightness4Icon className={classes.icon} />}
@@ -104,7 +104,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    onSetDarkMode: (value) => dispatch(setDarkMode(value))
+    onSetDarkMode: () => dispatch(setDarkMode())
 })
 
 
