@@ -12,4 +12,10 @@ from .extensions import *
 
 from .sorters import sorters
 
+from .helpers.get_unit_waveforms import get_unit_waveforms
+from .helpers.find_unit_neighborhoods import find_unit_neighborhoods
+from .helpers.find_unit_peak_channels import find_unit_peak_channels
+from .helpers.SubsampledSortingExtractor import SubsampledSortingExtractor
+from .helpers.prepare_snippets_h5 import prepare_snippets_h5
+
 dummy = 0
