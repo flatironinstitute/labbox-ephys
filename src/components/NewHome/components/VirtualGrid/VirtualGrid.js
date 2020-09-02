@@ -12,9 +12,6 @@ import SampleRate from './components/SampleRate/SampleRate';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../../../kachery';
 
-//only for test
-import { data } from './mockData'
-
 const useStyles = makeStyles((theme) => ({
     button: ({ darkMode }) => ({
         color: darkMode
@@ -35,12 +32,12 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     const classes = useStyles({ darkMode })
 
     /*will use them after resolving web socket issue */
-    /* const rows = recordings.map(row => ({
+     const rows = recordings.map(row => ({
         id: row.recordingId,
         file: row.recordingLabel,
         duration: row.recordingInfo ? row.recordingInfo.num_frames / row.recordingInfo.sampling_frequency / 60 : '',
         sampleRate: row.recordingInfo ? row.recordingInfo.sampling_frequency : '',
-    })) */
+    })) 
 
     /*need to implement action on single row and on bulk actions*/
     //rowData on single actions is an object, on bulk actios it is an array of objects
@@ -126,7 +123,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     color: 'primary'
                 })
             }}
-            data={data}
+            data={rows}
             title="Recording Database"
         />
     )
