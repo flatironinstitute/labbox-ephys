@@ -6,11 +6,10 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import IconButton from '@material-ui/core/IconButton';
 import PersonIcon from '@material-ui/icons/Person';
 import Checkbox from '@material-ui/core/Checkbox';
+import Grid from '@material-ui/core/Grid'
 import { AppBarLogo } from '../Icons';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../kachery';
@@ -24,8 +23,13 @@ const useStyles = makeStyles((theme) => ({
     app: {
         backgroundColor: theme.palette.main.primary
     },
-    grow: {
-        flexGrow: 1
+    appbarToolbar: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    appbarActionsContainer: {
+        paddingLeft: 20
     },
     button: {
         fontWeight: 600,
@@ -33,9 +37,7 @@ const useStyles = makeStyles((theme) => ({
         textTransform: 'none',
         size: 14,
         padding: theme.spacing(3),
-    },
-    divider: {
-        borderRight: 'white !important'
+        textDecoration: 'none'
     },
     icon: {
         color: theme.palette.colors.white
@@ -46,39 +48,36 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
     const classes = useStyles();
     const { documentId, feedUri } = documentInfo;
 
-    const handleDarkMode = () => {
-        onSetDarkMode(!darkMode.status)
-    }
+    const handleDarkMode = () => onSetDarkMode(!darkMode.status)
+
+    const pathQuery = getPathQuery({ feedUri })
 
     return (
         <div className={classes.root}>
             <AppBar position="absolute" className={classes.app}>
-                <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="menu" component={Link} to={`/${documentId}${getPathQuery({ feedUri })}`} >
+                <Toolbar className={classes.appbarToolbar}>
+                    <Link to={`/${documentId}${pathQuery}`} >
                         <AppBarLogo />
-                    </IconButton>
-                    <div className={classes.grow} />
-                    <ButtonGroup variant="text" classes={{ groupedHorizontal: classes.divider }}>
-                        {/* Need link for this button*/}
-                        <Button className={classes.button}>Database</Button>
+                    </Link>
+                    <Grid container alignItems="center" justify="flex-end">
+                        <Grid item>
+                            <Link className={classes.button}>Database</Link>
+                            <Link className={classes.button} to={`/${documentId}/config${pathQuery}`}>Configuration</Link>
+                            <Link className={classes.button}>Support</Link>
+                            {extensionsConfig.enabled.development && <Link className={classes.button} to="/prototypes">Prototypes</Link>}
 
-                        <Button className={classes.button} component={Link} to={`/${documentId}/config${getPathQuery({ feedUri })}`}>Configuration</Button>
+                        </Grid>
+                        <Grid item className={classes.appbarActionsContainer}>
+                            <Checkbox
+                                checked={darkMode.status}
+                                onClick={handleDarkMode}
+                                disableRipple
+                                icon={<Brightness4Icon className={classes.icon} />}
+                                checkedIcon={<Brightness7Icon className={classes.icon} />}
+                            />
 
-                        {/* Need link for this button*/}
-                        <Button className={classes.button}>Support</Button>
-
-                        {extensionsConfig.enabled.development && <Button className={classes.button} component={Link} to="/prototypes">Prototypes</Button>}
-                        <Checkbox
-                            checked={darkMode.status}
-                            onClick={handleDarkMode}
-                            disableRipple
-                            icon={<Brightness4Icon className={classes.icon} />}
-                            checkedIcon={<Brightness7Icon className={classes.icon} />}
-                        />
-
-                        {/* Need link for this button*/}
-                        <IconButton><PersonIcon className={classes.icon} /></IconButton>
-                    </ButtonGroup>
+                            <IconButton><PersonIcon className={classes.icon} /></IconButton></Grid>
+                    </Grid>
                 </Toolbar>
             </AppBar>
         </div>
