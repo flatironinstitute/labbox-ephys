@@ -24,7 +24,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
             unit_id=unit_id
         )
 
-@hi.function('prepare_snippets_h5', '0.2.2')
+@hi.function('prepare_snippets_h5', '0.2.3')
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def prepare_snippets_h5(recording_object, sorting_object):

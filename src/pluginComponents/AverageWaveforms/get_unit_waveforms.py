@@ -93,7 +93,7 @@ def get_unit_waveforms(
 
     num_channels = recording.get_num_channels()
     num_frames = recording.get_num_frames()
-    num_bytes_per_chunk = 10 * 1000 * 1000 # ? how to choose this
+    num_bytes_per_chunk = 1000 * 1000 * 1000 # ? how to choose this
     num_bytes_per_frame = num_channels * 2
     chunk_size = num_bytes_per_chunk / num_bytes_per_frame
     padding_size = 100 + snippet_len[0] + snippet_len[1] # a bit excess padding
