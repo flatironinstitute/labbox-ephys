@@ -48,10 +48,14 @@ def prepare_snippets_h5(recording_object, sorting_object, start_frame=None, end_
     max_events_per_unit = 500
     max_neighborhood_size = 12
 
+    print('Subsampling sorting')
     sorting_subsampled = SubsampledSortingExtractor(parent_sorting=sorting, max_events_per_unit=max_events_per_unit, method='random')
+    print('Finding unit peak channels')
     peak_channels_by_unit = find_unit_peak_channels(recording=recording, sorting=sorting, unit_ids=unit_ids)
+    print('Finding unit neighborhoods')
     channel_ids_by_unit = find_unit_neighborhoods(recording=recording, peak_channels_by_unit=peak_channels_by_unit, max_neighborhood_size=max_neighborhood_size)
 
+    print(f'Getting unit waveforms for {len(unit_ids)} units')
     unit_waveforms = get_unit_waveforms(
         recording=recording,
         sorting=sorting_subsampled,

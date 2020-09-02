@@ -9,7 +9,8 @@ def find_unit_peak_channels(recording, sorting, unit_ids):
     max_time = 0
     for unit_id in sorting_shortened.get_unit_ids():
         st = sorting_shortened.get_unit_spike_train(unit_id=unit_id)
-        max_time = max(max_time, np.max(st))
+        if len(st) > 0:
+            max_time = max(max_time, np.max(st))
     recording_shortened = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=max_time + 1)
     unit_waveforms = get_unit_waveforms(
         recording=recording_shortened,

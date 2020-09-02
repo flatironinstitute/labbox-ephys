@@ -28,8 +28,10 @@ def _get_unit_waveforms_for_chunk(
     channel_ids_by_unit
 ):
     # chunks are chosen small enough so that all traces can be loaded into memory
+    print('Retrieving traces for chunk')
     traces = recording.get_traces()
 
+    print('Collecting waveforms for chunk')
     unit_waveforms = []
     for unit_id in unit_ids:
         times0 = sorting.get_unit_spike_train(unit_id=unit_id)
@@ -103,8 +105,9 @@ def get_unit_waveforms(
         padding_size=padding_size
     )
     all_unit_waveforms = [[] for ii in range(len(unit_ids))]
-    for chunk in chunks:
+    for ii, chunk in enumerate(chunks):
         # chunk: {istart, iend, istart_with_padding, iend_with_padding} # include padding
+        print(f'Processing chunk {ii + 1} of {len(chunks)}')
         recording_chunk = se.SubRecordingExtractor(
             parent_recording=recording,
             start_frame=chunk['istart_with_padding'],

@@ -25,7 +25,7 @@ def main():
         sorting_object=sorting_object,
         recording_object=recording_object,
         start_frame=0,
-        end_frame=30000 * 10
+        end_frame=30000 * 240
     ).wait()
     print(h5_path)
 
