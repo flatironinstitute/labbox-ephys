@@ -205,8 +205,8 @@ const waitForDocumentInfo = async () => {
 waitForDocumentInfo();
 
 const Content = ({ darkMode }) => {
-  const themeMemo = useMemo(() => theme(darkMode.status ? "dark" : "light"), [
-    darkMode.status
+  const themeMemo = useMemo(() => theme(darkMode ? "dark" : "light"), [
+    darkMode
   ]);
 
   return (
