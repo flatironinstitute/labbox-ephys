@@ -21,7 +21,12 @@ def main():
     recording = le.LabboxEphysRecordingExtractor(recording_object)
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
     prepare_snippets_h5 = hi.get_function('prepare_snippets_h5')
-    h5_path = prepare_snippets_h5.run(sorting_object=sorting_object, recording_object=recording_object).wait()
+    h5_path = prepare_snippets_h5.run(
+        sorting_object=sorting_object,
+        recording_object=recording_object,
+        start_frame=0,
+        end_frame=30000 * 10
+    ).wait()
     print(h5_path)
 
 if __name__ == '__main__':
