@@ -9,10 +9,13 @@ import Brightness7Icon from '@material-ui/icons/Brightness7';
 import IconButton from '@material-ui/core/IconButton';
 import PersonIcon from '@material-ui/icons/Person';
 import Checkbox from '@material-ui/core/Checkbox';
+import { Home } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
 import { AppBarLogo } from '../Icons';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../kachery';
+import { app } from '../../utils/featureFlags'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -39,10 +42,22 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(3),
         textDecoration: 'none'
     },
+    defaultLogo: {
+        color: theme.palette.colors.white,
+        width: 180
+    },
+    link: {
+        textDecoration: 'none'
+    },
     icon: {
         color: theme.palette.colors.white
     }
 }));
+
+const DefaultTitle = ({ className }) => <Grid container alignItems="center" justify="space-around" className={className}>
+    <Home />&nbsp;
+    <Typography variant="h6">Labbox-ephys</Typography>
+</Grid>
 
 const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode }) => {
     const classes = useStyles();
@@ -56,14 +71,14 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
         <div className={classes.root}>
             <AppBar position="absolute" className={classes.app}>
                 <Toolbar className={classes.appbarToolbar}>
-                    <Link to={`/${documentId}${pathQuery}`} >
-                        <AppBarLogo />
+                    <Link to={`/${documentId}${pathQuery}`} className={classes.link}>
+                        {app.dbc ? <AppBarLogo /> : <DefaultTitle className={classes.defaultLogo} />}
                     </Link>
                     <Grid container alignItems="center" justify="flex-end">
                         <Grid item>
-                            <Link className={classes.button}>Database</Link>
+                            <Link to="" className={classes.button}>Database</Link>
                             <Link className={classes.button} to={`/${documentId}/config${pathQuery}`}>Configuration</Link>
-                            <Link className={classes.button}>Support</Link>
+                            <Link to="" className={classes.button}>Support</Link>
                             {extensionsConfig.enabled.development && <Link className={classes.button} to="/prototypes">Prototypes</Link>}
 
                         </Grid>
