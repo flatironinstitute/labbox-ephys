@@ -155,7 +155,6 @@ export const removeUnitLabel = ({ sortingId, unitId, label }) => ({
   persistKey: 'sortings'
 })
 
-export const setDarkMode = status => ({
+export const setDarkMode = () => ({
   type: SET_DARK_MODE,
-  status: status
 })
