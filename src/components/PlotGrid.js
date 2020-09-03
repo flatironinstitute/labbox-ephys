@@ -8,6 +8,7 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
     dataFunctionName, dataFunctionArgsCallback = () => {},
     boxSize = { width: 200, height: 200},
     plotComponent, plotComponentArgsCallback = () => {},
+    newHitherJobMethod = false,
     useJobCache = false,
     jobHandlerName = null
 }) => {
@@ -36,6 +37,7 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                                         plotComponent={plotComponent}
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
                                         useJobCache={useJobCache}
+                                        newHitherJobMethod={newHitherJobMethod}
                                         jobHandlerName={jobHandlerName}
                                     />
                                 </div>

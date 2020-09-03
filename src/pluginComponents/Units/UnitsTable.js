@@ -7,7 +7,7 @@ const getLabelsForUnitId = (unitId, sorting) => {
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo(({pluginLabels}) => {
+const HeaderRow = React.memo(({plugins}) => {
     return (
         <TableHead>
             <TableRow>
@@ -15,11 +15,13 @@ const HeaderRow = React.memo(({pluginLabels}) => {
                 <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
-                    pluginLabels.map(plugin => (
-                        <TableCell key={plugin + '_header'}>
-                            <span>{plugin}</span>
-                        </TableCell>
-                    ))
+                    plugins.map(plugin => {
+                        return (
+                            <TableCell key={plugin.columnLabel + '_header'}>
+                                <span title={plugin.tooltip}>{plugin.columnLabel}</span>
+                            </TableCell>
+                        );
+                    })
                 }
             </TableRow>
         </TableHead>
@@ -49,7 +51,7 @@ const MetricCell = React.memo(({error = '', data, PayloadComponent}) => {
     if (error !== '') {
         return (<TableCell><span>{`Error: ${error}`}</span></TableCell>);
     }
-    if (!data || data === '') {
+    if (data === null || data === '') { // 0 is a valid value!!
         return (<TableCell><LinearProgress style={{'width': '60%'}}/></TableCell>);
     } else {
         return (
@@ -65,7 +67,7 @@ const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = 
     return (
         <Table className="NiceTable">
             <HeaderRow 
-                pluginLabels={metricPlugins.map(mp => mp['columnLabel'])}
+                plugins={metricPlugins}
             />
             <TableBody>
                 {
@@ -88,8 +90,8 @@ const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = 
                                         <MetricCell
                                             key = {metricName + '_' + unitId}
                                             data = {((metric['data']) === '' || 
-                                                    !metric['data'][unitId])
-                                                ? NaN : metric['data'][unitId]}
+                                                    !(unitId in metric['data']))
+                                                ? null : metric['data'][unitId]}
                                             error = {metric['error']}
                                             PayloadComponent = {mp}
                                         />

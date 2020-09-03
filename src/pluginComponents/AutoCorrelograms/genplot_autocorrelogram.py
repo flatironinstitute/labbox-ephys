@@ -13,6 +13,21 @@ def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
         window_size_msec=50, bin_size_msec=1)
     return data
 
+@hi.function('createjob_fetch_correlogram_plot_data', '')
+def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y=None):
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_default_job_cache()
+    with hi.Config(
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
+    ):
+        return fetch_correlogram_plot_data.run(
+            sorting_object=sorting_object,
+            unit_x=unit_x,
+            unit_y=unit_y
+        )
+
 def _get_correlogram_data(*, sorting, unit_id1, unit_id2=None, window_size_msec, bin_size_msec):
     auto = unit_id2 is None or unit_id2 == unit_id1
 
