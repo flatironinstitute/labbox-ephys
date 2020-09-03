@@ -21,18 +21,20 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
     recordings = sortByKey(recordings, 'recordingLabel');
 
     const effect = async () => {
-        for (const rec of recordings) {
-            if (!rec.recordingInfo) {
-                try {
-                    const info = await getRecordingInfo({recordingObject: rec.recordingObject});
-                    onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+        recordings.forEach(rec => {
+            (async () => {
+                if (!rec.recordingInfo) {
+                    try {
+                        const info = await getRecordingInfo({recordingObject: rec.recordingObject});
+                        onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+                    }
+                    catch (err) {
+                        console.error(err);
+                        return;
+                    }
                 }
-                catch (err) {
-                    console.error(err);
-                    return;
-                }
-            }
-        }
+            })();
+        });
     }
     useEffect(() => { effect() })
 
