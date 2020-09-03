@@ -4,10 +4,7 @@ import numpy as np
 import kachery as ka
 import spikeextractors as se
 import spiketoolkit as st
-from .get_unit_waveforms import get_unit_waveforms
-from .SubsampledSortingExtractor import SubsampledSortingExtractor
-from .find_unit_neighborhoods import find_unit_neighborhoods
-from .find_unit_peak_channels import find_unit_peak_channels
+from labbox_ephys import get_unit_waveforms, SubsampledSortingExtractor, find_unit_neighborhoods, find_unit_peak_channels
 
 @hi.function('createjob_fetch_average_waveform_plot_data', '')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
@@ -22,68 +19,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
         return fetch_average_waveform_plot_data.run(
             snippets_h5=snippets_h5,
             unit_id=unit_id
-        )
-
-@hi.function('prepare_snippets_h5', '0.2.3')
-@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
-@hi.local_modules(['../../../python/labbox_ephys'])
-def prepare_snippets_h5(recording_object, sorting_object, start_frame=None, end_frame=None):
-    import h5py
-    import labbox_ephys as le
-    recording = le.LabboxEphysRecordingExtractor(recording_object)
-    sorting = le.LabboxEphysSortingExtractor(sorting_object)
-
-    if start_frame is not None:
-        recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=start_frame, end_frame=end_frame)
-        sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
-
-    unit_ids = sorting.get_unit_ids()
-    samplerate = sorting.get_sampling_frequency()
-    
-    # Use this optimized function rather than spiketoolkit's version
-    # for efficiency with long recordings and/or many channels, units or spikes
-    # we should submit this to the spiketoolkit project as a PR
-    # but it may be tricky because this version has fewer options
-
-    max_events_per_unit = 500
-    max_neighborhood_size = 12
-
-    print('Subsampling sorting')
-    sorting_subsampled = SubsampledSortingExtractor(parent_sorting=sorting, max_events_per_unit=max_events_per_unit, method='random')
-    print('Finding unit peak channels')
-    peak_channels_by_unit = find_unit_peak_channels(recording=recording, sorting=sorting, unit_ids=unit_ids)
-    print('Finding unit neighborhoods')
-    channel_ids_by_unit = find_unit_neighborhoods(recording=recording, peak_channels_by_unit=peak_channels_by_unit, max_neighborhood_size=max_neighborhood_size)
-
-    print(f'Getting unit waveforms for {len(unit_ids)} units')
-    unit_waveforms = get_unit_waveforms(
-        recording=recording,
-        sorting=sorting_subsampled,
-        unit_ids=unit_ids,
-        channel_ids_by_unit=channel_ids_by_unit,
-        snippet_len=(50, 80)
-    )
-    # unit_waveforms = st.postprocessing.get_unit_waveforms(
-    #     recording=recording,
-    #     sorting=sorting,
-    #     unit_ids=unit_ids,
-    #     ms_before=1,
-    #     ms_after=1.5,
-    #     max_spikes_per_unit=500
-    # )
-    with hi.TemporaryDirectory() as tmpdir:
-        save_path = tmpdir + '/snippets.h5'
-        with h5py.File(save_path, 'w') as f:
-            f.create_dataset('unit_ids', data=np.array(unit_ids).astype(np.int32))
-            f.create_dataset('sampling_frequency', data=np.array([samplerate]).astype(np.float64))
-            f.create_dataset('channel_ids', data=np.array(recording.get_channel_ids()))
-            for ii, unit_id in enumerate(unit_ids):
-                x = sorting.get_unit_spike_train(unit_id=unit_id)
-                f.create_dataset(f'unit_spike_trains/{unit_id}', data=np.array(x).astype(np.float64))
-                f.create_dataset(f'unit_waveforms/{unit_id}/waveforms', data=unit_waveforms[ii].astype(np.float32))
-                f.create_dataset(f'unit_waveforms/{unit_id}/channel_ids', data=np.array(channel_ids_by_unit[int(unit_id)]).astype(int))
-        return ka.store_file(save_path)
-                
+        )       
 
 @hi.function('fetch_average_waveform_plot_data', '0.2.1')
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
