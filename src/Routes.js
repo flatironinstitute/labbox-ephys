@@ -1,7 +1,7 @@
 import React from 'react'
 import { Switch, Route, Redirect } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
-import RecordingView from "./containers/RecordingView";
+import NewRecordingView from "./components/NewRecordingView";
 import SortingJobView from "./containers/SortingJobView";
 import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
 import ImportRecordings from "./containers/ImportRecordings";
@@ -52,7 +52,7 @@ const Routes = () => {
             <Route
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
-                    <RecordingView recordingId={match.params.recordingId} />
+                    <NewRecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
