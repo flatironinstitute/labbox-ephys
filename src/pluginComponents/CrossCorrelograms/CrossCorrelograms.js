@@ -5,7 +5,9 @@ import { Grid } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import Correlogram_rv from './Correlogram_ReactVis';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
+import CalculationPool from '../common/CalculationPool';
 
+const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
 const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
     const filteredIds = Object.fromEntries(
@@ -81,6 +83,7 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
                                     useJobCache={true}
                                     jobHandlerName="partition1"
                                     requiredFiles={sorting.sortingObject}
+                                    calculationPool={crossCorrelogramsCalculationPool}
                                 />
                             </div>
                         </Grid>

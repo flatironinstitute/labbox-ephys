@@ -4,7 +4,7 @@ import numpy as np
 import kachery as ka
 import spikeextractors as se
 import spiketoolkit as st
-from labbox_ephys import get_unit_waveforms, SubsampledSortingExtractor, find_unit_neighborhoods, find_unit_peak_channels
+from labbox_ephys import prepare_snippets_h5
 
 @hi.function('createjob_fetch_average_waveform_plot_data', '')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
