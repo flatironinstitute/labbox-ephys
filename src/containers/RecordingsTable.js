@@ -23,7 +23,9 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
     const effect = async () => {
         recordings.forEach(rec => {
             (async () => {
-                if (!rec.recordingInfo) {
+                if ((!rec.recordingInfo) && (!rec.fetchingRecordingInfo)) {
+                    // todo: use calculationPool for this
+                    rec.fetchingRecordingInfo = true;
                     try {
                         const info = await getRecordingInfo({recordingObject: rec.recordingObject});
                         onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
