@@ -1,6 +1,7 @@
 class CalculationPool {
-    constructor({maxSimultaneous}) {
-        this._maxSimultaneous =  maxSimultaneous;
+    constructor({maxSimultaneous, method='queue'}) {
+        this._maxSimultaneous = maxSimultaneous;
+        this._method = method; // stack or queue
         this._activeSlots = {};
         this._numActiveSlots = 0;
         this._lastSlotId = -1;
@@ -33,7 +34,16 @@ class CalculationPool {
     }
     _update() {
         while ((this._pendingRequestCallbacks.length > 0) && (this._numActiveSlots < this._maxSimultaneous)) {
-            const cb = this._pendingRequestCallbacks.shift();
+            let cb;
+            if (this._method === 'queue') {
+                cb = this._pendingRequestCallbacks.shift();
+            }
+            else if (this._method === 'stack') {
+                cb = this._pendingRequestCallbacks.pop();
+            }
+            else {
+                throw Error(`Unexpected method in calculation pool: ${this._method}`);
+            }
             const slot = this._createNewSlot();
             cb(slot);            
         }
