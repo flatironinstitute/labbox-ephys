@@ -19,6 +19,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
         return fetch_average_waveform_plot_data.run(
             snippets_h5=snippets_h5,
             unit_id=unit_id
+        )
 
 @hi.function('fetch_average_waveform_plot_data', '0.2.1')
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
