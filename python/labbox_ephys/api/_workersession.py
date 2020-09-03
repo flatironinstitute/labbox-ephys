@@ -8,6 +8,14 @@ if not os.path.exists(job_cache_path):
     os.mkdir(job_cache_path)
 job_cache=hi.JobCache(path=job_cache_path)
 
+class LabboxContext:
+    def __init__(self, worker_session):
+        self._worker_session = worker_session
+    def get_default_job_cache(self):
+        return job_cache
+    def get_job_handler(self, job_handler_name):
+        return self._worker_session._get_job_handler_from_name(job_handler_name)
+
 class WorkerSession:
     def __init__(self, *, labbox_config):
         self._labbox_config = labbox_config
@@ -19,6 +27,7 @@ class WorkerSession:
             timeseries=hi.ParallelJobHandler(4)
         )
         self._default_job_cache = job_cache
+        self._labbox_context = LabboxContext(worker_session=self)
 
         self._default_feed_id = kp.get_feed_id('labbox-ephys-default', create=True)
         self._feed = None
@@ -90,28 +99,9 @@ class WorkerSession:
             kwargs = msg['kwargs']
             opts = msg['opts']
             client_job_id = msg['clientJobId']
-            hither_config = opts.get('hither_config', {})
-            job_handler_name = opts.get('job_handler_name', 'default')
-            required_files = opts.get('required_files', {})
-            assert job_handler_name in self._labbox_config['job_handlers'], f'Job handler not found in config: {job_handler_name}'
-            a = self._labbox_config['job_handlers'][job_handler_name]
-            if a['type'] == 'local':
-                jh = self._local_job_handlers[job_handler_name]
-            elif a['type'] == 'remote':
-                jh = self._get_remote_job_handler(job_handler_name=job_handler_name, uri=a['uri'])
-            else:
-                raise Exception(f'Unexpected job handler type: {a["type"]}')
-            hither_config['job_handler'] = jh
-            hither_config['required_files'] = required_files
-            if hither_config['job_handler'].is_remote:
-                hither_config['container'] = True
-            if 'use_job_cache' in hither_config:
-                if hither_config['use_job_cache']:
-                    hither_config['job_cache'] = self._default_job_cache
-                del hither_config['use_job_cache']
-            with hi.Config(**hither_config):
+            if opts.get('newHitherJobMethod', False):
                 try:
-                    job = hi.run(functionName, **kwargs)
+                    job = hi.run(functionName, **kwargs, labbox=self._labbox_context).wait()
                 except Exception as err:
                     self._send_message({
                         'type': 'hitherJobCreationError',
@@ -122,12 +112,44 @@ class WorkerSession:
                 setattr(job, '_client_job_id', client_job_id)
                 job_id = job._job_id
                 self._jobs_by_id[job_id] = job
-                print(f'======== Created hither job: {job_id} {functionName} ({job_handler_name})')
-            self._send_message({
-                'type': 'hitherJobCreated',
-                'job_id': job_id,
-                'client_job_id': client_job_id
-            })
+                print(f'======== Created hither job (2): {job_id} {functionName}')
+                self._send_message({
+                    'type': 'hitherJobCreated',
+                    'job_id': job_id,
+                    'client_job_id': client_job_id
+                })
+            else:
+                hither_config = opts.get('hither_config', {})
+                job_handler_name = opts.get('job_handler_name', 'default')
+                required_files = opts.get('required_files', {})
+                jh = self._get_job_handler_from_name(job_handler_name)
+                hither_config['job_handler'] = jh
+                hither_config['required_files'] = required_files
+                if hither_config['job_handler'].is_remote:
+                    hither_config['container'] = True
+                if 'use_job_cache' in hither_config:
+                    if hither_config['use_job_cache']:
+                        hither_config['job_cache'] = self._default_job_cache
+                    del hither_config['use_job_cache']
+                with hi.Config(**hither_config):
+                    try:
+                        job = hi.run(functionName, **kwargs)
+                    except Exception as err:
+                        self._send_message({
+                            'type': 'hitherJobCreationError',
+                            'client_job_id': client_job_id,
+                            'error': str(err)
+                        })
+                        return
+                    setattr(job, '_client_job_id', client_job_id)
+                    job_id = job._job_id
+                    self._jobs_by_id[job_id] = job
+                    print(f'======== Created hither job: {job_id} {functionName} ({job_handler_name})')
+                self._send_message({
+                    'type': 'hitherJobCreated',
+                    'job_id': job_id,
+                    'client_job_id': client_job_id
+                })
         elif type0 == 'hitherCancelJob':
             job_id = msg['job_id']
             assert job_id, 'Missing job_id'
@@ -184,6 +206,16 @@ class WorkerSession:
     def _send_message(self, msg):
         for cb in self._on_message_callbacks:
             cb(msg)
+    def _get_job_handler_from_name(self, job_handler_name):
+        assert job_handler_name in self._labbox_config['job_handlers'], f'Job handler not found in config: {job_handler_name}'
+        a = self._labbox_config['job_handlers'][job_handler_name]
+        if a['type'] == 'local':
+            jh = self._local_job_handlers[job_handler_name]
+        elif a['type'] == 'remote':
+            jh = self._get_remote_job_handler(job_handler_name=job_handler_name, uri=a['uri'])
+        else:
+            raise Exception(f'Unexpected job handler type: {a["type"]}')
+        return jh
     def _get_remote_job_handler(self, job_handler_name, uri):
         if job_handler_name not in self._remote_job_handlers:
             self._remote_job_handlers[job_handler_name] = hi.RemoteJobHandler(compute_resource_uri=uri)

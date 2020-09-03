@@ -32,7 +32,7 @@ export const handleHitherJobCreationError = (msg) => {
   }
   const job = globalData.hitherJobs[msg.client_job_id];
   const errorString = `Error creating job ${job._functionName}: ${msg.error}`;
-  job._handleHitherJobCreationError({
+  job._handleHitherJobError({
     errorString,
     runtime_info: null
   });
@@ -195,7 +195,7 @@ const createHitherJob = async (functionName, kwargs, opts={}) => {
     type: 'hitherCreateJob',
     functionName: J._functionName,
     kwargs: J._kwargs,
-    opts: J._opts, 
+    opts: J._opts,
     clientJobId: J._clientJobId
   })
 
