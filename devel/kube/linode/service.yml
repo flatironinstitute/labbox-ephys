@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: labbox-ephys-service
+    name: labbox-ephys-ephys1-service
 spec:
     selector:
-        app: labbox-ephys
+        app: labbox-ephys-ephys1
     ports:
     - name: http
       protocol: TCP

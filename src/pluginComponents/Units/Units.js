@@ -61,7 +61,8 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
         return 0;
     });
 
-    const fetchMetric = useCallback(async (metric = {metricName: '', hitherFnName: '', hitherConfig: {}}) => {
+    const fetchMetric = useCallback(async (metric = {metricName: '', hitherFnName: '',
+                                                    metricFnParams: {}, hitherConfig: {}}) => {
         const name = metric.metricName;
 
         if (name in metrics) {
@@ -75,7 +76,8 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
             const data = await createHitherJob(metric.hitherFnName,
                 {
                     sorting_object: sorting.sortingObject,
-                    recording_object: recording.recordingObject
+                    recording_object: recording.recordingObject,
+                    configuration: metric.metricFnParams
                 },
                 {
                     ...metric.hitherConfig,
