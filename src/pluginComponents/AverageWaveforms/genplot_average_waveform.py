@@ -48,6 +48,9 @@ def prepare_snippets_h5(recording_object, sorting_object, start_frame=None, end_
     max_events_per_unit = 500
     max_neighborhood_size = 12
 
+    # NOTE: Potential issues in caching a value that depends on a random draw
+    # Additionally in some cases (eg cross-correlograms) we may need to ensure
+    # that subsampled units are sampled dependently?
     print('Subsampling sorting')
     sorting_subsampled = SubsampledSortingExtractor(parent_sorting=sorting, max_events_per_unit=max_events_per_unit, method='random')
     print('Finding unit peak channels')
