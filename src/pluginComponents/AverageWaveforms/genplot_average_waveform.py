@@ -21,7 +21,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
             unit_id=unit_id
         )       
 
-@hi.function('fetch_average_waveform_plot_data', '0.2.1')
+@hi.function('fetch_average_waveform_plot_data', '0.2.2')
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_average_waveform_plot_data(snippets_h5, unit_id):
@@ -35,7 +35,7 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
         unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
         print(unit_waveforms_channel_ids)
     
-    average_waveform = np.median(unit_waveforms, axis=0)
+    average_waveform = np.mean(unit_waveforms, axis=0)
     channel_maximums = np.max(np.abs(average_waveform), axis=1)
     maxchan_index = np.argmax(channel_maximums)
     maxchan_id = unit_waveforms_channel_ids[maxchan_index]
