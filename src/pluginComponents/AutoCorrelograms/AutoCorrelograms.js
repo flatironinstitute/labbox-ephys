@@ -2,6 +2,9 @@ import React from 'react'
 import Correlogram_rv from '../CrossCorrelograms/Correlogram_ReactVis';
 import PlotGrid from '../../components/PlotGrid';
 import sampleSortingViewProps from '../common/sampleSortingViewProps'
+import CalculationPool from '../common/CalculationPool'
+
+const autocorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
 const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
     onUnitClicked }) => {
@@ -22,6 +25,7 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
                 id: 'plot-'+unitId
             })}
             newHitherJobMethod={true}
+            calculationPool={autocorrelogramsCalculationPool}
         />
     );
 }

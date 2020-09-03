@@ -28,6 +28,7 @@ export default function TimeseriesModel(params) {
       m_data_segment_set_handlers.push(handler);
     }
   
+    // i don't think this is used
     this.waitForChannelData = async function(ch, t1, t2, ds_factor, opts) {
       let timer = new Date();
       while (true) {

@@ -3,21 +3,24 @@ import { sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { Box, CircularProgress } from '@material-ui/core';
 import VisibilitySensor from 'react-visibility-sensor';
+import { sleepMsec } from '../hither/createHitherJob';
 
 const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, jobHandlerName, requiredFiles,
+    calculationPool,
     boxSize = { width: 200, height: 200 },
     plotComponent, plotComponentArgs }) => {
     const [calculationStatus, setCalculationStatus] = useState('waitingForVisible');
     const [calculationError, setCalculationError] = useState(null);
     const [plotData, setPlotData] = useState(null);
+    const [visible, setVisible] = useState(false);
 
     const effect = async () => {
-        if (calculationStatus === 'pending') {
-            setCalculationStatus('running');
+        if ((calculationStatus === 'waitingForVisible') && (visible)) {
+            setCalculationStatus('waiting');
+            const slot = calculationPool ? await calculationPool.requestSlot() : null;
+            setCalculationStatus('calculating');
             let plot_data;
             try {
-                setCalculationStatus('calculating');
-                await sleep(50);
                 plot_data = await createHitherJob(
                     dataFunctionName,
                     dataFunctionArgs,
@@ -40,6 +43,9 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHi
                 setCalculationStatus('error');
                 return;
             }
+            finally {
+                slot && slot.complete();
+            }
             setPlotData(plot_data);
             setCalculationStatus('finished');
         }
@@ -53,7 +59,13 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHi
                     if (isVisible) {
                         // the setTimeout may be needed here to prevent a warning message
                         setTimeout(() => {
-                            setCalculationStatus('pending');
+                            setVisible(true);
+                        }, 0);
+                    }
+                    else {
+                        // the setTimeout may be needed here to prevent a warning message
+                        setTimeout(() => {
+                            setVisible(false);
                         }, 0);
                     }
                     return (
@@ -68,7 +80,13 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHi
             </VisibilitySensor>
         );
     }
-    if (calculationStatus === 'pending' || calculationStatus === 'calculating' || calculationStatus === 'running') {
+    if (calculationStatus === 'pending' || calculationStatus === 'waiting') {
+        return (
+            <Box display="flex" width={boxSize.width} height={boxSize.height}>
+            </Box>
+        );
+    }
+    else if (calculationStatus === 'calculating') {
         return (
             <Box display="flex" width={boxSize.width} height={boxSize.height}
             >

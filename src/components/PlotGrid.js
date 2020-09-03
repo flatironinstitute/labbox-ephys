@@ -10,7 +10,8 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
     plotComponent, plotComponentArgsCallback = () => {},
     newHitherJobMethod = false,
     useJobCache = false,
-    jobHandlerName = null
+    jobHandlerName = null,
+    calculationPool = null
 }) => {
         return (
             <Grid container>
@@ -39,6 +40,7 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                                         useJobCache={useJobCache}
                                         newHitherJobMethod={newHitherJobMethod}
                                         jobHandlerName={jobHandlerName}
+                                        calculationPool={calculationPool}
                                     />
                                 </div>
                             </div>
