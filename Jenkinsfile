@@ -80,7 +80,7 @@ pipeline {
     stage('Deploy') {
       steps {
         container('kubectl') {
-          sh "kubectl delete pods -l app=labbox-ephys tier=web -n labbox"
+          sh "kubectl delete pods -l app=labbox-ephys,tier=web -n labbox"
         }
       }
     }
