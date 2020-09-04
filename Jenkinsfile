@@ -68,7 +68,6 @@ pipeline {
       steps {
         container('docker') {
           sh """
-            cd next && 
             docker build \
               --label lastingdynamics.commit=${GIT_COMMIT} \
               --label "timestamp=${BUILD_TIMESTAMP}" \
