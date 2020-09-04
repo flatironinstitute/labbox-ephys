@@ -6,6 +6,7 @@ RUN npm ci --verbose && npm cache clean --force
 
 COPY src ./src
 COPY public ./public
+COPY .env.production .
 RUN npm run build
 
 FROM nginx:1.18-alpine
