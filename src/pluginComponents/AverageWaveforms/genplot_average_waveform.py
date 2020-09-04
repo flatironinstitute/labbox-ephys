@@ -6,7 +6,7 @@ import spikeextractors as se
 import spiketoolkit as st
 from labbox_ephys import prepare_snippets_h5
 
-@hi.function('createjob_fetch_average_waveform_plot_data', '')
+@hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
     jh = labbox.get_job_handler('partition2')
     jc = labbox.get_default_job_cache()
@@ -21,7 +21,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
             unit_id=unit_id
         )
 
-@hi.function('fetch_average_waveform_plot_data', '0.2.2')
+@hi.function('fetch_average_waveform_plot_data', '0.2.3')
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_average_waveform_plot_data(snippets_h5, unit_id):
@@ -42,6 +42,7 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
 
     return dict(
         channel_id=int(maxchan_id),
+        sampling_frequency=sampling_frequency.item(),
         average_waveform=average_waveform[maxchan_index, :].astype(float).tolist()
     )
 
