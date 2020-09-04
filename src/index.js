@@ -79,7 +79,9 @@ const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddlewar
 // This is an open 2-way connection with server (websocket)
 class ApiConnection {
   constructor() {
-    const url = `ws://${window.location.hostname}:15308`;
+    const url = process.env.API_URL ?
+      `ws://${process.env.API_URL}/websocket` :
+      `ws://${window.location.hostname}:15308`;
 
     this._ws = new WebSocket(url);
     console.log(this._ws);

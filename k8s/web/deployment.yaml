@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: labbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: labbox-ephys
+      tier: web
+  template:
+    metadata:
+      labels:
+        app: labbox-ephys
+        tier: web
+    spec:
+      containers:
+        - image: labbox_web:master
+          name: web
+          ports:
+            - containerPort: 80
