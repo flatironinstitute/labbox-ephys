@@ -4,7 +4,7 @@ COPY ./package*.json ./
 
 RUN npm ci --verbose && npm cache clean --force
 
-COPY src .
+COPY src ./src
 COPY public ./public
 RUN npm run build
 
