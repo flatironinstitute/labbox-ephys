@@ -41,14 +41,6 @@ pipeline {
       """
     }
   }
-  stage('Configure Staging') {
-    steps {
-      sh """
-        cd touch .env.production && \
-          cp .env.staging .env.production
-      """
-    }
-  }
   stages {
     // stage('Test') {
     //   // https://stackoverflow.com/questions/42743201/npm-install-fails-in-jenkins-pipeline-in-docker/42957034
@@ -64,6 +56,14 @@ pipeline {
     //     }
     //   }
     // }
+    stage('Configure Staging') {
+      steps {
+        sh """
+          cd touch .env.production && \
+            cp .env.staging .env.production
+        """
+      }
+    }
     stage('Build') {
       steps {
         container('docker') {
