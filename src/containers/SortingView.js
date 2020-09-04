@@ -74,9 +74,9 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
     if ((sorting) && (recording) && (!sorting.sortingInfo)) {
       setSortingInfoStatus('computing');
       const sortingInfo = await createHitherJob(
-        'get_sorting_info',
+        'createjob_get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { kachery_config: {}, useClientCache: false, wait: true}
+        { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
       );
       onSetSortingInfo({ sortingId, sortingInfo });
       setSortingInfoStatus('');

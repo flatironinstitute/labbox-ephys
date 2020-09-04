@@ -6,9 +6,16 @@ import base64
 import io
 import labbox_ephys as le
 
+@hi.function('createjob_get_recording_info', '0.1.0')
+def createjob_get_recording_info(labbox, recording_object):
+    jc = labbox.get_default_job_cache()
+    with hi.Config(
+        job_cache=jc
+    ):
+        return get_recording_info.run(recording_object=recording_object)
+
 @hi.function('get_recording_info', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
-
 @hi.container('docker://magland/labbox-ephys-processing:0.2.18')
 def get_recording_info(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)

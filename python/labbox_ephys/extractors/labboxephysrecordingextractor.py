@@ -386,7 +386,6 @@ def _all_files_are_local_in_item(x):
     if type(x) == str:
         if x.startswith('sha1://') or x.startswith('sha1dir://'):
             if not ka.get_file_info(x, fr=dict(url=None)):
-                print('returning false')
                 return False
         return True
     elif type(x) == dict:
