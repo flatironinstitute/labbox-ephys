@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./package*.json ./
 
-RUN npm сi --verbose && npm cache clean --force
+RUN npm ci --verbose && npm cache clean --force
 
 COPY src .
 RUN npm run build
