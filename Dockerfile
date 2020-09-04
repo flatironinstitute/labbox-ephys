@@ -5,7 +5,7 @@ COPY ./package*.json ./
 RUN npm ci --verbose && npm cache clean --force
 
 COPY src .
-COPY public .
+COPY public ./public
 RUN npm run build
 
 FROM nginx:1.18-alpine
