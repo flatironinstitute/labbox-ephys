@@ -7,7 +7,7 @@ import { getPathQuery } from '../kachery';
 const HitherJobMonitorControl = ({
     allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, dispatch, documentInfo, websocketStatus
 }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
     setDispatch(dispatch);
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;

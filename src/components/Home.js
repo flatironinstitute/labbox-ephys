@@ -7,11 +7,11 @@ import { connect } from 'react-redux';
 import { getPathQuery } from '../kachery';
 
 function Home({ documentInfo }) {
-  const { documentId, feedUri, readonly } = documentInfo;
+  const { documentId, feedUri, readOnly } = documentInfo;
   return (
     <div>
       {
-        readonly && (
+        readOnly && (
           <Typography component="p" style={{fontStyle: "italic"}}>
             VIEW ONLY
           </Typography>
@@ -22,7 +22,7 @@ function Home({ documentInfo }) {
       </Typography>
       <p />
       {
-        !readonly && (
+        !readOnly && (
           <div>
             <Button component={Link} to={`/${documentId}/importRecordings${getPathQuery({feedUri})}`}>Import recordings</Button>
           </div>

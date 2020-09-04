@@ -66,7 +66,7 @@ const updateSelections = (state, [mode = 'simple', target]) => {
   }
 }
 
-const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig }) => {
+const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, documentInfo }) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
   const [selectedUnitIds, setSelectedUnitIds] = useReducer(updateSelections, {});
 
@@ -160,6 +160,7 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
                   onSelectedUnitIdsChanged={(list) => {
                     return setSelectedUnitIds(['toggle', list]);
                   }}
+                  readOnly={documentInfo.readOnly}
                 />
               </Expandable>
             )
@@ -195,7 +196,8 @@ const mapStateToProps = (state, ownProps) => ({
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
-  extensionsConfig: state.extensionsConfig
+  extensionsConfig: state.extensionsConfig,
+  documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps = dispatch => ({

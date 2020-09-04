@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { getPathQuery } from './kachery';
 
 const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
     return (
         <Fragment>
             <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
@@ -42,11 +42,11 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
         (async () => {
             console.info(`Using feed: ${feedUri}`);
-            const readonly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
+            const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
             onSetDocumentInfo({
                 documentId,
                 feedUri,
-                readonly
+                readOnly
             });
         })();
     })
@@ -54,7 +54,7 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
 }
 
 const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     if (!documentId) {
         return (

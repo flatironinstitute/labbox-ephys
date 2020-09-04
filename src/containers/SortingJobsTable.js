@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { getPathQuery } from '../kachery';
 
 const SortingJobsTable = ({ sortingJobs, onCancelSortingJobs, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
