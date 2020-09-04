@@ -20,7 +20,6 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built app
 COPY --from=builder /build /app
-COPY build /app
 
 CMD ["nginx"]
 
