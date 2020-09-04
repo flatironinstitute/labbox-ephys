@@ -17,7 +17,7 @@ spec:
       volumes:
         - name: labbox-ephys-ephys1-pv-storage
           persistentVolumeClaim:
-            claimName: pvc-labbox-ephys-ephys1
+            claimName: pvc-labbox-ephys-ephys1-b
       containers:
       - name: labbox-ephys-ephys1
         image: magland/labbox-ephys:0.3.19
