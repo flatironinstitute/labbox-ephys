@@ -1,7 +1,5 @@
 FROM node:14-slim as builder
 
-WORKDIR /app
-
 COPY ./package*.json ./
 
 RUN npm ci --verbose && npm cache clean --force
@@ -20,7 +18,7 @@ RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built app
-COPY --from=builder /app/build /app
+COPY --from=builder /build /app
 COPY build /app
 
 CMD ["nginx"]
