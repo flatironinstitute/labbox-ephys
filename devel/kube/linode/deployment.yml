@@ -28,7 +28,7 @@ spec:
         - name: KACHERY_P2P_START_DAEMON_OPTS
           value: --port 14107 --host ephys1.laboratorybox.org
         - name: LABBOX_CONFIG_URI
-          value: feed://210877c872535af9950e0ded5e0fd7f0df1ed4b849d89bf1ee21b19e0bef56bf/dubb
+          value: feed://545ba90dfd88d856cd19f354cebe76455df83f58ed208351c6bcdd7aae4bb249/dubb
         ports:
         - containerPort: 15310
         volumeMounts:
