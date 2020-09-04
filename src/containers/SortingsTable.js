@@ -8,7 +8,7 @@ import { CircularProgress } from '@material-ui/core';
 import { getPathQuery } from '../kachery';
 
 const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -77,7 +77,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this sorting"}
-                onDeleteRow={readonly ? null : (row) => onDeleteSortings([row.sorting.sortingId])}
+                onDeleteRow={readOnly ? null : (row) => onDeleteSortings([row.sorting.sortingId])}
             />
         </div>
     );

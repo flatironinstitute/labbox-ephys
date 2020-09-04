@@ -35,7 +35,7 @@ const updateMetricData = (state, [metricName, status, dataObject]) => {
 
 const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                 onAddUnitLabel, onRemoveUnitLabel,
-                onSelectedUnitIdsChanged }) => {
+                onSelectedUnitIdsChanged, readOnly }) => {
     const [activeOptions, setActiveOptions] = useState([]);
     const [metrics, updateMetrics] = useReducer(updateMetricData, {});
     const activeMetricPlugins = metricPlugins.filter(
@@ -137,17 +137,21 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                     onSelectedUnitIdsChanged={onSelectedUnitIdsChanged}
                 />
             </Paper>
-            <div>
-                <MultiComboBox
-                    id="label-selection"
-                    label='Choose labels'
-                    placeholder='Add label'
-                    onSelectionsChanged={(event, value) => setActiveOptions(value)}
-                    options={labelOptions}
-                />
-                <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
-                <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
-            </div>
+            {
+                (!readOnly) && (
+                    <div>
+                        <MultiComboBox
+                            id="label-selection"
+                            label='Choose labels'
+                            placeholder='Add label'
+                            onSelectionsChanged={(event, value) => setActiveOptions(value)}
+                            options={labelOptions}
+                        />
+                        <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
+                        <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
+                    </div>
+                )
+            }
         </div>
     );
 }
