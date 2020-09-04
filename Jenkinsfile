@@ -59,7 +59,7 @@ pipeline {
     stage('Configure Staging') {
       steps {
         sh """
-          cd touch .env.production && \
+          touch .env.production && \
             cp .env.staging .env.production
         """
       }
