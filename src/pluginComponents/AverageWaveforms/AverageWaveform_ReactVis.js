@@ -1,5 +1,5 @@
 import React from 'react';
-import { XYPlot, XAxis, YAxis, VerticalBarSeries, LineSeries } from 'react-vis';
+import { XYPlot, XAxis, YAxis, LineSeries } from 'react-vis';
 
 const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}) => {
     // plotData will be an array of [x-vals], [y-vals], and x-stepsize.
@@ -15,7 +15,8 @@ const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}) => {
         return <div />;
     }
 
-    const data = plotData.average_waveform.map((v, ii) => ({x: ii, y: v}));
+    const factor = 1000 / plotData.sampling_frequency
+    const data = plotData.average_waveform.map((v, ii) => ({x: ii*factor, y: v}));
 
     const xAxisLabel = 'dt (msec)'
 
@@ -32,7 +33,6 @@ const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}) => {
                 <LineSeries
                     data={data}
                 />
-                {/* <VerticalBarSeries data={data} /> */}
                 <XAxis />
                 <YAxis />
             </XYPlot>
