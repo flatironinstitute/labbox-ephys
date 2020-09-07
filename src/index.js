@@ -153,6 +153,7 @@ apiConnection.onConnect(() => {
   console.info('Connected to API server');
 })
 apiConnection.onMessage(msg => {
+  console.log(msg)
   const type0 = msg.type;
   if (type0 === 'reportServerInfo') {
     const { nodeId, defaultFeedId } = msg.serverInfo;
