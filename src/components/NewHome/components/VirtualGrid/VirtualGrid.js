@@ -84,7 +84,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     }
     const handleExport = (event, rowData) => alert("You exported " + rowData.file)
     const handleEdit = (event, rowData) => alert("edit file " + rowData.file)
-    console.log(recordings)
+    
     return (
         <MaterialTable
             columns={[
