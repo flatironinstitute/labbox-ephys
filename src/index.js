@@ -109,6 +109,11 @@ class ApiConnection {
       store.dispatch({ type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected' });
     })
 
+    this._ws.addEventListener('error', args => {
+      console.log('Error')
+      console.log(args)
+    })
+
     this._onMessageCallbacks = [];
     this._onConnectCallbacks = [];
     this._connected = false;
