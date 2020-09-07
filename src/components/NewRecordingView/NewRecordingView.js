@@ -1,10 +1,8 @@
 
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import RecordingInfoView from '../RecordingInfoView';
-import { Grid, Divider, Typography } from '@material-ui/core';
-import { withRouter, Link } from 'react-router-dom';
-import SortingsView from '../SortingsView';
+import Grid from '@material-ui/core/Grid';
+import { withRouter } from 'react-router-dom';
 import { getPathQuery } from '../../kachery';
 import { getRecordingInfo } from '../../actions/getRecordingInfo';
 import { setRecordingInfo } from '../../actions';
@@ -12,7 +10,7 @@ import RecordingHeader from './components/RecordingHeader'
 import RecordingBody from './components/RecordingBody/RecordingBody';
 
 const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri } = documentInfo;
 
     const renderDate = () => {
         const date = new Date()
@@ -22,10 +20,26 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
         return `${day}/${month}/${year}`
     }
 
-    console.log('documentInfo', documentInfo)
+    const effect = async () => {
+        if (!recording) return;
+        const rec = recording;
+        if (!rec.recordingInfo) {
+            try {
+                const info = await getRecordingInfo({ recordingObject: rec.recordingObject });
+                onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+            }
+            catch (err) {
+                console.error(err);
+                return;
+            }
+        }
+    }
+    useEffect(() => { effect() })
+
     if (!recording) {
         return <h3>{`Recording not found: ${recordingId}`}</h3>
     }
+
 
     const handleImportSortings = () => {
         history.push(`/${documentId}/importSortingsForRecording/${recordingId}${getPathQuery({ feedUri })}`)
@@ -35,7 +49,10 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
         <div>
             <Grid container spacing={5}>
                 <Grid item xs={12}>
-                    <RecordingHeader recordingId={recordingId} recordingUpdateDate={renderDate()} />
+                    <RecordingHeader
+                        recordingId={recordingId}
+                        recordingUpdateDate={renderDate()}
+                    />
                 </Grid>
                 <Grid item xs={12}>
                     <RecordingBody recording={recording} />

@@ -1,12 +1,13 @@
 import React from 'react'
 import { Switch, Route, Redirect } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
+// import RecordingView from "./containers/RecordingView";
 import NewRecordingView from "./components/NewRecordingView";
 import SortingJobView from "./containers/SortingJobView";
 import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
 import ImportRecordings from "./containers/ImportRecordings";
 import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecording';
-//import Home from "./components/Home";
+// import Home from "./components/Home";
 import About from "./components/About";
 import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
@@ -52,6 +53,7 @@ const Routes = () => {
             <Route
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
+                    // <RecordingView recordingId={match.params.recordingId} />
                     <NewRecordingView recordingId={match.params.recordingId} />
                 )}
             />
@@ -88,6 +90,7 @@ const Routes = () => {
             <Route
                 path="/:documentId"
                 render={({ match }) => (
+                    // <Home />
                     <NewHome />
                 )}
             />

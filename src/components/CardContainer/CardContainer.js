@@ -10,34 +10,23 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const CardContainer = ({ recording }) => {
+const CardContainer = (props) => {
     const classes = useStyles();
-    const usedObj = {
-        sampleRate: recording && recording.recordingObject
-            ? recording.recordingObject.data.samplerate
-            : '',
-        duration: recording && recording.recordingObject
-            ? recording.recordingObject.data.num_frames / recording.recordingObject.data.samplerate / 60
-            : '',
-        channel: recording && recording.recordingObject
-            ? recording.recordingObject.data.raw_num_channels
-            : ''
-        // missing probe design
-    }
+    const { firstCard, secondCard, thirdCard, fourthCard } = props
 
     return (
         <Grid container spacing={2} className={classes.gridRoot}>
             <Grid item xs={6}>
-                <CardItem title={'Sample Rate'} content={usedObj.sampleRate} />
+                <CardItem title={firstCard.title} content={firstCard.content} />
             </Grid>
             <Grid item xs={6}>
-                <CardItem title={'Duration (sec)'} content={usedObj.duration} />
+                <CardItem title={secondCard.title} content={secondCard.content} />
             </Grid>
             <Grid item xs={6}>
-                <CardItem title={'Channel Count'} content={usedObj.channel} />
+                <CardItem title={thirdCard.title} content={thirdCard.content} />
             </Grid>
             <Grid item xs={6}>
-                <CardItem title={'Probe Design'} content={''} />
+                <CardItem title={fourthCard.title} content={fourthCard.content} />
             </Grid>
         </Grid>
 
