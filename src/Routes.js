@@ -6,13 +6,14 @@ import SortingJobView from "./containers/SortingJobView";
 import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
 import ImportRecordings from "./containers/ImportRecordings";
 import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecording';
-import Home from "./components/Home";
+//import Home from "./components/Home";
 import About from "./components/About";
 import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
 import SortingView from './containers/SortingView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
 import HomeDBC from './components/HomeDBC';
+import NewHome from './components/NewHome'
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -87,7 +88,7 @@ const Routes = () => {
             <Route
                 path="/:documentId"
                 render={({ match }) => (
-                    <Home />
+                    <NewHome />
                 )}
             />
             <Route path="/"><Redirect to="/default" /></Route>

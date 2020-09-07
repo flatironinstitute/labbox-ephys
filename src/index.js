@@ -1,5 +1,5 @@
 // react
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
@@ -34,7 +34,7 @@ import Routes from './Routes';
 
 import { sleepMsec, handleHitherJobFinished, handleHitherJobError, setApiConnection, handleHitherJobCreated, handleHitherJobCreationError } from './hither/createHitherJob';
 
-import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS, setDarkMode } from './actions';
+import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 
 import { watchForNewMessages, getMessages } from './kachery';
 
