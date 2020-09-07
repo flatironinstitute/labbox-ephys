@@ -6,7 +6,9 @@ import CreateTagChip from './components/CreateTagChip/CreateTagChip'
 const useStyles = makeStyles((theme) => ({
     root: {
         minHeight: 200,
-        minWidth: 375
+        maxHeight: 200,
+        minWidth: 375,
+        marginBottom: 20
     },
     grid: {
         display: 'flex',
@@ -49,15 +51,14 @@ const chip = [
 
 const TagsContainer = () => {
     const classes = useStyles();
-    const [chipData, setChipData] = React.useState(chip)
+    const [chipData, setChipData] = React.useState([])
 
     const handleDelete = (chipToDelete) => {
         setChipData((chipData) => chipData.filter((chip) => chip.key !== chipToDelete.key));
     };
 
-    const handleSave = (name) => {
+    const handleSave = (name, key) => {
         if (name) {
-            const key = chipData.length === 0 ? 1 : chipData.length
             const newItem = { key: key, label: name }
             setChipData(curr => [
                 ...curr,
@@ -65,7 +66,7 @@ const TagsContainer = () => {
             ])
         }
     }
-
+    console.log(chipData)
     return (
         <div className={classes.root}>
             <Grid
@@ -77,11 +78,11 @@ const TagsContainer = () => {
                 spacing={1}
             >
                 <Grid item xs={12} className={classes.createChipContainer}>
-                    <CreateTagChip handleSave={handleSave} chipClass={classes.chip} />
+                    <CreateTagChip handleSave={handleSave} chipClass={classes.chip} chipData={chipData} />
                 </Grid>
-                {chipData.map((data) => {
+                {chipData.map((data, index) => {
                     return (
-                        <Grid item key={data.key}>
+                        <Grid item key={index}>
                             <Chip
                                 variant="outlined"
                                 size='small'

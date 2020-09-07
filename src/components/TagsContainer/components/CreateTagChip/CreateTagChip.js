@@ -17,9 +17,12 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const CreateTagChip = ({ handleSave, chipClass }) => {
+const CreateTagChip = ({ handleSave, chipClass, chipData }) => {
     const classes = useStyles()
     const [name, setName] = useState('')
+    const newKey = chipData.length === 0
+        ? 0
+        : Math.max(...chipData.map(curr => curr.key)) + 1
 
     const handleChange = (event) => {
         setName(event.target.value);
@@ -28,15 +31,19 @@ const CreateTagChip = ({ handleSave, chipClass }) => {
     const handleKeyPress = (e) => {
         const { key } = e
         if (key.toLowerCase() === 'enter') {
-            handleSave(name)
+            toggleSave(name, newKey)
         }
     }
-
+    const toggleSave = (name, newKey) => {
+        handleSave(name, newKey)
+        setName('')
+    }
     return (
         <Chip
             variant="outlined"
             size='small'
             label={<TextField
+                value={name}
                 placeholder="Click to add tag"
                 onChange={handleChange}
                 InputProps={{
@@ -46,7 +53,7 @@ const CreateTagChip = ({ handleSave, chipClass }) => {
                         < InputAdornment position="end" >
                             <IconButton
                                 className={classes.checkIcon}
-                                onClick={() => handleSave(name)}
+                                onClick={() => toggleSave(name, newKey)}
                                 edge="end"
                             >
                                 <CheckIcon />
