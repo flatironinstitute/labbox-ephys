@@ -1,6 +1,7 @@
 // react
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 
 // redux
 import { createStore, applyMiddleware } from 'redux'
@@ -11,12 +12,13 @@ import thunk from 'redux-thunk';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 // styling
-import theme from './theme';
+import { theme } from './theme';
 import './index.css';
 import './styles.css';
 import './localStyles.css';
 import { ThemeProvider } from '@material-ui/core/styles';
 import "../node_modules/react-vis/dist/style.css";
+import { CssBaseline } from "@material-ui/core";
 
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -32,7 +34,7 @@ import Routes from './Routes';
 
 import { sleepMsec, handleHitherJobFinished, handleHitherJobError, setApiConnection, handleHitherJobCreated, handleHitherJobCreationError } from './hither/createHitherJob';
 
-import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
+import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS, setDarkMode } from './actions';
 
 import { watchForNewMessages, getMessages } from './kachery';
 
@@ -93,7 +95,7 @@ class ApiConnection {
         this.sendMessage(m);
       }
       this._onConnectCallbacks.forEach(cb => cb());
-      store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'connected'});
+      store.dispatch({ type: SET_WEBSOCKET_STATUS, websocketStatus: 'connected' });
     });
     this._ws.addEventListener('message', evt => {
       const x = JSON.parse(evt.data);
@@ -104,7 +106,7 @@ class ApiConnection {
       console.warn('Websocket disconnected.');
       this._connected = false;
       this._isDisconnected = true;
-      store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
+      store.dispatch({ type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected' });
     })
 
     this._onMessageCallbacks = [];
@@ -137,7 +139,7 @@ class ApiConnection {
   async _start() {
     while (true) {
       await sleepMsec(17000);
-      this.sendMessage({type: 'keepAlive'});
+      this.sendMessage({ type: 'keepAlive' });
     }
   }
 }
@@ -204,23 +206,41 @@ const waitForDocumentInfo = async () => {
 }
 waitForDocumentInfo();
 
-const content = (
-  // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
-  <ThemeProvider theme={theme}>
-    <Provider store={store}>
+const Content = ({ darkMode }) => {
+  const themeMemo = useMemo(() => theme(darkMode ? "dark" : "light"), [
+    darkMode
+  ]);
+
+  return (
+    // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
+    <ThemeProvider theme={themeMemo}>
+      <CssBaseline />
       <Router>
         <AppContainer>
           <Routes />
         </AppContainer>
       </Router>
-    </Provider>
-  </ThemeProvider>
-  // </React.StrictMode>
-);
+    </ThemeProvider>
+    // </React.StrictMode>
+  );
+}
+
+
+const mapStateToProps = state => ({
+  darkMode: state.darkMode
+})
+
+const ContentConnected = connect(mapStateToProps)(Content)
+
+const App = () => {
+  return <Provider store={store}>
+    <ContentConnected />
+  </Provider>
+}
 
 // Render the app
 ReactDOM.render(
-  content,
+  <App />,
   document.getElementById('root')
 );
 
