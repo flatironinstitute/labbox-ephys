@@ -12,7 +12,7 @@
     "global": "^4.4.0",
     "js-sha1": "^0.6.0",
     "json-stable-stringify": "^1.0.1",
-    "material-table": "^1.64.0",
+    "material-table": "^1.69.0",
     "mongodb": "^3.5.6",
     "mongodb-client-encryption": "^1.0.1",
     "object-hash": "^2.0.3",

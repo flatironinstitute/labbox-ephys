@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%'
     },
     app: {
-        backgroundColor: theme.palette.main.primary
+        backgroundColor: theme.palette.primary.main
     },
     appbarToolbar: {
         display: 'flex',
