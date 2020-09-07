@@ -102,8 +102,9 @@ class ApiConnection {
       console.info('INCOMING MESSAGE', x);
       this._onMessageCallbacks.forEach(cb => cb(x));
     });
-    this._ws.addEventListener('close', () => {
+    this._ws.addEventListener('close', (args) => {
       console.warn('Websocket disconnected.');
+      console.log(args)
       this._connected = false;
       this._isDisconnected = true;
       store.dispatch({ type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected' });
@@ -153,7 +154,6 @@ apiConnection.onConnect(() => {
   console.info('Connected to API server');
 })
 apiConnection.onMessage(msg => {
-  console.log(msg)
   const type0 = msg.type;
   if (type0 === 'reportServerInfo') {
     const { nodeId, defaultFeedId } = msg.serverInfo;
