@@ -1,7 +1,7 @@
 import React from 'react';
 import { XYPlot, XAxis, YAxis, LineSeries } from 'react-vis';
 
-const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}) => {
+const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
     // plotData will be an array of [x-vals], [y-vals], and x-stepsize.
     // need to convert to an array of objects with x-y pairs.
     // We'll be doing this a LOT, it belongs elsewhere
@@ -25,6 +25,7 @@ const AverageWaveform_rv = (boxSize, plotData, argsObject = {id: 0}) => {
             padding={10}
             key={"plot-"+argsObject.id}
         >
+            <div style={{textAlign: 'center', fontSize: '12px'}}>{title || "Average waveform"}</div>
             <XYPlot
                 margin={30}
                 height={boxSize.height}

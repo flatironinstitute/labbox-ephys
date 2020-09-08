@@ -40,19 +40,7 @@ def main():
             }
         }
     }
-    # This try/except is needed until a small bug is fixed in kachery-p2p
-    try:
-        f = kp.load_feed(f'labbox_config_{config_name}', create=True)
-    except:
-        f = kp.load_feed(f'labbox_config_{config_name}')
-    config_uri = f.get_uri() + '/labbox_config'
-    subfeed = kp.load_subfeed(config_uri)
-    last_message = _get_last_message(subfeed)
-    if json.dumps(last_message) == json.dumps(config):
-        print('Config updated')
-    else:
-        subfeed.append_message(config)
-        print('Config unchanged')
+    config_uri = kp.store_object(config, basename=f'labbox_config_{config_name}.json')
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     print(json.dumps(config, indent=4))
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
