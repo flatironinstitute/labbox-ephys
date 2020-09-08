@@ -6,7 +6,7 @@ import spikeextractors as se
 import spiketoolkit as st
 
 @hi.function('prepare_snippets_h5', '0.2.4')
-@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../labbox_ephys'])
 def prepare_snippets_h5(
     recording_object,

@@ -22,7 +22,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
         )
 
 @hi.function('fetch_average_waveform_plot_data', '0.2.3')
-@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     import h5py
@@ -47,7 +47,7 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     )
 
 @hi.function('old_fetch_average_waveform_plot_data', '0.1.14')
-@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def old_fetch_average_waveform_plot_data(recording_object, sorting_object, unit_id):
     import labbox_ephys as le
