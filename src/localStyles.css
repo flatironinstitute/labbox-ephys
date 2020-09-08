@@ -46,6 +46,10 @@
     min-width: 206px;
 }
 
+.plotWrapperStyleButton {
+    padding-top: 100px;
+}
+
 .plotUnselectedStyle {
     border: 3px solid transparent;
 }
