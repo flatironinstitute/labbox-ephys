@@ -5,15 +5,15 @@ def main():
     # Here is an example where we configure a labbox deployment
     # Run this script and then pay attention to the output script
 
-    # Replace this with some name for your config
-    config_name = 'dubb'
-    # Replace this with the URI of the compute resource
-    crfeed_uri = 'feed://4dd6d6aa9e1d7be35e7374e6b35315bffefcfec27a9af36fa2e30bfd6753c5dc?name=dubb'
-
     # # Replace this with some name for your config
-    # config_name = 'ephys1'
+    # config_name = 'dubb'
     # # Replace this with the URI of the compute resource
-    # crfeed_uri = 'feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1'
+    # crfeed_uri = 'feed://4dd6d6aa9e1d7be35e7374e6b35315bffefcfec27a9af36fa2e30bfd6753c5dc?name=dubb'
+
+    # Replace this with some name for your config
+    config_name = 'ephys1'
+    # Replace this with the URI of the compute resource
+    crfeed_uri = 'feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1'
 
     config = {
         'job_handlers': {
@@ -45,7 +45,7 @@ def main():
         f = kp.load_feed(f'labbox_config_{config_name}', create=True)
     except:
         f = kp.load_feed(f'labbox_config_{config_name}')
-    config_uri = f.get_uri() + '/dubb'
+    config_uri = f.get_uri() + '/labbox_config'
     subfeed = kp.load_subfeed(config_uri)
     last_message = _get_last_message(subfeed)
     if json.dumps(last_message) == json.dumps(config):
