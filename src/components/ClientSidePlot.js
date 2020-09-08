@@ -8,7 +8,7 @@ import { sleepMsec } from '../hither/createHitherJob';
 const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, jobHandlerName, requiredFiles,
     calculationPool,
     boxSize = { width: 200, height: 200 },
-    plotComponent, plotComponentArgs }) => {
+    plotComponent, plotComponentArgs, title }) => {
     const [calculationStatus, setCalculationStatus] = useState('waitingForVisible');
     const [calculationError, setCalculationError] = useState(null);
     const [plotData, setPlotData] = useState(null);
@@ -106,7 +106,7 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHi
         );
     } else if (calculationStatus === 'finished') {
         // TODO: Follow-up on distinction b/w this and <PlotComponent arg1={} arg2={} ... />
-        return plotComponent(boxSize, plotData, plotComponentArgs);
+        return plotComponent(boxSize, plotData, plotComponentArgs, title);
     } else {
         return (
             <div>Unexpected calculation status: {calculationStatus}</div>

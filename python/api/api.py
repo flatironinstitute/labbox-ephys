@@ -17,13 +17,6 @@ sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
 pluginComponents # just keep the linter happy - we only need to import pluginComponents to register the hither functions
 
-def _get_last_message(subfeed):
-    n = subfeed.get_num_messages()
-    if n == 0:
-        return None
-    subfeed.set_position(n-1)
-    return subfeed.get_next_message(wait_msec=1000)
-
 print(f"LABBOX_EPHYS_DEPLOY: {os.environ.get('LABBOX_EPHYS_DEPLOY')}")
 
 # todo: manage this with configuration feeds
@@ -60,7 +53,7 @@ elif os.environ.get('LABBOX_CONFIG_URI', None) is not None:
     while True:
         try:
             print(f'Trying to load config from: {config_uri}')
-            subfeed = kp.load_subfeed(config_uri)
+            labbox_config = kp.load_object(config_uri)
             break
         except:
             if num_tries > 20:
@@ -68,7 +61,6 @@ elif os.environ.get('LABBOX_CONFIG_URI', None) is not None:
             time.sleep(2)
             num_tries = num_tries + 1
 
-    labbox_config = _get_last_message(subfeed)
     assert labbox_config is not None, f'Unable to load config from subfeed: {config_uri}'
 else:
     labbox_config = {
