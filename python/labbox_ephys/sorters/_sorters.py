@@ -1,4 +1,5 @@
 from typing import Union
+import numpy as np
 import os
 import random
 from types import SimpleNamespace
@@ -8,7 +9,7 @@ import hither as hi
 import kachery as ka
 
 @hi.function('mountainsort4', '0.1.6')
-@hi.container('docker://magland/sf-mountainsort4:0.3.2')
+@hi.container('docker://magland/labbox-ephys-mountainsort4:0.3.5')
 @hi.local_modules(['../../labbox_ephys'])
 def mountainsort4(
     recording_object: dict,
@@ -28,8 +29,7 @@ def mountainsort4(
     import spikesorters as ss
     import labbox_ephys as le
 
-    with ka.config(fr='labbox_ephys_readonly'):
-        recording = le.LabboxEphysRecordingExtractor(recording_object, download=True)
+    recording = le.LabboxEphysRecordingExtractor(recording_object)
 
     # for quick testing
     # import spikeextractors as se
@@ -42,41 +42,63 @@ def mountainsort4(
 
     # Sorting
     print('Sorting...')
-    sorter = ss.Mountainsort4Sorter(
-        recording=recording,
-        output_folder='/tmp/tmp_mountainsort4_' + _random_string(8),
-        delete_output_folder=True
-    )
-
-    num_workers = os.environ.get('NUM_WORKERS', None)
-    if num_workers:
-        num_workers = int(num_workers)
-    else:
-        num_workers = 0
-
-    sorter.set_params(
-        detect_sign=detect_sign,
-        adjacency_radius=adjacency_radius,
-        clip_size=clip_size,
-        detect_threshold=detect_threshold,
-        detect_interval=detect_interval,
-        num_workers=num_workers,
-        curation=curation,
-        whiten=whiten,
-        filter=filter,
-        freq_min=freq_min,
-        freq_max=freq_max
-    )     
-    timer = sorter.run()
-    print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
-    sorting = sorter.get_result()
-
     with hi.TemporaryDirectory() as tmpdir:
-        sorting_fname = tmpdir + '/firings.mda'
-        le.MdaSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_fname)
-        sorting_file = hi.File(sorting_fname)
+        sorter = ss.Mountainsort4Sorter(
+            recording=recording,
+            output_folder=tmpdir,
+            delete_output_folder=False
+        )
+
+        num_workers = os.environ.get('NUM_WORKERS', None)
+        if num_workers:
+            num_workers = int(num_workers)
+        else:
+            num_workers = 0
+
+        sorter.set_params(
+            detect_sign=detect_sign,
+            adjacency_radius=adjacency_radius,
+            clip_size=clip_size,
+            detect_threshold=detect_threshold,
+            detect_interval=detect_interval,
+            num_workers=num_workers,
+            curation=curation,
+            whiten=whiten,
+            filter=filter,
+            freq_min=freq_min,
+            freq_max=freq_max
+        )     
+        timer = sorter.run()
+        print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
+        sorting = sorter.get_result()
+        sorting_object = _create_sorting_object(sorting)
+        return dict(
+            sorting_object=sorting_object
+        )
+
+def _create_sorting_object(sorting):
+    unit_ids = sorting.get_unit_ids()
+    times_list = []
+    labels_list = []
+    for i in range(len(unit_ids)):
+        unit = unit_ids[i]
+        times = sorting.get_unit_spike_train(unit_id=unit)
+        times_list.append(times)
+        labels_list.append(np.ones(times.shape) * unit)
+    all_times = np.concatenate(times_list)
+    all_labels = np.concatenate(labels_list)
+    sort_inds = np.argsort(all_times)
+    all_times = all_times[sort_inds]
+    all_labels = all_labels[sort_inds]
+    times_npy_uri = ka.store_npy(all_times)
+    labels_npy_uri = ka.store_npy(all_labels)
     return dict(
-        sorting_file=sorting_file
+        sorting_format='npy1',
+        data=dict(
+            times_npy_uri=times_npy_uri,
+            labels_npy_uri=labels_npy_uri,
+            samplerate=30000
+        )
     )
 
 def _random_string(num_chars: int) -> str:
