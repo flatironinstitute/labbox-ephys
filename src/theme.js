@@ -22,7 +22,8 @@ export const theme = (mode) =>
                 lightGreen: 'rgba(88, 183, 68, 0.5)',
                 darkGrey: 'rgba(0, 0, 0, 0.6)',
                 darkWhite: 'rgba(255, 255, 255, 0.7)',
-                purple: '#AB47BC'
+                purple: '#AB47BC',
+                mainColor: '#0CB4CE'
             }
         }
     });

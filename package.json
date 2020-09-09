@@ -9,6 +9,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
+    "classnames": "^2.2.6",
     "global": "^4.4.0",
     "js-sha1": "^0.6.0",
     "json-stable-stringify": "^1.0.1",
