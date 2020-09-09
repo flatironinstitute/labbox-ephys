@@ -5,13 +5,24 @@ import kachery_p2p as kp
 import kachery as ka
 import json
 
-recording_object = kp.load_object('sha1://e3f764b72eafa0704cb4fef23d101e10e5404043/allen_mouse419112_probeE-ch0-7-10sec.json')
+# recording_object = kp.load_object('sha1://e3f764b72eafa0704cb4fef23d101e10e5404043/allen_mouse419112_probeE-ch0-7-10sec.json')
+recording_object = kp.load_object('sha1://8b222e25bc4d9c792e4490ca322b5338e0795596/cortexlab-single-phase-3.json')
+recording_object = dict(
+    recording_format='subrecording',
+    data=dict(
+        recording=recording_object,
+        start_frame=0,
+        end_frame=30000*60*10,
+        channel_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    )
+)
 print(json.dumps(recording_object, indent=4))
 
 # jc = hi.JobCache(use_tempdir=True)
 jc = None
 jh = hi.RemoteJobHandler(
-    compute_resource_uri='feed://644c145d5f6088623ee59f3437655e185657a6d9a9676294f26ae504423565fa?name=lke9849-12258-5f50fc6bb944 '
+    compute_resource_uri='feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1'
+    # compute_resource_uri='feed://644c145d5f6088623ee59f3437655e185657a6d9a9676294f26ae504423565fa?name=lke9849-12258-5f50fc6bb944 '
 )
 
 with hi.Config(

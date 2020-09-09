@@ -8,10 +8,10 @@ from labbox_ephys.extractors.labboxephyssortingextractor import LabboxEphysSorti
 import hither as hi
 import kachery as ka
 
-@hi.function('mountainsort4', '0.1.6')
+@hi.function('mountainsort4b', '0.1.6')
 @hi.container('docker://magland/labbox-ephys-mountainsort4:0.3.5')
 @hi.local_modules(['../../labbox_ephys'])
-def mountainsort4(
+def mountainsort4b(
     recording_object: dict,
     detect_sign=-1,
     adjacency_radius=50,
@@ -29,6 +29,9 @@ def mountainsort4(
     import spikesorters as ss
     import labbox_ephys as le
 
+    print('---------------------------------------------------------------------------------------')
+    print(recording_object)
+    print('---------------------------------------------------------------------------------------')
     recording = le.LabboxEphysRecordingExtractor(recording_object)
 
     # for quick testing
@@ -106,5 +109,5 @@ def _random_string(num_chars: int) -> str:
     return ''.join(random.choice(chars) for _ in range(num_chars))
 
 sorters = SimpleNamespace(
-    mountainsort4=mountainsort4
+    mountainsort4=mountainsort4b
 )

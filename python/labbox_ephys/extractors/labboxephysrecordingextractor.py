@@ -175,7 +175,7 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
     # See if it is type subrecording
     if (isinstance(arg, dict)) and ('recording' in arg) and ('group' in arg):
         return dict(
-            recording_type='subrecording',
+            recording_format='subrecording',
             data=dict(
                 group=arg['group'],
                 recording=_create_object_for_arg(arg['recording'])
@@ -183,7 +183,7 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
         )
     if (isinstance(arg, dict)) and ('recording' in arg) and ('groups' in arg):
         return dict(
-            recording_type='subrecording',
+            recording_format='subrecording',
             data=dict(
                 groups=arg['groups'],
                 recording=_create_object_for_arg(arg['recording'])
@@ -191,7 +191,7 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
         )
     if (isinstance(arg, dict)) and ('recording' in arg) and ('channel_ids' in arg):
         return dict(
-            recording_type='subrecording',
+            recording_format='subrecording',
             data=dict(
                 channel_ids=arg['channel_ids'],
                 recording=_create_object_for_arg(arg['recording'])
@@ -223,24 +223,29 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             if 'channel_ids' in data:
-                self._recording: se.RecordingExtractor = se.SubRecordingExtractor(
-                    parent_recording=R,
-                    channel_ids=np.array(data['channel_ids'])
-                )
+                channel_ids = np.array(data['channel_ids'])
             elif 'group' in data:
                 channel_ids = np.array(R.get_channel_ids())
                 groups = R.get_channel_groups(channel_ids=R.get_channel_ids())
                 group = int(data['group'])
                 inds = np.where(np.array(groups) == group)[0]
                 channel_ids = channel_ids[inds]
-                self._recording: se.RecordingExtractor = se.SubRecordingExtractor(
-                    parent_recording=R,
-                    channel_ids=channel_ids[inds]
-                )
             elif 'groups' in data:
                 raise Exception('This case not yet handled.')
             else:
-                raise Exception('Unexpected data for subrecording')
+                channel_ids = None
+            if 'start_frame' in data:
+                start_frame = data['start_frame']
+                end_frame = data['end_frame']
+            else:
+                start_frame = None
+                end_frame = None
+            self._recording: se.RecordingExtractor = se.SubRecordingExtractor(
+                parent_recording=R,
+                channel_ids=channel_ids,
+                start_frame=start_frame,
+                end_frame=end_frame
+            )
         elif recording_format == 'filtered':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             self._recording: se.RecordingExtractor = _apply_filters(recording=R, filters=data['filters'])
