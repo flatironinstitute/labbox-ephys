@@ -14,6 +14,10 @@ import cn from 'classnames'
 import { hexToHSL } from '../../utils/styles'
 
 const useStyles = makeStyles(theme => ({
+  cardLoginWrapper: {
+    height: '100%',
+    display: 'flex'
+  },
   paper: {
     width: '40%',
     margin: 'auto',
@@ -68,33 +72,35 @@ const Login = (props) => {
     </IconButton>
   }
 
-  return <Paper className={classes.paper}>
-    <Typography variant="h5" className={cn(classes.content, classes.cardTitle)}>Authentication</Typography>
-    <Typography variant="body2" className={classes.content}>Insert your credentials to access</Typography>
-    <Grid className={classes.fieldsContainer}>
-      <TextField placeholder="Insert your username" variant="outlined" label="Username" margin="normal" name="username" fullWidth required />
-      <TextField placeholder="Password" type={passwordType} variant="outlined" label="Password" margin="normal" name="password" InputProps={{
-        endAdornment: (
-          <IconType />
-        ),
-      }} fullWidth required />
+  return <Grid className={classes.cardLoginWrapper}>
+    <Paper className={classes.paper}>
+      <Typography variant="h5" className={cn(classes.content, classes.cardTitle)}>Authentication</Typography>
+      <Typography variant="body2" className={classes.content}>Insert your credentials to access</Typography>
+      <Grid className={classes.fieldsContainer}>
+        <TextField placeholder="Insert your username" variant="outlined" label="Username" margin="normal" name="username" fullWidth required />
+        <TextField placeholder="Password" type={passwordType} variant="outlined" label="Password" margin="normal" name="password" InputProps={{
+          endAdornment: (
+            <IconType />
+          ),
+        }} fullWidth required />
 
-    </Grid>
-    <FormControlLabel
-      control={
-        <Checkbox
-          name="remember_me"
-          color="primary"
-        />
-      }
-      label="Remember me"
-    />
-    <Grid className={classes.actionsContainer}>
-      <Button variant="contained" size="small" className={classes.actionLoginButton} fullWidth disableElevation>login</Button>
-      <Button variant="contained" size="small" className={classes.actionLoginButton} fullWidth disableElevation>signup</Button>
-      <Button variant="text" size="small" className={classes.forgotPassBtn} fullWidth>Forgot your password?</Button>
-    </Grid>
-  </Paper>
+      </Grid>
+      <FormControlLabel
+        control={
+          <Checkbox
+            name="remember_me"
+            color="primary"
+          />
+        }
+        label="Remember me"
+      />
+      <Grid className={classes.actionsContainer}>
+        <Button variant="contained" size="small" className={classes.actionLoginButton} fullWidth disableElevation>login</Button>
+        <Button variant="contained" size="small" className={classes.actionLoginButton} fullWidth disableElevation>signup</Button>
+        <Button variant="text" size="small" className={classes.forgotPassBtn} fullWidth>Forgot your password?</Button>
+      </Grid>
+    </Paper>
+  </Grid>
 }
 
 export default Login

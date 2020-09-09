@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
 import { setDocumentInfo } from './actions';
 import * as QueryString from "query-string";
+import { MAIN_APPBAR_HEIGHT } from './utils/styles'
 
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,7 +11,8 @@ import RootAppBar from './components/RootAppBar';
 
 const useStyles = makeStyles(() => ({
     container: {
-        padding: '60px 20px'
+        padding: '60px 20px',
+        height: `calc(100vh - ${MAIN_APPBAR_HEIGHT}px)`,
     }
 }));
 

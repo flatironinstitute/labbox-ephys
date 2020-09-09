@@ -1,3 +1,5 @@
+export const MAIN_APPBAR_HEIGHT = 64
+
 export function hexToHSL(H, light) {
   // Convert hex to RGB first
   let r = 0, g = 0, b = 0;
