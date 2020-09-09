@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
         listStyle: 'none',
         padding: theme.spacing(0.5),
         width: '100%',
+
     },
     createChipContainer: {
         marginBottom: theme.spacing(2)
@@ -22,7 +23,11 @@ const useStyles = makeStyles((theme) => ({
     chip: {
         backgroundColor: theme.palette.colors.lightBlue1,
         border: 'none',
-
+        margin: 5
+    },
+    chipsContainer: {
+        overflowY: 'auto',
+        height: 150
     },
     deleteIcon: {
         color: theme.palette.colors.darkGrey
@@ -80,20 +85,22 @@ const TagsContainer = () => {
                 <Grid item xs={12} className={classes.createChipContainer}>
                     <CreateTagChip handleSave={handleSave} chipClass={classes.chip} chipData={chipData} />
                 </Grid>
-                {chipData.map((data, index) => {
-                    return (
-                        <Grid item key={index}>
+                <Grid item className={classes.chipsContainer}>
+                    {chipData.map((data) => {
+                        return (
                             <Chip
+                                key={data.key}
                                 variant="outlined"
-                                size='small'
+                                size='medium'
                                 onDelete={() => handleDelete(data)}
                                 label={data.label}
                                 className={classes.chip}
                                 classes={{ deleteIcon: classes.deleteIcon }}
                             />
-                        </Grid>
-                    );
-                })}
+
+                        );
+                    })}
+                </Grid>
             </Grid>
         </div>
     )
