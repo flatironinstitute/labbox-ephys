@@ -25,19 +25,33 @@ const useStyles = makeStyles((theme) => ({
     })
 }))
 
+function getRecordingData(row) {
+    console.log(row)
+    if (row.recordingObject) {
+        const { data: { num_frames, samplerate } } = row.recordingObject ?? {}
+        return {
+            id: row.recordingId,
+            file: row.recordingLabel,
+            duration: row.recordingObject ? num_frames / samplerate / 60 : '',
+            sampleRate: row.recordingObject ? samplerate : '',
+        }
+    } else {
+        return {
+            id: row.recordingId,
+            file: row.recordingLabel,
+            duration: row.recordingInfo ? row.recordingInfo.num_frames / row.recordingInfo.sampling_frequency / 60 : '',
+            sampleRate: row.recordingInfo ? row.recordingInfo.sampling_frequency : '',
+        }
+    }
+}
+
 const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
     const { documentId, feedUri } = documentInfo
     const theme = useTheme()
     const darkMode = theme.palette.type === 'dark'
     const classes = useStyles({ darkMode })
 
-    /*will use them after resolving web socket issue */
-     const rows = recordings.map(row => ({
-        id: row.recordingId,
-        file: row.recordingLabel,
-        duration: row.recordingInfo ? row.recordingInfo.num_frames / row.recordingInfo.sampling_frequency / 60 : '',
-        sampleRate: row.recordingInfo ? row.recordingInfo.sampling_frequency : '',
-    })) 
+    const rows = recordings.map(getRecordingData)
 
     /*need to implement action on single row and on bulk actions*/
     //rowData on single actions is an object, on bulk actios it is an array of objects
