@@ -26,9 +26,9 @@ spec:
         - name: HOME
           value: /tmp
         - name: KACHERY_P2P_START_DAEMON_OPTS
-          value: --port 14107 --host ephys1.laboratorybox.org
+          value: --port 14207 --host xxxxxx
         - name: LABBOX_CONFIG_URI
-          value: sha1://6766f00108716bda5f976fa5a72c581bb0fe01c2/labbox_config_ephys1.json
+          value: xxxxxx
         ports:
         - containerPort: 15310
         volumeMounts:
