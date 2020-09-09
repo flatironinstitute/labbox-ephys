@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 function getRecordingData(row) {
-    console.log(row)
     if (row.recordingObject) {
         const { data: { num_frames, samplerate } } = row.recordingObject ?? {}
         return {
