@@ -33,49 +33,32 @@ const useStyles = makeStyles((theme) => ({
     })
 }))
 
+function getRecordingData(row) {
+    if (row.recordingObject) {
+        const { data: { num_frames, samplerate } } = row.recordingObject ?? {}
+        return {
+            id: row.recordingId,
+            file: row.recordingLabel,
+            duration: row.recordingObject ? num_frames / samplerate / 60 : '',
+            sampleRate: row.recordingObject ? samplerate : '',
+        }
+    } else {
+        return {
+            id: row.recordingId,
+            file: row.recordingLabel,
+            duration: row.recordingInfo ? row.recordingInfo.num_frames / row.recordingInfo.sampling_frequency / 60 : '',
+            sampleRate: row.recordingInfo ? row.recordingInfo.sampling_frequency : '',
+        }
+    }
+}
+
 const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
     const { documentId, feedUri } = documentInfo
     const theme = useTheme()
     const darkMode = theme.palette.type === 'dark'
     const classes = useStyles({ darkMode })
 
-    /*will use them after resolving web socket issue */
-    const effect = async () => {
-        for (const rec of recordings) {
-            if (!rec.recordingInfo) {
-                try {
-                    const info = await getRecordingInfo({ recordingObject: rec.recordingObject });
-                    onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
-                }
-                catch (err) {
-                    console.error(err);
-                    return;
-                }
-            }
-        }
-    }
-    useEffect(() => { effect() })
-
-    const rows = recordings.map(rec => {
-        return {
-            id: rec.recordingId,
-            file: rec ? rec.recordingLabel : '',
-            //uploadRate: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : '',
-            sampleRate: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
-            duration: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
-        }
-    });
-
-
-
-
-    /*     const rows = 
-        recordings.map(row => ({
-            id: row.recordingId,
-            file: row.recordingLabel,
-            duration: row.recordingObject ? row.recordingObject.data.num_frames / row.recordingObject.data.samplerate / 60 : '',
-            sampleRate: row.recordingObject ? row.recordingObject.data.samplerate : '',
-        })) */
+    const rows = recordings.map(getRecordingData)
 
     /*need to implement action on single row and on bulk actions*/
     //rowData on single actions is an object, on bulk actios it is an array of objects
