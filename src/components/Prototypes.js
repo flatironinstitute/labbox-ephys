@@ -31,7 +31,7 @@ const Prototypes = () => {
 
 const Expandable = ({ label, children }) => {
   return (
-    <Accordion TransitionProps={{ timeout: -1 }}>
+    <Accordion TransitionProps={{ timeout: -1, unmountOnExit: true }}>
       <AccordionSummary>
         {label}
       </AccordionSummary>

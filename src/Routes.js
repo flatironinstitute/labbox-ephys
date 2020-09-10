@@ -11,6 +11,7 @@ import About from "./components/About";
 import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
 import SortingView from './containers/SortingView';
+import SortingUnitView from './containers/SortingUnitView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
 import HomeDBC from './components/HomeDBC';
 
@@ -58,6 +59,12 @@ const Routes = () => {
                 path="/:documentId/sorting/:sortingId*"
                 render={({ match }) => (
                     <SortingView sortingId={match.params.sortingId} />
+                )}
+            />
+            <Route
+                path="/:documentId/sortingUnit/:sortingId/:unitId"
+                render={({ match }) => (
+                    <SortingUnitView sortingId={match.params.sortingId} unitId={match.params.unitId} />
                 )}
             />
             <Route
