@@ -1,11 +1,11 @@
 import React from 'react'
-import ClientSidePlot from '../../components/ClientSidePlot';
-import Correlogram_rv from '../CrossCorrelograms/Correlogram_ReactVis';
 import { Grid, Button } from '@material-ui/core';
-import AverageWaveform_rv from '../AverageWaveforms/AverageWaveform_ReactVis';
-import PCAFeatures_rv from './PCAFeatures_rv';
+import AverageWaveform_rv from '../pluginComponents/AverageWaveforms/AverageWaveform_ReactVis';
+import Correlogram_rv from '../pluginComponents/CrossCorrelograms/Correlogram_ReactVis';
+import PCAFeatures_rv from '../pluginComponents/IndividualUnits/PCAFeatures_rv';
+import ClientSidePlot from '../components/ClientSidePlot';
 
-const IndividualUnit = ({sorting, recording, unitId, width, calculationPool}) => {
+const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
     return (
         <div style={{width}}>
             <div>
@@ -25,6 +25,29 @@ const IndividualUnit = ({sorting, recording, unitId, width, calculationPool}) =>
                             title="Autocorrelogram"
                             plotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId}}
+                            newHitherJobMethod={true}
+                            useJobCache={true}
+                            jobHandlerName="partition1"
+                            requiredFiles={sorting.sortingObject}
+                            calculationPool={calculationPool}
+                        />
+                    </Grid>
+                    <Grid item>
+                        {/* Cross-correlogram */}
+                        <ClientSidePlot
+                            dataFunctionName="createjob_fetch_correlogram_plot_data"
+                            dataFunctionArgs={{
+                                sorting_object: sorting.sortingObject,
+                                unit_x: unitId,
+                                unit_y: compareUnitId
+                            }}
+                            boxSize={{
+                                width: 300,
+                                height: 300
+                            }}
+                            title={`Unit ${unitId} vs ${compareUnitId}`}
+                            plotComponent={Correlogram_rv}
+                            plotComponentArgs={{id: unitId+'-'+compareUnitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
                             jobHandlerName="partition1"
@@ -61,7 +84,7 @@ const IndividualUnit = ({sorting, recording, unitId, width, calculationPool}) =>
                             dataFunctionArgs={{
                                 sorting_object: sorting.sortingObject,
                                 recording_object: recording.recordingObject,
-                                unit_ids: [unitId]
+                                unit_ids: [unitId, compareUnitId]
                             }}
                             boxSize={{
                                 width: 300,
@@ -82,4 +105,4 @@ const IndividualUnit = ({sorting, recording, unitId, width, calculationPool}) =>
     )
 }
 
-export default IndividualUnit;
+export default SimilarUnit;

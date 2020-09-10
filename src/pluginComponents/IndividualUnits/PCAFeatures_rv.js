@@ -13,9 +13,9 @@ const PCAFeatures_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
     const xAxisLabel = 'PCA 1';
     const yAxisLabel = 'PCA 2';
 
-    const { xfeatures, yfeatures } = plotData;
+    const { xfeatures, yfeatures, labels } = plotData;
 
-    const data = xfeatures.map((v, ii) => ({x: xfeatures[ii], y: yfeatures[ii]}));
+    const data = xfeatures.map((v, ii) => ({x: xfeatures[ii], y: yfeatures[ii], color: labels[ii]}));
 
     return (
         <div className="App" width={boxSize.width} height={boxSize.height} display="flex"
@@ -31,6 +31,7 @@ const PCAFeatures_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
                 <MarkSeries
                     data={data}
                     stroke="black"
+                    size={3}
                 />
                 <XAxis title={xAxisLabel} />
                 <YAxis title={yAxisLabel} />

@@ -6,6 +6,7 @@ import IndividualUnit from '../pluginComponents/IndividualUnits/IndividualUnit'
 import CalculationPool from '../pluginComponents/common/CalculationPool'
 import { withSize } from 'react-sizeme';
 import { createHitherJob } from '../hither'
+import SimilarUnit from './SimilarUnit'
 
 const calculationPool = new CalculationPool({ maxSimultaneous: 6 });
 
@@ -100,10 +101,11 @@ const SimilarUnitsView = ({ sorting, recording, unitId, width, calculationPool }
         similarUnitsArray.map(su => (
           <Grid item key={su.unit_id}>
             <h3>Unit {su.unit_id}</h3>
-            <IndividualUnit
+            <SimilarUnit
               sorting={sorting}
               recording={recording}
               unitId={su.unit_id}
+              compareUnitId={unitId}
               calculationPool={calculationPool}
               width={width}
             />
