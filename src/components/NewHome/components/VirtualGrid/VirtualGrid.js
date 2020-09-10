@@ -49,7 +49,7 @@ function getRecordingData(row) {
             return {
                 id: row.recordingId,
                 file: row.recordingLabel,
-                duration: '',
+                duration: ' ',
                 sampleRate: row.recordingObject ? samplerate : '',
             }
         }
