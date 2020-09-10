@@ -14,6 +14,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { AppBarLogo } from '../Icons';
 import { Link } from 'react-router-dom';
+import PrivateLink from '../PrivateLink'
 import { getPathQuery } from '../../kachery';
 import { MAIN_APPBAR_HEIGHT } from '../../utils/styles'
 import { app } from '../../utils/featureFlags'
@@ -78,10 +79,10 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
                     </Link>
                     <Grid container alignItems="center" justify="flex-end">
                         <Grid item>
-                            <Link to="" className={classes.button}>Database</Link>
-                            <Link className={classes.button} to={`/${documentId}/config${pathQuery}`}>Configuration</Link>
-                            <Link to="" className={classes.button}>Support</Link>
-                            {extensionsConfig.enabled.development && <Link className={classes.button} to="/prototypes">Prototypes</Link>}
+                            <PrivateLink to="" className={classes.button}>Database</PrivateLink>
+                            <PrivateLink className={classes.button} to={`/${documentId}/config${pathQuery}`}>Configuration</PrivateLink>
+                            <PrivateLink to="" className={classes.button}>Support</PrivateLink>
+                            {extensionsConfig.enabled.development && <PrivateLink className={classes.button} to="/prototypes">Prototypes</PrivateLink>}
 
                         </Grid>
                         <Grid item className={classes.appbarActionsContainer}>
@@ -93,7 +94,8 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
                                 checkedIcon={<Brightness7Icon className={classes.icon} />}
                             />
 
-                            <IconButton><PersonIcon className={classes.icon} /></IconButton></Grid>
+                            <PrivateLink onClick={e => e.preventDefault()}><IconButton><PersonIcon className={classes.icon} /></IconButton></PrivateLink>
+                        </Grid>
                     </Grid>
                 </Toolbar>
             </AppBar>
