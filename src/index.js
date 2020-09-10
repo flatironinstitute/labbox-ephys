@@ -202,7 +202,7 @@ const waitForDocumentInfo = async () => {
         clientInfo: {
           feedUri: documentInfo.feedUri,
           documentId: documentInfo.documentId,
-          readonly: documentInfo.readonly
+          readOnly: documentInfo.readOnly
         }
       })
       return;

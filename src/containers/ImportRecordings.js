@@ -9,7 +9,7 @@ import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpi
 import { getPathQuery } from '../kachery';
 
 const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     const [method, setMethod] = useState('');
 

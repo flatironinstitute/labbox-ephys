@@ -17,3 +17,6 @@ RUN pip install scipy
 RUN pip install spikeextractors==0.9.1 spiketoolkit==0.7.0 spikesorters==0.4.2 spikemetrics==0.2.2
 RUN pip install requests
 RUN pip install h5py
+
+#########################################
+RUN pip install ml_ms4alg==0.3.5

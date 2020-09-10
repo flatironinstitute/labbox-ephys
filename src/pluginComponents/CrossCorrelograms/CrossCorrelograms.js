@@ -5,7 +5,9 @@ import { Grid } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import Correlogram_rv from './Correlogram_ReactVis';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
+import CalculationPool from '../common/CalculationPool';
 
+const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
 const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
     const filteredIds = Object.fromEntries(
@@ -62,9 +64,6 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
                                     'marginBottom': '50px'}}>
                             <div
                             >
-                                <div className='plotUnitLabel'>
-                                    <div>{pair.xkey + ' vs ' + pair.ykey}</div>
-                                </div>
                                 <ClientSidePlot
                                     dataFunctionName='fetch_correlogram_plot_data'
                                     dataFunctionArgs={{
@@ -76,11 +75,13 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
                                         width: plotWidth,
                                         height: plotWidth
                                     }}
+                                    title={pair.xkey + " vs " + pair.ykey}
                                     plotComponent={Correlogram_rv}
                                     plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
                                     useJobCache={true}
                                     jobHandlerName="partition1"
                                     requiredFiles={sorting.sortingObject}
+                                    calculationPool={crossCorrelogramsCalculationPool}
                                 />
                             </div>
                         </Grid>

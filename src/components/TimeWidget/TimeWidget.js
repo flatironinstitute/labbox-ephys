@@ -150,7 +150,6 @@ export default class TimeWidget extends Component {
         let W = this._timeAxisLayer.width();
         let H = this._timeAxisLayer.height();
         this._timeAxisLayer.setMargins(50, 10, H-50, 0);
-        console.log(this._timeRange);
         this._timeAxisLayer.setCoordXRange(this._timeRange[0], this._timeRange[1]);
         this._timeAxisLayer.setCoordYRange(0, 1);
         painter.useCoords();

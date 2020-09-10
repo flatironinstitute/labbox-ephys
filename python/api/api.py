@@ -1,8 +1,10 @@
+import time
 import json
 import os
 import sys
 import traceback
 import hither as hi
+import kachery_p2p as kp
 import asyncio
 import websockets
 from labbox_ephys.api._session import Session
@@ -45,33 +47,21 @@ if os.environ.get('LABBOX_EPHYS_DEPLOY') == 'ephys1':
             }
         }
     }
-elif os.environ.get('LABBOX_EPHYS_DEPLOY') == 'dubb':
-    crfeed_uri = 'feed://4dd6d6aa9e1d7be35e7374e6b35315bffefcfec27a9af36fa2e30bfd6753c5dc?name=dubb'
-    labbox_config = {
-        'job_handlers': {
-            'default': {
-                'type': 'local'
-            },
-            'partition1': {
-                'type': 'remote',
-                'uri': crfeed_uri,
-                'cr_partition': 'partition1'
-            },
-            'partition2': {
-                'type': 'remote',
-                'uri': crfeed_uri,
-                'cr_partition': 'partition2'
-            },
-            'partition3': {
-                'type': 'remote',
-                'uri': crfeed_uri,
-                'cr_partition': 'partition3'
-            },
-            'timeseries': {
-                'type': 'local'
-            }
-        }
-    }
+elif os.environ.get('LABBOX_CONFIG_URI', None) is not None:
+    config_uri = os.environ['LABBOX_CONFIG_URI']
+    num_tries = 0
+    while True:
+        try:
+            print(f'Trying to load config from: {config_uri}')
+            labbox_config = kp.load_object(config_uri)
+            break
+        except:
+            if num_tries > 20:
+                raise
+            time.sleep(2)
+            num_tries = num_tries + 1
+
+    assert labbox_config is not None, f'Unable to load config from subfeed: {config_uri}'
 else:
     labbox_config = {
         'job_handlers': {
@@ -92,6 +82,9 @@ else:
             }
         }
     }
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print(json.dumps(labbox_config, indent=4))
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
 local_job_handlers = dict(
     default=hi.ParallelJobHandler(4),

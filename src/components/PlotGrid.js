@@ -1,5 +1,5 @@
-import React from 'react';
-import { Grid } from '@material-ui/core';
+import React, { useState } from 'react';
+import { Grid, Button } from '@material-ui/core';
 import ClientSidePlot from './ClientSidePlot';
 
 const isSelected = (query, selections = {}) => (selections[query]);
@@ -10,12 +10,23 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
     plotComponent, plotComponentArgsCallback = () => {},
     newHitherJobMethod = false,
     useJobCache = false,
-    jobHandlerName = null
+    jobHandlerName = null,
+    calculationPool = null
 }) => {
+        const maxUnitsVisibleIncrement = 60;
+        const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
+
+        let unit_ids = sorting.sortingInfo.unit_ids;
+        let showExpandButton = false;
+        if (unit_ids.length > maxUnitsVisible) {
+            unit_ids = unit_ids.slice(0, maxUnitsVisible);
+            showExpandButton = true;
+        }
+
         return (
             <Grid container>
                 {
-                    sorting.sortingInfo.unit_ids.map(unitId => (
+                    unit_ids.map(unitId => (
                         <Grid key={unitId} item>
                             <div className='plotWrapperStyle'
                             >
@@ -39,11 +50,22 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                                         useJobCache={useJobCache}
                                         newHitherJobMethod={newHitherJobMethod}
                                         jobHandlerName={jobHandlerName}
+                                        calculationPool={calculationPool}
                                     />
                                 </div>
                             </div>
                         </Grid>
                     ))
+                }
+                {
+                    showExpandButton && (
+                        <div className='plotWrapperStyle'>
+                            <div className='plotWrapperStyleButton'>
+                                <Button onClick={() => {setMaxUnitsVisible(maxUnitsVisible + maxUnitsVisibleIncrement)}}>Show more units</Button>
+                            </div>
+                        </div>
+                        
+                    )
                 }
             </Grid>
         );

@@ -2,4 +2,4 @@
 
 set -ex
 
-docker build -t magland/labbox-ephys-processing:0.2.18 .
+docker build -t magland/labbox-ephys-processing:0.3.19 .

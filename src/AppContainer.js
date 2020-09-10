@@ -19,11 +19,11 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
         (async () => {
             console.info(`Using feed: ${feedUri}`);
-            const readonly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
+            const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
             onSetDocumentInfo({
                 documentId,
                 feedUri,
-                readonly
+                readOnly
             });
         })();
     })
