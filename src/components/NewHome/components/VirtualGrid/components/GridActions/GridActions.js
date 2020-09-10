@@ -23,7 +23,7 @@ const GridActions = ({
                 </IconButton>
             </Grid>
             <Grid item xs={3}>
-                <IconButton onClick={(e) => handleDelete(e, rowData)}>
+                <IconButton onClick={(e) => handleDelete([rowData.id])}>
                     <DeleteIcon className={className} />
                 </IconButton>
             </Grid >

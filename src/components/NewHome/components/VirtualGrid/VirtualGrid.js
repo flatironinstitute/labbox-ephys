@@ -141,7 +141,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     render: (rowData) => {
                         return <GridActions
                             className={classes.button}
-                            handleDelete={handleDelete}
+                            handleDelete={onDeleteRecordings}
                             handleEdit={handleEdit}
                             handleExport={handleExport}
                             rowData={rowData}
