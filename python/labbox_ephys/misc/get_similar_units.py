@@ -1,7 +1,6 @@
 import hither as hi
 import kachery as ka
 import numpy as np
-import kachery_p2p as kp
 
 @hi.function('createjob_get_similar_units', '0.1.0')
 def createjob_get_similar_units(labbox, recording_object, sorting_object):
@@ -23,7 +22,7 @@ def createjob_get_similar_units(labbox, recording_object, sorting_object):
 @hi.local_modules(['../../../python/labbox_ephys'])
 def get_similar_units(snippets_h5):
     import h5py
-    h5_path = kp.load_file(snippets_h5)
+    h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))
         unit_infos = {}

@@ -64,7 +64,7 @@ const Routes = () => {
             <Route
                 path="/:documentId/sortingUnit/:sortingId/:unitId"
                 render={({ match }) => (
-                    <SortingUnitView sortingId={match.params.sortingId} unitId={match.params.unitId} />
+                    <SortingUnitView sortingId={match.params.sortingId} unitId={parseInt(match.params.unitId)} />
                 )}
             />
             <Route
