@@ -1,5 +1,6 @@
 import os
 import kachery_p2p as kp
+import numpy as np
 import hither as hi
 import time
 
@@ -185,7 +186,7 @@ class WorkerSession:
                     'type': 'hitherJobFinished',
                     'client_job_id': job._client_job_id,
                     'job_id': job_id,
-                    'result': result,
+                    'result': _make_json_safe(result),
                     'runtime_info': runtime_info
                 }
                 self._send_message(msg)
@@ -220,4 +221,31 @@ class WorkerSession:
         if job_handler_name not in self._remote_job_handlers:
             self._remote_job_handlers[job_handler_name] = hi.RemoteJobHandler(compute_resource_uri=uri)
         return self._remote_job_handlers[job_handler_name]
-    
+
+def _make_json_safe(x):
+    if isinstance(x, np.integer):
+        return int(x)
+    elif isinstance(x, np.floating):
+        return float(x)
+    elif type(x) == dict:
+        ret = dict()
+        for key, val in x.items():
+            ret[key] = _make_json_safe(val)
+        return ret
+    elif (type(x) == list) or (type(x) == tuple):
+        return [_make_json_safe(val) for val in x]
+    elif isinstance(x, np.ndarray):
+        raise Exception('Cannot make ndarray json safe')
+    else:
+        if _is_jsonable(x):
+            # this will capture int, float, str, bool
+            return x
+    raise Exception(f'Item is not json safe: {type(x)}')
+
+def _is_jsonable(x) -> bool:
+    import json
+    try:
+        json.dumps(x)
+        return True
+    except:
+        return False

@@ -3,12 +3,15 @@ import { withSize } from 'react-sizeme';
 import CalculationPool from '../common/CalculationPool';
 import { Grid, Button } from '@material-ui/core';
 import IndividualUnit from './IndividualUnit';
+import { Link } from 'react-router-dom';
+import { getPathQuery } from '../../kachery';
 
 const individualUnitsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits = ({ size, sorting, recording, selectedUnitIds }) => {
+const IndividualUnits = ({ size, sorting, recording, selectedUnitIds, documentInfo }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
+    const { documentId, feedUri, readOnly } = documentInfo || {};
 
     let selectedUnitIdsArray =
         Object.keys(selectedUnitIds).filter(k => selectedUnitIds[k])
@@ -39,6 +42,7 @@ const IndividualUnits = ({ size, sorting, recording, selectedUnitIds }) => {
             {
                 selectedUnitIdsArray.map(id => (
                     <Grid item key={id}>
+                        <h3>Unit {id}</h3>
                         <IndividualUnit
                             sorting={sorting}
                             recording={recording}
@@ -46,6 +50,9 @@ const IndividualUnits = ({ size, sorting, recording, selectedUnitIds }) => {
                             calculationPool={individualUnitsCalculationPool}
                             width={size.width}
                         />
+                        <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
+                            More details for unit {id}
+                        </Link>
                     </Grid>
                 ))
             }

@@ -1,7 +1,7 @@
 import React from 'react'
 import ClientSidePlot from '../../components/ClientSidePlot';
 import Correlogram_rv from '../CrossCorrelograms/Correlogram_ReactVis';
-import { Grid } from '@material-ui/core';
+import { Grid, Button } from '@material-ui/core';
 import AverageWaveform_rv from '../AverageWaveforms/AverageWaveform_ReactVis';
 import PCAFeatures_rv from './PCAFeatures_rv';
 
@@ -9,7 +9,6 @@ const IndividualUnit = ({sorting, recording, unitId, width, calculationPool}) =>
     return (
         <div style={{width}}>
             <div>
-                <h3>Unit {unitId}</h3>
                 <Grid container direction="row">
                     <Grid item>
                         {/* Autocorrelogram */}
