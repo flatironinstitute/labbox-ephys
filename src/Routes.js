@@ -1,12 +1,13 @@
 import React from 'react'
 import { Switch, Route, Redirect } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
-import RecordingView from "./containers/RecordingView";
+// import RecordingView from "./containers/RecordingView";
+import NewRecordingView from "./components/NewRecordingView";
 import SortingJobView from "./containers/SortingJobView";
 import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
 import ImportRecordings from "./containers/ImportRecordings";
 import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecording';
-//import Home from "./components/Home";
+// import Home from "./components/Home";
 import About from "./components/About";
 import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
@@ -14,6 +15,7 @@ import SortingView from './containers/SortingView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
 import HomeDBC from './components/HomeDBC';
 import NewHome from './components/NewHome'
+import Login from './components/Login'
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -22,6 +24,9 @@ const TestPage = () => {
 const Routes = () => {
     return (
         <Switch>
+            <Route path="/login">
+                <Login />
+            </Route>
             <Route path="/about"><About /></Route>
             <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
@@ -52,7 +57,8 @@ const Routes = () => {
             <Route
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
-                    <RecordingView recordingId={match.params.recordingId} />
+                    // <RecordingView recordingId={match.params.recordingId} />
+                    <NewRecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
@@ -88,6 +94,7 @@ const Routes = () => {
             <Route
                 path="/:documentId"
                 render={({ match }) => (
+                    // <Home />
                     <NewHome />
                 )}
             />

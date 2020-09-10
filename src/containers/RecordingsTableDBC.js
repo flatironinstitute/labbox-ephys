@@ -10,7 +10,7 @@ import { getPathQuery } from "../kachery";
 
 
 const RecordingsTableDBC = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {

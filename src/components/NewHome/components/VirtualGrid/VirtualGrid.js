@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { deleteRecordings, setRecordingInfo } from '../../../../actions';
+import { getRecordingInfo } from '../../../../actions/getRecordingInfo';
 import { makeStyles, useTheme } from '@material-ui/core'
+import LinearProgress from '@material-ui/core/LinearProgress';
 import MaterialTable from 'material-table'
 import GetAppIcon from '@material-ui/icons/GetApp';
 import EditIcon from '@material-ui/icons/Edit';
@@ -13,6 +15,12 @@ import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../../../kachery';
 
 const useStyles = makeStyles((theme) => ({
+    progress: {
+        width: '100%',
+        '& > * + *': {
+            marginTop: theme.spacing(2),
+        },
+    },
     button: ({ darkMode }) => ({
         color: darkMode
             ? theme.palette.colors.white
@@ -59,7 +67,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     }
     const handleExport = (event, rowData) => alert("You exported " + rowData.file)
     const handleEdit = (event, rowData) => alert("edit file " + rowData.file)
-
+    
     return (
         <MaterialTable
             columns={[
@@ -67,32 +75,46 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     title: 'File',
                     field: 'file',
                     align: 'left',
-                    render: (rowData) =>
-                        <Link
-                            title={"View this recording"}
-                            to={`/${documentId}/recording/${rowData.id}${getPathQuery({ feedUri })}`}
-                            className={classes.link}
-                        >
-                            {rowData.file}
-                        </Link>
+                    render: (rowData) => rowData.file
+                        ? (
+                            <Link
+                                title={"View this recording"}
+                                to={`/${documentId}/recording/${rowData.id}${getPathQuery({ feedUri })}`}
+                                className={classes.link}
+                            >
+                                {rowData.file}
+                            </Link>
+                        )
+                        : <LinearProgress />
                 },
                 { title: 'Upload Date', field: 'uploadRate', align: 'left' },
                 {
                     title: 'Sample Rate (Hz)',
                     field: 'sampleRate',
                     align: 'left',
-                    render: (rowData) => <SampleRate label={rowData.sampleRate} />
+                    render: (rowData) => rowData.sampleRate
+                        ? <SampleRate label={rowData.sampleRate} />
+                        : <LinearProgress />
                 },
-                { title: 'Duration (sec)', field: 'duration', align: 'left' },
+                {
+                    title: 'Duration (sec)',
+                    field: 'duration',
+                    align: 'left',
+                    render: (rowData) => rowData.duration
+                        ? rowData.duration
+                        : <LinearProgress />
+                },
                 { title: 'Status', field: 'status', align: 'left' },
                 {
                     title: 'Sorting',
                     field: 'sorting',
-                    render: (rowData) => {
-                        if (rowData.sampleRate >= 30000)
-                            return <SpikeSortingButton rowData={rowData} />
-                        else return null
-                    },
+                    render: (rowData) =>
+                        !rowData.sampleRate
+                            ? <LinearProgress />
+                            : rowData.sampleRate >= 30000
+                                ? <SpikeSortingButton rowData={rowData} />
+                                : null
+                    ,
                     align: 'center'
                 },
                 {
@@ -102,7 +124,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     render: (rowData) => {
                         return <GridActions
                             className={classes.button}
-                            handleDelete={handleDelete}
+                            handleDelete={onDeleteRecordings}
                             handleEdit={handleEdit}
                             handleExport={handleExport}
                             rowData={rowData}

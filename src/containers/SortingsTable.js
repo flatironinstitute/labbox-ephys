@@ -8,7 +8,7 @@ import { CircularProgress } from '@material-ui/core';
 import { getPathQuery } from '../kachery';
 
 const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -27,15 +27,14 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
                     // for a nice gui effect
                     await sleep(400);
                     const sortingInfoJob = await createHitherJob(
-                        'get_sorting_info',
+                        'createjob_get_sorting_info',
                         { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
                         {
                             kachery_config: {},
                             hither_config: {
                             },
-                            job_handler_name: 'default',
-                            auto_substitute_file_objects: true,
-                            useClientCache: true
+                            useClientCache: true,
+                            newHitherJobMethod: true
                         }
                     )
                     info = await sortingInfoJob.wait();
@@ -77,7 +76,7 @@ const SortingsTable = ({ sortings, onDeleteSortings, onSetSortingInfo, documentI
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this sorting"}
-                onDeleteRow={readonly ? null : (row) => onDeleteSortings([row.sorting.sortingId])}
+                onDeleteRow={readOnly ? null : (row) => onDeleteSortings([row.sorting.sortingId])}
             />
         </div>
     );

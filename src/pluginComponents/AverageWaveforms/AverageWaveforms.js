@@ -2,6 +2,9 @@ import React from 'react'
 import PlotGrid from '../../components/PlotGrid';
 import AverageWaveform_rv from './AverageWaveform_ReactVis';
 import sampleSortingViewProps from '../common/sampleSortingViewProps'
+import CalculationPool from '../common/CalculationPool';
+
+const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
 const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
     onUnitClicked }) => {
@@ -23,6 +26,7 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
                 id: 'plot-'+unitId
             })}
             newHitherJobMethod={true}
+            calculationPool={averageWaveformsCalculationPool}
         />
     );
 }

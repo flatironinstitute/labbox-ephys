@@ -17,18 +17,18 @@ spec:
       volumes:
         - name: labbox-ephys-ephys1-pv-storage
           persistentVolumeClaim:
-            claimName: pvc-labbox-ephys-ephys1
+            claimName: pvc-labbox-ephys-ephys1-b
       containers:
       - name: labbox-ephys-ephys1
-        image: magland/labbox-ephys:0.3.15
+        image: magland/labbox-ephys:0.3.21
         imagePullPolicy: Always
         env:
         - name: HOME
           value: /tmp
         - name: KACHERY_P2P_START_DAEMON_OPTS
-          value: --port 14107 --host ephys1.laboratorybox.org
-        - name: LABBOX_EPHYS_DEPLOY
-          value: ephys1
+          value: --port 14207 --host xxxxxx
+        - name: LABBOX_CONFIG_URI
+          value: xxxxxx
         ports:
         - containerPort: 15310
         volumeMounts:

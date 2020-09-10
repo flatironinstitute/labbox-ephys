@@ -3,6 +3,8 @@ import Mda from './Mda';
 import TimeseriesWidget from "./TimeseriesWidget";
 import TimeseriesModel from "./TimeseriesModel";
 import { createHitherJob } from '../../hither';
+import CalculationPool from '../../pluginComponents/common/CalculationPool';
+import { sleepMsec } from '../../hither/createHitherJob';
 const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
     recordingObject
@@ -20,6 +22,8 @@ const TimeseriesView = ({
         />
     );
 }
+
+const timeseriesCalculationPool = new CalculationPool({maxSimultaneous: 4, method: 'stack'});
 
 const TimeseriesViewInner = ({
     width, height, maxWidth, maxHeight,
@@ -74,6 +78,7 @@ const TimeseriesViewInner = ({
             });
             model.onRequestDataSegment(async (ds_factor, segment_num) => {
                 let result;
+                const slot = await timeseriesCalculationPool.requestSlot();
                 try {
                     const resultJob = await createHitherJob(
                         'get_timeseries_segment',
@@ -96,6 +101,9 @@ const TimeseriesViewInner = ({
                 catch(err) {
                     console.error('Error getting timeseries segment', ds_factor, segment_num);
                     return;
+                }
+                finally {
+                    slot.complete();
                 }
                 let X = new Mda();
                 X.setFromBase64(result.data_b64);

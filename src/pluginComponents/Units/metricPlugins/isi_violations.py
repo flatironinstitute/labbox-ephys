@@ -1,7 +1,7 @@
 import hither as hi
 
 @hi.function('get_isi_violation_rates', '0.1.1')
-@hi.container('docker://magland/labbox-ephys-processing:0.2.18')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../../python/labbox_ephys'])
 def get_isi_violation_rates(sorting_object, recording_object, configuration={}):
     import labbox_ephys as le

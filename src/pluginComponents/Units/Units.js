@@ -35,8 +35,9 @@ const updateMetricData = (state, [metricName, status, dataObject]) => {
 
 const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                 onAddUnitLabel, onRemoveUnitLabel,
-                onSelectedUnitIdsChanged }) => {
+                onSelectedUnitIdsChanged, readOnly }) => {
     const [activeOptions, setActiveOptions] = useState([]);
+    const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, {});
     const activeMetricPlugins = metricPlugins.filter(
         p => (!p.metricPlugin.development || (extensionsConfig.enabled.development)));
@@ -115,7 +116,12 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
             : {});
     };
 
-    const units = sorting.sortingInfo.unit_ids;
+    let units = sorting.sortingInfo.unit_ids;
+    let showExpandButton = false;
+    if ((!expandedTable) && (units.length > 30)) {
+        units = units.slice(0, 30);
+        showExpandButton = true;
+    }
 
     // TODO: define additional columns such as: num. events, avg. firing rate, snr, ...
     if (Object.keys(metrics).length === 0 ) { // empty object
@@ -136,18 +142,27 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                     sorting={sorting}
                     onSelectedUnitIdsChanged={onSelectedUnitIdsChanged}
                 />
+                {
+                    showExpandButton && (
+                        <Button onClick={() => {setExpandedTable(true)}}>Show all units</Button>
+                    )
+                }
             </Paper>
-            <div>
-                <MultiComboBox
-                    id="label-selection"
-                    label='Choose labels'
-                    placeholder='Add label'
-                    onSelectionsChanged={(event, value) => setActiveOptions(value)}
-                    options={labelOptions}
-                />
-                <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
-                <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
-            </div>
+            {
+                (!readOnly) && (
+                    <div>
+                        <MultiComboBox
+                            id="label-selection"
+                            label='Choose labels'
+                            placeholder='Add label'
+                            onSelectionsChanged={(event, value) => setActiveOptions(value)}
+                            options={labelOptions}
+                        />
+                        <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
+                        <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
+                    </div>
+                )
+            }
         </div>
     );
 }

@@ -9,7 +9,7 @@ import { getPathQuery } from '../kachery';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 
 const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey(array, key) {
         return array.sort(function (a, b) {
@@ -21,18 +21,22 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
     recordings = sortByKey(recordings, 'recordingLabel');
 
     const effect = async () => {
-        for (const rec of recordings) {
-            if (!rec.recordingInfo) {
-                try {
-                    const info = await getRecordingInfo({recordingObject: rec.recordingObject});
-                    onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+        recordings.forEach(rec => {
+            (async () => {
+                if ((!rec.recordingInfo) && (!rec.fetchingRecordingInfo)) {
+                    // todo: use calculationPool for this
+                    rec.fetchingRecordingInfo = true;
+                    try {
+                        const info = await getRecordingInfo({recordingObject: rec.recordingObject});
+                        onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+                    }
+                    catch (err) {
+                        console.error(err);
+                        return;
+                    }
                 }
-                catch (err) {
-                    console.error(err);
-                    return;
-                }
-            }
-        }
+            })();
+        });
     }
     useEffect(() => { effect() })
 
@@ -73,7 +77,7 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this recording"}
-                onDeleteRow={readonly ? null : (row) => onDeleteRecordings([row.recording.recordingId])}
+                onDeleteRow={readOnly ? null : (row) => onDeleteRecordings([row.recording.recordingId])}
             />
         </div>
     );

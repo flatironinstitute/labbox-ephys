@@ -9,7 +9,7 @@ import { getRecordingInfo } from '../actions/getRecordingInfo';
 import { setRecordingInfo } from '../actions';
 
 const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
-  const { documentId, feedUri, readonly } = documentInfo;
+  const { documentId, feedUri, readOnly } = documentInfo;
 
   const effect = async () => {
     if (!recording) return;
@@ -47,7 +47,7 @@ const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history,
 
         <Grid item xs={12} lg={6}>
           {/* <Link to={`/${documentId}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
-          <SortingsView sortings={sortings} sortingJobs={sortingJobs} onImportSortings={readonly ? null : handleImportSortings} />
+          <SortingsView sortings={sortings} sortingJobs={sortingJobs} onImportSortings={readOnly ? null : handleImportSortings} />
         </Grid>
       </Grid>
     </div>

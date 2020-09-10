@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { getPathQuery } from '../kachery';
 
 function HomeDBC({ documentInfo }) {
-  const { documentId, feedUri, readonly } = documentInfo;
+  const { documentId, feedUri, readOnly } = documentInfo;
   return (
     <div>
       <Typography component="p">

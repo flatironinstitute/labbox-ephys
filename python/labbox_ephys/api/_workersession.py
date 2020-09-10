@@ -61,7 +61,7 @@ class WorkerSession:
             print('reported client info:', msg)
             self._feed_uri = msg['clientInfo']['feedUri']
             self._document_id = msg['clientInfo']['documentId']
-            self._readonly = msg['clientInfo']['readonly']
+            self._readonly = msg['clientInfo']['readOnly']
             if not self._feed_uri:
                 self._feed_uri = 'feed://' + self._default_feed_id
                 # self._feed_uri = kp.create_feed(feed_name='labbox-ephys-default').get_uri()

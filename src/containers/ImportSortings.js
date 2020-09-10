@@ -8,7 +8,7 @@ import SortingInfoView from '../components/SortingInfoView';
 import { getPathQuery } from '../kachery';
 
 const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history, documentInfo }) => {
-    const { documentId, feedUri, readonly } = documentInfo;
+    const { documentId, feedUri, readOnly } = documentInfo;
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
