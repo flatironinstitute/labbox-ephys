@@ -21,7 +21,8 @@ const useStyles = makeStyles(theme => ({
   paper: {
     width: '40%',
     margin: 'auto',
-    padding: '40px 80px'
+    padding: '40px 80px',
+    maxWidth: 560
   },
   fieldsContainer: {
     padding: '25px 0'
@@ -33,6 +34,7 @@ const useStyles = makeStyles(theme => ({
     margin: '15px 0',
     color: theme.palette.colors.white,
     background: theme.palette.colors.mainColor,
+    padding: '7px 0px',
     '&:hover': {
       background: hexToHSL(theme.palette.colors.mainColor, 30),
     }
@@ -49,10 +51,12 @@ const useStyles = makeStyles(theme => ({
     }
   },
   content: {
-    textAlign: 'center'
+    textAlign: 'center',
+    fontSize: 14,
   },
   cardTitle: {
-    paddingBottom: 15
+    paddingBottom: 15,
+    fontSize: '34px !important'
   }
 }))
 
@@ -74,7 +78,7 @@ const Login = (props) => {
 
   return <Grid className={classes.cardLoginWrapper}>
     <Paper className={classes.paper}>
-      <Typography variant="h5" className={cn(classes.content, classes.cardTitle)}>Authentication</Typography>
+      <Typography className={cn(classes.content, classes.cardTitle)}>Authentication</Typography>
       <Typography variant="body2" className={classes.content}>Insert your credentials to access</Typography>
       <Grid className={classes.fieldsContainer}>
         <TextField placeholder="Insert your username" variant="outlined" label="Username" margin="normal" name="username" fullWidth required />
