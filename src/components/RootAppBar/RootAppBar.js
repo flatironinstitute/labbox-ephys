@@ -15,6 +15,7 @@ import Typography from '@material-ui/core/Typography'
 import { AppBarLogo } from '../Icons';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../kachery';
+import { MAIN_APPBAR_HEIGHT } from '../../utils/styles'
 import { app } from '../../utils/featureFlags'
 
 
@@ -24,7 +25,8 @@ const useStyles = makeStyles((theme) => ({
         width: '100%'
     },
     app: {
-        backgroundColor: theme.palette.primary.main
+        backgroundColor: theme.palette.primary.main,
+        height: MAIN_APPBAR_HEIGHT
     },
     appbarToolbar: {
         display: 'flex',

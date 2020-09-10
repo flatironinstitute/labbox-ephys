@@ -15,6 +15,7 @@ import SortingView from './containers/SortingView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
 import HomeDBC from './components/HomeDBC';
 import NewHome from './components/NewHome'
+import Login from './components/Login'
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -23,6 +24,9 @@ const TestPage = () => {
 const Routes = () => {
     return (
         <Switch>
+            <Route path="/login">
+                <Login />
+            </Route>
             <Route path="/about"><About /></Route>
             <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
