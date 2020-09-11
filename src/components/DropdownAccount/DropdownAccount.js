@@ -4,6 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import PersonIcon from '@material-ui/icons/Person';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import PrivateLink from '../PrivateLink'
 
 const useStyles = makeStyles((theme) => ({
     icon: {
@@ -31,7 +32,11 @@ const DropdownAccount = () => {
 
     return (
         <>
-            <IconButton onClick={handleClick}><PersonIcon className={classes.icon} /></IconButton>
+            <PrivateLink onClick={e => e.preventDefault()} to="/">
+                <IconButton onClick={handleClick}>
+                    <PersonIcon className={classes.icon} />
+                </IconButton>
+            </PrivateLink>
             <Menu
                 id="account-menu"
                 anchorEl={anchorEl}
