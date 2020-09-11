@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 
 function getRecordingData(row) {
     if (row.recordingObject) {
-        if (row.recordingObject.num_frames) {
+        if (row.recordingObject.data.num_frames) {
             const { data: { num_frames, samplerate } } = row.recordingObject ?? {}
             return {
                 id: row.recordingId,
@@ -44,7 +44,7 @@ function getRecordingData(row) {
             }
         } else {
             /** we haven't num_frames to calculate duration*/
-            const { samplerate } = row.recordingObject.data.params
+            const { samplerate } = row.recordingObject.data.params ?? {}
             return {
                 id: row.recordingId,
                 file: row.recordingLabel,
@@ -67,7 +67,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     const theme = useTheme()
     const darkMode = theme.palette.type === 'dark'
     const classes = useStyles({ darkMode })
-
+    console.log(recordings)
     const rows = recordings.map(getRecordingData)
 
     /*need to implement action on single row and on bulk actions*/
