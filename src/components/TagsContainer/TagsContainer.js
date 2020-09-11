@@ -71,7 +71,7 @@ const TagsContainer = () => {
             ])
         }
     }
-    console.log(chipData)
+    
     return (
         <div className={classes.root}>
             <Grid

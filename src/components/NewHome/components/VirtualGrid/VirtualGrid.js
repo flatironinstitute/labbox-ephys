@@ -67,7 +67,6 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     const theme = useTheme()
     const darkMode = theme.palette.type === 'dark'
     const classes = useStyles({ darkMode })
-    console.log(recordings)
     const rows = recordings.map(getRecordingData)
 
     /*need to implement action on single row and on bulk actions*/
