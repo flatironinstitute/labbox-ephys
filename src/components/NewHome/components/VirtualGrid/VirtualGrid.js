@@ -158,7 +158,9 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                 selection: true,
                 selectionProps: rowData => ({
                     color: 'primary'
-                })
+                }),
+                maxBodyHeight: 580,
+                minBodyHeight: 580,
             }}
             data={rows}
             title="Recording Database"
