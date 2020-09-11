@@ -22,7 +22,7 @@ const TestPage = () => {
     return <div>{`Test page`}</div>;
 }
 
-const Routes = ({ currentUser }) => {
+const Routes = () => {
     return (
         <Switch>
             <Route path="/login">
