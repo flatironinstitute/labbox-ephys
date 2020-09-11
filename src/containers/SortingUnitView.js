@@ -79,7 +79,7 @@ const SimilarUnitsView = ({ sorting, recording, unitId, width, calculationPool }
   useEffect(() => { effect() });
 
   if (calculationStatus === 'calculating') {
-    return <div>Calculating similar unit IDs...</div>;
+    return <div>Finding similar units</div>;
   }
   else if (calculationStatus === 'error') {
     return <div>ERROR: <pre>{calculationError}</pre></div>;

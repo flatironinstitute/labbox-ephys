@@ -5,7 +5,7 @@ import kachery as ka
 import spikeextractors as se
 import spiketoolkit as st
 
-@hi.function('prepare_snippets_h5', '0.2.4')
+@hi.function('prepare_snippets_h5', '0.2.5')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../labbox_ephys'])
 def prepare_snippets_h5(
@@ -65,4 +65,5 @@ def prepare_snippets_h5(
                 f.create_dataset(f'unit_spike_trains/{unit_id}', data=np.array(x).astype(np.float64))
                 f.create_dataset(f'unit_waveforms/{unit_id}/waveforms', data=unit_waveforms[ii].astype(np.float32))
                 f.create_dataset(f'unit_waveforms/{unit_id}/channel_ids', data=np.array(channel_ids_by_unit[int(unit_id)]).astype(int))
+                f.create_dataset(f'unit_waveforms/{unit_id}/spike_train', data=np.array(sorting_subsampled.get_unit_spike_train(unit_id=unit_id)).astype(np.float64))
         return ka.store_file(save_path)
