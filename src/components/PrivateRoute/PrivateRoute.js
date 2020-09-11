@@ -8,7 +8,7 @@ export function PrivateRoute({
   currentUser,
   ...rest
 }) {
-  if (currentUser) {
+  if (currentUser || JSON.parse(sessionStorage.getItem("user"))) {
     if (children) return <Route {...rest}>{children}</Route>
     return <Route {...rest} component={component} />
   }

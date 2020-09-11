@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { connect } from 'react-redux';
 
 const PrivateLink = ({ children, to, currentUser, className, style }) => {
-  if (currentUser) {
+  if (currentUser || JSON.parse(sessionStorage.getItem("user"))) {
     if (children)
       return (
         <Link to={to} className={className} style={style}>

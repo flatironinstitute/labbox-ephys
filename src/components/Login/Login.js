@@ -73,6 +73,7 @@ const Login = ({ loginSuccess, history }) => {
 
   const onLogin = () => {
     loginSuccess(true)
+    sessionStorage.setItem("user", JSON.stringify(true))
     history.push('/')
   }
 
