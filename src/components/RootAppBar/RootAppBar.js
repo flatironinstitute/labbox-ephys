@@ -94,7 +94,7 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
                                 checkedIcon={<Brightness7Icon className={classes.icon} />}
                             />
 
-                            <PrivateLink onClick={e => e.preventDefault()}><IconButton><PersonIcon className={classes.icon} /></IconButton></PrivateLink>
+                            <PrivateLink onClick={e => e.preventDefault()} to="/"><IconButton><PersonIcon className={classes.icon} /></IconButton></PrivateLink>
                         </Grid>
                     </Grid>
                 </Toolbar>

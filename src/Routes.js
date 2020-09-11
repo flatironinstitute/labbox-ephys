@@ -16,82 +16,83 @@ import HitherJobMonitor from './containers/HitherJobMonitor';
 import HomeDBC from './components/HomeDBC';
 import NewHome from './components/NewHome'
 import Login from './components/Login'
+import PrivateRoute from './components/PrivateRoute'
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
 }
 
-const Routes = () => {
+const Routes = ({ currentUser }) => {
     return (
         <Switch>
             <Route path="/login">
                 <Login />
             </Route>
-            <Route path="/about"><About /></Route>
-            <Route path="/prototypes"><Prototypes /></Route>
-            <Route path="/test"><TestPage /></Route>
-            <Route
+            <PrivateRoute path="/about"><About /></PrivateRoute>
+            <PrivateRoute path="/prototypes"><Prototypes /></PrivateRoute>
+            <PrivateRoute path="/test"><TestPage /></PrivateRoute>
+            <PrivateRoute
                 path="/:documentId/config"
                 render={({ match }) => (
                     <Config />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/hitherJobMonitor"
                 render={({ match }) => (
                     <HitherJobMonitor />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/importRecordings"
                 render={({ match }) => (
                     <ImportRecordings />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/importSortingsForRecording/:recordingId*"
                 render={({ match }) => (
                     <ImportSortings recordingId={match.params.recordingId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
                     // <RecordingView recordingId={match.params.recordingId} />
                     <NewRecordingView recordingId={match.params.recordingId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/sorting/:sortingId*"
                 render={({ match }) => (
                     <SortingView sortingId={match.params.sortingId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/timeseriesForRecording/:recordingId*"
                 render={({ match }) => (
                     <TimeseriesForRecordingView recordingId={match.params.recordingId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/runSpikeSortingForRecording/:recordingId*"
                 render={({ match }) => (
                     <RunSpikeSortingForRecording recordingId={match.params.recordingId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/sortingJob/:sortingJobId*"
                 render={({ match }) => (
                     <SortingJobView sortingJobId={match.params.sortingJobId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId/HomeDBC"
                 render={({ match }) => (
                     <HomeDBC documentId={match.params.sortingJobId} />
                 )}
             />
-            <Route
+            <PrivateRoute
                 path="/:documentId"
                 render={({ match }) => (
                     // <Home />
@@ -102,5 +103,6 @@ const Routes = () => {
         </Switch>
     );
 }
+
 
 export default Routes;

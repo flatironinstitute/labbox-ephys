@@ -1,19 +1,22 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useCurrentUSer } from '../../hooks/useCurrentUser'
+import { connect } from 'react-redux';
 
-const PrivateLink = ({ children, to, ...rest }) => {
-  const currentUser = useCurrentUSer()
+const PrivateLink = ({ children, to, currentUser, className, style }) => {
   if (currentUser) {
     if (children)
       return (
-        <Link to={to} {...rest}>
+        <Link to={to} className={className} style={style}>
           {children}
         </Link>
       )
-    return <Link to={to} {...rest} />
+    return <Link to={to} className={className} style={style} />
   }
   return null
 }
 
-export default PrivateLink
+const mapStateToProps = state => ({
+  currentUser: state.login.currentUser
+})
+
+export default connect(mapStateToProps)(PrivateLink)

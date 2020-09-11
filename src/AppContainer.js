@@ -32,9 +32,10 @@ const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
     return <div>Setting document info...</div>
 }
 
-const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
+const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig, currentUser }) => {
     const { documentId } = documentInfo;
     const classes = useStyles();
+
     if (!documentId) {
         return (
             <Switch>
@@ -68,7 +69,8 @@ const mapStateToProps = state => {
     return {
         initialLoadComplete: state.serverConnection.initialLoadComplete,
         documentInfo: state.documentInfo,
-        extensionsConfig: state.extensionsConfig
+        extensionsConfig: state.extensionsConfig,
+        currentUser: state.login.currentUser
 
     }
 }
