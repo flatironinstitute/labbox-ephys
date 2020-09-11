@@ -35,12 +35,23 @@ const useStyles = makeStyles((theme) => ({
 
 function getRecordingData(row) {
     if (row.recordingObject) {
-        const { data: { num_frames, samplerate } } = row.recordingObject ?? {}
-        return {
-            id: row.recordingId,
-            file: row.recordingLabel,
-            duration: row.recordingObject ? num_frames / samplerate / 60 : '',
-            sampleRate: row.recordingObject ? samplerate : '',
+        if (row.recordingObject.num_frames) {
+            const { data: { num_frames, samplerate } } = row.recordingObject ?? {}
+            return {
+                id: row.recordingId,
+                file: row.recordingLabel,
+                duration: row.recordingObject ? num_frames / samplerate / 60 : '',
+                sampleRate: row.recordingObject ? samplerate : '',
+            }
+        } else {
+            /** we haven't num_frames to calculate duration*/
+            const { samplerate } = row.recordingObject.data.params
+            return {
+                id: row.recordingId,
+                file: row.recordingLabel,
+                duration: ' ',
+                sampleRate: row.recordingObject ? samplerate : '',
+            }
         }
     } else {
         return {
@@ -67,7 +78,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     }
     const handleExport = (event, rowData) => alert("You exported " + rowData.file)
     const handleEdit = (event, rowData) => alert("edit file " + rowData.file)
-    
+
     return (
         <MaterialTable
             columns={[
