@@ -8,6 +8,7 @@ import VirtualGrid from './components/VirtualGrid';
 import * as QueryString from "query-string";
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { setDocumentInfo } from '../../actions';
+import FullScreenLoader from '../FullScreenLoader';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -57,7 +58,7 @@ const NewHome = ({ documentInfo, initialLoadComplete, onSetDocumentInfo }) => {
 
 
     if (!initialLoadComplete) {
-        return <div >Loading...</div>
+        return <FullScreenLoader />
     }
 
     return (
