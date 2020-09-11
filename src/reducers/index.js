@@ -11,6 +11,7 @@ import documentInfo from './documentInfo'
 import serverInfo from './serverInfo'
 import extensionsConfig from '../extensions/reducers'
 import darkMode from './darkMode'
+import loginReducer from './loginReducer'
 
 export default combineReducers({
     databaseConfig,
@@ -24,5 +25,6 @@ export default combineReducers({
     hitherJobs,
     extensionsConfig,
     documentInfo,
-    darkMode
+    darkMode,
+    login: loginReducer
 })

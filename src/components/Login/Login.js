@@ -1,4 +1,6 @@
 import React from 'react'
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
@@ -12,6 +14,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOffOutlined'
 import VisibilityIcon from '@material-ui/icons/VisibilityOutlined'
 import cn from 'classnames'
 import { hexToHSL } from '../../utils/styles'
+import { initLogin, loginSuccess } from '../../actions/login'
 
 const useStyles = makeStyles(theme => ({
   cardLoginWrapper: {
@@ -60,12 +63,17 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const Login = (props) => {
+const Login = ({ loginSuccess, history }) => {
   const classes = useStyles()
   const [passwordType, setPasswordType] = React.useState('password')
 
   const setPassType = () => {
     setPasswordType(current => current === 'password' ? 'string' : 'password')
+  }
+
+  const onLogin = () => {
+    loginSuccess(true)
+    history.push('/')
   }
 
   const IconType = () => {
@@ -99,7 +107,7 @@ const Login = (props) => {
         label="Remember me"
       />
       <Grid className={classes.actionsContainer}>
-        <Button variant="contained" size="small" className={classes.actionLoginButton} fullWidth disableElevation>login</Button>
+        <Button variant="contained" size="small" className={classes.actionLoginButton} onClick={onLogin} fullWidth disableElevation>login</Button>
         <Button variant="contained" size="small" className={classes.actionLoginButton} fullWidth disableElevation>signup</Button>
         <Button variant="text" size="small" className={classes.forgotPassBtn} fullWidth>Forgot your password?</Button>
       </Grid>
@@ -107,4 +115,9 @@ const Login = (props) => {
   </Grid>
 }
 
-export default Login
+const mapDispatchToProps = dispatch => ({
+  startLogin: () => dispatch(initLogin()),
+  loginSuccess: user => dispatch(loginSuccess(user))
+})
+
+export default withRouter(connect(null, mapDispatchToProps)(Login))

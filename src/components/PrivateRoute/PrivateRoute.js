@@ -1,13 +1,13 @@
 import React from 'react'
 import { Redirect, Route } from 'react-router-dom'
-import { useCurrentUSer } from '../../hooks/useCurrentUser'
+import { connect } from 'react-redux';
 
 export function PrivateRoute({
   component,
   children,
+  currentUser,
   ...rest
 }) {
-  const currentUser = useCurrentUSer()
   if (currentUser) {
     if (children) return <Route {...rest}>{children}</Route>
     return <Route {...rest} component={component} />
@@ -15,4 +15,8 @@ export function PrivateRoute({
   return <Redirect to='/login' />
 }
 
-export default PrivateRoute
+const mapStateToProps = state => ({
+  currentUser: state.login.currentUser
+})
+
+export default connect(mapStateToProps)(PrivateRoute)

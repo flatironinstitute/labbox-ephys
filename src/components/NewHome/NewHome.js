@@ -5,6 +5,9 @@ import { connect } from 'react-redux';
 import Header from './components/Header'
 import Grid from '@material-ui/core/Grid'
 import VirtualGrid from './components/VirtualGrid';
+import * as QueryString from "query-string";
+import { Switch, Route, Redirect } from 'react-router-dom';
+import { setDocumentInfo } from '../../actions';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -15,8 +18,48 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const NewHome = ({ documentInfo }) => {
+const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
+    React.useEffect(() => {
+        (async () => {
+            console.info(`Using feed: ${feedUri}`);
+            const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
+            onSetDocumentInfo({
+                documentId,
+                feedUri,
+                readOnly
+            });
+        })();
+    })
+    return <div>Setting document info...</div>
+}
+
+const NewHome = ({ documentInfo, initialLoadComplete, onSetDocumentInfo }) => {
+    const { documentId } = documentInfo;
     const classes = useStyles()
+    if (!documentId) {
+        return (
+            <Switch>
+                <Route
+                    path="/:documentId/:path*"
+                    render={({ match, location }) => {
+                        const query = QueryString.parse(location.search);
+                        return <SetDocumentInfo
+                            documentId={match.params.documentId}
+                            feedUri={query.feed || null}
+                            onSetDocumentInfo={onSetDocumentInfo}
+                        />
+                    }}
+                />
+                <Route path="/"><Redirect to="/default" /></Route>
+            </Switch>
+        )
+    }
+
+
+    if (!initialLoadComplete) {
+        return <div >Loading...</div>
+    }
+
     return (
         <Grid container alignItems="stretch" className={classes.container}>
             <Grid item xs={12}>
@@ -30,10 +73,12 @@ const NewHome = ({ documentInfo }) => {
 }
 
 const mapStateToProps = state => ({
+    initialLoadComplete: state.serverConnection.initialLoadComplete,
     documentInfo: state.documentInfo,
 })
 
 const mapDispatchToProps = dispatch => ({
+    onSetDocumentInfo: documentInfo => dispatch(setDocumentInfo(documentInfo))
 })
 
 export default connect(

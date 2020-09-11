@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
-import { setDocumentInfo } from './actions';
-import * as QueryString from "query-string";
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+
 import { MAIN_APPBAR_HEIGHT } from './utils/styles'
 
 // LABBOX-CUSTOM /////////////////////////////////////////////
@@ -17,48 +16,14 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
-    useEffect(() => {
-        (async () => {
-            console.info(`Using feed: ${feedUri}`);
-            const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
-            onSetDocumentInfo({
-                documentId,
-                feedUri,
-                readOnly
-            });
-        })();
-    })
-    return <div>Setting document info...</div>
-}
-
-const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig }) => {
-    const { documentId } = documentInfo;
+const AppContainer = ({ children, documentInfo, extensionsConfig }) => {
     const classes = useStyles();
-    if (!documentId) {
-        return (
-            <Switch>
-                <Route
-                    path="/:documentId/:path*"
-                    render={({ match, location }) => {
-                        const query = QueryString.parse(location.search);
-                        return <SetDocumentInfo
-                            documentId={match.params.documentId}
-                            feedUri={query.feed || null}
-                            onSetDocumentInfo={onSetDocumentInfo}
-                        />
-                    }}
-                />
-                <Route path="/"><Redirect to="/default" /></Route>
-            </Switch>
-        )
-    }
 
     return (
         <div className={"TheAppBar"}>
             <RootAppBar documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
             <div className={classes.container}>
-                {initialLoadComplete ? (children) : (<div className={classes.container}>Loading...</div>)}
+                {children}
             </div>
         </div>
     )
@@ -66,18 +31,14 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
 
 const mapStateToProps = state => {
     return {
-        initialLoadComplete: state.serverConnection.initialLoadComplete,
         documentInfo: state.documentInfo,
-        extensionsConfig: state.extensionsConfig
+        extensionsConfig: state.extensionsConfig,
+        currentUser: state.login.currentUser
 
     }
 }
 
-const mapDispatchToProps = dispatch => ({
-    onSetDocumentInfo: documentInfo => dispatch(setDocumentInfo(documentInfo))
-})
 
 export default withRouter(connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(AppContainer))
