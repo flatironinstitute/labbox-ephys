@@ -18,16 +18,27 @@ def createjob_fetch_pca_features(labbox, recording_object, sorting_object, unit_
             unit_ids=unit_ids
         )
 
-@hi.function('fetch_pca_features', '0.2.6')
+# def _subsample(x, maxnum):
+#     if len(x) <= maxnum:
+#         num = len(x)
+#     else:
+#         num = maxnum
+#     indices = np.sort(np.random.RandomState(seed=0).choice(np.arange(len(x)), size=num, replace=False))
+#     return x[indices]
+
+@hi.function('fetch_pca_features', '0.3.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_pca_features(snippets_h5, unit_ids):
     import h5py
     h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
+        sampling_frequency = np.array(f.get('sampling_frequency'))[0]
         x = [
             dict(
                 unit_id=unit_id,
+                unit_waveforms_spike_train=np.array(f.get(f'unit_waveforms/{unit_id}/spike_train')),
+                # unit_waveforms_spike_train=_subsample(np.array(f.get(f'unit_spike_trains/{unit_id}')), 1000),
                 unit_waveforms=np.array(f.get(f'unit_waveforms/{unit_id}/waveforms')),
                 unit_waveforms_channel_ids=np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
             )
@@ -43,11 +54,12 @@ def fetch_pca_features(snippets_h5, unit_ids):
             a['labels'] = np.ones((unit_waveforms.shape[0],)) * a['unit_id']
     
     unit_waveforms = np.concatenate([a['unit_waveforms_2'] for a in x], axis=0)
+    spike_train = np.concatenate([a['unit_waveforms_spike_train'] for a in x])
     labels = np.concatenate([a['labels'] for a in x]).astype(int)
 
     from sklearn.decomposition import PCA
 
-    nf = 2 # number of features
+    nf = 5 # number of features
 
     # list of arrays
     W = unit_waveforms # ntot x M x T
@@ -61,8 +73,8 @@ def fetch_pca_features(snippets_h5, unit_ids):
     features = pca.transform(X) # n x nf
 
     return dict(
-        xfeatures=features[:, 0].squeeze().tolist(),
-        yfeatures=features[:, 1].squeeze().tolist(),
+        times=(spike_train / sampling_frequency).tolist(),
+        features=[features[:, ii].squeeze().tolist() for ii in range(nf)],
         labels=labels.tolist()
     )
 

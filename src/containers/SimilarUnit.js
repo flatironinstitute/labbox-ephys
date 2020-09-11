@@ -4,6 +4,7 @@ import AverageWaveform_rv from '../pluginComponents/AverageWaveforms/AverageWave
 import Correlogram_rv from '../pluginComponents/CrossCorrelograms/Correlogram_ReactVis';
 import PCAFeatures_rv from '../pluginComponents/IndividualUnits/PCAFeatures_rv';
 import ClientSidePlot from '../components/ClientSidePlot';
+import DriftFeatures_rv from '../pluginComponents/IndividualUnits/DriftFeatures_rv';
 
 const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
     return (
@@ -91,6 +92,28 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                                 height: 300
                             }}
                             plotComponent={PCAFeatures_rv}
+                            plotComponentArgs={{id: unitId}}
+                            newHitherJobMethod={true}
+                            useJobCache={true}
+                            jobHandlerName="partition2"
+                            requiredFiles={sorting.sortingObject}
+                            calculationPool={calculationPool}
+                        />
+                    </Grid>
+                    <Grid item>
+                        {/* Drift features */}
+                        <ClientSidePlot
+                            dataFunctionName={'createjob_fetch_pca_features'}
+                            dataFunctionArgs={{
+                                sorting_object: sorting.sortingObject,
+                                recording_object: recording.recordingObject,
+                                unit_ids: [unitId, compareUnitId]
+                            }}
+                            boxSize={{
+                                width: 600,
+                                height: 300
+                            }}
+                            plotComponent={DriftFeatures_rv}
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
