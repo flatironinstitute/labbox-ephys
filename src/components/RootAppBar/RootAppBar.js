@@ -74,7 +74,7 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
         <div className={classes.root}>
             <AppBar position="absolute" className={classes.app}>
                 <Toolbar className={classes.appbarToolbar}>
-                    <Link to={`/${documentId}${pathQuery}`} className={classes.link}>
+                    <Link to={documentId ? `/${documentId}${pathQuery}` : '/'} className={classes.link}>
                         {app.dbc ? <AppBarLogo /> : <DefaultTitle className={classes.defaultLogo} />}
                     </Link>
                     <Grid container alignItems="center" justify="flex-end">
