@@ -6,8 +6,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
-import IconButton from '@material-ui/core/IconButton';
-import PersonIcon from '@material-ui/icons/Person';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Home } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid'
@@ -18,6 +16,7 @@ import PrivateLink from '../PrivateLink'
 import { getPathQuery } from '../../kachery';
 import { MAIN_APPBAR_HEIGHT } from '../../utils/styles'
 import { app } from '../../utils/featureFlags'
+import DropdownAccount from '../DropdownAccount';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -93,8 +92,7 @@ const RootAppBar = ({ documentInfo, extensionsConfig, onSetDarkMode, darkMode })
                                 icon={<Brightness4Icon className={classes.icon} />}
                                 checkedIcon={<Brightness7Icon className={classes.icon} />}
                             />
-
-                            <PrivateLink onClick={e => e.preventDefault()} to="/"><IconButton><PersonIcon className={classes.icon} /></IconButton></PrivateLink>
+                            <DropdownAccount />
                         </Grid>
                     </Grid>
                 </Toolbar>
