@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { deleteRecordings, setRecordingInfo } from '../../../../actions';
-import { getRecordingInfo } from '../../../../actions/getRecordingInfo';
+// import { getRecordingInfo } from '../../../../actions/getRecordingInfo';
 import { makeStyles, useTheme } from '@material-ui/core'
 import LinearProgress from '@material-ui/core/LinearProgress';
 import MaterialTable from 'material-table'
 import GetAppIcon from '@material-ui/icons/GetApp';
-import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SpikeSortingButton from './components/SpikeSortingButton'
 import GridActions from './components/GridActions/GridActions';
@@ -77,7 +76,6 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
         return alert("You want to delete " + rowData.file)
     }
     const handleExport = (event, rowData) => alert("You exported " + rowData.file)
-    const handleEdit = (event, rowData) => alert("edit file " + rowData.file)
 
     return (
         <MaterialTable
@@ -136,7 +134,6 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                         return <GridActions
                             className={classes.button}
                             handleDelete={onDeleteRecordings}
-                            handleEdit={handleEdit}
                             handleExport={handleExport}
                             rowData={rowData}
                         />
@@ -155,11 +152,6 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                         icon: () => <DeleteIcon className={classes.button} />,
                         tooltip: 'Delete File',
                         onClick: handleDelete,
-                    },
-                    {
-                        icon: () => <EditIcon className={classes.button} />,
-                        tooltip: 'Edit File',
-                        onClick: handleEdit,
                     }
                 ]}
             options={{
