@@ -8,9 +8,22 @@ import { getRecordingInfo } from '../../actions/getRecordingInfo';
 import { setRecordingInfo } from '../../actions';
 import RecordingHeader from './components/RecordingHeader'
 import RecordingBody from './components/RecordingBody/RecordingBody';
+import CommentsPanel from './components/CommentsPanel'
+
+import { MAIN_APPBAR_HEIGHT } from '../../utils/styles'
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+    container: {
+        padding: '60px 20px',
+        height: `calc(100vh - ${MAIN_APPBAR_HEIGHT}px)`,
+    }
+}));
+
 
 const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
     const { documentId, feedUri } = documentInfo;
+    const classes = useStyles();
 
     const renderDate = () => {
         const date = new Date()
@@ -37,7 +50,7 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
     useEffect(() => { effect() })
 
     if (!recording) {
-        return <h3>{`Recording not found: ${recordingId}`}</h3>
+        return <h3 className={classes.container}>{`Recording not found: ${recordingId}`}</h3>
     }
 
 
@@ -46,19 +59,24 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
     }
 
     return (
-        <div>
-            <Grid container spacing={5}>
-                <Grid item xs={12}>
-                    <RecordingHeader
-                        recordingId={recordingId}
-                        recordingUpdateDate={renderDate()}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <RecordingBody recording={recording} />
+        <Grid container className={classes.container}>
+            <Grid item xs={9}>
+                <Grid container spacing={5}>
+                    <Grid item xs={12}>
+                        <RecordingHeader
+                            recordingId={recordingId}
+                            recordingUpdateDate={renderDate()}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <RecordingBody recording={recording} />
+                    </Grid>
                 </Grid>
             </Grid>
-        </div>
+            <Grid item xs={3}>
+                <CommentsPanel />
+            </Grid>
+        </Grid >
     )
 }
 
