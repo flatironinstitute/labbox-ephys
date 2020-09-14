@@ -11,7 +11,7 @@ const GridActions = ({
     className,
     handleDelete,
     handleExport,
-    rowData,
+    rawData,
 }) => {
 
     const [open, setOpen] = React.useState(false);
@@ -31,12 +31,12 @@ const GridActions = ({
                 alignItems="center"
             >
                 <Grid item xs={3}>
-                    <IconButton onClick={(e) => handleExport(e, rowData)}>
+                    <IconButton onClick={(e) => handleExport(e, rawData)}>
                         <GetAppIcon className={className} />
                     </IconButton>
                 </Grid>
                 <Grid item xs={3}>
-                    <IconButton onClick={() => handleDelete([rowData.id])}>
+                    <IconButton onClick={() => handleDelete([rawData.id])}>
                         <DeleteIcon className={className} />
                     </IconButton>
                 </Grid >
@@ -49,8 +49,8 @@ const GridActions = ({
             <EditDrawer
                 open={open}
                 toggleDrawer={toggleDrawer}
-                handleDelete={() => handleDelete([rowData.id])}
-                rowData={rowData}
+                handleDelete={() => handleDelete([rawData.id])}
+                rawData={rawData}
             />
         </>
     )
