@@ -11,11 +11,6 @@ import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 const publicationsTest = [
     '1. Wu et al., Neuron, 2015',
     '1. Wu fal., Joijon, 2015',
-    '1. Wu fal., Joijon, 2015',
-    '1. Wu fal., Joijon, 2015',
-    '1. Wu fal., Joijon, 2015',
-    '1. Wu fal., Joijon, 2015',
-    '1. Wu fal., Joijon, 2015',
     '1. Et Wu loki., Falgar, 2015'
 ]
 
@@ -29,6 +24,9 @@ const useStyles = makeStyles((theme) => ({
     },
     listItem: {
         borderBottom: `2px solid ${theme.palette.colors.grey3}`
+    },
+    deleteIcon: {
+        color: theme.palette.colors.grey4
     }
 }));
 
@@ -45,7 +43,7 @@ const ListContainer = () => {
                         />
                         <ListItemSecondaryAction>
                             <IconButton edge="end" aria-label="delete">
-                                <CancelRoundedIcon />
+                                <CancelRoundedIcon className={classes.deleteIcon} />
                             </IconButton>
                         </ListItemSecondaryAction>
                     </ListItem>,
