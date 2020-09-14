@@ -107,7 +107,7 @@ class WorkerSession:
                     self._send_message({
                         'type': 'hitherJobCreationError',
                         'client_job_id': client_job_id,
-                        'error': str(err)
+                        'error': str(err) + ' (new method)'
                     })
                     return
                 setattr(job, '_client_job_id', client_job_id)
@@ -139,7 +139,7 @@ class WorkerSession:
                         self._send_message({
                             'type': 'hitherJobCreationError',
                             'client_job_id': client_job_id,
-                            'error': str(err)
+                            'error': str(err) + ' (old method)'
                         })
                         return
                     setattr(job, '_client_job_id', client_job_id)

@@ -28,7 +28,6 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
-                            jobHandlerName="partition1"
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                         />
@@ -51,7 +50,6 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             plotComponentArgs={{id: unitId+'-'+compareUnitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
-                            jobHandlerName="partition1"
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                         />
@@ -73,7 +71,6 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
-                            jobHandlerName="partition2"
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                         />
@@ -95,7 +92,6 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
-                            jobHandlerName="partition2"
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                         />
@@ -117,7 +113,6 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
-                            jobHandlerName="partition2"
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                         />

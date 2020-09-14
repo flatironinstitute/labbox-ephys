@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
 import SortingInfoView from '../components/SortingInfoView';
 import { CircularProgress, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { setSortingInfo, addUnitLabel, removeUnitLabel } from '../actions';
 import { createHitherJob } from '../hither';
 import * as pluginComponents from '../pluginComponents';
+import { getPathQuery } from '../kachery';
 
 const pluginComponentsList = Object.values(pluginComponents).filter(PluginComponent => (PluginComponent.sortingViewPlugin));
 
@@ -67,6 +68,7 @@ const updateSelections = (state, [mode = 'simple', target]) => {
 }
 
 const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, documentInfo }) => {
+  const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
   const [selectedUnitIds, setSelectedUnitIds] = useReducer(updateSelections, {});
 
@@ -120,7 +122,12 @@ const SortingView = ({ sortingId, sorting, recording, onSetSortingInfo, onAddUni
 
   return (
     <div>
-      <h3>{`Sorting: ${sorting.sortingLabel} for ${recording.recordingLabel}`}</h3>
+      <h3>
+        {`Sorting: ${sorting.sortingLabel} for `}
+          <Link to={`/${documentId}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
+            {recording.recordingLabel}
+          </Link>
+      </h3>
       {
         (sortingInfoStatus === 'computing') ? (
           <div><CircularProgress /></div>
