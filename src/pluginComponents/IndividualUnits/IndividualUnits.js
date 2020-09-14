@@ -49,6 +49,7 @@ const IndividualUnits = ({ size, sorting, recording, selectedUnitIds, documentIn
                             unitId={id}
                             calculationPool={individualUnitsCalculationPool}
                             width={size.width}
+                            sortingInfo={sorting.sortingInfo}
                         />
                         <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
                             More details for unit {id}

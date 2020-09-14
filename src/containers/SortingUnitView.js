@@ -1,19 +1,45 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { Grid, Accordion, AccordionSummary, AccordionDetails, Button } from '@material-ui/core'
 import IndividualUnit from '../pluginComponents/IndividualUnits/IndividualUnit'
 import CalculationPool from '../pluginComponents/common/CalculationPool'
 import { withSize } from 'react-sizeme';
 import { createHitherJob } from '../hither'
 import SimilarUnit from './SimilarUnit'
+import { getPathQuery } from '../kachery'
 
 const calculationPool = new CalculationPool({ maxSimultaneous: 6 });
 
 const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size }) => {
+  const { documentId, feedUri, readOnly } = documentInfo;
+
+  const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
+  const [sortingInfo, setSortingInfo] = useState(null);
+
+  const effect = async () => {
+    if (sortingInfoStatus === null) {
+      setSortingInfoStatus('computing');
+      const sortingInfo = await createHitherJob(
+        'createjob_get_sorting_info',
+        { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
+        { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
+      );
+      setSortingInfo(sortingInfo);
+      setSortingInfoStatus('finished');
+    }
+  }
+  useEffect(() => {effect()});
+  
   return (
     <div>
-      <h3>{recording.recordingLabel} {sorting.sortingLabel} {unitId}</h3>
+      <h3>
+        {recording.recordingLabel} {` `}
+        <Link to={`/${documentId}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
+          {sorting.sortingLabel}
+        </Link>
+        {` Unit: `} {unitId}
+      </h3>
       <Grid container direction="column">
         <Grid item key={1}>
           <IndividualUnit
@@ -22,6 +48,7 @@ const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConf
             unitId={unitId}
             calculationPool={calculationPool}
             width={size.width}
+            sortingInfo={sortingInfo}
           />
         </Grid>
         <Grid item key={2}>

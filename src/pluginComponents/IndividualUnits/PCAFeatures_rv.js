@@ -1,7 +1,7 @@
 import React from 'react';
 import { XYPlot, XAxis, YAxis, LineSeries, MarkSeries } from 'react-vis';
 
-const PCAFeatures_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
+const PCAFeatures_rv = ({boxSize, plotData, argsObject = {id: 0, onPointClicked: null}, title}) => {
     // plotData: {times, features, labels}
 
     // console.log(plotData);
@@ -15,7 +15,11 @@ const PCAFeatures_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
 
     const { features, labels } = plotData;
 
-    const data = features[0].map((v, ii) => ({x: features[0][ii], y: features[1][ii], color: labels[ii]}));
+    const data = features[0].map((v, ii) => ({index: ii, x: features[0][ii], y: features[1][ii], color: labels[ii]}));
+
+    const _handlePointClick = event => {
+        argsObject.onPointClicked && argsObject.onPointClicked({index: event.index});
+    }
 
     return (
         <div className="App" width={boxSize.width} height={boxSize.height} display="flex"
@@ -31,7 +35,8 @@ const PCAFeatures_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
                 <MarkSeries
                     data={data}
                     stroke="black"
-                    size={3}
+                    size={4}
+                    onValueClick={event => _handlePointClick(event)}
                 />
                 <XAxis title={xAxisLabel} />
                 <YAxis title={yAxisLabel} />

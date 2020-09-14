@@ -78,6 +78,52 @@ def fetch_pca_features(snippets_h5, unit_ids):
         labels=labels.tolist()
     )
 
+@hi.function('createjob_fetch_spike_waveforms', '0.1.0')
+def createjob_fetch_spike_waveforms(labbox, recording_object, sorting_object, unit_ids, spike_indices):
+    jh = labbox.get_job_handler('partition2')
+    jc = labbox.get_default_job_cache()
+    with hi.Config(
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
+    ):
+        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
+        return fetch_spike_waveforms.run(
+            snippets_h5=snippets_h5,
+            unit_ids=unit_ids,
+            spike_indices=spike_indices
+        )
+
+@hi.function('fetch_spike_waveforms', '0.1.0')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
+@hi.local_modules(['../../../python/labbox_ephys'])
+def fetch_spike_waveforms(snippets_h5, unit_ids, spike_indices):
+    import h5py
+    h5_path = ka.load_file(snippets_h5)
+    spikes = []
+    with h5py.File(h5_path, 'r') as f:
+        sampling_frequency = np.array(f.get('sampling_frequency'))[0]
+        for ii, unit_id in enumerate(unit_ids):
+            unit_waveforms=np.array(f.get(f'unit_waveforms/{unit_id}/waveforms'))
+            unit_waveforms_channel_ids=np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
+            unit_waveforms_spike_train=np.array(f.get(f'unit_waveforms/{unit_id}/spike_train'))
+            average_waveform = np.mean(unit_waveforms, axis=0)
+            channel_maximums = np.max(np.abs(average_waveform), axis=1)
+            maxchan_index = np.argmax(channel_maximums)
+            maxchan_id = unit_waveforms_channel_ids[maxchan_index]
+            for spike_index in spike_indices[ii]:
+                spikes.append(dict(
+                    unit_id=unit_id,
+                    spike_index=spike_index,
+                    spike_time=unit_waveforms_spike_train[spike_index],
+                    channel_id=maxchan_id,
+                    waveform=unit_waveforms[spike_index, maxchan_index, :].squeeze().tolist()
+                ))
+    return {
+        'sampling_frequency': sampling_frequency,
+        'spikes': spikes
+    }
+
 def _intersect_channel_ids(a):
     ret = a[0]
     for channel_ids in a:
