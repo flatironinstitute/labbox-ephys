@@ -17,6 +17,7 @@ export const theme = (mode) =>
                 lightBlue2: 'rgba(12, 180, 206, 0.05)',
                 grey: '#666666',
                 grey2: 'rgba(0, 0, 0, 0.38)',
+                grey3: 'rgba(0, 0, 0, 0.12)',
                 red: '#FF0C3E',
                 green: '#58B744',
                 lightGreen: 'rgba(88, 183, 68, 0.5)',
