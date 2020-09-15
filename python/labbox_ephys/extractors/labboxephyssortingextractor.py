@@ -97,8 +97,6 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             self._sorting = S
         elif sorting_format == 'npy2':
             npz = kp.load_npy(data['npz_uri'])
-            print('---------------', npz)
-            print('----------------', list(npz.keys()))
             times_npy = npz['spike_indexes']
             labels_npy = npz['spike_labels']
             samplerate = float(npz['sampling_frequency'])
