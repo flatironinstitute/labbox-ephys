@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import RootAppBar from './components/RootAppBar';
 
-const drawerWidth = 450
+const drawerWidth = 480
 
 const useStyles = makeStyles((theme) => ({
     container: {
