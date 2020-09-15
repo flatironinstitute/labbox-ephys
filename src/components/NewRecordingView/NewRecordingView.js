@@ -15,7 +15,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
     container: {
-        padding: '60px 20px',
+        paddingTop: 60,
+        padding: '0px 20px',
         height: `calc(100vh - ${MAIN_APPBAR_HEIGHT}px)`,
     }
 }));
@@ -61,7 +62,7 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
     return (
         <Grid container className={classes.container}>
             <Grid item xs={9}>
-                <Grid container spacing={5}>
+                <Grid container>
                     <Grid item xs={12}>
                         <RecordingHeader
                             recordingId={recordingId}
@@ -69,7 +70,7 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <RecordingBody recording={recording} />
+                        <RecordingBody recording={recording} sortings={sortings} sortingJobs={sortingJobs} />
                     </Grid>
                 </Grid>
             </Grid>

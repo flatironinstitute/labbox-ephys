@@ -17,13 +17,15 @@ export const theme = (mode) =>
                 lightBlue2: 'rgba(12, 180, 206, 0.05)',
                 grey: '#666666',
                 grey2: 'rgba(0, 0, 0, 0.38)',
+                grey3: 'rgba(0, 0, 0, 0.12)',
                 red: '#FF0C3E',
                 green: '#58B744',
                 lightGreen: 'rgba(88, 183, 68, 0.5)',
                 darkGrey: 'rgba(0, 0, 0, 0.6)',
                 darkWhite: 'rgba(255, 255, 255, 0.7)',
                 purple: '#AB47BC',
-                mainColor: '#0CB4CE'
+                mainColor: '#0CB4CE',
+                orange: '#FF9800'
             }
         }
     });
