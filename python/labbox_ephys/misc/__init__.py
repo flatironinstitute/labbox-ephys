@@ -4,3 +4,4 @@ from .get_sorting_object import get_sorting_object
 from .get_sorting_info import get_sorting_info
 from .calculate_timeseries_info import calculate_timeseries_info
 from .get_timeseries_segment import get_timeseries_segment
+from .get_similar_units import get_similar_units

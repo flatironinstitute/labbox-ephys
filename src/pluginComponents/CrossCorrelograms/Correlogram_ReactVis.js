@@ -1,7 +1,7 @@
 import React from 'react';
 import { XYPlot, XAxis, YAxis, VerticalBarSeries } from 'react-vis';
 
-const Correlogram_rv = (boxSize, plotData, argsObject = {id: 0}, title) => {
+const Correlogram_rv = ({boxSize, plotData, argsObject = {id: 0}, title}) => {
     // plotData will be an array of [x-vals], [y-vals], and x-stepsize.
     // need to convert to an array of objects with x-y pairs.
     // We'll be doing this a LOT, it belongs elsewhere
