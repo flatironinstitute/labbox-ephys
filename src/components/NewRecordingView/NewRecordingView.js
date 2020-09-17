@@ -9,7 +9,16 @@ import { setRecordingInfo } from '../../actions';
 import RecordingHeader from './components/RecordingHeader'
 import RecordingBody from './components/RecordingBody/RecordingBody';
 
-const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
+const NewRecordingView = (props) => {
+    const {
+        recordingId,
+        recording,
+        sortings,
+        sortingJobs,
+        history,
+        documentInfo,
+        onSetRecordingInfo
+    } = props
     const { documentId, feedUri } = documentInfo;
 
     const renderDate = () => {
@@ -52,6 +61,9 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
                     <RecordingHeader
                         recordingId={recordingId}
                         recordingUpdateDate={renderDate()}
+                        documentId={documentId}
+                        feedUri={feedUri}
+                        {...props}
                     />
                 </Grid>
                 <Grid item xs={12}>

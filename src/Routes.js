@@ -59,8 +59,8 @@ const Routes = () => {
             <PrivateRoute
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
-                    <RecordingView recordingId={match.params.recordingId} />
-                    //<NewRecordingView recordingId={match.params.recordingId} />
+                    //<RecordingView recordingId={match.params.recordingId} />
+                    <NewRecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <PrivateRoute
