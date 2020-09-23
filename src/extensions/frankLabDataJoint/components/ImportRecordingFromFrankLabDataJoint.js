@@ -57,7 +57,7 @@ const ImportRecordingFromFrankLabDataJoint = ({ onDone, onAddRecording, frankLab
     if (!validConfig) {
         return (
             <div>
-                You must provide a valid configuration. Use the "CONFIG -> FrankLab DataJoint" page.
+                You must provide a valid configuration. Use the "CONFIG FrankLab DataJoint" page.
             </div>
         )
     }

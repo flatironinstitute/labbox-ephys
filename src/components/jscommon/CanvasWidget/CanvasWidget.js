@@ -164,8 +164,8 @@ export class CanvasWidgetLayer {
     _onRepaintCalled(handler) {
         this._repaintHandlers.push(handler);
     }
-    _callOnPaint(painter) {
-        this._onPaint(painter);
+    _callOnPaint(painter, layerProps) {
+        this._onPaint(painter, layerProps);
     }
 }
 
@@ -228,7 +228,7 @@ export default class CanvasWidget extends Component {
             let painter = new CanvasPainter(ctx, L);
             // painter._initialize(this.props.width, this.props.height);
             painter.clear();
-            L._callOnPaint(painter);
+            L._callOnPaint(painter, this.props.layerProps);
         });
         L.repaint();
     }
