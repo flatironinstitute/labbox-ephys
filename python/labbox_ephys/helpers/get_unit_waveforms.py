@@ -88,6 +88,7 @@ def get_unit_waveforms(
     channel_ids_by_unit,
     snippet_len
 ):
+    print(f'-------------------- DEBUG X.1: num frames in recording = {recording.get_num_frames()}')
     if not isinstance(snippet_len, list) and not isinstance(snippet_len, tuple):
         b = int(snippet_len / 2)
         a = int(snippet_len) - b
