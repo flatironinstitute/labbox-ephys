@@ -88,16 +88,13 @@ def get_unit_waveforms(
     channel_ids_by_unit,
     snippet_len
 ):
-    print(f'-------------------- DEBUG X.1: num frames in recording = {recording.get_num_frames()}')
     if not isinstance(snippet_len, list) and not isinstance(snippet_len, tuple):
         b = int(snippet_len / 2)
         a = int(snippet_len) - b
         snippet_len = [a, b]
 
-    print(f'-------------------- DEBUG B: num frames in recording = {recording.get_num_frames()}')
     num_channels = recording.get_num_channels()
     num_frames = recording.get_num_frames()
-    print(f'-------------------- DEBUG B.2: num frames in recording = {num_frames}')
     num_bytes_per_chunk = 1000 * 1000 * 1000 # ? how to choose this
     num_bytes_per_frame = num_channels * 2
     chunk_size = num_bytes_per_chunk / num_bytes_per_frame
@@ -108,7 +105,6 @@ def get_unit_waveforms(
         padding_size=padding_size
     )
     all_unit_waveforms = [[] for ii in range(len(unit_ids))]
-    print(f'-------------------- DEBUG C: num_frames = {num_frames}')
     for ii, chunk in enumerate(chunks):
         # chunk: {istart, iend, istart_with_padding, iend_with_padding} # include padding
         print(f'Processing chunk {ii + 1} of {len(chunks)}; chunk-range: {chunk["istart_with_padding"]} {chunk["iend_with_padding"]}; num-frames: {num_frames}')

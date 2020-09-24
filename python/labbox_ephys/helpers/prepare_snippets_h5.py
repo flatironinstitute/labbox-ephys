@@ -47,8 +47,6 @@ def prepare_snippets_h5_from_extractors(
         recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=start_frame, end_frame=end_frame)
         sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
 
-    print(f'-------------------- DEBUG A: num frames in recording = {recording.get_num_frames()}')
-
     unit_ids = sorting.get_unit_ids()
     samplerate = sorting.get_sampling_frequency()
     
@@ -56,15 +54,12 @@ def prepare_snippets_h5_from_extractors(
     # for efficiency with long recordings and/or many channels, units or spikes
     # we should submit this to the spiketoolkit project as a PR
     print('Subsampling sorting')
-    print(f'-------------------- DEBUG A.2: num frames in recording = {recording.get_num_frames()}')
     sorting_subsampled = SubsampledSortingExtractor(parent_sorting=sorting, max_events_per_unit=max_events_per_unit, method='random')
     print('Finding unit peak channels')
     peak_channels_by_unit = find_unit_peak_channels(recording=recording, sorting=sorting, unit_ids=unit_ids)
-    print(f'-------------------- DEBUG A.3: num frames in recording = {recording.get_num_frames()}')
     print('Finding unit neighborhoods')
     channel_ids_by_unit = find_unit_neighborhoods(recording=recording, peak_channels_by_unit=peak_channels_by_unit, max_neighborhood_size=max_neighborhood_size)
     print(f'Getting unit waveforms for {len(unit_ids)} units')
-    print(f'-------------------- DEBUG A.4: num frames in recording = {recording.get_num_frames()}')
     unit_waveforms = get_unit_waveforms(
         recording=recording,
         sorting=sorting_subsampled,
