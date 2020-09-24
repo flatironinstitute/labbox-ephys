@@ -22,6 +22,24 @@ def prepare_snippets_h5(
     recording = le.LabboxEphysRecordingExtractor(recording_object)
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
 
+    return prepare_snippets_h5_from_extractors(
+        recording=recording,
+        sorting=sorting,
+        start_frame=start_frame,
+        end_frame=end_frame,
+        max_events_per_unit=max_events_per_unit,
+        max_neighborhood_size=max_neighborhood_size
+    )
+
+def prepare_snippets_h5_from_extractors(
+    recording,
+    sorting,
+    start_frame,
+    end_frame,
+    max_events_per_unit,
+    max_neighborhood_size,
+    use_hard_link_for_output=False
+):
     if start_frame is not None:
         recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=start_frame, end_frame=end_frame)
         sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
@@ -66,4 +84,5 @@ def prepare_snippets_h5(
                 f.create_dataset(f'unit_waveforms/{unit_id}/waveforms', data=unit_waveforms[ii].astype(np.float32))
                 f.create_dataset(f'unit_waveforms/{unit_id}/channel_ids', data=np.array(channel_ids_by_unit[int(unit_id)]).astype(int))
                 f.create_dataset(f'unit_waveforms/{unit_id}/spike_train', data=np.array(sorting_subsampled.get_unit_spike_train(unit_id=unit_id)).astype(np.float64))
-        return ka.store_file(save_path)
+        with ka.config(use_hard_links=use_hard_link_for_output):
+            return ka.store_file(save_path)
