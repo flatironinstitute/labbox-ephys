@@ -47,6 +47,8 @@ def prepare_snippets_h5_from_extractors(
         recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=start_frame, end_frame=end_frame)
         sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
 
+    print(f'-------------------- DEBUG A: num frames in recording = {recording.get_num_frames()}')
+
     unit_ids = sorting.get_unit_ids()
     samplerate = sorting.get_sampling_frequency()
     
