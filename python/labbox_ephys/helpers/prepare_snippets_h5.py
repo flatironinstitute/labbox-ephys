@@ -3,7 +3,6 @@ import hither as hi
 import numpy as np
 import kachery as ka
 import spikeextractors as se
-import spiketoolkit as st
 
 @hi.function('prepare_snippets_h5', '0.2.5')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
@@ -16,30 +15,34 @@ def prepare_snippets_h5(
     max_events_per_unit=1000,
     max_neighborhood_size=15
 ):
-    import h5py
-    from labbox_ephys import get_unit_waveforms, SubsampledSortingExtractor, find_unit_neighborhoods, find_unit_peak_channels
     import labbox_ephys as le
     recording = le.LabboxEphysRecordingExtractor(recording_object)
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
 
-    return prepare_snippets_h5_from_extractors(
-        recording=recording,
-        sorting=sorting,
-        start_frame=start_frame,
-        end_frame=end_frame,
-        max_events_per_unit=max_events_per_unit,
-        max_neighborhood_size=max_neighborhood_size
-    )
+    with hi.TemporaryDirectory() as tmpdir:
+        save_path = tmpdir + '/snippets.h5'
+        prepare_snippets_h5_from_extractors(
+            recording=recording,
+            sorting=sorting,
+            output_h5_path=save_path,
+            start_frame=start_frame,
+            end_frame=end_frame,
+            max_events_per_unit=max_events_per_unit,
+            max_neighborhood_size=max_neighborhood_size
+        )
+        return ka.store_file(save_path)
 
 def prepare_snippets_h5_from_extractors(
-    recording,
-    sorting,
+    recording: se.RecordingExtractor,
+    sorting: se.SortingExtractor,
+    output_h5_path: str,
     start_frame,
     end_frame,
     max_events_per_unit,
-    max_neighborhood_size,
-    use_hard_link_for_output=False
+    max_neighborhood_size
 ):
+    import h5py
+    from labbox_ephys import get_unit_waveforms, SubsampledSortingExtractor, find_unit_neighborhoods, find_unit_peak_channels
     if start_frame is not None:
         recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=start_frame, end_frame=end_frame)
         sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
@@ -73,7 +76,7 @@ def prepare_snippets_h5_from_extractors(
     #     max_spikes_per_unit=500
     # )
     with hi.TemporaryDirectory() as tmpdir:
-        save_path = tmpdir + '/snippets.h5'
+        save_path = output_h5_path
         with h5py.File(save_path, 'w') as f:
             f.create_dataset('unit_ids', data=np.array(unit_ids).astype(np.int32))
             f.create_dataset('sampling_frequency', data=np.array([samplerate]).astype(np.float64))
@@ -84,5 +87,3 @@ def prepare_snippets_h5_from_extractors(
                 f.create_dataset(f'unit_waveforms/{unit_id}/waveforms', data=unit_waveforms[ii].astype(np.float32))
                 f.create_dataset(f'unit_waveforms/{unit_id}/channel_ids', data=np.array(channel_ids_by_unit[int(unit_id)]).astype(int))
                 f.create_dataset(f'unit_waveforms/{unit_id}/spike_train', data=np.array(sorting_subsampled.get_unit_spike_train(unit_id=unit_id)).astype(np.float64))
-        with ka.config(use_hard_links=use_hard_link_for_output):
-            return ka.store_file(save_path)
