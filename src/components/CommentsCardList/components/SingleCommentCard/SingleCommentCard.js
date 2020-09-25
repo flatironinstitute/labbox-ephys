@@ -43,6 +43,19 @@ const SingleCommentCard = (props) => {
     const currentStyle = currentUser === fullname
     const classes = useStyles({ currentStyle });
 
+    const renderActions = () => {
+        return currentStyle
+            ? (
+                <>
+                    <IconButton onClick={() => { }}>
+                        <DeleteIcon className={classes.icon} />
+                    </IconButton>
+                    <IconButton onClick={() => { }}>
+                        <EditIcon className={classes.icon} />
+                    </IconButton>
+                </>
+            ) : null
+    }
     return (
         <Card className={classes.root} elevation={0} >
             <CardHeader
@@ -53,18 +66,7 @@ const SingleCommentCard = (props) => {
                         className={classes.avatar}
                     />
                 }
-                action={currentStyle
-                    ? (
-                        <>
-                            <IconButton onClick={() => { }}>
-                                <DeleteIcon className={classes.icon} />
-                            </IconButton>
-                            <IconButton onClick={() => { }}>
-                                <EditIcon className={classes.icon} />
-                            </IconButton>
-                        </>
-                    ) : null
-                }
+                action={renderActions()}
                 title={fullname}
                 className={classes.title}
                 classes={{
