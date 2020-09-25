@@ -15,3 +15,4 @@ export {default as AmplitudeHistograms} from './AmplitudeHistograms/AmplitudeHis
 export {default as RawSortingView } from './RawView/RawSortingView'
 export {default as ExampleSortingView } from './ExampleSortingView/ExampleSortingView'
 export {default as IndividualUnits} from './IndividualUnits/IndividualUnits'
+export {default as LoadSortingPythonSnippet} from './LoadSortingPythonSnippet/LoadSortingPythonSnippet'

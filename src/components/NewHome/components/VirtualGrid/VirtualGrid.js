@@ -70,11 +70,11 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
     const rows = recordings.map(getRecordingData)
 
     /*need to implement action on single row and on bulk actions*/
-    //rowData on single actions is an object, on bulk actios it is an array of objects
-    const handleDelete = (event, rowData) => {
-        return alert("You want to delete " + rowData.file)
+    //rawData on single actions is an object, on bulk actios it is an array of objects
+    const handleDelete = (event, rawData) => {
+        return alert("You want to delete " + rawData.file)
     }
-    const handleExport = (event, rowData) => alert("You exported " + rowData.file)
+    const handleExport = (event, rawData) => alert("You exported " + rawData.file)
 
     return (
         <MaterialTable
@@ -83,14 +83,14 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     title: 'File',
                     field: 'file',
                     align: 'left',
-                    render: (rowData) => rowData.file
+                    render: (rawData) => rawData.file
                         ? (
                             <Link
                                 title={"View this recording"}
-                                to={`/${documentId}/recording/${rowData.id}${getPathQuery({ feedUri })}`}
+                                to={`/${documentId}/recording/${rawData.id}${getPathQuery({ feedUri })}`}
                                 className={classes.link}
                             >
-                                {rowData.file}
+                                {rawData.file}
                             </Link>
                         )
                         : <LinearProgress />
@@ -100,27 +100,27 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     title: 'Sample Rate (Hz)',
                     field: 'sampleRate',
                     align: 'left',
-                    render: (rowData) => rowData.sampleRate
-                        ? <SampleRate label={rowData.sampleRate} />
+                    render: (rawData) => rawData.sampleRate
+                        ? <SampleRate label={rawData.sampleRate} />
                         : <LinearProgress />
                 },
                 {
                     title: 'Duration (sec)',
                     field: 'duration',
                     align: 'left',
-                    render: (rowData) => rowData.duration
-                        ? rowData.duration
+                    render: (rawData) => rawData.duration
+                        ? rawData.duration
                         : <LinearProgress />
                 },
                 { title: 'Status', field: 'status', align: 'left' },
                 {
                     title: 'Sorting',
                     field: 'sorting',
-                    render: (rowData) =>
-                        !rowData.sampleRate
+                    render: (rawData) =>
+                        !rawData.sampleRate
                             ? <LinearProgress />
-                            : rowData.sampleRate >= 30000
-                                ? <SpikeSortingButton rowData={rowData} />
+                            : rawData.sampleRate >= 30000
+                                ? <SpikeSortingButton rawData={rawData} />
                                 : null
                     ,
                     align: 'center'
@@ -129,12 +129,12 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     title: 'Actions',
                     field: 'actions',
                     align: 'center',
-                    render: (rowData) => {
+                    render: (rawData) => {
                         return <GridActions
                             className={classes.button}
                             handleDelete={onDeleteRecordings}
                             handleExport={handleExport}
-                            rowData={rowData}
+                            rawData={rawData}
                         />
                     }
                 }
@@ -157,7 +157,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                 actionsColumnIndex: -1,
                 selection: true,
                 sorting: true,
-                selectionProps: rowData => ({
+                selectionProps: rawData => ({
                     color: 'primary'
                 }),
                 maxBodyHeight: 580,

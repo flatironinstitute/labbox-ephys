@@ -1,5 +1,7 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 import { Typography, Button, Grid } from '@material-ui/core'
+import { getPathQuery } from '../../../../kachery';
 import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const RecordingHeader = ({ recordingId, recordingUpdateDate }) => {
+const RecordingHeader = (props) => {
+    const { recordingId, recordingUpdateDate, documentId, feedUri } = props
     const classes = useStyles()
     return (
         <Grid container justify="space-between" alignItems="center">
@@ -44,7 +47,12 @@ const RecordingHeader = ({ recordingId, recordingUpdateDate }) => {
                 <Typography className={classes.titleId}>RecordingID: {recordingId}</Typography>
             </Grid>
             <Grid item>
-                <Button variant='contained' className={classes.button}>
+                <Button
+                    component={Link}
+                    variant='contained'
+                    className={classes.button}
+                    to={`/${documentId}/timeseriesForRecording/${recordingId}${getPathQuery({ feedUri })}`}
+                >
                     <Typography>
                         View Time Series
                     </Typography>
@@ -61,7 +69,7 @@ const RecordingHeader = ({ recordingId, recordingUpdateDate }) => {
                 </Button>
                 <Button variant='contained' className={classes.button}>
                     <Typography>
-                        Download Row Data
+                        Download Raw Data
                     </Typography>
                 </Button>
             </Grid>

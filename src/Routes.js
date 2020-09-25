@@ -1,7 +1,7 @@
 import React from 'react'
 import { Switch, Route, Redirect } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
-// import RecordingView from "./containers/RecordingView";
+import RecordingView from "./containers/RecordingView";
 import NewRecordingView from "./components/NewRecordingView";
 import SortingJobView from "./containers/SortingJobView";
 import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
@@ -12,6 +12,7 @@ import About from "./components/About";
 import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
 import SortingView from './containers/SortingView';
+import SortingUnitView from './containers/SortingUnitView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
 import HomeDBC from './components/HomeDBC';
 import NewHome from './components/NewHome'
@@ -58,7 +59,7 @@ const Routes = () => {
             <PrivateRoute
                 path="/:documentId/recording/:recordingId*"
                 render={({ match }) => (
-                    // <RecordingView recordingId={match.params.recordingId} />
+                    //<RecordingView recordingId={match.params.recordingId} />
                     <NewRecordingView recordingId={match.params.recordingId} />
                 )}
             />
@@ -69,6 +70,12 @@ const Routes = () => {
                 )}
             />
             <PrivateRoute
+                path="/:documentId/sortingUnit/:sortingId/:unitId"
+                render={({ match }) => (
+                    <SortingUnitView sortingId={match.params.sortingId} unitId={parseInt(match.params.unitId)} />
+                )}
+            />
+            <Route
                 path="/:documentId/timeseriesForRecording/:recordingId*"
                 render={({ match }) => (
                     <TimeseriesForRecordingView recordingId={match.params.recordingId} />
@@ -95,7 +102,7 @@ const Routes = () => {
             <PrivateRoute
                 path="/:documentId"
                 render={({ match }) => (
-                    // <Home />
+                    //<Home />
                     <NewHome />
                 )}
             />

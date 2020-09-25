@@ -4,10 +4,10 @@ import numpy as np
 import kachery as ka
 import spikeextractors as se
 import spiketoolkit as st
-from labbox_ephys import prepare_snippets_h5
 
 @hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
+    from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition2')
     jc = labbox.get_default_job_cache()
     with hi.Config(
