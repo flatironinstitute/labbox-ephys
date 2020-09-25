@@ -31,6 +31,8 @@ interface Brush {
 //     return true;
 // }
 
+type Rect = [number, number, number, number];
+
 class CanvasPainter {
     #pen: Pen = { color: 'black' }
     #font: Font = { "pixel-size": 12, family: 'Arial' }
@@ -111,6 +113,10 @@ class CanvasPainter {
             let tmp = dx;
             dx = tmp[0];
             dy = tmp[1];
+            this.#context2D.translate(dx, dy);
+        }
+        if (typeof dx === 'object') {
+            throw Error('Bad signature: dx object and dy not undef: ctxTranslate')
         }
         this.#context2D.translate(dx, dy);
     }
@@ -129,11 +135,11 @@ class CanvasPainter {
         if (typeof x !== 'number') {
             throw Error('unexpected');
         }
-        const margins = canvasLayer.margins();
-        const xr = canvasLayer.coordXRange();
-        const yr = canvasLayer.coordYRange();
-        let W = canvasLayer.width() - margins[0] - margins[1];
-        let H = canvasLayer.height() - margins[2] - margins[3];
+        const margins = this.#canvasLayer.margins();
+        const xr = this.#canvasLayer.coordXRange();
+        const yr = this.#canvasLayer.coordYRange();
+        let W = this.#canvasLayer.width() - margins[0] - margins[1];
+        let H = this.#canvasLayer.height() - margins[2] - margins[3];
         // const xextent = xr[1] - xr[0];
         // const yextent = yr[1] - yr[0];
         // if (canvasLayer.preserveAspectRatio()) {
@@ -161,17 +167,17 @@ class CanvasPainter {
             H = a[3];
         }
         if ((typeof x === 'number') && (typeof y === 'number') && (typeof W === 'number') && (typeof H === 'number') && (brush)) {
-            let a = transformXYWH(x, y, W, H);
+            let a = this.transformXYWH(x, y, W, H);
             return _fillRect(a[0], a[1], a[2], a[3], brush);
         }
     }
     // fillRect = function (x, y, W, H, brush) {
         
     // }
-    transformRect(rect: [number, number, number, number]): [number, number, number, number] {
-        return transformXYWH(rect[0], rect[1], rect[2], rect[3]);
+    transformRect(rect: Rect): Rect {
+        return this.transformXYWH(rect[0], rect[1], rect[2], rect[3]);
     }
-    transformXYWH(x: number, y: number, W: number, H: number) {
+    transformXYWH(x: number, y: number, W: number, H: number): Rect {
         let pt1 = this.transformXY(x, y);
         let pt2 = this.transformXY(x + W, y + H);
         return [Math.min(pt1[0], pt2[0]), Math.min(pt1[1], pt2[1]), Math.abs(pt2[0] - pt1[0]), Math.abs(pt2[1] - pt1[1])];
