@@ -4,6 +4,7 @@ import InfoPanelItem from '../InfoPanelItem/InfoPanelItem'
 import CardContainer from '../../../CardContainer'
 import TagsContainer from '../../../TagsContainer'
 import { makeStyles } from '@material-ui/core/styles'
+import ListContainer from '../../../ListContainer'
 
 const useStyles = makeStyles(() => ({
     gridRoot: {
@@ -67,7 +68,7 @@ const RecordingInfoPanel = ({ recording }) => {
             </Grid>
             <Grid item >
                 <InfoPanelItem title={'Publications'}>
-                    <div>publication container</div>
+                    <ListContainer />
                 </InfoPanelItem>
             </Grid>
 

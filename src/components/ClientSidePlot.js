@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { sleep } from '../actions';
 import { createHitherJob } from '../hither';
 import { Box, CircularProgress } from '@material-ui/core';
 import VisibilitySensor from 'react-visibility-sensor';
-import { sleepMsec } from '../hither/createHitherJob';
 
 const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, jobHandlerName, requiredFiles,
     calculationPool,
@@ -106,7 +104,7 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHi
         );
     } else if (calculationStatus === 'finished') {
         // TODO: Follow-up on distinction b/w this and <PlotComponent arg1={} arg2={} ... />
-        return plotComponent(boxSize, plotData, plotComponentArgs, title);
+        return plotComponent({boxSize, plotData, argsObject: plotComponentArgs, title});
     } else {
         return (
             <div>Unexpected calculation status: {calculationStatus}</div>

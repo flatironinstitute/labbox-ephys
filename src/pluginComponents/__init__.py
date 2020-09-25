@@ -6,6 +6,7 @@ from .AutoCorrelograms.genplot_autocorrelogram import fetch_correlogram_plot_dat
 from .Units.units import get_firing_data, get_structure
 from .Units.metricPlugins.isi_violations import get_isi_violation_rates
 from .Units.metricPlugins.unit_snrs import get_unit_snrs
+from .Units.metricPlugins.peak_channels import get_peak_channels
 
 from .AverageWaveforms.genplot_average_waveform import fetch_average_waveform_plot_data
 

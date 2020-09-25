@@ -22,7 +22,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
+const NewRecordingView = (props) => {
+    const {
+        recordingId,
+        recording,
+        sortings,
+        sortingJobs,
+        history,
+        documentInfo,
+        onSetRecordingInfo
+    } = props
     const { documentId, feedUri } = documentInfo;
     const classes = useStyles();
 

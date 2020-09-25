@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const EditDrawer = ({ open, toggleDrawer, handleDelete, rowData }) => {
+const EditDrawer = ({ open, toggleDrawer, handleDelete, rawData }) => {
     const classes = useStyles();
 
     const onDelete = () => {
@@ -105,7 +105,7 @@ const EditDrawer = ({ open, toggleDrawer, handleDelete, rowData }) => {
                 className={classes.body}
             >
                 <TextField
-                    value={rowData.file}
+                    value={rawData.file}
                     fullWidth
                     id="file-name"
                     label="File"
@@ -122,7 +122,7 @@ const EditDrawer = ({ open, toggleDrawer, handleDelete, rowData }) => {
                     className={classes.field}
                 />
                 <TextField
-                    value={rowData.sampleRate}
+                    value={rawData.sampleRate}
                     fullWidth
                     id="samplerate"
                     label="Sample Rate"
@@ -131,7 +131,7 @@ const EditDrawer = ({ open, toggleDrawer, handleDelete, rowData }) => {
                     className={classes.field}
                 />
                 <TextField
-                    value={rowData.duration}
+                    value={rawData.duration}
                     fullWidth
                     id="duration"
                     label="Duration (sec)"
