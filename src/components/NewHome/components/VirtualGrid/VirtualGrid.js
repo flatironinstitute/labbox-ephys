@@ -156,6 +156,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
             options={{
                 actionsColumnIndex: -1,
                 selection: true,
+                sorting: true,
                 selectionProps: rawData => ({
                     color: 'primary'
                 }),
