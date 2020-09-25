@@ -7,7 +7,6 @@ const useStyles = makeStyles((theme) => ({
     root: {
         minHeight: 200,
         maxHeight: 200,
-        minWidth: 375,
         marginBottom: 20
     },
     grid: {
@@ -42,18 +41,6 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const chip = [
-    { key: 0, label: 'Hippocampus' },
-    { key: 1, label: 'Ripples' },
-    { key: 2, label: 'Theta' },
-    { key: 3, label: 'Linear maize' },
-    { key: 4, label: 'Place fields' },
-    { key: 5, label: 'Hippo' },
-    { key: 6, label: 'Theta' },
-    { key: 7, label: 'Optogenetics' },
-    { key: 8, label: 'Place fields' }
-]
-
 const TagsContainer = () => {
     const classes = useStyles();
     const [chipData, setChipData] = React.useState([])
@@ -71,7 +58,7 @@ const TagsContainer = () => {
             ])
         }
     }
-    
+
     return (
         <div className={classes.root}>
             <Grid
