@@ -69,7 +69,7 @@ const RecordingHeader = (props) => {
                 </Button>
                 <Button variant='contained' className={classes.button}>
                     <Typography>
-                        Download Row Data
+                        Download Raw Data
                     </Typography>
                 </Button>
             </Grid>
