@@ -16,26 +16,24 @@ recording_object = dict(
         channel_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     )
 )
-print(json.dumps(recording_object, indent=4))
 
 # jc = hi.JobCache(use_tempdir=True)
 jc = None
-jh = hi.RemoteJobHandler(
+with hi.RemoteJobHandler(
+    # substitute your own compute resource URI here
     compute_resource_uri='feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1'
     # compute_resource_uri='feed://644c145d5f6088623ee59f3437655e185657a6d9a9676294f26ae504423565fa?name=lke9849-12258-5f50fc6bb944 '
-)
-
-with hi.Config(
-    container=True,
-    job_cache=jc,
-    job_handler=jh,
-    required_files=recording_object
-):
-    x = le.sorters.mountainsort4.run(
-        recording_object=recording_object
-    ).wait()
-    sorting_object = x['sorting_object']
-
+) as jh:
+    with hi.Config(
+        container=True,
+        job_cache=jc,
+        job_handler=jh,
+        required_files=recording_object
+    ):
+        x = le.sorters.mountainsort4.run(
+            recording_object=recording_object
+        ).wait()
+        sorting_object = x['sorting_object']
 
 le_recordings = []
 le_sortings = []

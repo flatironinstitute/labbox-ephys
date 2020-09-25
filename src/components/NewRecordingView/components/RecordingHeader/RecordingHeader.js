@@ -1,5 +1,7 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 import { Typography, Button, Grid } from '@material-ui/core'
+import { getPathQuery } from '../../../../kachery';
 import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
@@ -33,7 +35,8 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const RecordingHeader = ({ recordingId, recordingUpdateDate }) => {
+const RecordingHeader = (props) => {
+    const { recordingId, recordingUpdateDate, documentId, feedUri } = props
     const classes = useStyles()
     return (
         <>

@@ -79,7 +79,6 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
                                     plotComponent={Correlogram_rv}
                                     plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
                                     useJobCache={true}
-                                    jobHandlerName="partition1"
                                     requiredFiles={sorting.sortingObject}
                                     calculationPool={crossCorrelogramsCalculationPool}
                                 />

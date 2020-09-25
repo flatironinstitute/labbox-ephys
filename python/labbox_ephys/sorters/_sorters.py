@@ -29,9 +29,6 @@ def mountainsort4b(
     import spikesorters as ss
     import labbox_ephys as le
 
-    print('---------------------------------------------------------------------------------------')
-    print(recording_object)
-    print('---------------------------------------------------------------------------------------')
     recording = le.LabboxEphysRecordingExtractor(recording_object)
 
     # for quick testing

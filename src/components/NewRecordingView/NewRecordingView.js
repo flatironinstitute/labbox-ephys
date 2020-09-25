@@ -21,7 +21,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
+const NewRecordingView = (props) => {
+    const {
+        recordingId,
+        recording,
+        sortings,
+        sortingJobs,
+        history,
+        documentInfo,
+        onSetRecordingInfo
+    } = props
     const { documentId, feedUri } = documentInfo;
     const classes = useStyles();
 
@@ -61,7 +70,7 @@ const NewRecordingView = ({ recordingId, recording, sortings, sortingJobs, histo
     return (
         <Grid container className={classes.container}>
             <Grid item xs={9}>
-                <Grid container spacing={5}>
+                <Grid container>
                     <Grid item xs={12}>
                         <RecordingHeader
                             recordingId={recordingId}
