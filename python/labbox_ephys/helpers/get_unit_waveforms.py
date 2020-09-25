@@ -107,7 +107,7 @@ def get_unit_waveforms(
     all_unit_waveforms = [[] for ii in range(len(unit_ids))]
     for ii, chunk in enumerate(chunks):
         # chunk: {istart, iend, istart_with_padding, iend_with_padding} # include padding
-        print(f'Processing chunk {ii + 1} of {len(chunks)}')
+        print(f'Processing chunk {ii + 1} of {len(chunks)}; chunk-range: {chunk["istart_with_padding"]} {chunk["iend_with_padding"]}; num-frames: {num_frames}')
         recording_chunk = se.SubRecordingExtractor(
             parent_recording=recording,
             start_frame=chunk['istart_with_padding'],
