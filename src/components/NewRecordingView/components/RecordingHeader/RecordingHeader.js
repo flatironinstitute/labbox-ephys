@@ -11,9 +11,6 @@ const useStyles = makeStyles((theme) => ({
             ? theme.palette.colors.white
             : theme.palette.colors.lightBlue
     },
-    container: {
-        direction: 'row'
-    },
     button: {
         padding: '5px 20px',
         marginRight: theme.spacing(3),
@@ -42,41 +39,35 @@ const RecordingHeader = (props) => {
     const { recordingId, recordingUpdateDate, documentId, feedUri } = props
     const classes = useStyles()
     return (
-        <Grid container justify="space-between" alignItems="center">
-            <Grid item>
-                <Typography className={classes.titleId}>RecordingID: {recordingId}</Typography>
-            </Grid>
-            <Grid item>
-                <Button
-                    component={Link}
-                    variant='contained'
-                    className={classes.button}
-                    to={`/${documentId}/timeseriesForRecording/${recordingId}${getPathQuery({ feedUri })}`}
-                >
-                    <Typography>
+        <>
+            <Grid container justify="space-between" alignItems="center" wrap="nowrap" >
+                <Typography noWrap className={classes.titleId}>RecordingID: {recordingId}</Typography>
+                <div style={{ flexGrow: 1 }} />
+                <Button variant='contained' className={classes.button}>
+                    <Typography noWrap>
                         View Time Series
                     </Typography>
                 </Button>
+
                 <Button variant='contained' className={classes.button}>
-                    <Typography>
+                    <Typography noWrap>
                         Run Spikesorting
                     </Typography>
                 </Button>
                 <Button variant='contained' className={classes.button}>
-                    <Typography>
+                    <Typography noWrap>
                         Import Sorting
                     </Typography>
                 </Button>
                 <Button variant='contained' className={classes.button}>
-                    <Typography>
-                        Download Raw Data
+                    <Typography noWrap>
+                        Download Row Data
                     </Typography>
                 </Button>
+
             </Grid>
-            <Grid item>
-                <Typography className={classes.date}>{`Acquisition date: ${recordingUpdateDate}`}</Typography>
-            </Grid>
-        </Grid>
+            <Typography className={classes.date}>{`Acquisition date: ${recordingUpdateDate}`}</Typography>
+        </>
     )
 }
 
