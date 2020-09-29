@@ -14,7 +14,9 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: 'transparent',
     },
     icon: {
-        color: theme.palette.colors.grey2,
+        color: theme.palette.type === 'dark'
+            ? theme.palette.colors.white
+            : theme.palette.colors.grey2,
         fontSize: 18
     },
     avatar: ({ currentStyle }) => ({
