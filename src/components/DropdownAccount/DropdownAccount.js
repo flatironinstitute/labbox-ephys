@@ -32,7 +32,7 @@ const DropdownAccount = () => {
 
     return (
         <>
-            <PrivateLink onClick={e => e.preventDefault()} to="/">
+            <PrivateLink preventDefault to="/">
                 <IconButton onClick={handleClick}>
                     <PersonIcon className={classes.icon} />
                 </IconButton>
