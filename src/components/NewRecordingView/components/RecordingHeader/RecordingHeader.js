@@ -43,7 +43,12 @@ const RecordingHeader = (props) => {
             <Grid container justify="space-between" alignItems="center" wrap="nowrap" >
                 <Typography noWrap className={classes.titleId}>RecordingID: {recordingId}</Typography>
                 <div style={{ flexGrow: 1 }} />
-                <Button variant='contained' className={classes.button}>
+                <Button
+                    component={Link}
+                    to={`/${documentId}/timeseriesForRecording/${recordingId}${getPathQuery({ feedUri })}`}
+                    variant='contained'
+                    className={classes.button}
+                >
                     <Typography noWrap>
                         View Time Series
                     </Typography>
