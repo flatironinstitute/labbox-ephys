@@ -9,7 +9,8 @@ import ListContainer from '../../../ListContainer'
 const useStyles = makeStyles(() => ({
     gridRoot: {
         minHeight: 700,
-        bottom: 0
+        bottom: 0,
+        width: '100%'
     }
 }))
 
@@ -66,7 +67,7 @@ const RecordingInfoPanel = ({ recording }) => {
                     <TagsContainer />
                 </InfoPanelItem>
             </Grid>
-            <Grid item >
+            <Grid item style={{ width: '100%' }}>
                 <InfoPanelItem title={'Publications'}>
                     <ListContainer />
                 </InfoPanelItem>
