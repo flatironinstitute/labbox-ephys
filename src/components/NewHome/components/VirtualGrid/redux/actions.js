@@ -1,0 +1,1 @@
+export const UPDATE_PAGE_SIZE = 'UPDATE_PAGE_SIZE'
