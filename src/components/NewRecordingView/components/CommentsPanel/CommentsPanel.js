@@ -40,6 +40,13 @@ const useStyles = makeStyles((theme) => ({
         paddingTop: 65,
         backgroundColor: 'transparent',
         boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.14), 0px 4px 5px rgba(0, 0, 0, 0.12), 0px 1px 10px rgba(0, 0, 0, 0.2)',
+    },
+    addComment: {
+        backgroundColor: theme.palette.colors.white,
+        '&::placeholder': {
+            color: theme.palette.colors.grey,
+            fontSize: 14
+        }
     }
 }));
 
@@ -78,6 +85,11 @@ const CommentsPanel = () => {
                         placeholder='Add new Comment'
                         variant="outlined"
                         fullWidth
+                        InputProps={{
+                            classes: {
+                                input: classes.addComment
+                            }
+                        }}
                     />
                 </Grid>
             </Grid>
