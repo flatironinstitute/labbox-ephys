@@ -12,6 +12,7 @@ import GridActions from './components/GridActions/GridActions';
 import SampleRate from './components/SampleRate/SampleRate';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../../../kachery';
+import { updatePageSize } from './redux/actionCreators'
 
 const useStyles = makeStyles((theme) => ({
     progress: {
@@ -62,7 +63,7 @@ function getRecordingData(row) {
     }
 }
 
-const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
+const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo, virtualGridState, updatePageSize }) => {
     const { documentId, feedUri } = documentInfo
     const theme = useTheme()
     const darkMode = theme.palette.type === 'dark'
@@ -161,22 +162,26 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     color: 'primary'
                 }),
                 maxBodyHeight: 580,
-                emptyRowsWhenPaging: false
+                emptyRowsWhenPaging: false,
+                pageSize: virtualGridState.pageSize
             }}
             data={rows}
             title="Recording Database"
+            onChangeRowsPerPage={page => updatePageSize(page)}
         />
     )
 }
 
 const mapStateToProps = state => ({
     recordings: state.recordings,
-    documentInfo: state.documentInfo
+    documentInfo: state.documentInfo,
+    virtualGridState: state.virtualGridState
 })
 
 const mapDispatchToProps = dispatch => ({
     onDeleteRecordings: recordingIds => dispatch(deleteRecordings(recordingIds)),
-    onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
+    onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo })),
+    updatePageSize: (page) => dispatch(updatePageSize(page))
 })
 
 export default connect(
