@@ -1,7 +1,7 @@
 import React from 'react'
 import { Switch, Route, Redirect } from "react-router-dom";
 import ImportSortings from "./containers/ImportSortings";
-import RecordingView from "./containers/RecordingView";
+// import RecordingView from "./containers/RecordingView";
 import NewRecordingView from "./components/NewRecordingView";
 import SortingJobView from "./containers/SortingJobView";
 import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
@@ -10,7 +10,8 @@ import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecordin
 // import Home from "./components/Home";
 import About from "./components/About";
 import Prototypes from './components/Prototypes';
-import Config from './containers/Config';
+// import Config from './containers/Config';
+import ConfigurationPage from './components/ConfigurationPage'
 import SortingView from './containers/SortingView';
 import SortingUnitView from './containers/SortingUnitView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
@@ -35,7 +36,8 @@ const Routes = () => {
             <PrivateRoute
                 path="/:documentId/config"
                 render={({ match }) => (
-                    <Config />
+                    //<Config />
+                    <ConfigurationPage />
                 )}
             />
             <PrivateRoute
