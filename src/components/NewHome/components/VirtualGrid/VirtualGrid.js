@@ -162,7 +162,7 @@ const VirtualGrid = ({ recordings, onDeleteRecordings, onSetRecordingInfo, docum
                     color: 'primary'
                 }),
                 maxBodyHeight: 580,
-                minBodyHeight: 580,
+                emptyRowsWhenPaging: false,
                 pageSize: virtualGridState.pageSize
             }}
             data={rows}
