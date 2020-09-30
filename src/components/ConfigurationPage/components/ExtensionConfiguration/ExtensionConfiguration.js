@@ -17,7 +17,18 @@ const useStyles = makeStyles((theme) => ({
     },
     label: {
         minWidth: 200
-    }
+    },
+    switchBase: {
+        // color: purple[300],
+        '&$checked': {
+            color: theme.palette.colors.mainColor,
+        },
+        '&$checked + $track': {
+            backgroundColor: theme.palette.colors.mainColor,
+        },
+    },
+    checked: {},
+    track: {},
 }))
 
 
@@ -38,7 +49,11 @@ const ExtensionConfiguration = ({ extensionsConfig, onSetExtensionEnabled }) => 
                         checked={extensionsConfig.enabled.development}
                         onChange={handleChange}
                         name="development"
-                        color="primary"
+                        classes={{
+                            switchBase: classes.switchBase,
+                            track: classes.track,
+                            checked: classes.checked,
+                        }}
                     />
                 }
                 labelPlacement="start"
@@ -54,7 +69,11 @@ const ExtensionConfiguration = ({ extensionsConfig, onSetExtensionEnabled }) => 
                         checked={extensionsConfig.enabled.frankLabDataJoint}
                         onChange={handleChange}
                         name="frankLabDataJoint"
-                        color="primary"
+                        classes={{
+                            switchBase: classes.switchBase,
+                            track: classes.track,
+                            checked: classes.checked,
+                        }}
                     />
                 }
                 labelPlacement="start"

@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
         padding: 50
     },
     input: {
-        backgroundColor: theme.palette.colors.white,
         '&::placeholder': {
             color: theme.palette.colors.grey,
             fontSize: 14
@@ -29,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
         paddingBottom: 36
     },
     button: {
+        backgroundColor: theme.palette.colors.mainColor,
         display: 'flex',
         color: theme.palette.colors.white,
         padding: '10px 100px',
@@ -132,7 +132,6 @@ const RightContainer = ({
                 />
             </div>
             <Button
-                color="primary"
                 variant='contained'
                 disabled={!somethingChanged && !isValidPort()}
                 onClick={handleSubmit}
