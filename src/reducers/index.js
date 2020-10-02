@@ -12,6 +12,7 @@ import serverInfo from './serverInfo'
 import extensionsConfig from '../extensions/reducers'
 import darkMode from './darkMode'
 import loginReducer from './loginReducer'
+import virtualGridState from '../components/NewHome/components/VirtualGrid/redux/reducer'
 
 export default combineReducers({
     databaseConfig,
@@ -26,5 +27,6 @@ export default combineReducers({
     extensionsConfig,
     documentInfo,
     darkMode,
-    login: loginReducer
+    login: loginReducer,
+    virtualGridState
 })
