@@ -1,8 +1,10 @@
-from typing import Dict
+from typing import Dict, Union
+
 import hither as hi
-import numpy as np
 import kachery as ka
+import numpy as np
 import spikeextractors as se
+
 
 @hi.function('prepare_snippets_h5', '0.2.5')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
@@ -38,11 +40,14 @@ def prepare_snippets_h5_from_extractors(
     output_h5_path: str,
     start_frame,
     end_frame,
-    max_events_per_unit,
-    max_neighborhood_size
+    max_neighborhood_size: int,
+    max_events_per_unit: Union[None, int]=None,
+    snippet_len=(50, 80)
 ):
     import h5py
-    from labbox_ephys import get_unit_waveforms, SubsampledSortingExtractor, find_unit_neighborhoods, find_unit_peak_channels
+    from labbox_ephys import (SubsampledSortingExtractor,
+                              find_unit_neighborhoods, find_unit_peak_channels,
+                              get_unit_waveforms)
     if start_frame is not None:
         recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=start_frame, end_frame=end_frame)
         sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
@@ -54,7 +59,10 @@ def prepare_snippets_h5_from_extractors(
     # for efficiency with long recordings and/or many channels, units or spikes
     # we should submit this to the spiketoolkit project as a PR
     print('Subsampling sorting')
-    sorting_subsampled = SubsampledSortingExtractor(parent_sorting=sorting, max_events_per_unit=max_events_per_unit, method='random')
+    if max_events_per_unit is not None:
+        sorting_subsampled = SubsampledSortingExtractor(parent_sorting=sorting, max_events_per_unit=max_events_per_unit, method='random')
+    else:
+        sorting_subsampled = sorting
     print('Finding unit peak channels')
     peak_channels_by_unit = find_unit_peak_channels(recording=recording, sorting=sorting, unit_ids=unit_ids)
     print('Finding unit neighborhoods')
@@ -65,7 +73,7 @@ def prepare_snippets_h5_from_extractors(
         sorting=sorting_subsampled,
         unit_ids=unit_ids,
         channel_ids_by_unit=channel_ids_by_unit,
-        snippet_len=(50, 80)
+        snippet_len=snippet_len
     )
     # unit_waveforms = st.postprocessing.get_unit_waveforms(
     #     recording=recording,
