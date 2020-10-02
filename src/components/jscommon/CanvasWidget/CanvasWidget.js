@@ -103,7 +103,7 @@ export class CanvasWidgetLayer {
                 newXSpan = W * ySpan / H;
             }
             let mid = (this._coordXRange[0] + this._coordXRange[1]) / 2;
-            return [mid - newXSpan / 2, mid + newXSpan/2];
+            return [mid - newXSpan / 2, mid + newXSpan / 2];
         }
     }
     coordYRange() {
@@ -124,7 +124,7 @@ export class CanvasWidgetLayer {
                 // newXSpan = W * ySpan / H;
             }
             let mid = (this._coordYRange[0] + this._coordYRange[1]) / 2;
-            return [mid - newYSpan / 2, mid + newYSpan/2];
+            return [mid - newYSpan / 2, mid + newYSpan / 2];
         }
     }
     setCoordXRange(min, max) {
@@ -276,7 +276,7 @@ export default class CanvasWidget extends Component {
     // _exportSvg = () => {
     //     //Create a new mock canvas context. Pass in your desired width and height for your svg document.
     //     var ctx = new C2S(this.props.width, this.props.height);
-        
+
     //     for (let L of this.props.layers) {
     //         let painter = new CanvasPainter(ctx, L);
     //         painter.setExportingFigure(true);
@@ -287,7 +287,7 @@ export default class CanvasWidget extends Component {
     //     // ctx.fillStyle="red";
     //     // ctx.fillRect(100,100,100,100);
     //     // //etc...
-        
+
     //     //serialize your SVG
     //     var mySerializedSVG = ctx.getSerializedSvg(); //true here, if you need to convert named to numbered entities.
     //     downloadTextAsFile(mySerializedSVG, 'fig.svg');
@@ -313,15 +313,15 @@ export default class CanvasWidget extends Component {
         return (
             <div
                 style={style0}
-                onKeyDown={(evt) => {this.props.onKeyPress && this.props.onKeyPress(evt);}}
+                onKeyDown={(evt) => { this.props.onKeyPress && this.props.onKeyPress(evt); }}
                 tabIndex={0} // tabindex needed to handle keypress
-                
+
             >
                 {
                     this.props.layers.map((L, index) => (
                         <canvas
                             key={index}
-                            style={{position: 'absolute', left: 0, top: 0}}
+                            style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' }}
                             ref={L.ref()}
                             width={this.props.width}
                             height={this.props.height}
@@ -341,7 +341,7 @@ export default class CanvasWidget extends Component {
                         />
                     ) : <span />
                 } */}
-                
+
             </div>
         );
     }
@@ -369,19 +369,19 @@ export default class CanvasWidget extends Component {
 //             anchorEl: event.currentTarget
 //         });
 //     };
-    
+
 //     _handleClose = () => {
 //         this.setState({
 //             anchorEl: null
 //         });
 //     };
-  
+
 //     _handleMouseEnter = () => {
 //         this.setState({
 //             hovered: true
 //         });
 //     }
-  
+
 //     _handleMouseLeave = () => {
 //         this.setState({
 //             hovered: false
@@ -422,12 +422,12 @@ export default class CanvasWidget extends Component {
 // }
 
 // function SimpleMenu(props) {
-    
-//     let hovered = false;
-  
-    
 
-    
+//     let hovered = false;
+
+
+
+
 //   }
 
 // function clone(obj) {

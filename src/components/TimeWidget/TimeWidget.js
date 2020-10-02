@@ -14,7 +14,7 @@ export default class TimeWidget extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            bottomBarInfo: {show: true},
+            bottomBarInfo: { show: true },
             spanWidgetInfo: {}
         };
 
@@ -44,10 +44,10 @@ export default class TimeWidget extends Component {
         this._cursorLayer.setMargins(50, 10, 15, 50);
     }
     componentDidMount() {
-        this.props.registerRepainter && this.props.registerRepainter(() => {this._mainLayer.repaint()});
+        this.props.registerRepainter && this.props.registerRepainter(() => { this._mainLayer.repaint() });
         this._updateInfo();
         if (this.props.currentTime !== undefined) {
-            this._currentTime = this.props.currentTime;            
+            this._currentTime = this.props.currentTime;
         }
         if (this.props.timeRange) {
             this.setTimeRange(this.props.timeRange);
@@ -72,7 +72,7 @@ export default class TimeWidget extends Component {
         this._mainLayer.setCoordXRange(0, 1);
         this._mainLayer.setCoordYRange(0, 1);
         this._mainLayer.setMargins(50, 10, 15, 50);
-        painter.setPen({color: 'gray'});
+        painter.setPen({ color: 'gray' });
         painter.drawLine(0, 0, 0, 1);
         painter.drawLine(1, 0, 1, 1);
         painter.drawLine(0, 1, 1, 1);
@@ -141,7 +141,7 @@ export default class TimeWidget extends Component {
 
         if (this._currentTime !== null) {
             if ((this._timeRange[0] <= this._currentTime) && (this._currentTime <= this._timeRange[1])) {
-                painter.setPen({width:2, color: 'blue'});
+                painter.setPen({ width: 2, color: 'blue' });
                 painter.drawLine(this._currentTime, 0, this._currentTime, 1);
             }
         }
@@ -149,11 +149,11 @@ export default class TimeWidget extends Component {
     paintTimeAxisLayer = (painter) => {
         let W = this._timeAxisLayer.width();
         let H = this._timeAxisLayer.height();
-        this._timeAxisLayer.setMargins(50, 10, H-50, 0);
+        this._timeAxisLayer.setMargins(50, 10, H - 50, 0);
         this._timeAxisLayer.setCoordXRange(this._timeRange[0], this._timeRange[1]);
         this._timeAxisLayer.setCoordYRange(0, 1);
         painter.useCoords();
-        painter.setPen({color: 'rgb(22, 22, 22)'});
+        painter.setPen({ color: 'rgb(22, 22, 22)' });
         painter.drawLine(this._timeRange[0], 1, this._timeRange[1], 1);
         let samplerate = this.props.samplerate;
         let ticks = get_ticks(this._timeRange[0], this._timeRange[1], W, samplerate);
@@ -161,12 +161,13 @@ export default class TimeWidget extends Component {
             if (!tick.scale_info) {
                 painter.drawLine(tick.t, 1, tick.t, 1 - tick.height);
             }
-            else {                let info = tick;
+            else {
+                let info = tick;
                 painter.drawLine(info.t1, 0.45, info.t2, 0.45);
                 painter.drawLine(info.t1, 0.45, info.t1, 0.5);
                 painter.drawLine(info.t2, 0.45, info.t2, 0.5);
                 let rect = [info.t1, 0, info.t2 - info.t1, 0.35];
-                let alignment = {AlignTop: true, AlignCenter: true};
+                let alignment = { AlignTop: true, AlignCenter: true };
                 painter.drawText(rect, alignment, info.label + '');
             }
         }
@@ -174,7 +175,7 @@ export default class TimeWidget extends Component {
     paintPanelLabelLayer = (painter) => {
         let W = this._mainLayer.width();
         let H = this._mainLayer.height();
-        
+
         painter.useCoords();
 
         const panels = this.props.panels;
@@ -186,9 +187,9 @@ export default class TimeWidget extends Component {
             this._panelLabelLayer.setMargins(0, W - 50, 15 + (H - 50 - 15) * p1, H - (15 + (H - 50 - 15) * p2));
             this._panelLabelLayer.setCoordXRange(0, 1);
             this._panelLabelLayer.setCoordYRange(0, 1);
-            
+
             let rect = [0.2, 0.2, 0.6, 0.6];
-            let alignment = {AlignRight: true, AlignVCenter: true};
+            let alignment = { AlignRight: true, AlignVCenter: true };
             panel._opts.label + '' && painter.drawText(rect, alignment, panel._opts.label + '');
         }
     }
@@ -216,7 +217,7 @@ export default class TimeWidget extends Component {
         if (!trange) return;
         let tr = clone(trange);
         if (tr[1] >= this.numTimepoints()) {
-            let delta = this.numTimepoints() -1 - tr[1];
+            let delta = this.numTimepoints() - 1 - tr[1];
             tr[0] += delta;
             tr[1] += delta;
         }
@@ -250,7 +251,7 @@ export default class TimeWidget extends Component {
         let panelHeight = H0 / panels.length;
         let y0 = 10;
         for (let panel of panels) {
-            panel.setYRange(y0, y0+panelHeight);
+            panel.setYRange(y0, y0 + panelHeight);
             y0 += panelHeight;
         }
         this._updateInfo();
@@ -366,7 +367,7 @@ export default class TimeWidget extends Component {
         this.translateTime(-this._currentTime);
     }
     handle_end = (X) => {
-        this.translateTime(this.numTimepoints()-this._currentTime);
+        this.translateTime(this.numTimepoints() - this._currentTime);
     }
     translateTime = (delta_t) => {
         let tr = clone(this._timeRange);
@@ -410,14 +411,7 @@ export default class TimeWidget extends Component {
         let layers = this._allLayers;
         let innerContainer = (
             <InnerContainer>
-                <SpanWidget
-                    key='span'
-                    width={this.props.width}
-                    height={this._spanWidgetHeight}
-                    info={this.state.spanWidgetInfo || {}}
-                    onCurrentTimeChanged={(t) => {this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange();}}
-                    onTimeRangeChanged={(tr) => {if (tr) {this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime();}}}
-                />
+
                 <CanvasWidget
                     key='canvas'
                     layers={layers}
@@ -428,16 +422,26 @@ export default class TimeWidget extends Component {
                     onMouseDrag={this.handle_mouse_drag}
                     onMouseDragRelease={this.handle_mouse_drag_release}
                     onKeyPress={this.handle_key_press}
-                    menuOpts={{exportSvg: true}}
+                    menuOpts={{ exportSvg: true }}
                 />
-                <TimeWidgetBottomBar
-                    key='bottom'
-                    width={this.props.width}
-                    height={this._bottomBarHeight}
-                    info={this.state.bottomBarInfo || {}}
-                    onCurrentTimeChanged={(t) => {this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange();}}
-                    onTimeRangeChanged={(tr) => {if (tr) {this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime();}}}
-                />
+                <div style={{ display: 'flex' }}>
+                    <TimeWidgetBottomBar
+                        key='bottom'
+                        width={this.props.width}
+                        height={this._bottomBarHeight}
+                        info={this.state.bottomBarInfo || {}}
+                        onCurrentTimeChanged={(t) => { this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange(); }}
+                        onTimeRangeChanged={(tr) => { if (tr) { this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime(); } }}
+                    />
+                    <SpanWidget
+                        key='span'
+                        width={this.props.width}
+                        height={this._spanWidgetHeight}
+                        info={this.state.spanWidgetInfo || {}}
+                        onCurrentTimeChanged={(t) => { this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange(); }}
+                        onTimeRangeChanged={(tr) => { if (tr) { this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime(); } }}
+                    />
+                </div>
             </InnerContainer>
         );
         let leftPanel = this.props.leftPanel
@@ -450,10 +454,10 @@ export default class TimeWidget extends Component {
                     width={this._toolbarWidth}
                     height={this.props.height}
                     top={this._spanWidgetHeight}
-                    onZoomIn={() => {this.zoomTime(1.15)}}
-                    onZoomOut={() => {this.zoomTime(1 / 1.15)}}
-                    onShiftTimeLeft={() => {this.handle_key_left()}}
-                    onShiftTimeRight={() => {this.handle_key_right()}}
+                    onZoomIn={() => { this.zoomTime(1.15) }}
+                    onZoomOut={() => { this.zoomTime(1 / 1.15) }}
+                    onShiftTimeLeft={() => { this.handle_key_left() }}
+                    onShiftTimeRight={() => { this.handle_key_right() }}
                     customActions={this.props.actions || []}
                 />
                 <Splitter
@@ -465,8 +469,8 @@ export default class TimeWidget extends Component {
                         leftPanel ? (
                             [leftPanel, innerContainer]
                         ) : (
-                            innerContainer
-                        )
+                                innerContainer
+                            )
                     }
                 </Splitter>
             </OuterContainer>
