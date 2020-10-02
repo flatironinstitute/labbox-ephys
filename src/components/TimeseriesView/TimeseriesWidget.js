@@ -23,7 +23,7 @@ export default class TimeseriesWidget extends Component {
         const channelIds = props.channel_ids;
         const numTimepoints = this.props.num_timepoints;
         if (numChannels > 32) {
-            for (let i=0; i<32; i++) {
+            for (let i = 0; i < 32; i++) {
                 defaultState.selectedElectrodeIds[channelIds[i]] = true;
             }
             defaultState.selectElectrodesPrefs.viewOnlySelectedChannels = true;
@@ -101,19 +101,19 @@ export default class TimeseriesWidget extends Component {
         if (!num_channels) return;
         let channelIndsToView = [];
         if (!this.state.selectElectrodesPrefs.viewOnlySelectedChannels) {
-            for (let i=0; i<num_channels; i++) {
+            for (let i = 0; i < num_channels; i++) {
                 channelIndsToView.push(i);
             }
         }
         else {
-            for (let i=0; i<num_channels; i++) {
+            for (let i = 0; i < num_channels; i++) {
                 if (this.state.selectedElectrodeIds[channel_ids[i]]) {
                     channelIndsToView.push(i);
                 }
             }
         }
         let num_channels_to_view = channelIndsToView.length;
-        
+
         const maxChannelsToLabel = Math.max(1, this.props.height / 18);
         let channelIndsToLabel = {};
         let incr = Math.ceil(num_channels_to_view / maxChannelsToLabel);
@@ -125,8 +125,8 @@ export default class TimeseriesWidget extends Component {
             let label = channelIndsToLabel[m] ? channel_ids[m] : '';
             let selected = (this.state.selectedElectrodeIds[channel_ids[m]]);
             let panel = new TimeWidgetPanel(
-                (painter, timeRange) => {this.paintChannel(painter, timeRange, m, selected)},
-                {label: label, selected: selected}
+                (painter, timeRange) => { this.paintChannel(painter, timeRange, m, selected) },
+                { label: label, selected: selected }
             );
             panel.setCoordYRange(-1, 1);
             panels.push(panel);
@@ -137,10 +137,10 @@ export default class TimeseriesWidget extends Component {
     }
     _toggleLeftPanelMode = (mode) => {
         if (mode === this.state.leftPanelMode) {
-            this.setState({leftPanelMode: null});
+            this.setState({ leftPanelMode: null });
         }
         else {
-            this.setState({leftPanelMode: mode});
+            this.setState({ leftPanelMode: mode });
         }
     }
     _handleTimeRangeChanged = (tr) => {
@@ -164,7 +164,7 @@ export default class TimeseriesWidget extends Component {
         let trange = timeRange;
         if (!trange) return;
         let y_offset = this.props.y_offsets[m];
-        painter.setPen({color: 'black', width: 1});
+        painter.setPen({ color: 'black', width: 1 });
         // painter.drawLine(trange[0], 0, trange[1], 0);
 
         let y_scale_factor = this.y_scale_factor;
@@ -210,7 +210,7 @@ export default class TimeseriesWidget extends Component {
                 if (!isNaN(val)) {
                     let val2 = (val + y_offset) * y_scale_factor;
                     if (penDown) {
-                        pp.lineTo(tt, val2);    
+                        pp.lineTo(tt, val2);
                     }
                     else {
                         pp.moveTo(tt, val2);
@@ -279,7 +279,7 @@ export default class TimeseriesWidget extends Component {
                         selectedElectrodeIds={this.state.selectedElectrodeIds}
                         onChange={this._handleSelectedElectrodeIdsChanged}
                         prefs={this.state.selectElectrodesPrefs}
-                        onPrefsChange={(prefs) => {this.setState({selectElectrodesPrefs: prefs})}}
+                        onPrefsChange={(prefs) => { this.setState({ selectElectrodesPrefs: prefs }) }}
                     />
                 )
             }
@@ -289,13 +289,13 @@ export default class TimeseriesWidget extends Component {
         }
         let actions = [
             {
-                callback: () => {this._zoomAmplitude(1.15)},
+                callback: () => { this._zoomAmplitude(1.15) },
                 title: 'Scale amplitude up [up arrow]',
                 icon: <FaArrowUp />,
                 key: 38
             },
             {
-                callback: () => {this._zoomAmplitude(1 / 1.15)},
+                callback: () => { this._zoomAmplitude(1 / 1.15) },
                 title: 'Scale amplitude down [down arrow]',
                 icon: <FaArrowDown />,
                 key: 40
@@ -306,7 +306,7 @@ export default class TimeseriesWidget extends Component {
         ];
         leftPanels.forEach((lp) => {
             actions.push({
-                callback: () => {this._toggleLeftPanelMode(lp.key)},
+                callback: () => { this._toggleLeftPanelMode(lp.key) },
                 title: lp.title,
                 icon: lp.icon,
                 selected: (this.state.leftPanelMode === lp.key)
@@ -317,7 +317,7 @@ export default class TimeseriesWidget extends Component {
         if (!num_channels) {
             return <span>Loading.</span>;
         }
-        let leftPanel=undefined;
+        let leftPanel = undefined;
         for (let lp of leftPanels) {
             if (this.state.leftPanelMode === lp.key) {
                 leftPanel = lp.render();
@@ -329,7 +329,7 @@ export default class TimeseriesWidget extends Component {
                 actions={actions}
                 width={this.props.width}
                 height={this.props.height}
-                registerRepainter={(repaintFunc) => {this._repainter=repaintFunc}}
+                registerRepainter={(repaintFunc) => { this._repainter = repaintFunc }}
                 samplerate={timeseriesModel ? timeseriesModel.getSampleRate() : 0}
                 maxTimeSpan={1e6 / num_channels}
                 numTimepoints={timeseriesModel ? timeseriesModel.numTimepoints() : 0}
@@ -358,10 +358,5 @@ function determine_downsample_factor_from_num_timepoints(target_num_pix, num) {
 }
 
 function mv_default_channel_colors() {
-    var ret = [];
-    ret.push('rgb(80,80,80)');
-    ret.push('rgb(104,42,42)');
-    ret.push('rgb(42,104,42)');
-    ret.push('rgb(42,42,152)');
-    return ret;
+    return ['#f50505', '#F06ACC', '#5D62B5', '#6dbf79'];
 }
