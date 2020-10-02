@@ -3,7 +3,12 @@ import { SET_EXTENSION_ENABLED } from '../actions'
 
 import frankLabDataJoint from './frankLabDataJoint/reducers'
 
-const enabled = (state = {}, action) => {
+const initialState = {
+    frankLabDataJoint: false,
+    development: false
+}
+
+const enabled = (state = initialState, action) => {
     switch (action.type) {
         case SET_EXTENSION_ENABLED:
             return {
