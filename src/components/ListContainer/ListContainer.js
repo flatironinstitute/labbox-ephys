@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         minHeight: 200,
         maxHeight: 200,
-        minWidth: 365,
+        width: '90%',
         marginBottom: 20,
         overflowY: 'auto'
     },

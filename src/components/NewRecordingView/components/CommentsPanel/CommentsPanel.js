@@ -1,6 +1,6 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
+import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -21,25 +21,28 @@ const useStyles = makeStyles((theme) => ({
     },
     title: {
         fontSize: 24,
-        margin: 35,
-        borderBottom: `1px solid ${theme.palette.colors.grey2}`
+        margin: '0px 35px',
+        borderBottom: `1px solid ${theme.palette.colors.grey2}`,
+        paddingBottom: 10
     },
     newCommentContainer: {
-        margin: 35,
-        bottom: 0
+        width: '23%',
+        margin: 24,
+        bottom: 0,
+        position: 'fixed',
     },
     list: {
-        margin: '0px 35px',
+        margin: 10,
+        marginLeft: 20,
         flexGrow: 1,
-        maxHeight: 635,
+        maxHeight: '90ch',
         overflowY: 'auto'
     },
     paper: {
-        zIndex: 0,
-        width: 450,
-        paddingTop: 65,
+        width: '100%',
+        height: '100%',
         backgroundColor: 'transparent',
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.14), 0px 4px 5px rgba(0, 0, 0, 0.12), 0px 1px 10px rgba(0, 0, 0, 0.2)',
+        borderLeft: `1px solid ${theme.palette.colors.grey3}`
     },
     addComment: {
         backgroundColor: theme.palette.colors.white,
@@ -56,17 +59,7 @@ const CommentsPanel = () => {
     const classes = useStyles();
 
     return (
-        <Drawer
-            ModalProps={{
-                keepMounted: true
-            }}
-            anchor="right"
-            open={true}
-            variant='persistent'
-            classes={{
-                paper: classes.paper
-            }}
-        >
+        <Paper className={classes.paper} elevation={0}>
             <Grid
                 container
                 direction="column"
@@ -93,7 +86,7 @@ const CommentsPanel = () => {
                     />
                 </Grid>
             </Grid>
-        </Drawer>
+        </Paper>
     )
 }
 

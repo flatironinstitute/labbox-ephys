@@ -27,11 +27,11 @@ const testCurrentUser = 'Fan Wu'
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        width: '100%'
+        width: '100%',
     },
     inline: {
         display: 'inline'
-    },
+    }
 }));
 
 const CommentsCardList = () => {

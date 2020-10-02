@@ -15,9 +15,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
     container: {
-        paddingTop: 60,
         padding: '0px 20px',
-        height: `calc(100vh - ${MAIN_APPBAR_HEIGHT}px)`,
+        height: `calc(100% - ${MAIN_APPBAR_HEIGHT}px)`,
     }
 }));
 
