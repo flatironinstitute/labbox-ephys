@@ -1,5 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import cn from 'classnames'
+import './scrollbar.css'
 
 import { MAIN_APPBAR_HEIGHT } from './utils/styles'
 
