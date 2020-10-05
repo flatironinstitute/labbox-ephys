@@ -1,7 +1,8 @@
 import hither as hi
-from labbox_ephys import prepare_snippets_h5
 import kachery as ka
 import numpy as np
+from labbox_ephys import prepare_snippets_h5
+
 
 @hi.function('createjob_fetch_pca_features', '0.1.0')
 def createjob_fetch_pca_features(labbox, recording_object, sorting_object, unit_ids):
@@ -33,7 +34,10 @@ def fetch_pca_features(snippets_h5, unit_ids):
     import h5py
     h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
-        sampling_frequency = np.array(f.get('sampling_frequency'))[0]
+        sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
+        if np.isnan(sampling_frequency):
+            print('WARNING: sampling frequency is nan. Using 30000 for now. Please correct the snippets file.')
+            sampling_frequency = 30000
         x = [
             dict(
                 unit_id=unit_id,
@@ -102,7 +106,10 @@ def fetch_spike_waveforms(snippets_h5, unit_ids, spike_indices):
     h5_path = ka.load_file(snippets_h5)
     spikes = []
     with h5py.File(h5_path, 'r') as f:
-        sampling_frequency = np.array(f.get('sampling_frequency'))[0]
+        sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
+        if np.isnan(sampling_frequency):
+            print('WARNING: sampling frequency is nan. Using 30000 for now. Please correct the snippets file.')
+            sampling_frequency = 30000
         for ii, unit_id in enumerate(unit_ids):
             unit_waveforms=np.array(f.get(f'unit_waveforms/{unit_id}/waveforms'))
             unit_waveforms_channel_ids=np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))

@@ -1,10 +1,12 @@
-from spikeextractors import SortingExtractor
-import numpy as np
-
 # import h5py
 import warnings
+
+import numpy as np
+from spikeextractors import SortingExtractor
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import h5py
+
 warnings.resetwarnings()
 
 class H5SortingExtractorV1(SortingExtractor):
@@ -15,7 +17,10 @@ class H5SortingExtractorV1(SortingExtractor):
 
         with h5py.File(self._h5_path, 'r') as f:
             self._unit_ids = np.array(f.get('unit_ids'))
-            self._sampling_frequency = np.array(f.get('sampling_frequency'))[0]
+            self._sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
+            if np.isnan(self._sampling_frequency):
+                print('WARNING: sampling frequency is nan. Using 30000 for now. Please correct the snippets file.')
+                self._sampling_frequency = 30000
 
     def get_unit_ids(self):
         return self._unit_ids.tolist()

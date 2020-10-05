@@ -17,6 +17,9 @@ def prepare_snippets_h5(
     max_events_per_unit=1000,
     max_neighborhood_size=15
 ):
+    if recording_object['recording_format'] == 'snippets1':
+        return recording_object['data']['snippets_h5_uri']
+
     import labbox_ephys as le
     recording = le.LabboxEphysRecordingExtractor(recording_object)
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
@@ -53,7 +56,7 @@ def prepare_snippets_h5_from_extractors(
         sorting = se.SubSortingExtractor(parent_sorting=sorting, start_frame=start_frame, end_frame=end_frame)
 
     unit_ids = sorting.get_unit_ids()
-    samplerate = sorting.get_sampling_frequency()
+    samplerate = recording.get_sampling_frequency()
     
     # Use this optimized function rather than spiketoolkit's version
     # for efficiency with long recordings and/or many channels, units or spikes
@@ -83,15 +86,18 @@ def prepare_snippets_h5_from_extractors(
     #     ms_after=1.5,
     #     max_spikes_per_unit=500
     # )
-    with hi.TemporaryDirectory() as tmpdir:
-        save_path = output_h5_path
-        with h5py.File(save_path, 'w') as f:
-            f.create_dataset('unit_ids', data=np.array(unit_ids).astype(np.int32))
-            f.create_dataset('sampling_frequency', data=np.array([samplerate]).astype(np.float64))
-            f.create_dataset('channel_ids', data=np.array(recording.get_channel_ids()))
-            for ii, unit_id in enumerate(unit_ids):
-                x = sorting.get_unit_spike_train(unit_id=unit_id)
-                f.create_dataset(f'unit_spike_trains/{unit_id}', data=np.array(x).astype(np.float64))
-                f.create_dataset(f'unit_waveforms/{unit_id}/waveforms', data=unit_waveforms[ii].astype(np.float32))
-                f.create_dataset(f'unit_waveforms/{unit_id}/channel_ids', data=np.array(channel_ids_by_unit[int(unit_id)]).astype(int))
-                f.create_dataset(f'unit_waveforms/{unit_id}/spike_train', data=np.array(sorting_subsampled.get_unit_spike_train(unit_id=unit_id)).astype(np.float64))
+    save_path = output_h5_path
+    with h5py.File(save_path, 'w') as f:
+        f.create_dataset('unit_ids', data=np.array(unit_ids).astype(np.int32))
+        f.create_dataset('sampling_frequency', data=np.array([samplerate]).astype(np.float64))
+        f.create_dataset('channel_ids', data=np.array(recording.get_channel_ids()))
+        f.create_dataset('num_frames', data=np.array([recording.get_num_frames()]).astype(np.int32))
+        channel_locations = recording.get_channel_locations()
+        f.create_dataset(f'channel_locations', data=np.array(channel_locations))
+        for ii, unit_id in enumerate(unit_ids):
+            x = sorting.get_unit_spike_train(unit_id=unit_id)
+            f.create_dataset(f'unit_spike_trains/{unit_id}', data=np.array(x).astype(np.float64))
+            f.create_dataset(f'unit_waveforms/{unit_id}/waveforms', data=unit_waveforms[ii].astype(np.float32))
+            f.create_dataset(f'unit_waveforms/{unit_id}/channel_ids', data=np.array(channel_ids_by_unit[int(unit_id)]).astype(int))
+            f.create_dataset(f'unit_waveforms/{unit_id}/spike_train', data=np.array(sorting_subsampled.get_unit_spike_train(unit_id=unit_id)).astype(np.float64))
+            

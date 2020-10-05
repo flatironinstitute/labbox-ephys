@@ -1,9 +1,11 @@
 from typing import Dict
+
 import hither as hi
-import numpy as np
 import kachery as ka
+import numpy as np
 import spikeextractors as se
 import spiketoolkit as st
+
 
 @hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
@@ -29,7 +31,10 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))
-        sampling_frequency = np.array(f.get('sampling_frequency'))[0]
+        sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
+        if np.isnan(sampling_frequency):
+            print('WARNING: sampling frequency is nan. Using 30000 for now. Please correct the snippets file.')
+            sampling_frequency = 30000
         unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
         unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms'))
         unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
@@ -42,7 +47,7 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
 
     return dict(
         channel_id=int(maxchan_id),
-        sampling_frequency=sampling_frequency.item(),
+        sampling_frequency=sampling_frequency,
         average_waveform=average_waveform[maxchan_index, :].astype(float).tolist()
     )
 

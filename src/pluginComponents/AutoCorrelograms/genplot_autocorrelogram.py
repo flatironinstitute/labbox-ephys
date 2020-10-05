@@ -1,7 +1,9 @@
 import hither as hi
-import numpy as np
 import kachery as ka
+import numpy as np
+
 from ._correlograms_phy import compute_correlograms
+
 
 @hi.function('fetch_correlogram_plot_data', '0.1.3')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')

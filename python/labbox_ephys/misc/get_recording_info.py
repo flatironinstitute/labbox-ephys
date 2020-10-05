@@ -1,10 +1,12 @@
-import hither as hi
-import numpy as np
-import kachery as ka
 import base64
 # import time
 import io
+
+import hither as hi
+import kachery as ka
 import labbox_ephys as le
+import numpy as np
+
 
 @hi.function('createjob_get_recording_info', '0.1.1')
 def createjob_get_recording_info(labbox, recording_object):
@@ -13,6 +15,7 @@ def createjob_get_recording_info(labbox, recording_object):
         job_cache=jc
     ):
         return get_recording_info.run(recording_object=recording_object)
+
 
 @hi.function('get_recording_info', '0.1.1')
 @hi.local_modules(['../../labbox_ephys'])
