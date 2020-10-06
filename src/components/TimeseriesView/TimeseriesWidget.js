@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TimeWidget, { PainterPath, TimeWidgetPanel } from '../TimeWidget/TimeWidget';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { MdGridOn as SelectElectrodesIcon } from 'react-icons/md';
+import memoOne from 'memoize-one'
 import SelectElectrodes from './SelectElectrodes';
 
 export default class TimeseriesWidget extends Component {
@@ -266,7 +267,7 @@ export default class TimeseriesWidget extends Component {
         });
     }
 
-    get actions() {
+    actions = memoOne(() => {
         const parseLeftPanels = this.leftPanels.map(lp => ({
             callback: this._toggleLeftPanelMode.bind(this, lp.key),
             title: lp.title,
@@ -292,7 +293,7 @@ export default class TimeseriesWidget extends Component {
             },
             ...parseLeftPanels
         ]
-    }
+    })
 
     get leftPanels() {
         return [
@@ -331,7 +332,7 @@ export default class TimeseriesWidget extends Component {
         return (
             <TimeWidget
                 panels={this.state.panels}
-                actions={this.actions}
+                actions={this.actions()}
                 width={this.props.width}
                 height={this.props.height}
                 registerRepainter={(repaintFunc) => { this._repainter = repaintFunc }}
