@@ -265,8 +265,37 @@ export default class TimeseriesWidget extends Component {
             selectedElectrodeIds: ids
         });
     }
-    render() {
-        let leftPanels = [
+
+    get actions() {
+        const parseLeftPanels = this.leftPanels.map(lp => ({
+            callback: this._toggleLeftPanelMode.bind(this, lp.key),
+            title: lp.title,
+            icon: lp.icon,
+            selected: (this.state.leftPanelMode === lp.key)
+        }))
+
+        return [
+            {
+                callback: this._zoomAmplitude.bind(this, 1.15),
+                title: 'Scale amplitude up [up arrow]',
+                icon: <FaArrowUp />,
+                key: 38
+            },
+            {
+                callback: this._zoomAmplitude.bind(this, 1 / 1.15),
+                title: 'Scale amplitude down [down arrow]',
+                icon: <FaArrowDown />,
+                key: 40
+            },
+            {
+                type: 'divider'
+            },
+            ...parseLeftPanels
+        ]
+    }
+
+    get leftPanels() {
+        return [
             {
                 key: 'select-electrodes',
                 title: "Select electrodes",
@@ -282,51 +311,27 @@ export default class TimeseriesWidget extends Component {
                         onPrefsChange={(prefs) => { this.setState({ selectElectrodesPrefs: prefs }) }}
                     />
                 )
-            }
+            }, ...this.props.leftPanels
         ];
-        for (let lp of (this.props.leftPanels || [])) {
-            leftPanels.push(lp);
-        }
-        let actions = [
-            {
-                callback: () => { this._zoomAmplitude(1.15) },
-                title: 'Scale amplitude up [up arrow]',
-                icon: <FaArrowUp />,
-                key: 38
-            },
-            {
-                callback: () => { this._zoomAmplitude(1 / 1.15) },
-                title: 'Scale amplitude down [down arrow]',
-                icon: <FaArrowDown />,
-                key: 40
-            },
-            {
-                type: 'divider'
-            }
-        ];
-        leftPanels.forEach((lp) => {
-            actions.push({
-                callback: () => { this._toggleLeftPanelMode(lp.key) },
-                title: lp.title,
-                icon: lp.icon,
-                selected: (this.state.leftPanelMode === lp.key)
-            })
-        });
+    }
 
-        let { num_channels, timeseriesModel } = this.props;
+    get leftPanel() {
+        const { leftPanelMode } = this.state
+
+        return this.leftPanels.find(lp => lp.key === leftPanelMode)?.render()
+    }
+
+    render() {
+
+        const { num_channels, timeseriesModel } = this.props;
         if (!num_channels) {
             return <span>Loading.</span>;
         }
-        let leftPanel = undefined;
-        for (let lp of leftPanels) {
-            if (this.state.leftPanelMode === lp.key) {
-                leftPanel = lp.render();
-            }
-        }
+
         return (
             <TimeWidget
                 panels={this.state.panels}
-                actions={actions}
+                actions={this.actions}
                 width={this.props.width}
                 height={this.props.height}
                 registerRepainter={(repaintFunc) => { this._repainter = repaintFunc }}
@@ -337,7 +342,7 @@ export default class TimeseriesWidget extends Component {
                 timeRange={this.state.timeRange}
                 onCurrentTimeChanged={this._handleCurrentTimeChanged}
                 onTimeRangeChanged={this._handleTimeRangeChanged}
-                leftPanel={leftPanel}
+                leftPanel={this.leftPanel}
             />
         )
     }

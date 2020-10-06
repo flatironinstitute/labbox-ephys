@@ -407,11 +407,24 @@ export default class TimeWidget extends Component {
         this.setCurrentTime(t);
     }
 
+    onZoomIn = () => this.zoomTime(1.15)
+    onZoomOut = () => this.zoomTime(1 / 1.15)
+    onShiftTimeLeft = () => this.handle_key_left()
+    onShiftTimeRight = () => this.handle_key_right()
+
+    // {recording.recordingLabel}
     render() {
         let layers = this._allLayers;
         let innerContainer = (
             <InnerContainer>
-
+                <h2>Test</h2>
+                <TimeWidgetToolBar
+                    onZoomIn={this.onZoomIn}
+                    onZoomOut={this.onZoomOut}
+                    onShiftTimeLeft={this.onShiftTimeLeft}
+                    onShiftTimeRight={this.onShiftTimeRight}
+                    customActions={this.props.actions}
+                />
                 <CanvasWidget
                     key='canvas'
                     layers={layers}
@@ -433,7 +446,7 @@ export default class TimeWidget extends Component {
                         onCurrentTimeChanged={(t) => { this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange(); }}
                         onTimeRangeChanged={(tr) => { if (tr) { this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime(); } }}
                     />
-    
+
                     <SpanWidget
                         info={this.state.spanWidgetInfo || {}}
                         onCurrentTimeChanged={(t) => { this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange(); }}
@@ -448,16 +461,7 @@ export default class TimeWidget extends Component {
                 width={this.props.width}
                 height={this.props.height}
             >
-                <TimeWidgetToolBar
-                    width={this._toolbarWidth}
-                    height={this.props.height}
-                    top={this._spanWidgetHeight}
-                    onZoomIn={() => { this.zoomTime(1.15) }}
-                    onZoomOut={() => { this.zoomTime(1 / 1.15) }}
-                    onShiftTimeLeft={() => { this.handle_key_left() }}
-                    onShiftTimeRight={() => { this.handle_key_right() }}
-                    customActions={this.props.actions || []}
-                />
+
                 <Splitter
                     width={this.props.width - this._toolbarWidth}
                     height={this.props.height}

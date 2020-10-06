@@ -4,22 +4,18 @@ import { Toolbar } from '@material-ui/core';
 export default class TimeWidgetBottomBar extends Component {
     render() {
         const { info } = this.props;
-        // const style0 = {
-        //     position: 'relative',
-        //     width: this.props.width,
-        //     height: this.props.height
-        // };
+
         return (
-            <Toolbar style={{ minHeight: this.props.height }}>
+            <Toolbar style={{ minHeight: this.props.height, paddingLeft: 60 }}>
                 <CurrentTimeControl
-                    width={180}
+                    width={100}
                     currentTime={info.currentTime}
                     samplerate={info.samplerate}
                     onChange={this.props.onCurrentTimeChanged}
                 />
 
                 <TimeRangeControl
-                    width={250}
+                    width={200}
                     timeRange={info.timeRange}
                     samplerate={info.samplerate}
                     onChange={this.props.onTimeRangeChanged}

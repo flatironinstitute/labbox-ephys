@@ -14,7 +14,7 @@ const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => 
 
   return (
     <div>
-      <h1>{recording.recordingLabel}</h1>
+      
       <SizeMe
         render={
           ({ size }) => {
