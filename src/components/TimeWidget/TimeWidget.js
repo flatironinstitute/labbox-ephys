@@ -435,9 +435,6 @@ export default class TimeWidget extends Component {
                     />
     
                     <SpanWidget
-                        key='span'
-                        width={this.props.width}
-                        height={this._spanWidgetHeight}
                         info={this.state.spanWidgetInfo || {}}
                         onCurrentTimeChanged={(t) => { this.setCurrentTime(t); this.ensureCurrentTimeVisibleByChangingTimeRange(); }}
                         onTimeRangeChanged={(tr) => { if (tr) { this.setTimeRange(tr); this.ensureCurrentTimeVisibleByChangingCurrentTime(); } }}
