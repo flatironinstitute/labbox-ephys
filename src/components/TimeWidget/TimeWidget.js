@@ -417,7 +417,6 @@ export default class TimeWidget extends Component {
         let layers = this._allLayers;
         let innerContainer = (
             <InnerContainer>
-                <h2>Test</h2>
                 <TimeWidgetToolBar
                     onZoomIn={this.onZoomIn}
                     onZoomOut={this.onZoomOut}

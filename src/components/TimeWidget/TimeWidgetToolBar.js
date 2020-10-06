@@ -1,29 +1,29 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid'
 import { IconButton } from '@material-ui/core';
-import { FaSearchMinus, FaSearchPlus, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { ZoomInOutlined, ZoomOutOutlined, ArrowBackOutlined, ArrowForwardOutlined } from "@material-ui/icons";
 
 const TimeWidgetToolBar = ({ onZoomIn, onZoomOut, onShiftTimeLeft, onShiftTimeRight, customActions = [] }) => {
     let buttons = React.useMemo(() => [{
         type: 'button',
         title: "Time zoom in (+)",
         onClick: onZoomIn,
-        icon: <FaSearchPlus />
+        icon: <ZoomInOutlined />
     }, {
         type: 'button',
         title: "Time zoom out (-)",
         onClick: onZoomOut,
-        icon: <FaSearchMinus />
+        icon: <ZoomOutOutlined />
     }, {
         type: 'button',
         title: "Shift time left [left arrow]",
         onClick: onShiftTimeLeft,
-        icon: <FaArrowLeft />
+        icon: <ArrowBackOutlined />
     }, {
         type: 'button',
         title: "Shift time right [right arrow]",
         onClick: onShiftTimeRight,
-        icon: <FaArrowRight />
+        icon: <ArrowForwardOutlined />
     }, ...customActions.map(a => ({
         type: a.type || 'button',
         title: a.title,
@@ -33,23 +33,26 @@ const TimeWidgetToolBar = ({ onZoomIn, onZoomOut, onShiftTimeLeft, onShiftTimeRi
     }))], [onZoomIn, onZoomOut, onShiftTimeLeft, onShiftTimeRight, customActions]);
 
     return (
-        <Grid container justify="flex-end" alignItems="center">
-            {
-                buttons.map((button, ii) => {
-                    if (button.type === 'button') {
-                        let color = 'inherit';
-                        if (button.selected) color = 'primary';
-                        return (
-                            <IconButton title={button.title} onClick={button.onClick} key={ii} color={color}>
-                                {button.icon}
-                            </IconButton>
-                        );
-                    }
-                    else {
-                        return <span />;
-                    }
-                })
-            }
+        <Grid container justify="space-between" alignItems="center">
+            <Grid item><h3>Test</h3></Grid>
+            <Grid item>
+                {
+                    buttons.map((button, ii) => {
+                        if (button.type === 'button') {
+                            let color = 'inherit';
+                            if (button.selected) color = 'primary';
+                            return (
+                                <IconButton title={button.title} onClick={button.onClick} key={ii} color={color}>
+                                    {button.icon}
+                                </IconButton>
+                            );
+                        }
+                        else {
+                            return <span />;
+                        }
+                    })
+                }
+            </Grid>
         </Grid>
     );
 

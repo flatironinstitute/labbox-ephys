@@ -9,9 +9,6 @@ const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => 
     return <h3>{`Recording not found: ${recordingId}`}</h3>
   }
 
-  const hitherConfig = {
-  };
-
   return (
     <div>
       

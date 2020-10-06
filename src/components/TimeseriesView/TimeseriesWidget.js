@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TimeWidget, { PainterPath, TimeWidgetPanel } from '../TimeWidget/TimeWidget';
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { ArrowUpwardOutlined, ArrowDownwardOutlined } from '@material-ui/icons';
 import { MdGridOn as SelectElectrodesIcon } from 'react-icons/md';
 import memoOne from 'memoize-one'
 import SelectElectrodes from './SelectElectrodes';
@@ -279,13 +279,13 @@ export default class TimeseriesWidget extends Component {
             {
                 callback: this._zoomAmplitude.bind(this, 1.15),
                 title: 'Scale amplitude up [up arrow]',
-                icon: <FaArrowUp />,
+                icon: <ArrowUpwardOutlined />,
                 key: 38
             },
             {
                 callback: this._zoomAmplitude.bind(this, 1 / 1.15),
                 title: 'Scale amplitude down [down arrow]',
-                icon: <FaArrowDown />,
+                icon: <ArrowDownwardOutlined />,
                 key: 40
             },
             {
