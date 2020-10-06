@@ -10,14 +10,14 @@ export default class TimeWidgetBottomBar extends Component {
         //     height: this.props.height
         // };
         return (
-            <Toolbar style={{minHeight: this.props.height}}>
+            <Toolbar style={{ minHeight: this.props.height }}>
                 <CurrentTimeControl
                     width={180}
                     currentTime={info.currentTime}
                     samplerate={info.samplerate}
                     onChange={this.props.onCurrentTimeChanged}
                 />
-                &nbsp;
+
                 <TimeRangeControl
                     width={250}
                     timeRange={info.timeRange}
@@ -31,7 +31,7 @@ export default class TimeWidgetBottomBar extends Component {
 }
 
 class CurrentTimeControl extends Component {
-    state = {  }
+    state = {}
     _handleChange = (txt) => {
         let t = fromHumanTime(txt, this.props.samplerate);
         if (t !== undefined) {
@@ -41,7 +41,7 @@ class CurrentTimeControl extends Component {
             console.warn(`Invalid human time string: ${txt}`);
         }
     }
-    render() { 
+    render() {
         const { currentTime, samplerate } = this.props;
         let style0 = {
             width: this.props.width,
@@ -63,7 +63,7 @@ class CurrentTimeControl extends Component {
 }
 
 class TimeRangeControl extends Component {
-    state = {  }
+    state = {}
     _handleChange = (txt) => {
         let tr = fromHumanTimeRange(txt, this.props.samplerate);
         if (tr !== undefined) {
@@ -73,7 +73,7 @@ class TimeRangeControl extends Component {
             console.warn(`Invalid human time range string: ${txt}`);
         }
     }
-    render() { 
+    render() {
         const { timeRange, samplerate } = this.props;
         let style0 = {
             width: this.props.width,
@@ -96,14 +96,14 @@ class TimeRangeControl extends Component {
 
 function toHumanTimeRange(tr, samplerate) {
     if (!tr) return 'none';
-    return `${toHumanTime(tr[0], samplerate, {nounits: true, num_digits: 3})} - ${toHumanTime(tr[1], samplerate, {num_digits: 3})}`;
+    return `${toHumanTime(tr[0], samplerate, { nounits: true, num_digits: 3 })} - ${toHumanTime(tr[1], samplerate, { num_digits: 3 })}`;
 }
 
 function fromHumanTimeRange(txt, samplerate) {
     if (txt === 'none') return null;
     let a = txt.split('-');
     if (a.length !== 2) return undefined;
-    let t1 = fromHumanTime(a[0], samplerate, {nounits: true});
+    let t1 = fromHumanTime(a[0], samplerate, { nounits: true });
     let t2 = fromHumanTime(a[1], samplerate);
     if ((t1 === undefined) || (t2 === undefined))
         return undefined;
@@ -121,10 +121,10 @@ function toHumanTime(t, samplerate, opts) {
 function fromHumanTime(txt, samplerate, opts) {
     opts = opts || {};
     if (txt === 'none') return null;
-    const list = txt.split(/(\s+)/).filter( e => e.trim().length > 0);
+    const list = txt.split(/(\s+)/).filter(e => e.trim().length > 0);
     if (list.length === 1) {
         if (opts.nounits) {
-            return fromHumanTime(txt + ' s', samplerate, {nounits: false});
+            return fromHumanTime(txt + ' s', samplerate, { nounits: false });
         }
         if (txt.endsWith('s'))
             return fromHumanTime(txt.slice(0, txt.length - 1) + ' s', samplerate);
@@ -150,7 +150,7 @@ function fromHumanTime(txt, samplerate, opts) {
 function round(val, num_digits) {
     return Math.round(val * Math.pow(10, num_digits)) / Math.pow(10, num_digits);
 }
- 
+
 class EditableText extends Component {
     constructor(props) {
         super(props);
