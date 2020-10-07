@@ -19,7 +19,7 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
 
 You will need to create a data directory. You can choose any location you want, but on Linux this could look like the following (where `<user>` is the name of the logged-in user):
 
-* `/home/<user>/labbox/labbox-ephys-data-dir`
+* `/home/<user>/labbox/labbox-ephys-data`
 
 Set an environment variable to point to this directory so we can refer to it elsewhere
 
