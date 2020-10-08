@@ -185,16 +185,20 @@ interface Props {
 }
 
 const CanvasWidget = (props: Props) => {
-    const divRef = React.useRef(null)
+    let canvasRefs = []
+    const divRef = React.useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
         props.layers.forEach((L, index) => {
             /// todo: figure out what to do here
             const divElement = divRef.current
-            L._initialize(props.width, props.height, props.layerProps, divElement.childNodes[index])
-            if (L.repaintNeeded()) {
-                L.scheduleRepaint()
+            if (divElement) {
+                const canvasElement = divElement.children[index]
+                L._initialize(props.width, props.height, props.layerProps, canvasElement)
+                if (L.repaintNeeded()) {
+                    L.scheduleRepaint()
+                }
             }
         })
     })

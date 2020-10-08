@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { CanvasPainter, MouseHandler } from "./CanvasPainter";
+import { CanvasPainter } from "./CanvasPainter";
 // import { IconButton } from '@material-ui/core';
 // import Menu from '@material-ui/core/Menu';
 // import MenuItem from '@material-ui/core/MenuItem';
@@ -176,15 +176,15 @@ export default class CanvasWidget extends Component {
             // menuVisible: false
         };
         this._canvasLayers = [];
-        this._mouseHandler = new MouseHandler();
+        // this._mouseHandler = new MouseHandler();
 
-        this._mouseHandler.onMousePress(this._handleMousePress);
-        this._mouseHandler.onMouseRelease(this._handleMouseRelease);
-        this._mouseHandler.onMouseMove(this._handleMouseMove);
-        this._mouseHandler.onMouseDrag(this._handleMouseDrag);
-        this._mouseHandler.onMouseDragRelease(this._handleMouseDragRelease);
-        this._mouseHandler.onMouseEnter(this._handleMouseEnter);
-        this._mouseHandler.onMouseLeave(this._handleMouseLeave);
+        // this._mouseHandler.onMousePress(this._handleMousePress);
+        // this._mouseHandler.onMouseRelease(this._handleMouseRelease);
+        // this._mouseHandler.onMouseMove(this._handleMouseMove);
+        // this._mouseHandler.onMouseDrag(this._handleMouseDrag);
+        // this._mouseHandler.onMouseDragRelease(this._handleMouseDragRelease);
+        // this._mouseHandler.onMouseEnter(this._handleMouseEnter);
+        // this._mouseHandler.onMouseLeave(this._handleMouseLeave);
 
         this._animationRunning = false;
         this._onAnimationFrame = null;
@@ -224,7 +224,7 @@ export default class CanvasWidget extends Component {
                 L.repaintNeeded = true;
                 return;
             }
-            this._mouseHandler.setElement(L.canvasElement());
+            // this._mouseHandler.setElement(L.canvasElement());
             let painter = new CanvasPainter(ctx, L);
             // painter._initialize(this.props.width, this.props.height);
             painter.clear();
@@ -325,11 +325,11 @@ export default class CanvasWidget extends Component {
                             ref={L.ref()}
                             width={this.props.width}
                             height={this.props.height}
-                            onMouseDown={this._mouseHandler.mouseDown}
-                            onMouseUp={this._mouseHandler.mouseUp}
-                            onMouseMove={this._mouseHandler.mouseMove}
-                            onMouseEnter={this._mouseHandler.mouseEnter}
-                            onMouseLeave={this._mouseHandler.mouseLeave}
+                            // onMouseDown={this._mouseHandler.mouseDown}
+                            // onMouseUp={this._mouseHandler.mouseUp}
+                            // onMouseMove={this._mouseHandler.mouseMove}
+                            // onMouseEnter={this._mouseHandler.mouseEnter}
+                            // onMouseLeave={this._mouseHandler.mouseLeave}
                         />
                     ))
                 }

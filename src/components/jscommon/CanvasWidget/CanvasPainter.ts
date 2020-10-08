@@ -33,11 +33,11 @@ const isVec4 = (x: any): x is Vec4 => {
 
 
 export const isNumber = (x: any): x is number => {
-    return ((x) && (typeof(x) === 'number'))
+    return ((x !== null) && (x !== undefined) && (typeof(x) === 'number'))
 }
 
 const isString = (x: any): x is string => {
-    return ((x) && (typeof(x) === 'string'))
+    return ((x !== null) && (x !== undefined) && (typeof(x) === 'string'))
 }
 
 interface TextAlignment {
@@ -119,8 +119,8 @@ export class CanvasPainter {
     #useCoords: boolean = false
     #exportingFigure: boolean = false
     #context2D: Context2D
-    #canvasLayer: CanvasLayer
-    constructor(context2d: Context2D, canvasLayer: CanvasLayer) {
+    #canvasLayer: CanvasWidgetLayer
+    constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer) {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
     }
@@ -238,7 +238,7 @@ export class CanvasPainter {
             throw Error('Unexpected')
         }
         if ((!isBrush(brush)) && (!isString(brush))) {
-            throw Error('Unexpected')
+            brush = this.#brush
         }
         if (isString(brush)) brush = { color: brush };
         this.#context2D.fillStyle = toColorStr(brush.color);
@@ -264,7 +264,7 @@ export class CanvasPainter {
             throw Error('Unexpected')
         }
         if ((!isBrush(brush)) && (!isString(brush))) {
-            throw Error('Unexpected')
+            brush = this.#brush
         }
         if (isString(brush)) brush = { color: brush };
         this.#context2D.fillStyle = toColorStr(brush.color);
@@ -312,6 +312,7 @@ export class CanvasPainter {
         }
         else {
             console.error('Missing horizontal alignment in drawText: AlignLeft, AlignCenter, or AlignRight');
+            return
         }
 
         if (alignment.AlignTop) {
@@ -328,6 +329,7 @@ export class CanvasPainter {
         }
         else {
             console.error('Missing vertical alignment in drawText: AlignTop, AlignBottom, or AlignVCenter');
+            return
         }
 
         this.#context2D.font = this.#font['pixel-size'] + 'px ' + this.#font.family
@@ -405,7 +407,7 @@ interface PainterPathAction {
     y: number
 }
 
-class PainterPath {
+export class PainterPath {
     #actions: PainterPathAction[] = []
     moveTo(x: number | Vec2, y: number | undefined = undefined): void {
         if (isVec2(x)) {
