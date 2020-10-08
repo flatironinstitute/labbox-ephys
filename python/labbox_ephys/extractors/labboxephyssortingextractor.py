@@ -1,19 +1,15 @@
 from copy import deepcopy
-from .h5extractors.h5sortingextractorv1 import H5SortingExtractorV1
 from typing import Union
+
+import hither as hi
 import kachery as ka
 import kachery_p2p as kp
-import hither as hi
 import spikeextractors as se
-from .mdaextractors import MdaSortingExtractor
 
-def _path(x):
-    if type(x) is str:
-        return x
-    elif isinstance(x, hi.File):
-        return x.path
-    else:
-        raise Exception('Cannot get path from:', x)
+from .h5extractors.h5sortingextractorv1 import H5SortingExtractorV1
+from .mdaextractors import MdaSortingExtractor
+from .snippetsextractors import Snippets1SortingExtractor
+
 
 def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None, dict]:
     if isinstance(arg, str):
@@ -94,6 +90,9 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             S = se.NumpySortingExtractor()
             S.set_sampling_frequency(samplerate)
             S.set_times_labels(times_npy.ravel(), labels_npy.ravel())
+            self._sorting = S
+        elif sorting_format == 'snippets1':
+            S = Snippets1SortingExtractor(snippets_h5_uri = data['snippets_h5_uri'], p2p=True)
             self._sorting = S
         elif sorting_format == 'npy2':
             npz = kp.load_npy(data['npz_uri'])

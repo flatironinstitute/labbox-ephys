@@ -1,12 +1,15 @@
-from typing import Union
-import kachery_p2p as kp
-import kachery as ka
 from copy import deepcopy
-from .bandpass_filter import bandpass_filter
-import spikeextractors as se
+from typing import Union
+
+import kachery as ka
+import kachery_p2p as kp
 import numpy as np
-from .mdaextractors import MdaRecordingExtractor
+import spikeextractors as se
+
+from .bandpass_filter import bandpass_filter
 from .binextractors import Bin1RecordingExtractor
+from .mdaextractors import MdaRecordingExtractor
+from .snippetsextractors import Snippets1RecordingExtractor
 
 # from .nwbextractors import NwbRecordingExtractor
 
@@ -220,6 +223,8 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         #     self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name='e-series')
         elif recording_format == 'bin1':
             self._recording: se.RecordingExtractor = Bin1RecordingExtractor(**data, p2p=True)
+        elif recording_format == 'snippets1':
+            self._recording: se.RecordingExtractor = Snippets1RecordingExtractor(snippets_h5_uri=data['snippets_h5_uri'], p2p=True)
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             if 'channel_ids' in data:

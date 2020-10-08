@@ -1,6 +1,7 @@
 import kachery_p2p as kp
-import spikeextractors as se
 import numpy as np
+import spikeextractors as se
+
 
 class Bin1RecordingExtractor(se.RecordingExtractor):
     extractor_name = 'Bin1RecordingExtractor'
@@ -37,8 +38,8 @@ class Bin1RecordingExtractor(se.RecordingExtractor):
             end_frame = self._num_frames
         if channel_ids is None:
             channel_ids = self._channel_ids
-        M = len(channel_ids)
-        N = end_frame - start_frame
+        # M = len(channel_ids)
+        # N = end_frame - start_frame
         
         i1 = start_frame * 2 * self._raw_num_channels
         i2 = end_frame * 2 * self._raw_num_channels
