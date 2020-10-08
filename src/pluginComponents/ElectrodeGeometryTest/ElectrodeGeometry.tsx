@@ -1,5 +1,6 @@
-import React from 'react'
-import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget';
+import React from 'react';
+import { CanvasPainter } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
 interface Props {
     electrodes: ({
@@ -9,10 +10,11 @@ interface Props {
     })[]
 }
 
-const paintTestLayer = (painter: any, props: Props) => {
+const paintTestLayer = (painter: CanvasPainter, props: Props) => {
     painter.setPen({color: 'rgb(22, 22, 22)'});
     props.electrodes.forEach(electrode => {
-        painter.drawMarker(electrode.x, electrode.y, 20);
+        painter.drawEllipse(electrode.x - 10, electrode.y - 10, 20, 20)
+        // painter.drawMarker(electrode.x, electrode.y, 20);
     })
 }
 const testLayer = new CanvasWidgetLayer(paintTestLayer);

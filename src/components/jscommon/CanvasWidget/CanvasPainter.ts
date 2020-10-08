@@ -1,5 +1,5 @@
-type Vec2 = number[]
-const isVec2 = (x: any): x is Vec2 => {
+export type Vec2 = number[]
+export const isVec2 = (x: any): x is Vec2 => {
     if ((x) && (Array.isArray(x)) && (x.length === 2)) {
         for (let a of x) {
             if (!isNumber(a)) return false
@@ -9,7 +9,7 @@ const isVec2 = (x: any): x is Vec2 => {
     else return false
 }
 
-type Vec3 = number[]
+export type Vec3 = number[]
 const isVec3 = (x: any): x is Vec2 => {
     if ((x) && (Array.isArray(x)) && (x.length === 3)) {
         for (let a of x) {
@@ -20,7 +20,7 @@ const isVec3 = (x: any): x is Vec2 => {
     else return false
 }
 
-type Vec4 = number[]
+export type Vec4 = number[]
 const isVec4 = (x: any): x is Vec4 => {
     if ((x) && (Array.isArray(x)) && (x.length === 4)) {
         for (let a of x) {
@@ -32,7 +32,7 @@ const isVec4 = (x: any): x is Vec4 => {
 }
 
 
-const isNumber = (x: any): x is number => {
+export const isNumber = (x: any): x is number => {
     return ((x) && (typeof(x) === 'number'))
 }
 
@@ -75,7 +75,7 @@ interface Context2D {
     fillText: (txt: string, x: number, y: number) => void
 }
 
-interface CanvasLayer {
+interface CanvasWidgetLayer {
     width: () => number,
     height: () => number,
     margins: () => Vec4
@@ -112,7 +112,7 @@ const isRect = (x: any): x is Rect => {
     return isVec4(x)
 }
 
-class CanvasPainter {
+export class CanvasPainter {
     #pen: Pen = { color: 'black' }
     #font: Font = { "pixel-size": 12, family: 'Arial' }
     #brush: Brush = { color: 'black' }
