@@ -4,16 +4,6 @@
 
 
 export const CanvasPainterOld = () => {
-    this.drawPath = function (painter_path) {
-        apply_pen(ctx, m_pen);
-        painter_path._draw(ctx, transformXY);
-    };
-    this.drawLine = function (x1, y1, x2, y2) {
-        var ppath = new PainterPath();
-        ppath.moveTo(x1, y1);
-        ppath.lineTo(x2, y2);
-        that.drawPath(ppath);
-    };
     this.drawText = function (rect, alignment, txt, opts) {
         let rect2 = transformRect(rect);
         return _drawText(rect2, alignment, txt);
@@ -92,11 +82,6 @@ export const CanvasPainterOld = () => {
         let pt = transformXY(x, y);
         _drawMarker(pt[0], pt[1], radius, shape, {fill: true});
     }
-    
-
-    
-    
-    
 }
 
 export function MouseHandler() {
@@ -221,10 +206,6 @@ export function MouseHandler() {
 // function clone(obj) {
 //     return JSON.parse(JSON.stringify(obj));
 // }
-
-function shallowClone(obj) {
-    return Object.assign({}, obj);
-}
 
 function cloneSimpleArray(x) {
     return x.slice(0);

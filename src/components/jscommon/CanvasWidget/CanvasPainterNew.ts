@@ -40,6 +40,17 @@ const isString = (x: any): x is string => {
     return ((x) && (typeof(x) === 'string'))
 }
 
+interface TextAlignment {
+    AlignLeft?: boolean
+    AlignCenter?: boolean
+    AlignRight?: boolean
+
+    AlignTop?: boolean
+    AlignVCenter?: boolean
+    AlignBottom?: boolean
+}
+
+
 // html5 canvas context
 interface Context2D {
     clearRect: (x: number, y: number, W: number, H: number) => void,
@@ -58,6 +69,9 @@ interface Context2D {
     fillStyle: string
     strokeStyle: string
     lineWidth: number
+    font: string
+    textAlign: string
+    fillText: (txt: string, x: number, y: number) => void
 }
 
 interface CanvasLayer {
@@ -274,12 +288,54 @@ class CanvasPainter {
         applyPen(this.#context2D, this.#pen)
         painterPath._draw(this.#context2D, (p: Vec2) => (this.transformXY(p)))
     }
-    this.drawLine = function (x1, y1, x2, y2) {
-        var ppath = new PainterPath();
-        ppath.moveTo(x1, y1);
-        ppath.lineTo(x2, y2);
-        that.drawPath(ppath);
-    };
+    drawLine(x1: number, y1: number, x2: number, y2: number) {
+        var pPath = new PainterPath();
+        pPath.moveTo(x1, y1);
+        pPath.lineTo(x2, y2);
+        this.drawPath(pPath);
+    }
+    drawText(rect: Rect, alignment: TextAlignment, txt: string) {
+        const rect2 = this.transformRect(rect)
+        var x, y, textAlign, textBaseline;
+        if (alignment.AlignLeft) {
+            x = rect[0];
+            textAlign = 'left';
+        }
+        else if (alignment.AlignCenter) {
+            x = rect[0] + rect[2] / 2;
+            textAlign = 'center';
+        }
+        else if (alignment.AlignRight) {
+            x = rect[0] + rect[2];
+            textAlign = 'right';
+        }
+        else {
+            console.error('Missing horizontal alignment in drawText: AlignLeft, AlignCenter, or AlignRight');
+        }
+
+        if (alignment.AlignTop) {
+            y = rect[1];
+            textBaseline = 'top';
+        }
+        else if (alignment.AlignBottom) {
+            y = rect[1] + rect[3];
+            textBaseline = 'bottom';
+        }
+        else if (alignment.AlignVCenter) {
+            y = rect[1] + rect[3] / 2;
+            textBaseline = 'middle';
+        }
+        else {
+            console.error('Missing vertical alignment in drawText: AlignTop, AlignBottom, or AlignVCenter');
+        }
+
+        this.#context2D.font = this.#font['pixel-size'] + 'px ' + this.#font.family
+        this.#context2D.textAlign = textAlign || ''
+        this.#context2D.textBaseline = textBaseline || ''
+        applyPen(this.#context2D, this.#pen);
+        this.#context2D.fillStyle = toColorStr(this.#brush.color);
+        this.#context2D.fillText(txt, x, y);
+    }
     transformRect(rect: Rect): Rect {
         return this.transformXYWH(rect[0], rect[1], rect[2], rect[3]);
     }
