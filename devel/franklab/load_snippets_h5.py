@@ -4,7 +4,7 @@ import labbox_ephys as le
 
 
 def main():
-    snippets_h5_uri = 'sha1://55c0cb6a63231236b6948b0dd422e6fedc75c5b5/real_snippets.h5?manifest=b124474caccccdba135d9550ec544a88caf531aa'
+    snippets_h5_uri = 'sha1://5fc6996dfed9e7fd577bc85194d982a1ba52085e/real_snippets_1.h5?manifest=741f23273c3121aada6d9bdb67009c8c2ae1ed77'
     recording_obj = {
         'recording_format': 'snippets1',
         'data': {
