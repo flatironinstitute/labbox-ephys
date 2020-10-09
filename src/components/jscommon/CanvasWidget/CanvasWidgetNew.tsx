@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CanvasPainter, isNumber, isVec2, Vec2, Vec4 } from './CanvasPainter'
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
@@ -181,12 +181,20 @@ interface Props {
     layers: CanvasWidgetLayer[],
     layerProps: any,
     width: number,
-    height: number
+    height: number,
+    onMouseMove: (pos: Vec2) => void
+    onMousePress: (pos: Vec2) => void
+    onMouseRelease: (pos: Vec2) => void
+    onMouseDrag: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
+    onMouseDragRelease: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
 }
 
 const CanvasWidget = (props: Props) => {
-    let canvasRefs = []
     const divRef = React.useRef<HTMLDivElement>(null)
+
+    const [dragging, setDragging] = useState<boolean>(false)
+    const [dragAnchor, setDragAnchor] = useState<Vec2 | null>(null)
+    const [dragPosition, setDragPosition] = useState<Vec2 | null>(null)
 
     useEffect(() => {
         // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
@@ -202,6 +210,86 @@ const CanvasWidget = (props: Props) => {
             }
         })
     })
+
+    const _handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const pos: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        props.onMouseMove && props.onMouseMove(pos)
+
+        if (e.buttons === 1) {
+            let dragging0 = dragging
+            let dragAnchor0 = dragAnchor
+            let dragPosition0 = dragPosition
+            if (!dragAnchor0) {
+                dragAnchor0 = pos
+                setDragAnchor(pos)
+            }
+            if (dragging) {
+                dragPosition0 = pos
+                setDragPosition(pos)
+            }
+            else {
+                const tol = 4;
+                if ((Math.abs(pos[0] - dragAnchor0[0]) > tol) || (Math.abs(pos[1] - dragAnchor0[1]) > tol)) {
+                    dragging0 = true
+                    setDragging(true)
+                    dragPosition0 = pos
+                    setDragPosition(pos)
+                }
+            }
+            if ((dragging0) && (dragPosition0)) {
+                const dragRect = [Math.min(dragAnchor0[0], dragPosition0[0]), Math.min(dragAnchor0[1], dragPosition0[1]), Math.abs(dragPosition0[0] - dragAnchor0[0]), Math.abs(dragPosition0[1] - dragPosition0[1])];
+                props.onMouseDrag({ anchor: [...dragAnchor0], pos: [...dragPosition0], rect: [...dragRect] })
+            }
+        }
+    }
+
+    const _handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const pos: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        props.onMousePress && props.onMousePress(pos)
+        setDragging(false)
+        setDragAnchor(pos)
+        setDragPosition(null)
+    }
+
+    const _handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const pos: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        props.onMouseRelease && props.onMouseRelease(pos)
+        if ((dragging) && (dragAnchor) && (dragPosition)) {
+            const dragRect = [Math.min(dragAnchor[0], dragPosition[0]), Math.min(dragAnchor[1], dragPosition[1]), Math.abs(dragPosition[0] - dragAnchor[0]), Math.abs(dragPosition[1] - dragPosition[1])];
+            props.onMouseDragRelease && props.onMouseDragRelease({anchor: dragAnchor, pos: dragPosition, rect: dragRect})
+        }
+        setDragging(false)
+    }
+
+    const _handleMouseEnter = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const pos: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        // todo
+    }
+
+    const _handleMouseLeave = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const pos: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        // todo
+    }
     
     return (
         <div
@@ -218,11 +306,11 @@ const CanvasWidget = (props: Props) => {
                         style={{position: 'absolute', left: 0, top: 0}}
                         width={props.width}
                         height={props.height}
-                        // onMouseDown={this._mouseHandler.mouseDown}
-                        // onMouseUp={this._mouseHandler.mouseUp}
-                        // onMouseMove={this._mouseHandler.mouseMove}
-                        // onMouseEnter={this._mouseHandler.mouseEnter}
-                        // onMouseLeave={this._mouseHandler.mouseLeave}
+                        onMouseMove={_handleMouseMove}
+                        onMouseDown={_handleMouseDown}
+                        onMouseUp={_handleMouseUp}
+                        onMouseEnter={_handleMouseEnter}
+                        onMouseLeave={_handleMouseLeave}
                     />
                 ))
             }
