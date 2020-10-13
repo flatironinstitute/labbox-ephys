@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { CanvasPainter, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
@@ -23,21 +23,21 @@ const ElectrodeGeometry = (props: Props) => {
     const { electrodes } = props;
     const layers = [testLayer];
 
-    const _handleMouseMove = (pos: Vec2) => {
+    const _handleMouseMove = useCallback((pos: Vec2) => {
         // console.log('--- on mouse move', pos)
-    }
-    const _handleMousePress = (pos: Vec2) => {
+    }, [])
+    const _handleMousePress = useCallback((pos: Vec2) => {
         console.log('--- on mouse press', pos)
-    }
-    const _handleMouseRelease = (pos: Vec2) => {
+    }, [])
+    const _handleMouseRelease = useCallback((pos: Vec2) => {
         console.log('--- on mouse release', pos)
-    }
-    const _handleMouseDrag = (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => {
-        console.log('--- on mouse drag', args.rect)
-    }
-    const _handleMouseDragRelease = (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => {
+    }, [])
+    const _handleMouseDrag = useCallback((args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => {
+        args.rect && console.log('--- on mouse drag [upper left corner x, y; width, height]', args.rect)
+    }, [])
+    const _handleMouseDragRelease = useCallback((args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => {
         console.log('--- on mouse drag release', args.rect)
-    }
+    }, [])
 
     return (
         <CanvasWidget

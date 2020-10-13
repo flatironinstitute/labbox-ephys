@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useReducer } from 'react'
 import { CanvasPainter, isNumber, isVec2, Vec2, Vec4 } from './CanvasPainter'
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
@@ -177,6 +177,69 @@ export class CanvasWidgetLayer {
     }
 }
 
+
+const COMPUTE_DRAG = 'COMPUTE_DRAG'
+const END_DRAG = 'END_DRAG'
+
+interface DragState {
+    dragging: boolean,
+    dragAnchor?: Vec2,
+    dragPosition?: Vec2,
+    dragRect?: Vec4
+}
+
+interface DragAction {
+    type: 'COMPUTE_DRAG' | 'END_DRAG',
+    mouseButton: boolean,
+    point: Vec2
+}
+
+const dragReducer = (state: DragState, action: DragAction): DragState => {
+    let {dragging, dragAnchor } = state
+    const {type, mouseButton, point} = action
+
+    switch (type) {
+        case END_DRAG:
+            return { ...state, dragging: false }
+        case COMPUTE_DRAG:
+            if (!mouseButton) return { // no button held; do nothing.
+                dragging: false,
+            }
+            // with button, 4 cases: dragging yes/no and dragAnchor yes/no.
+            // 0: dragging yes, dragAnchor no: this is invalid and throws an error.
+            if (dragging && !dragAnchor) throw Error('Invalid state in computing drag: cannot have drag set with no dragAnchor.')
+            // 1: dragging no, dragAnchor no: set dragAnchor to current position, and we're done.
+            if (!dragging && !dragAnchor) return {
+                dragging: false,
+                dragAnchor: point,
+            }
+            // 2: dragging no, dragAnchor yes: check if we've moved the mouse past tolerance to see if we initiate dragging.
+            if (!dragging && dragAnchor) {
+                const tol = 4
+                dragging = ((Math.abs(point[0] - dragAnchor[0]) > tol) || (Math.abs(point[1] - dragAnchor[1]) > tol))
+                if (!dragging) return {
+                    dragging: false,
+                    dragAnchor: dragAnchor
+                }
+            }
+            // 3: dragging yes (or newly dragging), and dragAnchor yes. Compute the point and rect and return all.
+            if (dragging && dragAnchor) return {
+                dragging: true,
+                dragAnchor: dragAnchor,
+                dragPosition: point,
+                dragRect: [ Math.min(dragAnchor[0], point[0]), // x: upper left corner of rect, NOT the anchor
+                            Math.min(dragAnchor[1], point[1]), // y: upper left corner of rect, NOT the anchor
+                            Math.abs(dragAnchor[0] - point[0]), // width
+                            Math.abs(dragAnchor[1] - point[1]) ] //height
+            }
+        break;
+        default: {
+            throw Error('Invalid mode for drag reducer.')
+        }
+    }
+    return { dragging: true } // unreachable, but keeps ESLint happy
+}
+
 interface Props {
     layers: CanvasWidgetLayer[],
     layerProps: any,
@@ -185,16 +248,21 @@ interface Props {
     onMouseMove: (pos: Vec2) => void
     onMousePress: (pos: Vec2) => void
     onMouseRelease: (pos: Vec2) => void
-    onMouseDrag: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
+    onMouseDrag: (args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => void
     onMouseDragRelease: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
 }
 
 const CanvasWidget = (props: Props) => {
     const divRef = React.useRef<HTMLDivElement>(null)
 
-    const [dragging, setDragging] = useState<boolean>(false)
-    const [dragAnchor, setDragAnchor] = useState<Vec2 | null>(null)
-    const [dragPosition, setDragPosition] = useState<Vec2 | null>(null)
+    const { onMouseDrag, onMousePress, onMouseRelease, onMouseDragRelease } = props
+
+    const [state, dispatch] = useReducer(dragReducer, {
+        dragging: false,
+        dragAnchor: undefined,
+        dragPosition: undefined,
+        dragRect: undefined
+    })
 
     useEffect(() => {
         // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
@@ -211,86 +279,59 @@ const CanvasWidget = (props: Props) => {
         })
     })
 
-    const _handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const point: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        dispatch({type: COMPUTE_DRAG, mouseButton: e.buttons === 1, point: point})
+        onMouseDrag({ anchor: state.dragAnchor, pos: state.dragPosition, rect: state.dragRect })
+    }, [onMouseDrag, state.dragAnchor, state.dragPosition, state.dragRect])
+
+    const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const elmt = e.currentTarget
         const pos: Vec2 = [
             e.clientX - elmt.getBoundingClientRect().x,
             e.clientY - elmt.getBoundingClientRect().y
         ]
-        props.onMouseMove && props.onMouseMove(pos)
+        onMousePress && onMousePress(pos)
+        dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: pos })
+    }, [onMousePress])
 
-        if (e.buttons === 1) {
-            let dragging0 = dragging
-            let dragAnchor0 = dragAnchor
-            let dragPosition0 = dragPosition
-            if (!dragAnchor0) {
-                dragAnchor0 = pos
-                setDragAnchor(pos)
-            }
-            if (dragging) {
-                dragPosition0 = pos
-                setDragPosition(pos)
-            }
-            else {
-                const tol = 4;
-                if ((Math.abs(pos[0] - dragAnchor0[0]) > tol) || (Math.abs(pos[1] - dragAnchor0[1]) > tol)) {
-                    dragging0 = true
-                    setDragging(true)
-                    dragPosition0 = pos
-                    setDragPosition(pos)
-                }
-            }
-            if ((dragging0) && (dragPosition0)) {
-                const dragRect = [Math.min(dragAnchor0[0], dragPosition0[0]), Math.min(dragAnchor0[1], dragPosition0[1]), Math.abs(dragPosition0[0] - dragAnchor0[0]), Math.abs(dragPosition0[1] - dragPosition0[1])];
-                props.onMouseDrag({ anchor: [...dragAnchor0], pos: [...dragPosition0], rect: [...dragRect] })
-            }
+    const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const elmt = e.currentTarget
+        const pos: Vec2 = [
+            e.clientX - elmt.getBoundingClientRect().x,
+            e.clientY - elmt.getBoundingClientRect().y
+        ]
+        onMouseRelease && onMouseRelease(pos)
+        if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
+            // No need to recompute the dragRect--we already computed it on mouse move
+            onMouseDragRelease && onMouseDragRelease({anchor: state.dragAnchor, pos: state.dragPosition, rect: state.dragRect})
         }
-    }
+        dispatch({ type: END_DRAG, mouseButton: false, point: [0, 0] })
+    }, [onMouseRelease, onMouseDragRelease, state.dragging, state.dragAnchor, state.dragPosition, state.dragRect])
 
-    const _handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const elmt = e.currentTarget
-        const pos: Vec2 = [
-            e.clientX - elmt.getBoundingClientRect().x,
-            e.clientY - elmt.getBoundingClientRect().y
-        ]
-        props.onMousePress && props.onMousePress(pos)
-        setDragging(false)
-        setDragAnchor(pos)
-        setDragPosition(null)
-    }
-
-    const _handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const elmt = e.currentTarget
-        const pos: Vec2 = [
-            e.clientX - elmt.getBoundingClientRect().x,
-            e.clientY - elmt.getBoundingClientRect().y
-        ]
-        props.onMouseRelease && props.onMouseRelease(pos)
-        if ((dragging) && (dragAnchor) && (dragPosition)) {
-            const dragRect = [Math.min(dragAnchor[0], dragPosition[0]), Math.min(dragAnchor[1], dragPosition[1]), Math.abs(dragPosition[0] - dragAnchor[0]), Math.abs(dragPosition[1] - dragPosition[1])];
-            props.onMouseDragRelease && props.onMouseDragRelease({anchor: dragAnchor, pos: dragPosition, rect: dragRect})
-        }
-        setDragging(false)
-    }
-
-    const _handleMouseEnter = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const elmt = e.currentTarget
         const pos: Vec2 = [
             e.clientX - elmt.getBoundingClientRect().x,
             e.clientY - elmt.getBoundingClientRect().y
         ]
         // todo
-    }
+    }, [])
 
-    const _handleMouseLeave = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    const _handleMouseLeave = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const elmt = e.currentTarget
         const pos: Vec2 = [
             e.clientX - elmt.getBoundingClientRect().x,
             e.clientY - elmt.getBoundingClientRect().y
         ]
         // todo
-    }
+    }, [])
     
+    console.log('Rendering canvaswidget')
     return (
         <div
             ref={divRef}
