@@ -38,7 +38,7 @@ const ElectrodeGeometry = (props: Props) => {
     const _handleMouseDragRelease = useCallback((args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => {
         console.log('--- on mouse drag release', args.rect)
     }, [])
-
+    console.log('Rendering ElectrodeGeometry widget')
     return (
         <CanvasWidget
             key='canvas'
