@@ -186,6 +186,9 @@ export class CanvasPainter {
     _finalize() {
         console.warn('DEPRECATED: _finalize')
     }
+    wipe(): void {
+        this.#context2D.clearRect(0, 0, this.#canvasLayer.width(), this.#canvasLayer.height());
+    }
     clear(): void {
         this.clearRect(0, 0, this.#canvasLayer.width(), this.#canvasLayer.height());
     }

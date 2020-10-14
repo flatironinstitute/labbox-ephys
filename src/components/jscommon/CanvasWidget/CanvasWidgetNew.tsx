@@ -6,7 +6,7 @@ type OnPaint = (painter: CanvasPainter, layerProps: any) => void
 export class CanvasWidgetLayer {
     #onPaint: OnPaint
     #preserveAspectRatio = false
-    
+
     // these are set in _initialize
     #width: number = 100
     #height: number = 100 // todo: figure out how to get this
@@ -19,7 +19,7 @@ export class CanvasWidgetLayer {
     #repaintScheduled = false
     #lastRepaintTimestamp = Number(new Date())
     #repaintNeeded = false
-    
+
     constructor(onPaint: OnPaint) {
         this.#onPaint = onPaint
     }
@@ -120,18 +120,19 @@ export class CanvasWidgetLayer {
         this._doRepaint()
     }
     _initialize(width: number, height: number, layerProps: any, canvasElement: any) {
-        let doScheduleRepaint = (
-            (width !== this.#width) ||
-            (height !== this.#height) ||
-            canvasElement !== this.#canvasElement
-        )
+        // let doScheduleRepaint = (
+        //     (width !== this.#width) ||
+        //     (height !== this.#height) ||
+        //     canvasElement !== this.#canvasElement
+        // )
         this.#width = width
         this.#height = height
         this.#layerProps = layerProps
         this.#canvasElement = canvasElement
-        if (doScheduleRepaint) {
-            this.scheduleRepaint()
-        }
+        this.scheduleRepaint()
+        // if (doScheduleRepaint) {
+        //     this.scheduleRepaint()
+        // }
     }
     _doRepaint = () => {
         // for (let handler of this._repaintHandlers) {
@@ -304,15 +305,14 @@ const CanvasWidget = (props: Props) => {
         const { point } = _pointFromEvent(e)
         // todo
     }, [])
-    
-    console.log('Rendering canvaswidget')
+
     return (
         <div
             ref={divRef}
             style={{position: 'relative', width: props.width, height: props.height, left: 0, top: 0}}
             // style={style0}
             // onKeyDown={(evt) => {this.props.onKeyPress && this.props.onKeyPress(evt);}}
-            tabIndex={0} // tabindex needed to handle keypress            
+            tabIndex={0} // tabindex needed to handle keypress
         >
             {
                 props.layers.map((L, index) => (
@@ -337,7 +337,7 @@ const CanvasWidget = (props: Props) => {
                     />
                 ) : <span />
             } */}
-            
+
         </div>
     )
 }
