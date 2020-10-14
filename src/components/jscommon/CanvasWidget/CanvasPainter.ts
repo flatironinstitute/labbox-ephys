@@ -31,6 +31,30 @@ const isVec4 = (x: any): x is Vec4 => {
     else return false
 }
 
+// Presumably axis-aligned. These can be treated as lengths or as
+// defining the points (left, top) and (right, bottom).
+export type RectBySides = {
+    left: number,
+    right: number,
+    top: number,
+    bottom: number
+}
+
+export type RectOptionalSides = {
+    left?: number,
+    right?: number,
+    top?: number,
+    bottom?: number
+}
+
+// Axis-aligned rectangle defined by an upper left (lowest values) point
+// and a width and height.
+export type RectPointAndWidth = {
+    x: number,
+    y: number,
+    width: number,
+    height: number
+}
 
 export const isNumber = (x: any): x is number => {
     return ((x !== null) && (x !== undefined) && (typeof(x) === 'number'))
@@ -41,13 +65,8 @@ const isString = (x: any): x is string => {
 }
 
 interface TextAlignment {
-    AlignLeft?: boolean
-    AlignCenter?: boolean
-    AlignRight?: boolean
-
-    AlignTop?: boolean
-    AlignVCenter?: boolean
-    AlignBottom?: boolean
+    Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
+    Vertical: 'AlignTop' | 'AlignCenter' | 'AlignBottom'
 }
 
 
@@ -78,9 +97,8 @@ interface Context2D {
 interface CanvasWidgetLayer {
     width: () => number,
     height: () => number,
-    margins: () => Vec4
-    coordXRange: () => Vec2
-    coordYRange: () => Vec2
+    margins: () => RectBySides
+    coordRange: () => RectBySides
 }
 
 type Color = 'black' | 'red' | 'blue' | 'transparent' | string
@@ -211,10 +229,9 @@ export class CanvasPainter {
             throw Error('unexpected');
         }
         const margins = this.#canvasLayer.margins();
-        const xr = this.#canvasLayer.coordXRange();
-        const yr = this.#canvasLayer.coordYRange();
-        let W = this.#canvasLayer.width() - margins[0] - margins[1];
-        let H = this.#canvasLayer.height() - margins[2] - margins[3];
+        const {left, right, top, bottom} = this.#canvasLayer.coordRange()
+        let W = this.#canvasLayer.width() - margins.left - margins.right;
+        let H = this.#canvasLayer.height() - margins.top - margins.bottom;
         // const xextent = xr[1] - xr[0];
         // const yextent = yr[1] - yr[0];
         // if (canvasLayer.preserveAspectRatio()) {
@@ -225,9 +242,9 @@ export class CanvasPainter {
         //         H = W * yextent / xextent;
         //     }
         // }
-        const xpct = (x - xr[0]) / (xr[1] - xr[0]);
-        const ypct = 1 - (y - yr[0]) / (yr[1] - yr[0]);
-        return [margins[0] + W * xpct, margins[2] + H * ypct];
+        const xpct = (x - left) / (right - left);
+        const ypct = 1 - (y - top) / (bottom - top);
+        return [margins.left + W * xpct, margins.top + H * ypct];
     }
     fillRect(x: number | Vec4, y: number | Brush, W: number | undefined = undefined, H: number | undefined = undefined, brush: Brush | undefined = undefined) {
         if (isVec4(x)) {
@@ -298,15 +315,15 @@ export class CanvasPainter {
     drawText(rect: Rect, alignment: TextAlignment, txt: string) {
         const rect2 = this.transformRect(rect)
         var x, y, textAlign, textBaseline;
-        if (alignment.AlignLeft) {
+        if (alignment.Horizontal === 'AlignLeft') {
             x = rect[0];
             textAlign = 'left';
         }
-        else if (alignment.AlignCenter) {
+        else if (alignment.Horizontal === 'AlignCenter') {
             x = rect[0] + rect[2] / 2;
             textAlign = 'center';
         }
-        else if (alignment.AlignRight) {
+        else if (alignment.Horizontal === 'AlignRight') {
             x = rect[0] + rect[2];
             textAlign = 'right';
         }
@@ -315,15 +332,15 @@ export class CanvasPainter {
             return
         }
 
-        if (alignment.AlignTop) {
+        if (alignment.Vertical === 'AlignTop' ) {
             y = rect[1];
             textBaseline = 'top';
         }
-        else if (alignment.AlignBottom) {
+        else if (alignment.Vertical === 'AlignBottom') {
             y = rect[1] + rect[3];
             textBaseline = 'bottom';
         }
-        else if (alignment.AlignVCenter) {
+        else if (alignment.Vertical === 'AlignCenter') {
             y = rect[1] + rect[3] / 2;
             textBaseline = 'middle';
         }
@@ -396,7 +413,7 @@ export class CanvasPainter {
             return this.coordsToPix(x, y);
         }
         else {
-            return [margins[0] + x, margins[2] + y];
+            return [margins.left + x, margins.top + y];
         }
     }
 }

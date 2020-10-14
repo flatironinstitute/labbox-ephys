@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
-import { CanvasPainter, isNumber, isVec2, Vec2, Vec4 } from './CanvasPainter'
+import { CanvasPainter, RectBySides, RectOptionalSides, Vec2, Vec4 } from './CanvasPainter'
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
 
@@ -13,9 +13,9 @@ export class CanvasWidgetLayer {
     #layerProps: any = {} // todo: figure out how to get this
     #canvasElement: any | null = null
 
-    #margins: Vec4 = [0, 0, 0, 0]
-    #coordXRange: Vec2 = [0, 1]
-    #coordYRange: Vec2 = [0, 1]
+    #margins: RectBySides = { left: 0, right: 0, top: 0, bottom: 0 }
+    #coordRange: RectBySides = { left: 0, right: 1, top: 0, bottom: 1 }
+
     #repaintScheduled = false
     #lastRepaintTimestamp = Number(new Date())
     #repaintNeeded = false
@@ -40,66 +40,36 @@ export class CanvasWidgetLayer {
         return this.#height
     }
     margins() {
-        return [...this.#margins]
+        return { ...this.#margins }
     }
-    coordXRange() {
+    coordRange(): RectBySides {
         if (!this.#preserveAspectRatio) {
-            return [...this.#coordXRange];
+            return {...this.#coordRange}
         }
-        else {
-            // todo: replace margins by {left: , right: , top: , bottom: }
-            let W = this.width() - this.margins()[0] - this.margins()[1]
-            let H = this.height() - this.margins()[2] - this.margins()[3]
-            let xSpan = this.#coordXRange[1] - this.#coordXRange[0]
-            let ySpan = this.#coordYRange[1] - this.#coordYRange[0]
-            let newXSpan = xSpan
-            // let newYSpan = ySpan;
-            if (W * ySpan < H * xSpan) {
-                // newYSpan = H * xSpan / W;
-            }
-            else {
-                newXSpan = W * ySpan / H;
-            }
-            let mid = (this.#coordXRange[0] + this.#coordXRange[1]) / 2
-            return [mid - newXSpan / 2, mid + newXSpan/2]
+        const W = this.width() - this.margins().left - this.margins().right
+        const H = this.height() - this.margins().top - this.margins().bottom
+        const xSpan = this.#coordRange.right - this.#coordRange.left
+        const ySpan = this.#coordRange.bottom - this.#coordRange.top
+        let newXSpan = xSpan
+        let newYSpan = ySpan
+        // Now update either the x- or y-span so that W/H = X/Y
+        // (Except we do WY = HX to avoid dealing with division)
+        if (W * ySpan < H * xSpan) {
+            newYSpan = H * xSpan / W
+        } else {
+            newXSpan = W * ySpan / H
         }
+        const midX = (this.#coordRange.left + this.#coordRange.right) / 2
+        const midY = (this.#coordRange.top + this.#coordRange.bottom) / 2
+        return {left: midX - newXSpan / 2,  right: midX + newXSpan / 2,
+                 top: midY - newYSpan / 2, bottom: midY + newYSpan / 2 }
     }
-    // TODO: merge these
-    coordYRange() {
-        if (!this.#preserveAspectRatio) {
-            return [...this.#coordYRange]
-        }
-        else {
-            let W = this.width() - this.margins()[0] - this.margins()[1]
-            let H = this.height() - this.margins()[2] - this.margins()[3]
-            let xSpan = this.#coordXRange[1] - this.#coordXRange[0]
-            let ySpan = this.#coordYRange[1] - this.#coordYRange[0]
-            // let newXSpan = xSpan;
-            let newYSpan = ySpan
-            if (W * ySpan < H * xSpan) {
-                newYSpan = H * xSpan / W
+    setCoordRange(range: RectOptionalSides) : void {
+        this.#coordRange = {...this.#coordRange, ...range}
+        if ((this.#coordRange.left > this.#coordRange.right)
+            || (this.#coordRange.top > this.#coordRange.bottom)) {
+                throw Error(`Invalid coordinate range: negative width or height.\n${JSON.stringify(this.#coordRange)}`)
             }
-            else {
-                // newXSpan = W * ySpan / H
-            }
-            let mid = (this.#coordYRange[0] + this.#coordYRange[1]) / 2
-            return [mid - newYSpan / 2, mid + newYSpan/2];
-        }
-    }
-    // TODO: merge these
-    setCoordXRange(min: number | Vec2, max: number | undefined = undefined): void {
-        if (isVec2(min)) {
-            return this.setCoordXRange(min[0], min[1])
-        }
-        if (!isNumber(max)) throw Error('unexpected')
-        this.#coordXRange = [min, max]
-    }
-    setCoordYRange(min: number | Vec2, max: number | undefined = undefined): void {
-        if (isVec2(min)) {
-            return this.setCoordYRange(min[0], min[1])
-        }
-        if (!isNumber(max)) throw Error('unexpected')
-        this.#coordYRange = [min, max]
     }
     setPreserveAspectRatio(val: boolean) {
         this.#preserveAspectRatio = val
@@ -108,15 +78,14 @@ export class CanvasWidgetLayer {
         return this.#preserveAspectRatio
     }
     pixToCoords(pix: Vec2): Vec2 {
-        let margins = this.margins()
-        let coordXRange = this.coordXRange()
-        let coordYRange = this.coordYRange()
-        let width = this.width()
-        let height = this.height()
-        let xpct = (pix[0] - margins[0]) / (width - margins[0] - margins[1])
-        let x = coordXRange[0] + xpct * (coordXRange[1] - coordXRange[0])
-        let ypct = (pix[1] - margins[2]) / (height - margins[2] - margins[3])
-        let y = coordYRange[0] + (1 - ypct) * (coordYRange[1] - coordYRange[0])
+        const margins = this.margins()
+        const {left, right, top, bottom} = this.coordRange()
+        const contentWidth = this.width() - margins.left - margins.right
+        const contentHeight = this.height() - margins.top - margins.bottom
+        const xpct = (pix[0] - margins.left) / (contentWidth)
+        const ypct = (pix[1] - margins.top) / (contentHeight)
+        const x = left + xpct * (right - left)
+        const y = top + (1 - ypct) * (bottom - top)
         return [x, y]
     }
     // ??????????????????
@@ -145,17 +114,24 @@ export class CanvasWidgetLayer {
         }, 5);
     }
     setMargins(l: number, r: number, t: number, b: number) {
-        this.#margins = [l, r, t, b];
+        this.#margins = { left: l, right: r, top: t, bottom: b }
     }
     repaintImmediate() {
         this._doRepaint()
     }
     _initialize(width: number, height: number, layerProps: any, canvasElement: any) {
+        let doScheduleRepaint = (
+            (width !== this.#width) ||
+            (height !== this.#height) ||
+            canvasElement !== this.#canvasElement
+        )
         this.#width = width
         this.#height = height
         this.#layerProps = layerProps
         this.#canvasElement = canvasElement
-        this.scheduleRepaint()
+        if (doScheduleRepaint) {
+            this.scheduleRepaint()
+        }
     }
     _doRepaint = () => {
         // for (let handler of this._repaintHandlers) {
@@ -215,8 +191,9 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
         case END_DRAG:
             return { ...state, dragging: false, dragAnchor: undefined }
         case COMPUTE_DRAG:
-            if (!mouseButton) return { // no button held; do nothing.
+            if (!mouseButton) return { // no button held; unset any drag state & return.
                 dragging: false,
+                dragAnchor: undefined
             }
             // with button, 4 cases: dragging yes/no and dragAnchor yes/no.
             // 0: dragging yes, dragAnchor no: this is invalid and throws an error.
@@ -226,7 +203,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
                 dragging: false,
                 dragAnchor: point,
             }
-            // 2: dragging no, dragAnchor yes: check if we've moved the mouse past tolerance to see if we initiate dragging.
+            // 2: dragging no, dragAnchor yes: check if the mouse has moved past tolerance to see if we initiate dragging.
             if (!dragging && dragAnchor) {
                 const tol = 4
                 dragging = ((Math.abs(point[0] - dragAnchor[0]) > tol) || (Math.abs(point[1] - dragAnchor[1]) > tol))
@@ -235,13 +212,13 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
                     dragAnchor: dragAnchor
                 }
             }
-            // 3: dragging yes (or newly dragging), and dragAnchor yes. Compute the point and rect and return all.
+            // 3: dragging yes (or newly dragging), and dragAnchor yes. Compute point and rect, & return all.
             if (dragging && dragAnchor) return {
                 dragging: true,
                 dragAnchor: dragAnchor,
                 dragPosition: point,
-                dragRect: [ Math.min(dragAnchor[0], point[0]), // x: upper left corner of rect, NOT the anchor
-                            Math.min(dragAnchor[1], point[1]), // y: upper left corner of rect, NOT the anchor
+                dragRect: [ Math.min(dragAnchor[0],  point[0]), // x: upper left corner of rect, NOT the anchor
+                            Math.min(dragAnchor[1],  point[1]), // y: upper left corner of rect, NOT the anchor
                             Math.abs(dragAnchor[0] - point[0]), // width
                             Math.abs(dragAnchor[1] - point[1]) ] //height
             }
