@@ -151,11 +151,18 @@ export class CanvasWidgetLayer {
         this._doRepaint()
     }
     _initialize(width: number, height: number, layerProps: any, canvasElement: any) {
+        let doScheduleRepaint = (
+            (width !== this.#width) ||
+            (height !== this.#height) ||
+            canvasElement !== this.#canvasElement
+        )
         this.#width = width
         this.#height = height
         this.#layerProps = layerProps
         this.#canvasElement = canvasElement
-        this.scheduleRepaint()
+        if (doScheduleRepaint) {
+            this.scheduleRepaint()
+        }
     }
     _doRepaint = () => {
         // for (let handler of this._repaintHandlers) {
