@@ -1,13 +1,13 @@
+import { Button, Grid } from '@material-ui/core';
 import React, { useState } from 'react';
-import { Grid, Button } from '@material-ui/core';
 import ClientSidePlot from './ClientSidePlot';
 
 const isSelected = (query, selections = {}) => (selections[query]);
 
 const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
-    dataFunctionName, dataFunctionArgsCallback = () => {},
+    dataFunctionName, dataFunctionArgsCallback, // fix this
     boxSize = { width: 200, height: 200},
-    plotComponent, plotComponentArgsCallback = () => {},
+    plotComponent, plotComponentArgsCallback, // fix this
     newHitherJobMethod = false,
     useJobCache = false,
     jobHandlerName = null,

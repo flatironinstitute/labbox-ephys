@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
-import { CanvasPainter, RectBySides, RectOptionalSides, Vec2, Vec4 } from './CanvasPainter'
+import { CanvasPainter, RectBySides, Vec2, Vec4 } from './CanvasPainter'
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
 
@@ -14,7 +14,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     #canvasElement: any | null = null
 
     #margins: RectBySides = { left: 0, right: 0, top: 0, bottom: 0 }
-    #coordRange: RectBySides = { left: 0, right: 1, top: 0, bottom: 1 }
 
     #repaintScheduled = false
     #lastRepaintTimestamp = Number(new Date())
@@ -49,52 +48,13 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     margins() {
         return { ...this.#margins }
     }
-    coordRange(): RectBySides {
-        if (!this.#preserveAspectRatio) {
-            return {...this.#coordRange}
-        }
-        const W = this.width() - this.margins().left - this.margins().right
-        const H = this.height() - this.margins().top - this.margins().bottom
-        const xSpan = this.#coordRange.right - this.#coordRange.left
-        const ySpan = this.#coordRange.bottom - this.#coordRange.top
-        let newXSpan = xSpan
-        let newYSpan = ySpan
-        // Now update either the x- or y-span so that W/H = X/Y
-        // (Except we do WY = HX to avoid dealing with division)
-        if (W * ySpan < H * xSpan) {
-            newYSpan = H * xSpan / W
-        } else {
-            newXSpan = W * ySpan / H
-        }
-        const midX = (this.#coordRange.left + this.#coordRange.right) / 2
-        const midY = (this.#coordRange.top + this.#coordRange.bottom) / 2
-        return {left: midX - newXSpan / 2,  right: midX + newXSpan / 2,
-                 top: midY - newYSpan / 2, bottom: midY + newYSpan / 2 }
-    }
-    setCoordRange(range: RectOptionalSides) : void {
-        this.#coordRange = {...this.#coordRange, ...range}
-        if ((this.#coordRange.left > this.#coordRange.right)
-            || (this.#coordRange.top > this.#coordRange.bottom)) {
-                throw Error(`Invalid coordinate range: negative width or height.\n${JSON.stringify(this.#coordRange)}`)
-            }
-    }
     setPreserveAspectRatio(val: boolean) {
         this.#preserveAspectRatio = val
     }
     preserveAspectRatio() {
         return this.#preserveAspectRatio
     }
-    pixToCoords(pix: Vec2): Vec2 {
-        const margins = this.margins()
-        const {left, right, top, bottom} = this.coordRange()
-        const contentWidth = this.width() - margins.left - margins.right
-        const contentHeight = this.height() - margins.top - margins.bottom
-        const xpct = (pix[0] - margins.left) / (contentWidth)
-        const ypct = (pix[1] - margins.top) / (contentHeight)
-        const x = left + xpct * (right - left)
-        const y = top + (1 - ypct) * (bottom - top)
-        return [x, y]
-    }
+    
     // ??????????????????
     // _canvasWidget() {
     //     return this._canvasWidget;

@@ -98,7 +98,6 @@ interface CanvasWidgetLayer {
     width: () => number,
     height: () => number,
     margins: () => RectBySides
-    coordRange: () => RectBySides
 }
 
 type Color = 'black' | 'red' | 'blue' | 'transparent' | string
@@ -138,6 +137,8 @@ export class CanvasPainter {
     #exportingFigure: boolean = false
     #context2D: Context2D
     #canvasLayer: CanvasWidgetLayer
+    #coordRange: {xmin: number, xmax: number, ymin: number, ymax: number} = {xmin: 0, xmax: 1, ymin: 0, ymax: 1}
+    #preserveAspectRatio = false
     constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer) {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
@@ -219,6 +220,40 @@ export class CanvasPainter {
     ctxRotate(theta: number) {
         this.#context2D.rotate(theta)
     }
+    setXCoordRange(xmin: number, xmax: number) {
+        this.#coordRange.xmin = xmin
+        this.#coordRange.xmax = xmax
+    }
+    setYCoordRange(ymin: number, ymax: number) {
+        this.#coordRange.ymin = ymin
+        this.#coordRange.ymax = ymax
+    }
+    setCoordRange(xmin: number, xmax: number, ymin: number, ymax: number) {
+        this.setXCoordRange(xmin, xmax)
+        this.setYCoordRange(ymin, ymax)
+    }
+    adjustedCoordRange() {
+        if (!this.#preserveAspectRatio) {
+            return {...this.#coordRange}
+        }
+        const W = this.#canvasLayer.width() - this.#canvasLayer.margins().left - this.#canvasLayer.margins().right
+        const H = this.#canvasLayer.height() - this.#canvasLayer.margins().top - this.#canvasLayer.margins().bottom
+        const xSpan = this.#coordRange.xmax - this.#coordRange.xmin
+        const ySpan = this.#coordRange.ymax - this.#coordRange.ymin
+        let newXSpan = xSpan
+        let newYSpan = ySpan
+        // Now update either the x- or y-span so that W/H = X/Y
+        // (Except we do WY = HX to avoid dealing with division)
+        if (W * ySpan < H * xSpan) {
+            newYSpan = H * xSpan / W
+        } else {
+            newXSpan = W * ySpan / H
+        }
+        const midX = (this.#coordRange.xmin + this.#coordRange.xmax) / 2
+        const midY = (this.#coordRange.ymin + this.#coordRange.ymax) / 2
+        return {xmin: midX - newXSpan / 2,  xmax: midX + newXSpan / 2,
+                 ymin: midY - newYSpan / 2, ymax: midY + newYSpan / 2 }
+    }
     coordsToPix(x: number | Vec2, y: number | undefined = undefined): Vec2 {
         if (y === undefined) {
             if (typeof x === 'number') {
@@ -232,7 +267,7 @@ export class CanvasPainter {
             throw Error('unexpected');
         }
         const margins = this.#canvasLayer.margins();
-        const {left, right, top, bottom} = this.#canvasLayer.coordRange()
+        const {xmin, xmax, ymin, ymax} = this.adjustedCoordRange()
         let W = this.#canvasLayer.width() - margins.left - margins.right;
         let H = this.#canvasLayer.height() - margins.top - margins.bottom;
         // const xextent = xr[1] - xr[0];
@@ -245,9 +280,26 @@ export class CanvasPainter {
         //         H = W * yextent / xextent;
         //     }
         // }
-        const xpct = (x - left) / (right - left);
-        const ypct = 1 - (y - top) / (bottom - top);
+        const xpct = (x - xmin) / (xmax - xmin);
+        const ypct = 1 - (y - ymin) / (ymax - ymin);
         return [margins.left + W * xpct, margins.top + H * ypct];
+    }
+    pixToCoords(pix: Vec2): Vec2 {
+        const margins = this.#canvasLayer.margins()
+        const {xmin, xmax, ymin, ymax} = this.adjustedCoordRange()
+        const contentWidth = this.width() - margins.left - margins.right
+        const contentHeight = this.height() - margins.top - margins.bottom
+        const xpct = (pix[0] - margins.left) / (contentWidth)
+        const ypct = (pix[1] - margins.top) / (contentHeight)
+        const x = xmin + xpct * (xmax - xmin)
+        const y = ymin + (1 - ypct) * (ymax - ymin)
+        return [x, y]
+    }
+    width() {
+        return this.#canvasLayer.width()
+    }
+    height() {
+        return this.#canvasLayer.height()
     }
     fillRect(x: number | Vec4, y: number | Brush, W: number | undefined = undefined, H: number | undefined = undefined, brush: Brush | undefined = undefined) {
         if (isVec4(x)) {
@@ -261,6 +313,10 @@ export class CanvasPainter {
             brush = this.#brush
         }
         if (isString(brush)) brush = { color: brush };
+
+        const xyWH = this.transformXYWH(x, y, W, H)
+        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
+
         this.#context2D.fillStyle = toColorStr(brush.color);
         this.#context2D.fillRect(x, y, W, H);
     }
@@ -272,12 +328,16 @@ export class CanvasPainter {
         if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
             throw Error('Unexpected')
         }
+
+        const xyWH = this.transformXYWH(x, y, W, H)
+        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
+
         applyPen(this.#context2D, this.#pen)
         this.#context2D.strokeRect(x, y, W, H);
     }
     fillEllipse(x: number | Vec4, y: number | Brush, W: number | undefined = undefined, H: number | undefined = undefined, brush: Brush | undefined = undefined) {
         if (isVec4(x)) {
-            this.fillRect(x[0], x[1], x[2], x[3], brush)
+            this.fillEllipse(x[0], x[1], x[2], x[3], brush)
             return
         }
         if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
@@ -286,6 +346,10 @@ export class CanvasPainter {
         if ((!isBrush(brush)) && (!isString(brush))) {
             brush = this.#brush
         }
+        
+        const xyWH = this.transformXYWH(x, y, W, H)
+        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
+
         if (isString(brush)) brush = { color: brush };
         this.#context2D.fillStyle = toColorStr(brush.color);
         this.#context2D.beginPath()
@@ -300,6 +364,10 @@ export class CanvasPainter {
         if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
             throw Error('Unexpected')
         }
+
+        const xyWH = this.transformXYWH(x, y, W, H)
+        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
+
         applyPen(this.#context2D, this.#pen)
         this.#context2D.beginPath();
         this.#context2D.ellipse(x + W / 2, y + H / 2, W / 2, H / 2, 0, 0, 2 * Math.PI);
