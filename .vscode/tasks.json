@@ -22,12 +22,12 @@
         {
             "label": "_start_dev",
             "type": "shell",
-            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15351'"
+            "command": "echo 'Starting the dev api and client tasks...' && sleep 3 && echo 'Point your browser to http://localhost:15351'"
         },
         {
             "label": "START DEV",
             "type": "shell",
-            "command": "echo 'This will start the dev api and client. Point your browser to http://localhost:15351'",
+            "command": "echo 'Starting the dev api and client tasks...' && sleep 3 && echo 'Point your browser to http://localhost:15351'",
             "dependsOn": [
                 "start dev kachery-p2p daemon",
                 "start dev api",
