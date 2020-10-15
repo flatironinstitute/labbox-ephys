@@ -19,16 +19,13 @@ const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) =
         // painter.drawMarker(electrode.x, electrode.y, 20);
     })
 }
-// const testLayer = new CanvasWidgetLayer(paintTestLayer);
 
 
-// This is probably not a great idea, but getting the most rigorous typing setup wasn't my priority here
 interface ClickLayerProps extends ElectrodeGeometryProps {
     clickHistory: Vec2[]
 }
 const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
     console.log('PaintClickLayer')
-    // painter.clear() // this draws a transparent rectangle above everything, w/out clearing layer's prior contents
     painter.wipe()
     let i = 0
     props.clickHistory.forEach(point => {
@@ -38,8 +35,51 @@ const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
         i++
     })
 }
-// const clickLayer = new CanvasWidgetLayer(clickTestLayer)
 
+interface AnimatedLayerProps extends ElectrodeGeometryProps {
+    point: Vec2 | undefined,
+    requestRepaint: () => void,
+    start: DOMHighResTimeStamp | undefined
+}
+const animateClickLayer = (painter: CanvasPainter, props: AnimatedLayerProps, timestamp?: DOMHighResTimeStamp) => {
+    console.log('AnimateClickLayer')
+
+    const firstFrame = (timestamp: DOMHighResTimeStamp) => {
+        return animateClickLayer(painter, {...props, start: timestamp}, timestamp)
+    }
+
+    const stepFrame = (timestamp: DOMHighResTimeStamp) => {
+        return animateClickLayer(painter, props, timestamp)
+    }
+
+    if (!props.point) return
+    if (!props.start) {
+        window.requestAnimationFrame(firstFrame)
+        return
+    }
+    if (!timestamp) { // this may be unreachable
+        window.requestAnimationFrame(stepFrame)
+        return
+    }
+
+
+    console.log('Animating next frame')
+    const duration = 250  // animation runs for a quarter-second
+    const end = props.start + duration
+    const pct = (Math.min(end, timestamp) - props.start) / duration
+    const maxRadius = 20
+    const currentRadius = Math.floor(maxRadius * pct)
+    const color = Math.floor(255 * pct)
+    const done = timestamp > end
+
+    painter.wipe()
+    if (!done) {
+        painter.setPen({color: `rgb(128, 0, ${color})`, width: 3})
+        painter.drawEllipse(props.point[0] - currentRadius, props.point[1] - currentRadius, 2 * currentRadius, 2 * currentRadius)
+    }
+    props.requestRepaint()
+    if (!done) window.requestAnimationFrame(stepFrame)
+}
 
 
 const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
@@ -47,7 +87,10 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
 
     const testLayer = useRef(new CanvasWidgetLayer<ElectrodeGeometryProps>(paintTestLayer, props)).current
     const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, {...props, clickHistory: []})).current
-    const layers = [testLayer, clickLayer]
+    const animatedLayer = useRef(new CanvasWidgetLayer<AnimatedLayerProps>(animateClickLayer, {...props, point: undefined, requestRepaint: () => (''), start: undefined })).current
+    // note self-referentiality here. animatedLayer needs an ability to request its canvas schedule a repaint during its animation cycle.
+    animatedLayer.setProps({...animatedLayer.getProps(), requestRepaint: animatedLayer.scheduleRepaint})
+    const layers = [testLayer, clickLayer, animatedLayer]
 
     const _handleMouseMove = useCallback((pos: Vec2) => {
         // console.log('--- on mouse move', pos)
@@ -59,20 +102,10 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
             clickHistory: [pos, ...clickLayerProps.clickHistory.slice(0, 9)]
         })
         clickLayer.scheduleRepaint()
-        // layers[1].repaintImmediate()
-        // layers[1].scheduleRepaint()
-        // Repainting, whether scheduled or immediate, only takes effect on the *next*
-        // click.
-        // however, if I add a wipe to both layers & bypass CanvasWidgetLayer._initialize()'s
-        // change check, it will display correctly from the initial 're'paint.
-        // Not really sure the best way to do this: the repaint timeout isn't doing what
-        // I want it to do, but it does feel like a persistent object shouldn't be always
-        // reinitializing...
-        // also not being able to schedule repaints will prevent us from doing any sort of
-        // animation, which could be a real loss for displaying trends over the probe
-        // (eg a popcorn hotspot/unit-firing view)
+
+        animatedLayer.setProps({...animatedLayer.getProps(), point: pos})
         console.log('--- on mouse press', pos)
-    }, [])
+    }, [clickLayer, animatedLayer])
     const _handleMouseRelease = useCallback((pos: Vec2) => {
         console.log('--- on mouse release', pos)
     }, [])
