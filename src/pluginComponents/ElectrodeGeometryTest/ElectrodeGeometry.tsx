@@ -1,8 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { CanvasPainter, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
-interface Props {
+interface ElectrodeGeometryProps {
     electrodes: ({
         label: string,
         x: number,
@@ -10,7 +10,7 @@ interface Props {
     })[]
 }
 
-const paintTestLayer = (painter: CanvasPainter, props: Props) => {
+const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) => {
     console.log('PaintTestLayer')
     painter.wipe()
     painter.setPen({color: 'rgb(22, 22, 22)'});
@@ -19,42 +19,46 @@ const paintTestLayer = (painter: CanvasPainter, props: Props) => {
         // painter.drawMarker(electrode.x, electrode.y, 20);
     })
 }
-const testLayer = new CanvasWidgetLayer(paintTestLayer);
-
-
-
+// const testLayer = new CanvasWidgetLayer(paintTestLayer);
 
 
 // This is probably not a great idea, but getting the most rigorous typing setup wasn't my priority here
-interface PropsWithHistory extends Props {
-    ClickHistory: Vec2[]
+interface ClickLayerProps extends ElectrodeGeometryProps {
+    clickHistory: Vec2[]
 }
-const clickTestLayer = (painter: CanvasPainter, props: PropsWithHistory) => {
-    console.log('ClickTestLayer')
+const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
+    console.log('PaintClickLayer')
     // painter.clear() // this draws a transparent rectangle above everything, w/out clearing layer's prior contents
     painter.wipe()
     let i = 0
-    props.ClickHistory.forEach(point => {
-        const color = i * 12
+    props.clickHistory.forEach(point => {
+        const color = i * 50
         painter.setPen({color: `rgb(${color}, 0, 128)`, width: 3})
         painter.drawEllipse(point[0] - 5, point[1] - 5, 10, 10)
         i++
     })
 }
-const clickLayer = new CanvasWidgetLayer(clickTestLayer)
+// const clickLayer = new CanvasWidgetLayer(clickTestLayer)
 
 
 
-const ElectrodeGeometry = (props: Props) => {
+const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const { electrodes } = props;
-    const layers = [testLayer, clickLayer];
-    const [clicks, setClicks] = useState<Vec2[]>([])
+
+    const testLayer = useRef(new CanvasWidgetLayer<ElectrodeGeometryProps>(paintTestLayer, props)).current
+    const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, {...props, clickHistory: []})).current
+    const layers = [testLayer, clickLayer]
 
     const _handleMouseMove = useCallback((pos: Vec2) => {
         // console.log('--- on mouse move', pos)
     }, [])
     const _handleMousePress = useCallback((pos: Vec2) => {
-        setClicks((c) => [pos, ...c.slice(0, 9)])
+        const clickLayerProps = clickLayer.getProps()
+        clickLayer.setProps({
+            ...clickLayer.getProps(),
+            clickHistory: [pos, ...clickLayerProps.clickHistory.slice(0, 9)]
+        })
+        clickLayer.scheduleRepaint()
         // layers[1].repaintImmediate()
         // layers[1].scheduleRepaint()
         // Repainting, whether scheduled or immediate, only takes effect on the *next*
@@ -82,7 +86,6 @@ const ElectrodeGeometry = (props: Props) => {
         <CanvasWidget
             key='canvas'
             layers={layers}
-            layerProps={{...props, ClickHistory: clicks}}
             width={200}
             height={200}
             onMouseMove={_handleMouseMove}

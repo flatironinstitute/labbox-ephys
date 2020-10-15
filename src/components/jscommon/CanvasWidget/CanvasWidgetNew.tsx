@@ -3,14 +3,14 @@ import { CanvasPainter, RectBySides, RectOptionalSides, Vec2, Vec4 } from './Can
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
 
-export class CanvasWidgetLayer {
+export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     #onPaint: OnPaint
+    #props: LayerProps
     #preserveAspectRatio = false
 
     // these are set in _initialize
     #width: number = 100
     #height: number = 100 // todo: figure out how to get this
-    #layerProps: any = {} // todo: figure out how to get this
     #canvasElement: any | null = null
 
     #margins: RectBySides = { left: 0, right: 0, top: 0, bottom: 0 }
@@ -20,8 +20,15 @@ export class CanvasWidgetLayer {
     #lastRepaintTimestamp = Number(new Date())
     #repaintNeeded = false
 
-    constructor(onPaint: OnPaint) {
+    constructor(onPaint: OnPaint, initialProps: LayerProps) {
         this.#onPaint = onPaint
+        this.#props = {...initialProps}
+    }
+    setProps(p: LayerProps) {
+        this.#props = {...p}
+    }
+    getProps(): LayerProps {
+        return {...this.#props}
     }
     context() {
         if (!this.#canvasElement) return null
@@ -119,20 +126,19 @@ export class CanvasWidgetLayer {
     repaintImmediate() {
         this._doRepaint()
     }
-    _initialize(width: number, height: number, layerProps: any, canvasElement: any) {
-        // let doScheduleRepaint = (
-        //     (width !== this.#width) ||
-        //     (height !== this.#height) ||
-        //     canvasElement !== this.#canvasElement
-        // )
+    _initialize(width: number, height: number, canvasElement: any) {
+        let doScheduleRepaint = (
+            (width !== this.#width) ||
+            (height !== this.#height) ||
+            canvasElement !== this.#canvasElement
+        )
         this.#width = width
         this.#height = height
-        this.#layerProps = layerProps
         this.#canvasElement = canvasElement
-        this.scheduleRepaint()
-        // if (doScheduleRepaint) {
-        //     this.scheduleRepaint()
-        // }
+        // this.scheduleRepaint()
+        if (doScheduleRepaint) {
+            this.scheduleRepaint()
+        }
     }
     _doRepaint = () => {
         // for (let handler of this._repaintHandlers) {
@@ -150,7 +156,8 @@ export class CanvasWidgetLayer {
         let painter = new CanvasPainter(ctx, this)
         // painter._initialize(this.props.width, this.props.height);
         painter.clear()
-        this.#onPaint(painter, this.#layerProps)
+        console.log('--------------- props', this.#props)
+        this.#onPaint(painter, this.#props)
     }
 }
 
@@ -232,8 +239,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 }
 
 interface Props {
-    layers: CanvasWidgetLayer[],
-    layerProps: any,
+    layers: CanvasWidgetLayer<{[key: string]: any}>[],
     width: number,
     height: number,
     onMouseMove: (pos: Vec2) => void
@@ -262,7 +268,7 @@ const CanvasWidget = (props: Props) => {
             const divElement = divRef.current
             if (divElement) {
                 const canvasElement = divElement.children[index]
-                L._initialize(props.width, props.height, props.layerProps, canvasElement)
+                L._initialize(props.width, props.height, canvasElement)
                 if (L.repaintNeeded()) {
                     L.scheduleRepaint()
                 }
