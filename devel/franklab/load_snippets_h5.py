@@ -49,11 +49,11 @@ def main():
         '''.strip()
     ))
 
-    feed_uri = create_labbox_ephys_feed(le_recordings, le_sortings)
+    feed_uri = create_labbox_ephys_feed(le_recordings, le_sortings, create_snapshot=True)
     print(feed_uri)
     
 
-def create_labbox_ephys_feed(le_recordings, le_sortings):
+def create_labbox_ephys_feed(le_recordings, le_sortings, create_snapshot=True):
     try:
         f = kp.create_feed()
         recordings = f.get_subfeed(dict(documentId='default', key='recordings'))
@@ -76,13 +76,17 @@ def create_labbox_ephys_feed(le_recordings, le_sortings):
         #     sortings.append_message(dict(
         #         action=action
         #     ))
-        x = f.create_snapshot([
-            dict(documentId='default', key='recordings'),
-            dict(documentId='default', key='sortings')
-        ])
-        return x.get_uri()
+        if create_snapshot:
+            x = f.create_snapshot([
+                dict(documentId='default', key='recordings'),
+                dict(documentId='default', key='sortings')
+            ])
+            return x.get_uri()
+        else:
+            return f.get_uri()
     finally:
-        f.delete()
+        if create_snapshot:
+            f.delete()
 
 if __name__ == '__main__':
     main()
