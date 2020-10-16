@@ -96,8 +96,7 @@ interface Context2D {
 
 interface CanvasWidgetLayer {
     width: () => number,
-    height: () => number,
-    margins: () => RectBySides
+    height: () => number
 }
 
 type Color = 'black' | 'red' | 'blue' | 'transparent' | string
@@ -487,12 +486,12 @@ export class CanvasPainter {
         if (!isNumber(y)) {
             throw Error('unexpected')
         }
-        const margins = this.#canvasLayer.margins();
+        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
         if (this.#useCoords) {
             return this.coordsToPix(x, y);
         }
         else {
-            return [margins.left + x, margins.top + y];
+            return [boundingRectangle[0] + x, boundingRectangle[1] + y];
         }
     }
 }
