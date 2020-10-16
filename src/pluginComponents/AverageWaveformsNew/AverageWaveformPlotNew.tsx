@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
-import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+import React from 'react';
+import ElectrodeLayoutPlot, { ElectrodePlotData } from './ElectrodeLayoutPlot';
 
 interface PlotData {
-    average_waveform: number[]
+    average_waveform: number[][]
+    channel_ids: number[],
+    channel_locations: number[][],
     sampling_frequency: number
 }
 
@@ -24,77 +25,46 @@ const AverageWaveformPlotNew = (props: Props) => {
     //     return { x: item, y: plotData[1][index] };
     // });
 
+    console.log('props.plotData:', props.plotData)
+
     // console.log(plotData);
     if (!props.plotData.average_waveform) {
         // assume no events
         return <div />;
     }
 
-    const factor = 1000 / props.plotData.sampling_frequency
-    const data = props.plotData.average_waveform.map((v, ii) => ({x: ii*factor, y: v}));
+    // const factor = 1000 / props.plotData.sampling_frequency
+    // const xAxisLabel = 'dt (msec)'
 
-    const xAxisLabel = 'dt (msec)'
+    const electrodes: ElectrodePlotData[] = props.plotData.channel_ids.map((ch, i) => {
+        const w = props.plotData.average_waveform[i]
+        const loc = props.plotData.channel_locations[i]
+        return {
+            label: ch + '',
+            position: {x: loc[0], y: loc[1]},
+            waveform: w
+        }
+    })
 
     return (
-        <div className="App" style={{width: props.boxSize.width, height: props.boxSize.height, display: "flex", padding: 10}}
+        <div className="App" style={{width: props.boxSize.width, height: props.boxSize.height, padding: 10}}
             key={"plot-"+props.argsObject.id}
         >
-            <div style={{textAlign: 'center', fontSize: '12px'}}>{props.title || "Average waveform"}</div>
-            <HelperPlot
-                width={props.boxSize.width}
-                height={props.boxSize.height}
-                data={data}
-            />
-            <div style={{textAlign: 'center', fontSize: '12px'}}>{xAxisLabel}</div>
+            <div>
+                <ElectrodeLayoutPlot
+                    width={props.boxSize.width}
+                    height={props.boxSize.height}
+                    data={{
+                        waveformYScaleFactor: 1,
+                        electrodes
+                    }}
+                    plotElectrodes={false}
+                    plotWaveforms={true}
+                />
+            </div>
         </div>
     );
 }
-
-interface HelperPlotProps {
-    width: number
-    height: number
-    data: {x: number, y: number}[]
-}
-
-const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) => {
-    painter.setBrush({color: 'green'})
-
-    const { data } = props
-
-    const xmin = Math.min(...data.map(a => (a.x)))
-    const xmax = Math.max(...data.map(a => (a.x)))
-    const ymin = Math.min(...data.map(a => (a.y)))
-    const ymax = Math.max(...data.map(a => (a.y)))
-
-    painter.setCoordRange(xmin, xmax, ymin, ymax)
-    painter.useCoords()
-
-    const path = new PainterPath()
-    data.forEach(a => {
-        path.lineTo(a.x, a.y)
-    })
-    painter.drawPath(path)
-}
-
-const HelperPlot = (props: HelperPlotProps) => {
-
-    const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps>(paintCanvasWidgetLayer, props)).current
-
-    const layers = [plotWaveformLayer]
-    return (
-        <CanvasWidget
-            layers={layers}
-            width={props.width}
-            height={props.height}
-            onMouseMove={() => {}}
-            onMousePress={() => {}}
-            onMouseRelease={() => {}}
-            onMouseDrag={() => {}}
-            onMouseDragRelease={() => {}}
-        />
-    )
-}
-
 
 
 export default AverageWaveformPlotNew

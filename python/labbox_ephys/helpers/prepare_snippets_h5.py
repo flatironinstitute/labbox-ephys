@@ -6,7 +6,7 @@ import numpy as np
 import spikeextractors as se
 
 
-@hi.function('prepare_snippets_h5', '0.2.5')
+@hi.function('prepare_snippets_h5', '0.3.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../labbox_ephys'])
 def prepare_snippets_h5(

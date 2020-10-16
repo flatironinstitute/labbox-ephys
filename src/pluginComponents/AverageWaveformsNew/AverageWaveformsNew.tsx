@@ -37,7 +37,7 @@ const AverageWaveformsNew = (props: Props) => {
             selections={props.selectedUnitIds}
             focus={props.focusedUnitId}
             onUnitClicked={props.onUnitClicked}
-            dataFunctionName={'createjob_fetch_average_waveform_plot_data'}
+            dataFunctionName={'createjob_fetch_average_waveform_new_plot_data'}
             dataFunctionArgsCallback={(unitId: number) => ({
                 sorting_object: props.sorting.sortingObject,
                 recording_object: props.recording.recordingObject,

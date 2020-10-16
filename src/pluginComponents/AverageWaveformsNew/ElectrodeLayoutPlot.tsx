@@ -3,7 +3,7 @@ import { CanvasPainter, Vec2 } from '../../components/jscommon/CanvasWidget/Canv
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew'
 
 
-interface ElectrodePlotData {
+export interface ElectrodePlotData {
     label: string | null
     position: {x: number, y: number}
     waveform?: number[]
@@ -16,7 +16,8 @@ interface Props {
         waveformYScaleFactor: number
         electrodes: ElectrodePlotData[]
     }
-    plotElectrodes: boolean
+    plotElectrodes?: boolean
+    plotWaveforms?: boolean
 }
 
 interface Rect {
@@ -43,7 +44,12 @@ const determineSpacingFromPositions = (positions: {x: number, y: number}[]): num
 
 const computeElectrodeRects = (props: Props): Rect[] => {
     const positions = props.data.electrodes.map(e => (e.position))
-    const spacing = determineSpacingFromPositions(positions)
+    if (positions.length === 0) return []
+    if (positions.length === 1) {
+        return [{x: 0, y: 0, w: props.width, h: props.height}]
+    }
+    let spacing = determineSpacingFromPositions(positions)
+    spacing *= 0.9 // adjust spacing a bit
     let xmin = Math.min(...positions.map(p => (p.x)))
     let xmax = Math.max(...positions.map(p => (p.x)))
     let ymin = Math.min(...positions.map(p => (p.y)))
@@ -124,6 +130,35 @@ const paintElectrodes = (painter: CanvasPainter, props: ExtendedProps) => {
     })
 }
 
+const paintWaveforms = (painter: CanvasPainter, props: ExtendedProps) => {
+    painter.wipe()
+    const maxAmplitude = Math.max(...props.data.electrodes.map(e => {
+        if (e.waveform) {
+            return Math.max(...e.waveform.map(y => (Math.abs(y))))
+        }
+        else {
+            return 0
+        }
+    }))
+    if (maxAmplitude <= 0) return
+    props.electrodeRects.forEach((r, i) => {
+        const e = props.data.electrodes[i]
+        if (e.waveform) {
+            painter.setBoundingRectangle([r.x, r.y, r.w, r.h])
+            const s = props.data.waveformYScaleFactor
+            painter.setCoordRange(0, e.waveform.length, -maxAmplitude / s, maxAmplitude / s)
+            painter.useCoords()
+            let pen = {color: 'black', width: 1}
+            painter.setPen(pen)
+            const path = painter.createPainterPath()
+            e.waveform.forEach((y, i) => {
+                path.lineTo(i, y)
+            })
+            painter.drawPath(path)
+        }
+    })
+}
+
 const _rectContains = (r: Rect, pos: Vec2) => {
     return (
         (r.x <= pos[0]) &&
@@ -150,16 +185,23 @@ const ElectrodeLayoutPlot = (props: Props) => {
     }
 
     const paintElectrodesLayer = useRef<CanvasWidgetLayer<any>>(new CanvasWidgetLayer<ExtendedProps>(paintElectrodes, extendedProps)).current
+    const paintWaveformsLayer = useRef<CanvasWidgetLayer<any>>(new CanvasWidgetLayer<ExtendedProps>(paintWaveforms, extendedProps)).current
 
     useEffect(() => {
         // figure out how to only repaint when needed
         paintElectrodesLayer.setProps(extendedProps)
         paintElectrodesLayer.scheduleRepaint()
+
+        paintWaveformsLayer.setProps(extendedProps)
+        paintWaveformsLayer.scheduleRepaint()
     })
 
     const layers: CanvasWidgetLayer<any>[] = []
     if (props.plotElectrodes) {
         layers.push(paintElectrodesLayer)
+    }
+    if (props.plotWaveforms) {
+        layers.push(paintWaveformsLayer)
     }
 
     const _handleMouseMove = useCallback((pos: Vec2) => {
