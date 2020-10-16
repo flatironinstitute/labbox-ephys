@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
-import { CanvasPainter, RectBySides, Vec2, Vec4 } from './CanvasPainter'
+import { CanvasPainter, Vec2, Vec4 } from './CanvasPainter'
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
 
@@ -12,8 +12,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     #width: number = 100
     #height: number = 100 // todo: figure out how to get this
     #canvasElement: any | null = null
-
-    #margins: RectBySides = { left: 0, right: 0, top: 0, bottom: 0 }
 
     #repaintScheduled = false
     #lastRepaintTimestamp = Number(new Date())
@@ -44,9 +42,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     }
     height() {
         return this.#height
-    }
-    margins() {
-        return { ...this.#margins }
     }
     setPreserveAspectRatio(val: boolean) {
         this.#preserveAspectRatio = val
@@ -79,9 +74,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
             this.#repaintScheduled = false;
             this._doRepaint();
         }, 5);
-    }
-    setMargins(l: number, r: number, t: number, b: number) {
-        this.#margins = { left: l, right: r, top: t, bottom: b }
     }
     repaintImmediate() {
         this._doRepaint()

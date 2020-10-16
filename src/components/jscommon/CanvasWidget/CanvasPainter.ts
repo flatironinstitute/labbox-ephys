@@ -139,6 +139,7 @@ export class CanvasPainter {
     #canvasLayer: CanvasWidgetLayer
     #coordRange: {xmin: number, xmax: number, ymin: number, ymax: number} = {xmin: 0, xmax: 1, ymin: 0, ymax: 1}
     #preserveAspectRatio = false
+    #boundingRectangle: Vec4 | null = null
     constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer) {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
@@ -180,6 +181,12 @@ export class CanvasPainter {
     }
     exportingFigure() {
         return this.#exportingFigure
+    }
+    setMargins(lrtb: Vec4) {
+        this.#boundingRectangle = [lrtb[0], lrtb[2], this.width() - lrtb[0] - lrtb[1], this.height() - lrtb[2] - lrtb[3]]
+    }
+    setBoundingRectangle(xyWH: Vec4) {
+        this.#boundingRectangle = [...xyWH]
     }
     _initialize() {
         console.warn('DEPRECATED: _initialize')
@@ -236,8 +243,9 @@ export class CanvasPainter {
         if (!this.#preserveAspectRatio) {
             return {...this.#coordRange}
         }
-        const W = this.#canvasLayer.width() - this.#canvasLayer.margins().left - this.#canvasLayer.margins().right
-        const H = this.#canvasLayer.height() - this.#canvasLayer.margins().top - this.#canvasLayer.margins().bottom
+        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
+        const W = boundingRectangle[2]
+        const H = boundingRectangle[3]
         const xSpan = this.#coordRange.xmax - this.#coordRange.xmin
         const ySpan = this.#coordRange.ymax - this.#coordRange.ymin
         let newXSpan = xSpan
@@ -266,10 +274,10 @@ export class CanvasPainter {
         if (typeof x !== 'number') {
             throw Error('unexpected');
         }
-        const margins = this.#canvasLayer.margins();
+        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
         const {xmin, xmax, ymin, ymax} = this.adjustedCoordRange()
-        let W = this.#canvasLayer.width() - margins.left - margins.right;
-        let H = this.#canvasLayer.height() - margins.top - margins.bottom;
+        let W = boundingRectangle[2]
+        let H = boundingRectangle[3]
         // const xextent = xr[1] - xr[0];
         // const yextent = yr[1] - yr[0];
         // if (canvasLayer.preserveAspectRatio()) {
@@ -282,15 +290,15 @@ export class CanvasPainter {
         // }
         const xpct = (x - xmin) / (xmax - xmin);
         const ypct = 1 - (y - ymin) / (ymax - ymin);
-        return [margins.left + W * xpct, margins.top + H * ypct];
+        return [boundingRectangle[0] + W * xpct, boundingRectangle[1] + H * ypct];
     }
     pixToCoords(pix: Vec2): Vec2 {
-        const margins = this.#canvasLayer.margins()
+        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
         const {xmin, xmax, ymin, ymax} = this.adjustedCoordRange()
-        const contentWidth = this.width() - margins.left - margins.right
-        const contentHeight = this.height() - margins.top - margins.bottom
-        const xpct = (pix[0] - margins.left) / (contentWidth)
-        const ypct = (pix[1] - margins.top) / (contentHeight)
+        let W = boundingRectangle[2]
+        let H = boundingRectangle[3]
+        const xpct = (pix[0] - boundingRectangle[0]) / (W)
+        const ypct = (pix[1] - boundingRectangle[1]) / (H)
         const x = xmin + xpct * (xmax - xmin)
         const y = ymin + (1 - ypct) * (ymax - ymin)
         return [x, y]
