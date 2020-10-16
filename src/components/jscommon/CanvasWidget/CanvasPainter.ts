@@ -394,15 +394,15 @@ export class CanvasPainter {
         const rect2 = this.transformRect(rect)
         var x, y, textAlign, textBaseline;
         if (alignment.Horizontal === 'AlignLeft') {
-            x = rect[0];
+            x = rect2[0];
             textAlign = 'left';
         }
         else if (alignment.Horizontal === 'AlignCenter') {
-            x = rect[0] + rect[2] / 2;
+            x = rect2[0] + rect2[2] / 2;
             textAlign = 'center';
         }
         else if (alignment.Horizontal === 'AlignRight') {
-            x = rect[0] + rect[2];
+            x = rect2[0] + rect2[2];
             textAlign = 'right';
         }
         else {
@@ -411,15 +411,15 @@ export class CanvasPainter {
         }
 
         if (alignment.Vertical === 'AlignTop' ) {
-            y = rect[1];
+            y = rect2[1];
             textBaseline = 'top';
         }
         else if (alignment.Vertical === 'AlignBottom') {
-            y = rect[1] + rect[3];
+            y = rect2[1] + rect2[3];
             textBaseline = 'bottom';
         }
         else if (alignment.Vertical === 'AlignCenter') {
-            y = rect[1] + rect[3] / 2;
+            y = rect2[1] + rect2[3] / 2;
             textBaseline = 'middle';
         }
         else {

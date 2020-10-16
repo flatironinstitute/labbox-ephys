@@ -108,7 +108,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
         let painter = new CanvasPainter(ctx, this)
         // painter._initialize(this.props.width, this.props.height);
         painter.clear()
-        console.log('--------------- props', this.#props)
         this.#onPaint(painter, this.#props)
     }
 }
@@ -204,7 +203,7 @@ interface Props {
 const CanvasWidget = (props: Props) => {
     const divRef = React.useRef<HTMLDivElement>(null)
 
-    const { onMouseDrag, onMousePress, onMouseRelease, onMouseDragRelease } = props
+    const { onMouseMove, onMouseDrag, onMousePress, onMouseRelease, onMouseDragRelease } = props
 
     const [state, dispatch] = useReducer(dragReducer, {
         dragging: false,
@@ -232,7 +231,8 @@ const CanvasWidget = (props: Props) => {
         const { point, mouseButton } = _pointFromEvent(e)
         dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton, point: point})
         onMouseDrag({ anchor: state.dragAnchor, pos: state.dragPosition, rect: state.dragRect })
-    }, [onMouseDrag, state.dragAnchor, state.dragPosition, state.dragRect])
+        onMouseMove(point)
+    }, [onMouseDrag, onMouseMove, state.dragAnchor, state.dragPosition, state.dragRect])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const elmt = e.currentTarget
