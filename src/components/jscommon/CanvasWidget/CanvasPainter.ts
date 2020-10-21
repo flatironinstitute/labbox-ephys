@@ -1,3 +1,5 @@
+import { matrix, multiply } from 'mathjs'
+
 export type Vec2 = number[]
 export const isVec2 = (x: any): x is Vec2 => {
     if ((x) && (Array.isArray(x)) && (x.length === 2)) {
@@ -31,6 +33,38 @@ const isVec4 = (x: any): x is Vec4 => {
     else return false
 }
 
+// Two-dimensional point in 3-dimensional (homogeneous-coordinate) vector space.
+// For our purposes right now the third position should be 1, we're just using
+// unit values to facilitate translations of points/figures.
+export type Vec2H = number[]
+export const isVec2H = (x: any): x is Vec2H => {
+    if ((x) && (Array.isArray(x)) && (x.length === 3)) {
+        for (let a of x) {
+            if (!isNumber(a)) return false
+        }
+        return x[2] === 1
+    }
+    return false
+}
+export const toVec2H = (x: Vec2): Vec2H => {
+    return [x[0], x[1], 1]
+}
+
+export type RectangularRegion = {
+    xmin: number,
+    xmax: number,
+    ymin: number,
+    ymax: number
+}
+export const getWidth = (region: RectangularRegion): number => {
+    return region.xmax - region.xmin
+}
+export const getHeight = (region: RectangularRegion): number => {
+    return region.ymax - region.ymin
+}
+
+// TODO: This file should probably be split up a bit, it's starting to have several peripherally-related components.
+
 // Presumably axis-aligned. These can be treated as lengths or as
 // defining the points (left, top) and (right, bottom).
 export type RectBySides = {
@@ -56,11 +90,49 @@ export type RectPointAndWidth = {
     height: number
 }
 
+export type TransformationMatrix = Vec3[]
+export const isTransformationMatrix = (x: any): x is TransformationMatrix => {
+    if ((x) && (Array.isArray(x)) && (x.length === 3)) {
+        for (let row of x) {
+            if (!isVec3(row)) return false
+        }
+        return true
+    }
+    return false
+}
+export const toTransformationMatrix = (x: math.Matrix): TransformationMatrix => {
+    if (x.size() === [3, 3]) {
+        const asArray = x.toArray() as number[][]
+        if (asArray[2] === [0, 0, 1]) {
+            return asArray as TransformationMatrix
+        }
+    }
+    throw Error(`Matrix ${JSON.stringify(x)} is invalid as a transform matrix.`)
+}
+export const getTransformationMatrix = (newSystem: RectangularRegion, targetRangeInCurrentSystem: RectangularRegion, useAscendingXAxis: boolean = false): TransformationMatrix => {
+    const newWidth = getWidth(newSystem)
+    const newHeight = getHeight(newSystem)
+    const targetRegionWidth = getWidth(targetRangeInCurrentSystem)
+    const targetRegionHeight = getHeight(targetRangeInCurrentSystem)
+    
+    // we want to build a matrix that converts points in the new system to points in the current system.
+    // This is going to have four partitions: The upper left partition is a 2x2 scaling matrix, basically an identity
+    // matrix with the x-scale and y-scale instead of unity. The upper right column is a 2x1 (column) vector which has
+    // the (xmin, ymin)^T of the rectangle defining the window of the current coordinate system that we'll use.
+    // Then on the bottom we have a 1x2 row of zeroes and a 1x1 'matrix' with a value of 1.
+    const xscale = targetRegionWidth / newWidth
+    const yscale = targetRegionHeight / newHeight
+
+    // The only trick here is that if useAscendingXAxis is true, 
+}
+// add functions to do the transforms (outside of the drawing functions) --> for both rectangles and points
+
+
 export const isNumber = (x: any): x is number => {
     return ((x !== null) && (x !== undefined) && (typeof(x) === 'number'))
 }
 
-const isString = (x: any): x is string => {
+export const isString = (x: any): x is string => {
     return ((x !== null) && (x !== undefined) && (typeof(x) === 'string'))
 }
 
@@ -75,6 +147,7 @@ interface Context2D {
     clearRect: (x: number, y: number, W: number, H: number) => void,
     save: () => void,
     restore: () => void,
+    clip: () => void,
     translate: (dx: number, dy: number) => void
     rotate: (theta: number) => void
     fillRect: (x: number, y: number, W: number, H: number) => void
@@ -100,6 +173,7 @@ interface CanvasWidgetLayer {
 }
 
 type Color = 'black' | 'red' | 'blue' | 'transparent' | string
+// TODO: Define additional colors w/ lookup table?
 
 interface Pen {
     color: Color,
@@ -129,37 +203,74 @@ const isRect = (x: any): x is Rect => {
 }
 
 export class CanvasPainter {
-    #pen: Pen = { color: 'black' }
-    #font: Font = { "pixel-size": 12, family: 'Arial' }
-    #brush: Brush = { color: 'black' }
+    // #pen: Pen = { color: 'black' }
+    // #font: Font = { "pixel-size": 12, family: 'Arial' }
+    // #brush: Brush = { color: 'black' }
     #useCoords: boolean = false
     #exportingFigure: boolean = false
     #context2D: Context2D
     #canvasLayer: CanvasWidgetLayer
-    #coordRange: {xmin: number, xmax: number, ymin: number, ymax: number} = {xmin: 0, xmax: 1, ymin: 0, ymax: 1}
+    #transformMatrix: TransformationMatrix
+    #coordRange: RectangularRegion = {xmin: 0, xmax: 1, ymin: 0, ymax: 1} // will get reset by setBaseTransformationMatrix
     #preserveAspectRatio = false
     #boundingRectangle: Vec4 | null = null
     constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer) {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
+        this.#transformMatrix = this.setBaseTransformationMatrix()
     }
-    pen() {
-        return {...this.#pen}
+
+    applyNewTransformationMatrix(newTransform: TransformationMatrix): CanvasPainter {
+        // transform should be Ax = b, where:
+        // b is the (homogeneous) vector in pixel space
+        // x is the (homogeneous) vector in the fully configured coordinate system
+        // A is the transformation matrix converting x to b.
+        // If we have current transformation A mapping vectors x to pixelspace b, and want to
+        // get a new transformation T mapping new vectors w to pixelspace vectors b, then:
+        // T = AB, where B is a matrix mapping vectors w (in the 'new' system) to x (the 'current' coordinate system).
+        // (Let Bw = x --> A(Bw) = A(x) [= b] --> (AB)w = b; T = AB, then Tw = b. QED.)
+        // This function computes T from A and B and returns a copy of the current CanvasPainter with #transformMatrix set to T.
+
+        const A = matrix(this.#transformMatrix)
+        const B = matrix(newTransform)
+        const T = multiply(A, B)
+
+        const copy = {...this}
+        copy.#transformMatrix = toTransformationMatrix(T)
+        return copy
     }
-    font() {
-        return {...this.#font}
+
+
+
+    setBaseTransformationMatrix(canvasLayer?: CanvasWidgetLayer): TransformationMatrix {
+        const layer = canvasLayer || this.#canvasLayer
+        if (layer == undefined) throw Error('Cannot build default transformation matrix with no canvas.')
+        const shape = layer.width() === layer.height() ? 'square' :
+                      layer.width() > layer.height() ? 'landscape' : 'portrait'
+        // compute aspect ratio: this ensures that any base coordinate system presents square pixels to
+        // the user. Subsequent transforms could change this, but better not to draw warped out of the box
+        const aspectRatio = Math.max(layer.width(), layer.height()) / Math.min(layer.width(), layer.height())
+        let coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
+        if (shape !== 'square') {
+            if (shape === 'landscape') coordRange = {...coordRange, xmax: aspectRatio}
+            if (shape === 'portrait') coordRange = {...coordRange, ymax: aspectRatio}
+        }
+        let systemsRatio = layer.width() / coordRange.xmax
+        this.#coordRange = coordRange
+        return [[systemsRatio,  0,              0],
+                [0,             systemsRatio,   0],
+                [0,             0,              1]] as any as TransformationMatrix
     }
-    brush() {
-        return {...this.#brush}
+
+    // TODO: Delete these default methods?
+    getDefaultPen() {
+        return { color: 'black' }
     }
-    setPen(pen: Pen) {
-        this.#pen = {...pen}
+    getDefaultFont() {
+        return { "pixel-size": 12, family: 'Arial' }
     }
-    setFont(font: Font) {
-        this.#font = {...font}
-    }
-    setBrush(brush: Brush) {
-        this.#brush = {...brush}
+    getDefaultBrush() {
+        return { color: 'black' }
     }
     useCoords() {
         this.#useCoords = true;
@@ -193,9 +304,6 @@ export class CanvasPainter {
     _finalize() {
         console.warn('DEPRECATED: _finalize')
     }
-    wipe(): void {
-        this.#context2D.clearRect(0, 0, this.#canvasLayer.width(), this.#canvasLayer.height());
-    }
     clear(): void {
         this.clearRect(0, 0, this.#canvasLayer.width(), this.#canvasLayer.height());
     }
@@ -207,6 +315,9 @@ export class CanvasPainter {
     }
     ctxRestore() {
         this.#context2D.restore();
+    }
+    wipe(): void {
+        this.#context2D.clearRect(0, 0, this.#canvasLayer.width(), this.#canvasLayer.height());
     }
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
         if (dy === undefined) {
@@ -302,11 +413,19 @@ export class CanvasPainter {
         const y = ymin + (1 - ypct) * (ymax - ymin)
         return [x, y]
     }
+
+    // Returns a new Painter writing to the same underlying Canvas, but whose points will 
+    getPainterWithNewCoordinateSpace(newSystem: RectangularRegion, currentSystem: RectangularRegion, useClipping: boolean = false): CanvasPainter {
+
+    }
     width() {
         return this.#canvasLayer.width()
     }
     height() {
         return this.#canvasLayer.height()
+    }
+    fillRect(minX: number, minY: number, W: number, H: number, brush: Brush) {
+
     }
     fillRect(x: number | Vec4, y: number | Brush, W: number | undefined = undefined, H: number | undefined = undefined, brush: Brush | undefined = undefined) {
         if (isVec4(x)) {
