@@ -10,7 +10,7 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
 
     // these are set in _initialize
     #width: number = 100
-    #height: number = 100 // todo: figure out how to get this
+    #height: number = 100 // todo: figure out how to get this from the actual Canvas
     #canvasElement: any | null = null
 
     #repaintScheduled = false
@@ -50,13 +50,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
         return this.#preserveAspectRatio
     }
     
-    // ??????????????????
-    // _canvasWidget() {
-    //     return this._canvasWidget;
-    // }
-    // _setCanvasWidget(canvasWidget) {
-    //     this._canvasWidget = canvasWidget;
-    // }
     scheduleRepaint() {
         this.#repaintNeeded = true
         if (this.#repaintScheduled) {

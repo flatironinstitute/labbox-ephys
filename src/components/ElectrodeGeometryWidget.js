@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import CanvasWidget, { CanvasWidgetLayer } from './jscommon/CanvasWidget';
+import { getTransformationMatrix, pointSpanToRegion, rectangularRegionsIntersect } from './jscommon/CanvasWidget/CanvasPainter';
 // import AutoDetermineWidth from './jscommon/AutoDetermineWidth';
 import { SizeMe } from 'react-sizeme';
 const stable_stringify = require('json-stable-stringify');
@@ -112,7 +113,7 @@ class ElectrodeGeometryWidgetInner extends Component {
 
     paintDragSelect = (painter) => {
         if (this.dragSelectRect) {
-            painter.fillRect(this.dragSelectRect, 'lightgray');
+            painter.fillRect(this.dragSelectRect, {color: 'lightgray'});
         }
     }
 
@@ -137,6 +138,14 @@ class ElectrodeGeometryWidgetInner extends Component {
 
         const W = this.state._canvasWidth;
         const H = this.state._canvasHeight;
+
+        if (W === 0 || H === 0) return
+        // quick hack to get display to work: the old widget wants to work in pixelspace.
+        // TODO: Note that drag selection needs to be fixed along the same lines;
+        // It's reporting pixelspace which is getting converted to something else...
+        const myCoordinates = { xmin: 0, ymin: 0, xmax: W, ymax: H }
+        const tmatrix = getTransformationMatrix(myCoordinates, painter.getCoordRange())
+        const myPainter = painter.applyNewTransformationMatrix(tmatrix)
 
         let W1 = W, H1 = H;
         if (this.transpose) {
@@ -174,12 +183,12 @@ class ElectrodeGeometryWidgetInner extends Component {
                     y1 = x;
                 }
                 let col = this.getElectrodeColor(id0);
-                let rect0 = [x1 - rad, y1 - rad, rad * 2, rad * 2];
-                painter.fillEllipse(rect0, col);
-                this.channel_rects[i] = rect0;
-                painter.setBrush({ color: 'white' });
-                painter.setFont({ 'pixel-size': rad });
-                painter.drawText(rect0, { AlignCenter: true, AlignVCenter: true }, id0);
+                const boundingRect = { xmin: x1 - rad, ymin: y1 - rad, xmax: x1 + rad, ymax: y1 + rad }
+                myPainter.fillEllipse(boundingRect, { color: col });
+                this.channel_rects[i] = boundingRect;
+                const labelBrush = { color: 'white' };
+                const labelFont = { 'pixel-size': rad }
+                myPainter.drawText(boundingRect, { Horizontal: 'AlignCenter', Vertical: 'AlignCenter' }, labelFont, myPainter.getDefaultPen(), labelBrush, id0);
             }
         }
     }
@@ -266,8 +275,8 @@ class ElectrodeGeometryWidgetInner extends Component {
         const ids = this.ids();
         for (let i in this.channel_rects) {
             let rect0 = this.channel_rects[i];
-            if ((rect0[0] <= pos[0]) && (pos[0] <= rect0[0] + rect0[2])) {
-                if ((rect0[1] <= pos[1]) && (pos[1] <= rect0[1] + rect0[2])) {
+            if ((rect0.xmin <= pos[0]) && (pos[0] <= rect0.xmax)) {
+                if ((rect0.ymin <= pos[1]) && (pos[1] <= rect0.ymax)) {
                     return ids[i];
                 }
             }
@@ -280,7 +289,7 @@ class ElectrodeGeometryWidgetInner extends Component {
         let ret = [];
         for (let i in this.channel_rects) {
             let rect0 = this.channel_rects[i];
-            if (rects_intersect(rect, rect0)) {
+            if (rectangularRegionsIntersect(rect, rect0)) {
                 ret.push(ids[i]);
             }
         }
@@ -364,14 +373,15 @@ class ElectrodeGeometryWidgetInner extends Component {
     }
 
     handleMouseDrag = (X) => {
-        if (JSON.stringify(X.rect) !== JSON.stringify(this.dragSelectRect)) {
-            this.dragSelectRect = X.rect;
+        const currentDrag = pointSpanToRegion(X.rect)
+        if (JSON.stringify(currentDrag) !== JSON.stringify(this.dragSelectRect)) {
+            this.dragSelectRect = currentDrag
             this.setHoveredElectrodeIds(this.electrodeIdsInRect(this.dragSelectRect));
         }
     }
 
     handleMouseDragRelease = (X) => {
-        let ids = this.electrodeIdsInRect(X.rect);
+        let ids = this.electrodeIdsInRect(pointSpanToRegion(X.rect));
         this.setCurrentElectrodeId(null);
         this.setSelectedElectrodeIds(ids);
         if (ids.length === 1) {
@@ -411,15 +421,6 @@ class ElectrodeGeometryWidgetInner extends Component {
     }
 }
 
-function rects_intersect(R1, R2) {
-    if ((R2[0] + R2[2] < R1[0]) || (R2[0] > R1[0] + R1[2])) return false;
-    if ((R2[1] + R2[3] < R1[1]) || (R2[1] > R1[1] + R1[3])) return false;
-    return true;
-}
-
 function compute_average(list) {
-    if (list.length === 0) return 0;
-    var sum = 0;
-    for (var i in list) sum += list[i];
-    return sum / list.length;
+    return list.length === 0 ? 0 : list.reduce((a, b) => (a + b)) / list.length
 }

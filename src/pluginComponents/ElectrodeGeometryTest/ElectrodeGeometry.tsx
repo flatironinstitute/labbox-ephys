@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { CanvasPainter, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { CanvasPainter, Pen, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
 interface ElectrodeGeometryProps {
@@ -13,9 +13,15 @@ interface ElectrodeGeometryProps {
 const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) => {
     console.log('PaintTestLayer')
     painter.wipe()
-    painter.setPen({color: 'rgb(22, 22, 22)'});
+    const pen: Pen = {color: 'rgb(22, 22, 22)'}
     props.electrodes.forEach(electrode => {
-        painter.drawEllipse(electrode.x - 10, electrode.y - 10, 20, 20)
+        const electrodeBoundingRect = {
+            xmin: electrode.x - 10,
+            ymin: electrode.y - 10,
+            xmax: electrode.x + 10,
+            ymax: electrode.y + 10
+        }
+        painter.drawEllipse(electrodeBoundingRect, pen)
         // painter.drawMarker(electrode.x, electrode.y, 20);
     })
 }
@@ -27,12 +33,16 @@ interface ClickLayerProps extends ElectrodeGeometryProps {
 const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
     console.log('PaintClickLayer')
     painter.wipe()
-    let i = 0
-    props.clickHistory.forEach(point => {
+    props.clickHistory.forEach((point, i) => {
         const color = i * 50
-        painter.setPen({color: `rgb(${color}, 0, 128)`, width: 3})
-        painter.drawEllipse(point[0] - 5, point[1] - 5, 10, 10)
-        i++
+        const pen = {color: `rgb(${color}, 0, 128)`, width: 3}
+        const boundingRect = {
+            xmin: point[0] - 5,
+            ymin: point[1] - 5,
+            xmax: point[0] + 5,
+            ymax: point[1] + 5
+        }
+        painter.drawEllipse(boundingRect, pen)
     })
 }
 
@@ -74,8 +84,14 @@ const animateClickLayer = (painter: CanvasPainter, props: AnimatedLayerProps, ti
 
     painter.wipe()
     if (!done) {
-        painter.setPen({color: `rgb(128, 0, ${color})`, width: 3})
-        painter.drawEllipse(props.point[0] - currentRadius, props.point[1] - currentRadius, 2 * currentRadius, 2 * currentRadius)
+        const pen = {color: `rgb(128, 0, ${color})`, width: 3}
+        const boundingBox = {
+            xmin: props.point[0] - currentRadius,
+            ymin: props.point[1] - currentRadius,
+            xmax: props.point[0] + currentRadius,
+            ymax: props.point[1] + currentRadius
+        }
+        painter.drawEllipse(boundingBox, pen)
     }
     props.requestRepaint()
     if (!done) window.requestAnimationFrame(stepFrame)

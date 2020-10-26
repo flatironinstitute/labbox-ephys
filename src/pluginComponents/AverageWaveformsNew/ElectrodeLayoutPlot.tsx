@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { CanvasPainter, Vec2 } from '../../components/jscommon/CanvasWidget/CanvasPainter'
+import { CanvasPainter, isTextAlignment, Vec2 } from '../../components/jscommon/CanvasWidget/CanvasPainter'
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew'
 
 
@@ -94,9 +94,12 @@ const computeElectrodeRects = (props: Props): Rect[] => {
 const paintElectrodes = (painter: CanvasPainter, props: ExtendedProps) => {
     painter.wipe()
     props.electrodeRects.forEach((r, i) => {
-        painter.setBoundingRectangle([r.x, r.y, r.w, r.h])
-        painter.setCoordRange(0, 1, 0, 1)
-        painter.useCoords()
+        const boundingRect = {
+            xmin: r.x,
+            ymin: r.y,
+            xmax: r.x + r.w,
+            ymax: r.y + r.h
+        }
         const e = props.data.electrodes[i]
         let pen = {color: 'gray', width: 2}
         let brush = {color: 'gray'}
@@ -113,13 +116,13 @@ const paintElectrodes = (painter: CanvasPainter, props: ExtendedProps) => {
                 pen = {...pen, color: 'orange'}
             }
         }
-        painter.setBrush(brush)
-        painter.setPen(pen)
-        painter.fillEllipse(0, 0, 1, 1)
-        painter.drawEllipse(0, 0, 1, 1)
+        painter.fillEllipse(boundingRect, brush)
+        painter.drawEllipse(boundingRect, pen)
         if (e.label !== null) {            
-            painter.setBrush({color: 'white'})
-            painter.drawText([0, 0, 1, 1], {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, e.label)
+            const labelBrush = {...brush, color: 'white'}
+            const align = {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}
+            if (!isTextAlignment(align)) throw new Error('Invalid text alignment constant. Should not happen.')
+            painter.drawText(boundingRect, align, painter.getDefaultFont(), pen, labelBrush, e.label)
         }
     })
 }

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { CanvasPainter, getTransformationMatrix, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
 interface PlotData {
@@ -57,23 +57,31 @@ interface HelperPlotProps {
 }
 
 const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) => {
-    painter.setBrush({color: 'green'})
+    const brush = {color: 'green'}
 
     const { data } = props
 
-    const xmin = Math.min(...data.map(a => (a.x)))
-    const xmax = Math.max(...data.map(a => (a.x)))
-    const ymin = Math.min(...data.map(a => (a.y)))
-    const ymax = Math.max(...data.map(a => (a.y)))
+    const targetRegion = {
+        xmin: Math.min(...data.map(a => (a.x))),
+        xmax: Math.max(...data.map(a => (a.x))),
+        ymin: Math.min(...data.map(a => (a.y))),
+        ymax: Math.max(...data.map(a => (a.y)))    
+    }
+    const newSystem = {
+        xmin: 0,
+        xmax: 1,
+        ymin: 0,
+        ymax: 1    
+    }
 
-    painter.setCoordRange(xmin, xmax, ymin, ymax)
-    painter.useCoords()
+    // I'm really guessing here about what the new coordinate range should be...
+    const T = getTransformationMatrix(newSystem, targetRegion)
 
     const path = new PainterPath()
     data.forEach(a => {
         path.lineTo(a.x, a.y)
     })
-    painter.drawPath(path)
+    painter.drawPath(path, painter.getDefaultPen())
 }
 
 const HelperPlot = (props: HelperPlotProps) => {

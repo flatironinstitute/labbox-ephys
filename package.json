@@ -43,7 +43,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start-api": "cd python/api && python api.py"
+    "start-api": "cd python/api && python api.py",
+    "mochatest": "mocha -r ts-node/register $MOCHA_OPTS 'tests/**/*.ts'",
+    "coverage": "nyc --reporter=text $MOCHA_OPTS --reporter=lcov yarn mochatest"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -62,9 +64,21 @@
   },
   "proxyDisable": "http://localhost:15308",
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/chai": "^4.2.14",
+    "@types/dirty-chai": "^2.0.2",
     "@types/mathjs": "^6.0.6",
+    "@types/mocha": "^8.0.3",
+    "chai": "^4.2.0",
+    "dirty-chai": "^2.0.1",
     "mathjs": "^7.5.1",
+    "mocha": "^8.2.0",
+    "nyc": "^15.1.0",
     "raw.macro": "^0.4.2",
-    "serve": "^11.3.0"
+    "serve": "^11.3.0",
+    "sinon": "^9.2.0",
+    "source-map-support": "^0.5.19",
+    "ts-node": "^9.0.0",
+    "ts-sinon": "^2.0.1"
   }
 }

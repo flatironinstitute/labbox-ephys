@@ -1,4 +1,4 @@
-import { matrix, multiply } from 'mathjs'
+import { abs, matrix, multiply } from 'mathjs'
 
 export type Vec2 = number[]
 export const isVec2 = (x: any): x is Vec2 => {
@@ -12,7 +12,7 @@ export const isVec2 = (x: any): x is Vec2 => {
 }
 
 export type Vec3 = number[]
-const isVec3 = (x: any): x is Vec2 => {
+export const isVec3 = (x: any): x is Vec2 => {
     if ((x) && (Array.isArray(x)) && (x.length === 3)) {
         for (let a of x) {
             if (!isNumber(a)) return false
@@ -23,7 +23,7 @@ const isVec3 = (x: any): x is Vec2 => {
 }
 
 export type Vec4 = number[]
-const isVec4 = (x: any): x is Vec4 => {
+export const isVec4 = (x: any): x is Vec4 => {
     if ((x) && (Array.isArray(x)) && (x.length === 4)) {
         for (let a of x) {
             if (!isNumber(a)) return false
@@ -34,8 +34,8 @@ const isVec4 = (x: any): x is Vec4 => {
 }
 
 // Two-dimensional point in 3-dimensional (homogeneous-coordinate) vector space.
-// For our purposes right now the third position should be 1, we're just using
-// unit values to facilitate translations of points/figures.
+// For our purposes right now the perspective dimension (3rd position) should be 1, we're just using
+// unit values to facilitate translations of points/figures, not for actual scaling
 export type Vec2H = number[]
 export const isVec2H = (x: any): x is Vec2H => {
     if ((x) && (Array.isArray(x)) && (x.length === 3)) {
@@ -46,8 +46,13 @@ export const isVec2H = (x: any): x is Vec2H => {
     }
     return false
 }
-export const toVec2H = (x: Vec2): Vec2H => {
-    return [x[0], x[1], 1]
+export const homogenizeVec2 = (v: Vec2): Vec2H => {
+    return [v[0], v[1], 1]
+}
+export const Vec2HToVector = (v: Vec2H): math.Matrix => {
+    // mathjs uses geometric dimensions. If we pass a 1-dimensional array, the resulting
+    // vector is treated as a column vector for matrix multiplication.
+    return matrix(v);
 }
 
 export type RectangularRegion = {
@@ -56,14 +61,50 @@ export type RectangularRegion = {
     ymin: number,
     ymax: number
 }
+export const isRectangularRegion = (x: any): x is RectangularRegion => {
+    for (const prop of ['xmin', 'xmax', 'ymin', 'ymax']) {
+        if (!x.hasOwnProperty(prop)) return false
+        if (!isNumber(x[prop])) return false
+    }
+    if (x.xmin > x.xmax) return false
+    if (x.ymin > x.ymax) return false
+    return true
+}
+export const rectsAreEqual = (a: RectangularRegion, b: RectangularRegion) => {
+    if (!isRectangularRegion(a) || !isRectangularRegion(b)) return false
+    return (a.xmin === b.xmin &&
+            a.xmax === b.xmax && 
+            a.ymin === b.ymin &&
+            a.ymax === b.ymax)
+}
 export const getWidth = (region: RectangularRegion): number => {
     return region.xmax - region.xmin
 }
 export const getHeight = (region: RectangularRegion): number => {
-    return region.ymax - region.ymin
+    return abs(region.ymax - region.ymin) // y-axis is inverted in conversion to pixelspace
+}
+export const getCenter = (region: RectangularRegion): Vec2 => {
+    return [region.xmin + getWidth(region) / 2, region.ymin + getHeight(region) / 2]
+}
+export const pointSpanToRegion = (pointSpan: Vec4): RectangularRegion => {
+    // expected: pointSpan will have form [0] = xmin, [1] = ymin, [2] = width, [3] = height
+    return {
+        xmin: pointSpan[0],
+        ymin: pointSpan[1],
+        xmax: pointSpan[0] + pointSpan[2],
+        ymax: pointSpan[1] + pointSpan[3]
+    }
+}
+export const rectangularRegionsIntersect = (r1: RectangularRegion, r2: RectangularRegion): boolean => {
+    // R1 and R2 intersect IFF: (R1.ymin < R2.ymin < R1.ymax || R1.ymin < R2.ymax < R1.ymax) && (same, for the xs)
+    // or the same, swapping R1 and R2. *BUT* that's a lot of comparisons. Easier to check if they DON'T intersect:
+    // R1 and R2 DON'T intersect IFF: R1.ymin > R2.ymax, or R1.ymax < R2.ymin; or the same for the xs.
+    if ((r1.xmax < r2.xmin) || (r1.xmin > r2.xmax)) return false
+    if ((r1.ymax < r2.ymin) || (r1.ymin > r2.ymax)) return false
+    return true
 }
 
-// TODO: This file should probably be split up a bit, it's starting to have several peripherally-related components.
+// TODO: This file should probably be split up. It's starting to have several peripherally-related components.
 
 // Presumably axis-aligned. These can be treated as lengths or as
 // defining the points (left, top) and (right, bottom).
@@ -96,37 +137,71 @@ export const isTransformationMatrix = (x: any): x is TransformationMatrix => {
         for (let row of x) {
             if (!isVec3(row)) return false
         }
-        return true
+        if (JSON.stringify(x[2]) === JSON.stringify([0, 0, 1])) return true
     }
     return false
 }
 export const toTransformationMatrix = (x: math.Matrix): TransformationMatrix => {
-    if (x.size() === [3, 3]) {
+    if (JSON.stringify(x.size()) === JSON.stringify([3, 3])) {
         const asArray = x.toArray() as number[][]
-        if (asArray[2] === [0, 0, 1]) {
+        if (JSON.stringify(asArray[2]) === JSON.stringify([0, 0, 1])){
             return asArray as TransformationMatrix
         }
     }
     throw Error(`Matrix ${JSON.stringify(x)} is invalid as a transform matrix.`)
 }
-export const getTransformationMatrix = (newSystem: RectangularRegion, targetRangeInCurrentSystem: RectangularRegion, useAscendingXAxis: boolean = false): TransformationMatrix => {
+export const getTransformationMatrix = (newSystem: RectangularRegion, targetRangeInCurrentSystem: RectangularRegion): TransformationMatrix => {
     const newWidth = getWidth(newSystem)
     const newHeight = getHeight(newSystem)
     const targetRegionWidth = getWidth(targetRangeInCurrentSystem)
     const targetRegionHeight = getHeight(targetRangeInCurrentSystem)
-    
+
     // we want to build a matrix that converts points in the new system to points in the current system.
     // This is going to have four partitions: The upper left partition is a 2x2 scaling matrix, basically an identity
     // matrix with the x-scale and y-scale instead of unity. The upper right column is a 2x1 (column) vector which has
-    // the (xmin, ymin)^T of the rectangle defining the window of the current coordinate system that we'll use.
+    // the (xmin, ymin)^T of the rectangle defining the window (within the current coordinate system) that we'll use.
     // Then on the bottom we have a 1x2 row of zeroes and a 1x1 'matrix' with a value of 1.
     const xscale = targetRegionWidth / newWidth
     const yscale = targetRegionHeight / newHeight
-
-    // The only trick here is that if useAscendingXAxis is true, 
+    const matrix = [[xscale,         0,     targetRangeInCurrentSystem.xmin - (newSystem.xmin * xscale)],
+                    [     0,    yscale,     targetRangeInCurrentSystem.ymin - (newSystem.ymin * yscale)],
+                    [     0,         0,                                   1]  ] as TransformationMatrix
+    return matrix
 }
-// add functions to do the transforms (outside of the drawing functions) --> for both rectangles and points
 
+export const transformXY = (tmatrix: TransformationMatrix, x: number, y: number): Vec2H => {
+    return transformPoint(tmatrix, homogenizeVec2([x, y]))
+}
+
+export const transformPoint = (tmatrix: TransformationMatrix, point: Vec2H): Vec2H => {
+    const A = matrix(tmatrix)
+    const x = matrix(point)
+    const b = multiply(A, x)
+    return b.toArray() as Vec2H
+}
+
+export const transformRect = (tmatrix: TransformationMatrix, rect: RectangularRegion): RectangularRegion => {
+    const A = matrix(tmatrix)
+    const corners = matrix([[rect.xmin, rect.xmax], [rect.ymin, rect.ymax], [1, 1]]) // note these are manually transposed column vectors.
+    const newCorners = multiply(A, corners).toArray() as number[][]
+    // And the result is also column vectors, so we want [0][0] = new xmin, [1][0] = new ymin, [0][1] = new xmax, [1][1] = new ymax
+    return {
+        xmin: newCorners[0][0],
+        xmax: newCorners[0][1],
+        ymin: newCorners[1][0],
+        ymax: newCorners[1][1]
+    }
+}
+
+export const transformDistance = (tmatrix: TransformationMatrix, xyDist: Vec2): Vec2 => {
+    // if transforming a distance, we actually want to set the perspective dimension (the w of the
+    // [x, y, w] vector) to 0, so the transform matrix applies scaling without transposition.
+    const A = matrix(tmatrix)
+    const x = matrix([xyDist[0], xyDist[1], 0])
+    const b = multiply(A, x)
+    const scaled = abs(b).toArray() as number[] // take absolute value to ensure we don't get negative distances
+    return [scaled[0], scaled[1]]
+}
 
 export const isNumber = (x: any): x is number => {
     return ((x !== null) && (x !== undefined) && (typeof(x) === 'number'))
@@ -140,10 +215,77 @@ interface TextAlignment {
     Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
     Vertical: 'AlignTop' | 'AlignCenter' | 'AlignBottom'
 }
+export const isTextAlignment = (x: any): x is TextAlignment => {
+    switch (x.Horizontal) {
+        case 'AlignLeft':
+        case 'AlignCenter':
+        case 'AlignRight':
+            break
+        default:
+            return false
+    }
+    switch (x.Vertical) {
+        case 'AlignTop':
+        case 'AlignCenter':
+        case 'AlignBottom':
+            break
+        default:
+            return false
+    }
+    return true
+}
+
+interface TextAlignmentConfig {
+    x: number
+    y: number
+    textAlign: 'left' | 'center' | 'right'
+    textBaseline: 'bottom' | 'middle' | 'top'
+}
+
+const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignment, t: TransformationMatrix): TextAlignmentConfig => {
+    const rect2 = transformRect(t, rect)
+    let x, y
+    let textAlign = 'left'
+    let textBaseline = 'bottom'
+    switch (alignment.Horizontal) {
+        case 'AlignLeft':
+            x = rect2.xmin
+            textAlign = 'left'
+            break
+        case 'AlignCenter':
+            x = getCenter(rect2)[0]
+            textAlign = 'center'
+            break
+        case 'AlignRight':
+            x = rect2.xmax
+            textAlign = 'right'
+            break
+        default: // can't happen
+            throw new Error('Missing horizontal alignment in drawText: AlignLeft, AlignCenter, or AlignRight');
+        }
+    switch (alignment.Vertical) {
+        case 'AlignBottom':
+            y = rect2.ymin
+            textBaseline = 'bottom'
+            break
+        case 'AlignCenter':
+            y = getCenter(rect2)[1]
+            textBaseline = 'middle'
+            break
+        case 'AlignTop':
+            y = rect2.ymax
+            textBaseline = 'top'
+            break
+        default: // can't happen
+            throw new Error('Missing vertical alignment in drawText: AlignTop, AlignBottom, or AlignVCenter');
+    }
+    return {x: x, y: y, textAlign: textAlign, textBaseline: textBaseline} as TextAlignmentConfig
+
+}
 
 
 // html5 canvas context
-interface Context2D {
+export interface Context2D {
     clearRect: (x: number, y: number, W: number, H: number) => void,
     save: () => void,
     restore: () => void,
@@ -167,7 +309,7 @@ interface Context2D {
     fillText: (txt: string, x: number, y: number) => void
 }
 
-interface CanvasWidgetLayer {
+export interface CanvasWidgetLayer {
     width: () => number,
     height: () => number
 }
@@ -175,20 +317,21 @@ interface CanvasWidgetLayer {
 type Color = 'black' | 'red' | 'blue' | 'transparent' | string
 // TODO: Define additional colors w/ lookup table?
 
-interface Pen {
+export interface Pen {
     color: Color,
-    width?: number
+    width?: number // N.B. as of right now this is ALWAYS IN PIXELS, regardless of coordinate system.
+    // This is somewhat inconsistent, but a) it's probably what you actually want, and b) it'd be annoying to change.
 }
 
-interface Font {
+export interface Font {
     "pixel-size": number,
     family: 'Arial' | string
 }
 
-interface Brush {
+export interface Brush {
     color: Color
 }
-const isBrush = (x: any): x is Brush => {
+export const isBrush = (x: any): x is Brush => {
     if (!x) return false
     if (typeof(x) !== 'object') return false
     if (!('color' in x)) return false
@@ -196,38 +339,28 @@ const isBrush = (x: any): x is Brush => {
 }
 
 
-
-type Rect = Vec4;
-const isRect = (x: any): x is Rect => {
-    return isVec4(x)
-}
-
 export class CanvasPainter {
-    // #pen: Pen = { color: 'black' }
-    // #font: Font = { "pixel-size": 12, family: 'Arial' }
-    // #brush: Brush = { color: 'black' }
-    #useCoords: boolean = false
     #exportingFigure: boolean = false
     #context2D: Context2D
     #canvasLayer: CanvasWidgetLayer
+    #coordRange: RectangularRegion
     #transformMatrix: TransformationMatrix
-    #coordRange: RectangularRegion = {xmin: 0, xmax: 1, ymin: 0, ymax: 1} // will get reset by setBaseTransformationMatrix
-    #preserveAspectRatio = false
-    #boundingRectangle: Vec4 | null = null
-    constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer) {
+    constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer, transformMatrix?: TransformationMatrix) {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
-        this.#transformMatrix = this.setBaseTransformationMatrix()
+        this.#coordRange = { xmin: 0, ymin: 0, xmax: 1, ymax: 1 }
+        this.#transformMatrix = transformMatrix || this.setBaseTransformationMatrix()
     }
 
     applyNewTransformationMatrix(newTransform: TransformationMatrix): CanvasPainter {
-        // transform should be Ax = b, where:
+        // transforming from a coordinate system to pixelspace is written as Ax = b, where:
         // b is the (homogeneous) vector in pixel space
-        // x is the (homogeneous) vector in the fully configured coordinate system
+        // x is the (homogeneous) vector in the current coordinate system
         // A is the transformation matrix converting x to b.
-        // If we have current transformation A mapping vectors x to pixelspace b, and want to
-        // get a new transformation T mapping new vectors w to pixelspace vectors b, then:
-        // T = AB, where B is a matrix mapping vectors w (in the 'new' system) to x (the 'current' coordinate system).
+        // If we have current transformation A mapping vectors x to pixelspace b, and we want a
+        // new transformation T mapping new vectors w to pixelspace vectors b, then this is:
+        //      T = AB
+        // where B maps vectors w (in the 'new' system) to x (the 'current' coordinate system).
         // (Let Bw = x --> A(Bw) = A(x) [= b] --> (AB)w = b; T = AB, then Tw = b. QED.)
         // This function computes T from A and B and returns a copy of the current CanvasPainter with #transformMatrix set to T.
 
@@ -235,33 +368,41 @@ export class CanvasPainter {
         const B = matrix(newTransform)
         const T = multiply(A, B)
 
-        const copy = {...this}
-        copy.#transformMatrix = toTransformationMatrix(T)
+        const copy = new CanvasPainter(this.#context2D, this.#canvasLayer, toTransformationMatrix(T))
         return copy
     }
 
-
-
+    // Sets up the transformation matrix that converts from the default coordinate space to pixelspace.
+    // This matrix ALSO inverts the y-axis so that (0,0) is the bottom left corner of the coordinate
+    // space, even though it is the top left corner of the canvas/pixelspace.
     setBaseTransformationMatrix(canvasLayer?: CanvasWidgetLayer): TransformationMatrix {
         const layer = canvasLayer || this.#canvasLayer
-        if (layer == undefined) throw Error('Cannot build default transformation matrix with no canvas.')
+        if (!layer) throw Error('Cannot build default transformation matrix with no canvas.')
         const shape = layer.width() === layer.height() ? 'square' :
                       layer.width() > layer.height() ? 'landscape' : 'portrait'
         // compute aspect ratio: this ensures that any base coordinate system presents square pixels to
         // the user. Subsequent transforms could change this, but better not to draw warped out of the box
         const aspectRatio = Math.max(layer.width(), layer.height()) / Math.min(layer.width(), layer.height())
         let coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
+        // in the event of non-square canvas, make the shorter side have unit dimension in default
+        // coordinate space. So we get 1:1.6 rather than 0.625:1.
         if (shape !== 'square') {
             if (shape === 'landscape') coordRange = {...coordRange, xmax: aspectRatio}
             if (shape === 'portrait') coordRange = {...coordRange, ymax: aspectRatio}
         }
         let systemsRatio = layer.width() / coordRange.xmax
         this.#coordRange = coordRange
-        return [[systemsRatio,  0,              0],
-                [0,             systemsRatio,   0],
-                [0,             0,              1]] as any as TransformationMatrix
+        return [[systemsRatio,  0,                               0],
+                [0,             -1 * systemsRatio,  layer.height()],
+                [0,             0,                               1]] as any as TransformationMatrix
+    }
+    setTransformationMatrix(t: TransformationMatrix) {
+        this.#transformMatrix = t
     }
 
+    getCoordRange(): RectangularRegion {
+        return this.#coordRange
+    }
     // TODO: Delete these default methods?
     getDefaultPen() {
         return { color: 'black' }
@@ -272,19 +413,11 @@ export class CanvasPainter {
     getDefaultBrush() {
         return { color: 'black' }
     }
-    useCoords() {
-        this.#useCoords = true;
-    }
-    usePixels() {
-        this.#useCoords = false;
+    getTransformationMatrix() {
+        return this.#transformMatrix
     }
     createPainterPath() {
         return new PainterPath()
-    }
-    newPainterPath() {
-        // todo: remove
-        console.warn('DEPRECATED: newPainterPath')
-        return this.createPainterPath()
     }
     setExportingFigure(val: boolean) {
         this.#exportingFigure = val
@@ -292,23 +425,11 @@ export class CanvasPainter {
     exportingFigure() {
         return this.#exportingFigure
     }
-    setMargins(lrtb: Vec4) {
-        this.#boundingRectangle = [lrtb[0], lrtb[2], this.width() - lrtb[0] - lrtb[1], this.height() - lrtb[2] - lrtb[3]]
-    }
-    setBoundingRectangle(xyWH: Vec4) {
-        this.#boundingRectangle = [...xyWH]
-    }
-    _initialize() {
-        console.warn('DEPRECATED: _initialize')
-    }
-    _finalize() {
-        console.warn('DEPRECATED: _finalize')
-    }
     clear(): void {
-        this.clearRect(0, 0, this.#canvasLayer.width(), this.#canvasLayer.height());
+        this.clearRect( {xmin: 0, ymin: 0, xmax: this.#canvasLayer.width(), ymax: this.#canvasLayer.height()} );
     }
-    clearRect(x: number, y: number, W: number, H: number) {
-        this.fillRect(x, y, W, H, {color: 'transparent'})
+    clearRect(rect: RectangularRegion) {
+        this.fillRect(rect, {color: 'transparent'})
     }
     ctxSave() {
         this.#context2D.save();
@@ -337,221 +458,77 @@ export class CanvasPainter {
     ctxRotate(theta: number) {
         this.#context2D.rotate(theta)
     }
-    setXCoordRange(xmin: number, xmax: number) {
-        this.#coordRange.xmin = xmin
-        this.#coordRange.xmax = xmax
-    }
-    setYCoordRange(ymin: number, ymax: number) {
-        this.#coordRange.ymin = ymin
-        this.#coordRange.ymax = ymax
-    }
-    setCoordRange(xmin: number, xmax: number, ymin: number, ymax: number) {
-        this.setXCoordRange(xmin, xmax)
-        this.setYCoordRange(ymin, ymax)
-    }
-    adjustedCoordRange() {
-        if (!this.#preserveAspectRatio) {
-            return {...this.#coordRange}
-        }
-        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
-        const W = boundingRectangle[2]
-        const H = boundingRectangle[3]
-        const xSpan = this.#coordRange.xmax - this.#coordRange.xmin
-        const ySpan = this.#coordRange.ymax - this.#coordRange.ymin
-        let newXSpan = xSpan
-        let newYSpan = ySpan
-        // Now update either the x- or y-span so that W/H = X/Y
-        // (Except we do WY = HX to avoid dealing with division)
-        if (W * ySpan < H * xSpan) {
-            newYSpan = H * xSpan / W
-        } else {
-            newXSpan = W * ySpan / H
-        }
-        const midX = (this.#coordRange.xmin + this.#coordRange.xmax) / 2
-        const midY = (this.#coordRange.ymin + this.#coordRange.ymax) / 2
-        return {xmin: midX - newXSpan / 2,  xmax: midX + newXSpan / 2,
-                 ymin: midY - newYSpan / 2, ymax: midY + newYSpan / 2 }
-    }
-    coordsToPix(x: number | Vec2, y: number | undefined = undefined): Vec2 {
-        if (y === undefined) {
-            if (typeof x === 'number') {
-                throw Error('unexpected');
-            }
-            let tmp = x;
-            x = tmp[0];
-            y = tmp[1];
-        }
-        if (typeof x !== 'number') {
-            throw Error('unexpected');
-        }
-        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
-        const {xmin, xmax, ymin, ymax} = this.adjustedCoordRange()
-        let W = boundingRectangle[2]
-        let H = boundingRectangle[3]
-        // const xextent = xr[1] - xr[0];
-        // const yextent = yr[1] - yr[0];
-        // if (canvasLayer.preserveAspectRatio()) {
-        //     if ((W * yextent > H * xextent) && (yextent)) {
-        //         W = H * xextent / yextent;
-        //     }
-        //     else if ((H * xextent > W * yextent) && (xextent)) {
-        //         H = W * yextent / xextent;
-        //     }
-        // }
-        const xpct = (x - xmin) / (xmax - xmin);
-        const ypct = 1 - (y - ymin) / (ymax - ymin);
-        return [boundingRectangle[0] + W * xpct, boundingRectangle[1] + H * ypct];
-    }
-    pixToCoords(pix: Vec2): Vec2 {
-        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
-        const {xmin, xmax, ymin, ymax} = this.adjustedCoordRange()
-        let W = boundingRectangle[2]
-        let H = boundingRectangle[3]
-        const xpct = (pix[0] - boundingRectangle[0]) / (W)
-        const ypct = (pix[1] - boundingRectangle[1]) / (H)
-        const x = xmin + xpct * (xmax - xmin)
-        const y = ymin + (1 - ypct) * (ymax - ymin)
-        return [x, y]
-    }
-
-    // Returns a new Painter writing to the same underlying Canvas, but whose points will 
-    getPainterWithNewCoordinateSpace(newSystem: RectangularRegion, currentSystem: RectangularRegion, useClipping: boolean = false): CanvasPainter {
-
-    }
     width() {
         return this.#canvasLayer.width()
     }
     height() {
         return this.#canvasLayer.height()
     }
-    fillRect(minX: number, minY: number, W: number, H: number, brush: Brush) {
-
+    fillRect(rect: RectangularRegion, brush: Brush) {
+        const pr = transformRect(this.#transformMatrix, rect) // covert rect to pixelspace
+        this.#context2D.save()
+        this.#context2D.fillStyle = toColorStr(brush.color) // TODO: create an applyBrush() function?
+        this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
+        this.#context2D.restore()
     }
-    fillRect(x: number | Vec4, y: number | Brush, W: number | undefined = undefined, H: number | undefined = undefined, brush: Brush | undefined = undefined) {
-        if (isVec4(x)) {
-            this.fillRect(x[0], x[1], x[2], x[3], brush)
-            return
-        }
-        if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
-            throw Error('Unexpected')
-        }
-        if ((!isBrush(brush)) && (!isString(brush))) {
-            brush = this.#brush
-        }
-        if (isString(brush)) brush = { color: brush };
-
-        const xyWH = this.transformXYWH(x, y, W, H)
-        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
-
-        this.#context2D.fillStyle = toColorStr(brush.color);
-        this.#context2D.fillRect(x, y, W, H);
+    drawRect(rect: RectangularRegion, pen: Pen) {
+        const pr = transformRect(this.#transformMatrix, rect) // convert rect to pixelspace
+        this.#context2D.save()
+        applyPen(this.#context2D, pen)
+        this.#context2D.strokeRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
+        this.#context2D.restore()
     }
-    drawRect(x: number | Vec4, y: number | undefined = undefined, W: number | undefined = undefined, H: number | undefined = undefined) {
-        if (isVec4(x)) {
-            this.drawRect(x[0], x[1], x[2], x[3])
-            return
-        }
-        if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
-            throw Error('Unexpected')
-        }
 
-        const xyWH = this.transformXYWH(x, y, W, H)
-        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
-
-        applyPen(this.#context2D, this.#pen)
-        this.#context2D.strokeRect(x, y, W, H);
-    }
-    fillEllipse(x: number | Vec4, y: number | Brush, W: number | undefined = undefined, H: number | undefined = undefined, brush: Brush | undefined = undefined) {
-        if (isVec4(x)) {
-            this.fillEllipse(x[0], x[1], x[2], x[3], brush)
-            return
-        }
-        if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
-            throw Error('Unexpected')
-        }
-        if ((!isBrush(brush)) && (!isString(brush))) {
-            brush = this.#brush
-        }
-        
-        const xyWH = this.transformXYWH(x, y, W, H)
-        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
-
-        if (isString(brush)) brush = { color: brush };
-        this.#context2D.fillStyle = toColorStr(brush.color);
+    // TODO: Looks like the earlier version was actually getting passed the least corner and the width/height:
+    //        --> this.#context2D.ellipse(x + W / 2, y + H / 2, W / 2, H / 2, 0, 0, 2 * Math.PI)
+    fillEllipse(boundingRect: RectangularRegion, brush: Brush) {
+        // const c = homogenizeVec2(center)
+        // const axisLengths = transformDistance(this.#transformMatrix, [W, H])
+        const r = transformRect(this.#transformMatrix, boundingRect)
+        const center = getCenter(r)
+        const W = getWidth(r)
+        const H = getHeight(r)
+        this.#context2D.save()
+        this.#context2D.fillStyle = toColorStr(brush.color)
         this.#context2D.beginPath()
-        this.#context2D.ellipse(x + W / 2, y + H / 2, W / 2, H / 2, 0, 0, 2 * Math.PI);
-        this.#context2D.fill();
+        console.log(`Attempting to fill ellipse: ${center[0]} ${center[1]} ${W/2} ${H/2}`)
+        this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
+        this.#context2D.fill()
+        this.#context2D.restore()
     }
-    drawEllipse(x: number | Vec4, y: number | undefined = undefined, W: number | undefined = undefined, H: number | undefined = undefined) {
-        if (isVec4(x)) {
-            this.drawRect(x[0], x[1], x[2], x[3])
-            return
-        }
-        if ((!isNumber(x)) || (!isNumber(y)) || (!isNumber(W)) || (!isNumber(H))) {
-            throw Error('Unexpected')
-        }
-
-        const xyWH = this.transformXYWH(x, y, W, H)
-        x = xyWH[0]; y = xyWH[1]; W = xyWH[2]; H = xyWH[3];
-
-        applyPen(this.#context2D, this.#pen)
-        this.#context2D.beginPath();
-        this.#context2D.ellipse(x + W / 2, y + H / 2, W / 2, H / 2, 0, 0, 2 * Math.PI);
-        this.#context2D.stroke();
+    drawEllipse(boundingRect: RectangularRegion, pen: Pen) {
+        const r = transformRect(this.#transformMatrix, boundingRect)
+        const center = getCenter(r)
+        const W = getWidth(r)
+        const H = getHeight(r)
+        this.#context2D.save()
+        applyPen(this.#context2D, pen)
+        this.#context2D.beginPath()
+        this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
+        this.#context2D.stroke()
+        this.#context2D.restore()
     }
-    drawPath(painterPath: PainterPath) {
-        applyPen(this.#context2D, this.#pen)
-        painterPath._draw(this.#context2D, (p: Vec2) => (this.transformXY(p)))
+    drawPath(painterPath: PainterPath, pen: Pen) {
+        this.#context2D.save()
+        applyPen(this.#context2D, pen)
+        painterPath._draw(this.#context2D, this.#transformMatrix)
+        this.#context2D.restore()
     }
-    drawLine(x1: number, y1: number, x2: number, y2: number) {
-        var pPath = new PainterPath();
+    drawLine(x1: number, y1: number, x2: number, y2: number, pen: Pen) {
+        const pPath = new PainterPath();
         pPath.moveTo(x1, y1);
         pPath.lineTo(x2, y2);
-        this.drawPath(pPath);
+        this.drawPath(pPath, pen);
     }
-    drawText(rect: Rect, alignment: TextAlignment, txt: string) {
-        const rect2 = this.transformRect(rect)
-        var x, y, textAlign, textBaseline;
-        if (alignment.Horizontal === 'AlignLeft') {
-            x = rect2[0];
-            textAlign = 'left';
-        }
-        else if (alignment.Horizontal === 'AlignCenter') {
-            x = rect2[0] + rect2[2] / 2;
-            textAlign = 'center';
-        }
-        else if (alignment.Horizontal === 'AlignRight') {
-            x = rect2[0] + rect2[2];
-            textAlign = 'right';
-        }
-        else {
-            console.error('Missing horizontal alignment in drawText: AlignLeft, AlignCenter, or AlignRight');
-            return
-        }
-
-        if (alignment.Vertical === 'AlignTop' ) {
-            y = rect2[1];
-            textBaseline = 'top';
-        }
-        else if (alignment.Vertical === 'AlignBottom') {
-            y = rect2[1] + rect2[3];
-            textBaseline = 'bottom';
-        }
-        else if (alignment.Vertical === 'AlignCenter') {
-            y = rect2[1] + rect2[3] / 2;
-            textBaseline = 'middle';
-        }
-        else {
-            console.error('Missing vertical alignment in drawText: AlignTop, AlignBottom, or AlignVCenter');
-            return
-        }
-
-        this.#context2D.font = this.#font['pixel-size'] + 'px ' + this.#font.family
-        this.#context2D.textAlign = textAlign || ''
-        this.#context2D.textBaseline = textBaseline || ''
-        applyPen(this.#context2D, this.#pen);
-        this.#context2D.fillStyle = toColorStr(this.#brush.color);
-        this.#context2D.fillText(txt, x, y);
+    drawText(rect: RectangularRegion, alignment: TextAlignment, font: Font, pen: Pen, brush: Brush, txt: string) {
+        const config = getTextAlignmentConfig(rect, alignment, this.#transformMatrix)
+        this.#context2D.save()
+        applyFont(this.#context2D, font)
+        applyTextAlignment(this.#context2D, config)
+        applyPen(this.#context2D, pen);
+        applyBrush(this.#context2D, brush)
+        this.#context2D.fillText(txt, config.x, config.y);
+        this.#context2D.restore()
     }
     // in future we may want to implement this:
     // this.createImageData = function(W, H) {
@@ -589,30 +566,6 @@ export class CanvasPainter {
     //     let pt = transformXY(x, y);
     //     _drawMarker(pt[0], pt[1], radius, shape, {fill: true});
     // }
-
-    transformRect(rect: Rect): Rect {
-        return this.transformXYWH(rect[0], rect[1], rect[2], rect[3]);
-    }
-    transformXYWH(x: number, y: number, W: number, H: number): Rect {
-        let pt1 = this.transformXY(x, y);
-        let pt2 = this.transformXY(x + W, y + H);
-        return [Math.min(pt1[0], pt2[0]), Math.min(pt1[1], pt2[1]), Math.abs(pt2[0] - pt1[0]), Math.abs(pt2[1] - pt1[1])];
-    }
-    transformXY(x: number | Vec2, y: number | undefined = undefined): Vec2 {
-        if (isVec2(x)) {
-            return this.transformXY(x[0], x[1])
-        }
-        if (!isNumber(y)) {
-            throw Error('unexpected')
-        }
-        const boundingRectangle = this.#boundingRectangle !== null ? this.#boundingRectangle : [0, 0, this.width(), this.height()]
-        if (this.#useCoords) {
-            return this.coordsToPix(x, y);
-        }
-        else {
-            return [boundingRectangle[0] + x, boundingRectangle[1] + y];
-        }
-    }
 }
 
 interface PainterPathAction {
@@ -645,25 +598,34 @@ export class PainterPath {
             y
         })
     }
-    _draw(ctx: Context2D, transformXY: (p: Vec2) => Vec2) {
+    _draw(ctx: Context2D, tmatrix: TransformationMatrix) {
         ctx.beginPath();
-        this.#actions.forEach(a => {
-            this._applyAction(ctx, a, transformXY)
+        const actions = this._transformPathPoints(tmatrix)
+        actions.forEach(a => {
+            this._applyAction(ctx, a)
         })
         ctx.stroke();
     }
-    _applyAction(ctx: Context2D, a: PainterPathAction, transformXY: (p: Vec2) => Vec2) {
-        let pos = transformXY([a.x, a.y])
+    _applyAction(ctx: Context2D, a: PainterPathAction) {
         if (a.name === 'moveTo') {
-            ctx.moveTo(pos[0], pos[1]);
+            ctx.moveTo(a.x, a.y);
         }
         else if (a.name === 'lineTo') {
-            ctx.lineTo(pos[0], pos[1]);
+            ctx.lineTo(a.x, a.y);
         }
+    }
+    _transformPathPoints(tmatrix: TransformationMatrix): PainterPathAction[] {
+        const A = matrix(tmatrix)
+        return this.#actions.map((a) => {
+            const x = matrix([a.x, a.y, 1])
+            const b = multiply(A, x).toArray() as number[]
+            return {...a, x: b[0], y: b[1] }
+        })
     }
 }
 
 const toColorStr = (col: string | Vec3): string => {
+    // TODO: Could do more validity check here
     if (isString(col)) return col
     else if (isVec3(col)) {
         return 'rgb(' + Math.floor(col[0]) + ',' + Math.floor(col[1]) + ',' + Math.floor(col[2]) + ')'
@@ -674,14 +636,26 @@ const toColorStr = (col: string | Vec3): string => {
 }
 
 const applyPen = (ctx: Context2D, pen: Pen) => {
-    if ('color' in pen)
-        ctx.strokeStyle = toColorStr(pen.color);
-    else
-        ctx.strokeStyle = 'black'
-    if (('width' in pen) && (isNumber(pen.width)))
-        ctx.lineWidth = pen.width
-    else
-        ctx.lineWidth = 1
+    const color = pen.color || 'black'
+    const lineWidth = (isNumber(pen.width)) ? pen.width : 1
+    ctx.strokeStyle = toColorStr(color)
+    ctx.lineWidth = lineWidth
+}
+
+const applyBrush = (ctx: Context2D, brush: Brush) => {
+    const color = 'color' in brush ? brush.color : 'black'
+    ctx.fillStyle = toColorStr(color)
+}
+
+const applyFont = (ctx: Context2D, font: Font) => {
+    const size = font['pixel-size'] || '12'
+    const face = font.family || 'Arial'
+    ctx.font = `${size}px ${face}`
+}
+
+const applyTextAlignment = (ctx: Context2D, alignment: TextAlignmentConfig) => {
+    ctx.textAlign = alignment.textAlign
+    ctx.textBaseline = alignment.textBaseline
 }
 
 
@@ -745,7 +719,7 @@ const applyPen = (ctx: Context2D, pen: Pen) => {
 //                 report('drag', X2);
 //             }, timeout)
 //         }
-        
+
 //     }
 
 //     function drag_functionality(name, X) {
@@ -784,7 +758,7 @@ const applyPen = (ctx: Context2D, pen: Pen) => {
 
 //     function mouse_event(e) {
 //         if (!m_element) return {};
-//         //var parentOffset = $(this).parent().offset(); 
+//         //var parentOffset = $(this).parent().offset();
 //         //var offset=m_element.offset(); //if you really just want the current element's offset
 //         var rect = m_element.getBoundingClientRect();
 //         window.m_element = m_element;
