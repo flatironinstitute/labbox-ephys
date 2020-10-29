@@ -1,4 +1,4 @@
-import { abs, matrix, multiply } from 'mathjs'
+import { abs, inv, matrix, multiply } from 'mathjs'
 
 export type Vec2 = number[]
 export const isVec2 = (x: any): x is Vec2 => {
@@ -167,6 +167,11 @@ export const getTransformationMatrix = (newSystem: RectangularRegion, targetRang
                     [     0,    yscale,     targetRangeInCurrentSystem.ymin - (newSystem.ymin * yscale)],
                     [     0,         0,                                   1]  ] as TransformationMatrix
     return matrix
+}
+export const getInverseTransformationMatrix = (t: TransformationMatrix): TransformationMatrix => {
+    const tmatrix = matrix(t)
+    const inverse = inv(tmatrix).toArray() as number[][]
+    return inverse as TransformationMatrix
 }
 
 export const transformXY = (tmatrix: TransformationMatrix, x: number, y: number): Vec2H => {
@@ -345,11 +350,13 @@ export class CanvasPainter {
     #canvasLayer: CanvasWidgetLayer
     #coordRange: RectangularRegion
     #transformMatrix: TransformationMatrix
+    #inverseMatrix: TransformationMatrix
     constructor(context2d: Context2D, canvasLayer: CanvasWidgetLayer, transformMatrix?: TransformationMatrix) {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
         this.#coordRange = { xmin: 0, ymin: 0, xmax: 1, ymax: 1 }
         this.#transformMatrix = transformMatrix || this.setBaseTransformationMatrix()
+        this.#inverseMatrix = getInverseTransformationMatrix(this.#transformMatrix)
     }
 
     applyNewTransformationMatrix(newTransform: TransformationMatrix): CanvasPainter {
@@ -370,6 +377,11 @@ export class CanvasPainter {
 
         const copy = new CanvasPainter(this.#context2D, this.#canvasLayer, toTransformationMatrix(T))
         return copy
+    }
+
+    getNewTransformationMatrix(newSystem: RectangularRegion, targetRangeInCurrentSystem?: RectangularRegion): TransformationMatrix {
+        let targetRange: RectangularRegion = targetRangeInCurrentSystem || this.#coordRange
+        return getTransformationMatrix(newSystem, targetRange)
     }
 
     // Sets up the transformation matrix that converts from the default coordinate space to pixelspace.
@@ -396,12 +408,13 @@ export class CanvasPainter {
                 [0,             -1 * systemsRatio,  layer.height()],
                 [0,             0,                               1]] as any as TransformationMatrix
     }
-    setTransformationMatrix(t: TransformationMatrix) {
-        this.#transformMatrix = t
-    }
 
     getCoordRange(): RectangularRegion {
         return this.#coordRange
+    }
+    // FOR DEBUGGING ONLY: To be removed once things are sorted
+    printCanvasDimensions() {
+        console.log(`w: ${this.#canvasLayer.width()}, h: ${this.#canvasLayer.height()}`)
     }
     // TODO: Delete these default methods?
     getDefaultPen() {
@@ -415,6 +428,9 @@ export class CanvasPainter {
     }
     getTransformationMatrix() {
         return this.#transformMatrix
+    }
+    getInverseTransformationMatrix() {
+        return this.#inverseMatrix
     }
     createPainterPath() {
         return new PainterPath()
@@ -466,16 +482,20 @@ export class CanvasPainter {
     }
     fillRect(rect: RectangularRegion, brush: Brush) {
         const pr = transformRect(this.#transformMatrix, rect) // covert rect to pixelspace
+        console.log(`Transformed ${JSON.stringify(rect)} to ${JSON.stringify(pr)}`)
+        console.log(`Measure (pixelspace) width: ${getWidth(pr)}, height: ${getHeight(pr)}`)
         this.#context2D.save()
         this.#context2D.fillStyle = toColorStr(brush.color) // TODO: create an applyBrush() function?
-        this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
+        // NOTE: Due to pixelspace conversion axis flip, we want to refer to the *upper* left corner, i.e. ymax.
+        this.#context2D.fillRect(pr.xmin, pr.ymax, getWidth(pr), getHeight(pr))
         this.#context2D.restore()
     }
     drawRect(rect: RectangularRegion, pen: Pen) {
         const pr = transformRect(this.#transformMatrix, rect) // convert rect to pixelspace
         this.#context2D.save()
         applyPen(this.#context2D, pen)
-        this.#context2D.strokeRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
+        // NOTE: Due to pixelspace conversion axis flip, we want to refer to the *upper* left corner, i.e. ymax.
+        this.#context2D.strokeRect(pr.xmin, pr.ymax, getWidth(pr), getHeight(pr))
         this.#context2D.restore()
     }
 
@@ -566,6 +586,11 @@ export class CanvasPainter {
     //     let pt = transformXY(x, y);
     //     _drawMarker(pt[0], pt[1], radius, shape, {fill: true});
     // }
+
+    //// Interpreting clicks
+    clickToCoordinateSystem(pointInPixelspace: Vec2) {
+        return transformXY(this.#inverseMatrix, pointInPixelspace[0], pointInPixelspace[1])
+    }
 }
 
 interface PainterPathAction {

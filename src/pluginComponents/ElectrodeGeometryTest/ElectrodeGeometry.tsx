@@ -1,5 +1,6 @@
+import { norm } from 'mathjs';
 import React, { useCallback, useRef } from 'react';
-import { CanvasPainter, Pen, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { CanvasPainter, getHeight, getWidth, Pen, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
 interface ElectrodeGeometryProps {
@@ -13,15 +14,73 @@ interface ElectrodeGeometryProps {
 const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) => {
     console.log('PaintTestLayer')
     painter.wipe()
-    const pen: Pen = {color: 'rgb(22, 22, 22)'}
+    painter.printCanvasDimensions()
+    // we don't actually know the number or locations of the electrodes.
+    // Read the data to figure out an appropriate scale
+    // NOTE: To be USEFUL this stuff is going to have to exist elsewhere,
+    // needs *persistence* to handle clicks properly
+    const electrodeXmin = Math.min(...props.electrodes.map((point) => point.x))
+    const electrodeYmin = Math.min(...props.electrodes.map((point) => point.y))
+
+    const electrodeRanges = {
+        xmin: Math.min(...props.electrodes.map((point) => point.x), 0),
+        ymin: Math.min(...props.electrodes.map((point) => point.y), 0),
+        xmax: Math.max(...props.electrodes.map((point) => point.x)),
+        ymax: Math.max(...props.electrodes.map((point) => point.y))
+    }
+    // keep it square
+    const side = Math.max(getWidth(electrodeRanges), getHeight(electrodeRanges))
+    // add a margin
+    const margin = side * .05
+    const scaledCoordinates = {
+        xmin: Math.min(electrodeRanges.xmin, 0) - margin,
+        xmax: side + margin,
+        ymin: Math.min(electrodeRanges.ymin, 0) - margin,
+        ymax: side + margin
+    }
+    // how big should each electrode dot be? Really depends on how close
+    // the dots are to each other. Let's find the closest pair of dots and
+    // set the radius to 40% of the distance between them.
+    let leastNorm = Math.min(electrodeXmin - scaledCoordinates.xmin, electrodeYmin - scaledCoordinates.ymin)
+    props.electrodes.forEach((point) => {
+        props.electrodes.forEach((otherPoint) => {
+            const dist = norm([point.x - otherPoint.x, point.y - otherPoint.y])
+            if (dist === 0) return
+            leastNorm = Math.min(leastNorm, dist as number)
+        })
+    })
+    const radius = 0.4 * leastNorm
+
+    const tmatrix = painter.getNewTransformationMatrix(scaledCoordinates)
+    const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
+
+// NOT INVERTING PROPERLY??
+    console.log(JSON.stringify(props.electrodes))
+    console.log(`Ranges: ${JSON.stringify(scaledCoordinates)} from ${JSON.stringify(electrodeRanges)}`)
+    console.log(`LeastNorm: ${leastNorm} radius: ${radius}`)
+    console.log(`Realized matrix: ${JSON.stringify(scaledPainter.getTransformationMatrix())}`)
+    const pen: Pen = {color: 'rgb(22, 22, 22)', width: 3}
+    scaledPainter.fillRect(scaledCoordinates, {color: 'rgb(210, 160, 220)'})
+    // scaledPainter.fillRect({xmin: 0, ymin: 0, xmax: 80, ymax: 120}, {color: 'rgb(210, 160, 220)'})
+    scaledPainter.fillRect({xmin: 0, ymin: 0, xmax: 63, ymax: 63}, {color: 'rgb(160, 210, 220)'})
+    // ll red
+    scaledPainter.drawLine(scaledCoordinates.xmin, scaledCoordinates.ymin, scaledCoordinates.xmin + 3, scaledCoordinates.ymin + 3, {color: 'rgb(255, 0, 0)', width: 3})
+    // lr blue
+    scaledPainter.drawLine(scaledCoordinates.xmax, scaledCoordinates.ymin, scaledCoordinates.xmax - 3, scaledCoordinates.ymin + 3, {color: 'rgb(0, 0, 255)', width: 3})
+    // ul green
+    scaledPainter.drawLine(scaledCoordinates.xmin, scaledCoordinates.ymax, scaledCoordinates.xmin + 3, scaledCoordinates.ymax - 3, {color: 'rgb(0, 255, 0)', width: 3})
+    // ur black
+    scaledPainter.drawLine(scaledCoordinates.xmax, scaledCoordinates.ymax, scaledCoordinates.xmax - 3, scaledCoordinates.ymax - 3, {color: 'rgb(0, 0, 0)', width: 3})
+
+
     props.electrodes.forEach(electrode => {
         const electrodeBoundingRect = {
-            xmin: electrode.x - 10,
-            ymin: electrode.y - 10,
-            xmax: electrode.x + 10,
-            ymax: electrode.y + 10
+            xmin: electrode.x - radius,
+            ymin: electrode.y - radius,
+            xmax: electrode.x + radius,
+            ymax: electrode.y + radius
         }
-        painter.drawEllipse(electrodeBoundingRect, pen)
+        scaledPainter.drawEllipse(electrodeBoundingRect, pen)
         // painter.drawMarker(electrode.x, electrode.y, 20);
     })
 }
@@ -46,6 +105,7 @@ const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
     })
 }
 
+// TODO: This doesn't currently work :(
 interface AnimatedLayerProps extends ElectrodeGeometryProps {
     point: Vec2 | undefined,
     requestRepaint: () => void,

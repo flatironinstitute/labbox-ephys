@@ -61,27 +61,27 @@ const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) 
 
     const { data } = props
 
-    const targetRegion = {
+    const optimalBoundingRectangle = {
         xmin: Math.min(...data.map(a => (a.x))),
         xmax: Math.max(...data.map(a => (a.x))),
         ymin: Math.min(...data.map(a => (a.y))),
         ymax: Math.max(...data.map(a => (a.y)))    
     }
-    const newSystem = {
+    const targetInCurrentCoordinateSystem = {
         xmin: 0,
-        xmax: 1,
+        xmax: 0.9,
         ymin: 0,
-        ymax: 1    
+        ymax: 0.75
     }
 
-    // I'm really guessing here about what the new coordinate range should be...
-    const T = getTransformationMatrix(newSystem, targetRegion)
+    const T = getTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem)
+    const painter2 = painter.applyNewTransformationMatrix(T)
 
     const path = new PainterPath()
     data.forEach(a => {
         path.lineTo(a.x, a.y)
     })
-    painter.drawPath(path, painter.getDefaultPen())
+    painter2.drawPath(path, painter.getDefaultPen())
 }
 
 const HelperPlot = (props: HelperPlotProps) => {

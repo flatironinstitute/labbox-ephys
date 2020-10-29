@@ -26,6 +26,55 @@ mocha.describe('VecX Types', () => {
             expect(ut.isVec2([4])).to.be.false()
         })
     })
+    describe('Vec3', () => {
+        it('isVec3() returns true for valid input', () => {
+            expect(ut.isVec3([4, 5, 6])).to.be.true()
+        })
+        it('isVec3() returns false for non-numeric input', () => {
+            expect(ut.isVec3([4, 'a', 5])).to.be.false()
+        })
+        it('isVec3() returns false for wrong-sized array', () => {
+            expect(ut.isVec3([4, 5, 6, 7])).to.be.false()
+            expect(ut.isVec3([4, 5])).to.be.false()
+        })
+    })
+    describe('Vec4', () => {
+        it('isVec4() returns true for valid input', () => {
+            expect(ut.isVec4([4, 5, 6, 7])).to.be.true()
+        })
+        it('isVec4() returns false for non-numeric input', () => {
+            expect(ut.isVec4([4, 'a', 5, 6])).to.be.false()
+        })
+        it('isVec4() returns false for wrong-sized array', () => {
+            expect(ut.isVec4([4, 5, 6])).to.be.false()
+            expect(ut.isVec4([4, 5, 6, 7, 8])).to.be.false()
+        })
+    })
+    describe('Vec2H', () => {
+        it('isVec2H() returns true for valid input', () => {
+            expect(ut.isVec2H([4, 5, 1])).to.be.true()
+        })
+        it('isVec2H() returns false for non-unit perspective dimension', () => {
+            expect(ut.isVec2H([4, 5, 2])).to.be.false()
+        })
+        it('isVec2H() returns false for non-numeric input', () => {
+            expect(ut.isVec2H([4, 'a', 1])).to.be.false()
+        })
+        it('isVec2H() returns false for wrong-sized array', () => {
+            expect(ut.isVec2H([4, 5, 6, 1])).to.be.false()
+            expect(ut.isVec2H([4, 1])).to.be.false()
+        })
+        it('Vec2HToVector() returns a matrix', () => {
+            const point = [3, 2, 1]
+            const vector = ut.Vec2HToVector(point)
+            expect(vector.type).to.equal('DenseMatrix')
+        })
+        it('Vec2HToVector() is identity operation', () => {
+            const point = [3, 2, 1]
+            const vector = ut.Vec2HToVector(point)
+            expect(JSON.stringify(vector.toArray())).to.equal(JSON.stringify(point))
+        })
+    })
     // TODO: rest of these
 })
 
@@ -181,6 +230,21 @@ describe('Transformation matrix functionality', () => {
             // at 3/4 of the original xrange and 1/2 of the original yrange
             expect(JSON.stringify(pointInOldSystem)).to.equal(JSON.stringify([150, 50, 1]))
         })
+        it('getInverseTransformationMatrix() returns the correct matrix inverse', () => {
+            const oldSystem = { xmin: 0, ymin: 0, xmax: 200, ymax: 100 }
+            const newSystem = { xmin: 20, ymin: 0, xmax: 70, ymax: 50 }
+            const targetedRegion = { ...oldSystem, xmin: (oldSystem.xmin + oldSystem.xmax)/2 }
+            // somewhat poor form to use a function from the system under test, but... eh....
+            const tmatrix = matrix(ut.getTransformationMatrix(newSystem, targetedRegion))
+            const pointInNewSystem = matrix([10, 15, 1])
+            const pointInOldSystem = multiply(tmatrix, pointInNewSystem).toArray()
+            
+            const inverse = ut.getInverseTransformationMatrix(ut.toTransformationMatrix(tmatrix))
+            const invmatrix = matrix(inverse)
+
+            const roundTrip = multiply(invmatrix, pointInOldSystem)
+            expect(JSON.stringify(pointInNewSystem.toArray())).to.equal(JSON.stringify(roundTrip.toArray()))
+        })
     })
     describe('Transformations', () => {
         const oldSystem = { xmin: 0, ymin: 0, xmax: 450, ymax: 300 }
@@ -211,17 +275,11 @@ describe('Transformation matrix functionality', () => {
             it('transformRect() returns correct value (no translation)', () => {
                 const result = ut.transformRect(tmatrix, rectInNewSystem)
                 expect(ut.rectsAreEqual(result, expectedInOldSystem)).to.be.true()
-                // for (let key of ['xmin', 'xmax', 'ymin', 'ymax']) {
-                //     expect(result[key]).to.equal(expectedInOldSystem[key])
-                // }
             })
             it('transformRect() returns correct value (with translation)', () => {
                 const newExpected = { xmin: 200, ymin: 100, xmax: 375, ymax: 275 }
                 const result = ut.transformRect(tmatrixWithTranslation, rectInNewSystem)
                 expect(ut.rectsAreEqual(result, newExpected)).to.be.true()
-                // for (let key of ['xmin', 'xmax', 'ymin', 'ymax']) {
-                //     expect(result[key]).to.equal(newExpected[key])
-                // }
             })
         })
         describe('Distance transforms', () => {
@@ -253,9 +311,13 @@ describe('CanvasPainter proper', () => {
             const fakeCanvasLayer = { width: () => 600, height: () => 600 } as any as ut.CanvasWidgetLayer
             const fakeLandscapeCanvas = { width: () => 600, height: () => 400 } as any as ut.CanvasWidgetLayer
             const fakePortraitCanvas = { width: () => 400, height: () => 600 } as any as ut.CanvasWidgetLayer
-            it('CanvasPainter constructor calls sets a base transform matrix', () => {
+            it('CanvasPainter constructor sets a base transform matrix', () => {
                 const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
                 expect(painter.getTransformationMatrix()).to.not.be.null()
+            })
+            it('CanvasPainter constructor sets inverse transformation matrix', () => {
+                const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
+                expect(painter.getInverseTransformationMatrix()).to.not.be.null()
             })
             it('CanvasPainter constructor sets expected base transform matrix for square canvas', () => {
                 const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
