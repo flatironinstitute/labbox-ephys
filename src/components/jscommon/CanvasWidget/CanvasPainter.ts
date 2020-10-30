@@ -67,7 +67,7 @@ export const isRectangularRegion = (x: any): x is RectangularRegion => {
         if (!isNumber(x[prop])) return false
     }
     if (x.xmin > x.xmax) return false
-    if (x.ymin > x.ymax) return false
+    if (x.ymin > x.ymax) return false // TODO: Delete this? It doesn't hold for pixelspace regions!
     return true
 }
 export const rectsAreEqual = (a: RectangularRegion, b: RectangularRegion) => {
@@ -84,7 +84,10 @@ export const getHeight = (region: RectangularRegion): number => {
     return abs(region.ymax - region.ymin) // y-axis is inverted in conversion to pixelspace
 }
 export const getCenter = (region: RectangularRegion): Vec2 => {
-    return [region.xmin + getWidth(region) / 2, region.ymin + getHeight(region) / 2]
+    // Math.min() is used because we don't know if we're in pixelspace or not.
+    // If we have converted to pixelspace, then ymin > ymax. But we can't just choose one,
+    // because we want this function to work for both inverted and standard coordinate systems.
+    return [region.xmin + (getWidth(region) / 2), Math.min(region.ymin, region.ymax) + (getHeight(region) / 2)]
 }
 export const pointSpanToRegion = (pointSpan: Vec4): RectangularRegion => {
     // expected: pointSpan will have form [0] = xmin, [1] = ymin, [2] = width, [3] = height
@@ -482,47 +485,47 @@ export class CanvasPainter {
     }
     fillRect(rect: RectangularRegion, brush: Brush) {
         const pr = transformRect(this.#transformMatrix, rect) // covert rect to pixelspace
-        console.log(`Transformed ${JSON.stringify(rect)} to ${JSON.stringify(pr)}`)
-        console.log(`Measure (pixelspace) width: ${getWidth(pr)}, height: ${getHeight(pr)}`)
+        // console.log(`Transformed ${JSON.stringify(rect)} to ${JSON.stringify(pr)}`)
+        // console.log(`Measure (pixelspace) width: ${getWidth(pr)}, height: ${getHeight(pr)}`)
         this.#context2D.save()
         this.#context2D.fillStyle = toColorStr(brush.color) // TODO: create an applyBrush() function?
-        // NOTE: Due to pixelspace conversion axis flip, we want to refer to the *upper* left corner, i.e. ymax.
-        this.#context2D.fillRect(pr.xmin, pr.ymax, getWidth(pr), getHeight(pr))
+        // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
+        this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr))
         this.#context2D.restore()
     }
     drawRect(rect: RectangularRegion, pen: Pen) {
         const pr = transformRect(this.#transformMatrix, rect) // convert rect to pixelspace
         this.#context2D.save()
         applyPen(this.#context2D, pen)
-        // NOTE: Due to pixelspace conversion axis flip, we want to refer to the *upper* left corner, i.e. ymax.
-        this.#context2D.strokeRect(pr.xmin, pr.ymax, getWidth(pr), getHeight(pr))
+        // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
+        this.#context2D.strokeRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr))
         this.#context2D.restore()
+    }
+
+    getEllipseFromBoundingRect(boundingRect: RectangularRegion) {
+        const r = transformRect(this.#transformMatrix, boundingRect)
+        const center = getCenter(r)
+        const W = getWidth(r)
+        const H = getHeight(r)
+        return {center, W, H}
     }
 
     // TODO: Looks like the earlier version was actually getting passed the least corner and the width/height:
     //        --> this.#context2D.ellipse(x + W / 2, y + H / 2, W / 2, H / 2, 0, 0, 2 * Math.PI)
     fillEllipse(boundingRect: RectangularRegion, brush: Brush) {
-        // const c = homogenizeVec2(center)
-        // const axisLengths = transformDistance(this.#transformMatrix, [W, H])
-        const r = transformRect(this.#transformMatrix, boundingRect)
-        const center = getCenter(r)
-        const W = getWidth(r)
-        const H = getHeight(r)
+        const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}
         this.#context2D.save()
         this.#context2D.fillStyle = toColorStr(brush.color)
         this.#context2D.beginPath()
-        console.log(`Attempting to fill ellipse: ${center[0]} ${center[1]} ${W/2} ${H/2}`)
         this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
         this.#context2D.fill()
         this.#context2D.restore()
     }
     drawEllipse(boundingRect: RectangularRegion, pen: Pen) {
-        const r = transformRect(this.#transformMatrix, boundingRect)
-        const center = getCenter(r)
-        const W = getWidth(r)
-        const H = getHeight(r)
+        const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}
         this.#context2D.save()
         applyPen(this.#context2D, pen)
+        console.log(`Attempting to draw ellipse: ${center[0]} ${center[1]} ${W/2} ${H/2}`)
         this.#context2D.beginPath()
         this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
         this.#context2D.stroke()

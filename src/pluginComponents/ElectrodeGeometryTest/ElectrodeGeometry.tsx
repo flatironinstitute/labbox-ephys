@@ -1,77 +1,96 @@
 import { norm } from 'mathjs';
 import React, { useCallback, useRef } from 'react';
-import { CanvasPainter, getHeight, getWidth, Pen, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { CanvasPainter, getHeight, getWidth, Pen, RectangularRegion, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
-interface ElectrodeGeometryProps {
-    electrodes: ({
-        label: string,
-        x: number,
-        y: number
-    })[]
+type Electrode = {
+    label: string,
+    x: number,
+    y: number
 }
 
-const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) => {
-    console.log('PaintTestLayer')
-    painter.wipe()
-    painter.printCanvasDimensions()
+interface ElectrodeGeometryProps {
+    electrodes: Electrode[]
+}
+
+// TODO: Might be more efficient to compute and store this at a higher level or something.
+const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinates: RectangularRegion, electrodeRect: RectangularRegion} => {
     // we don't actually know the number or locations of the electrodes.
-    // Read the data to figure out an appropriate scale
-    // NOTE: To be USEFUL this stuff is going to have to exist elsewhere,
-    // needs *persistence* to handle clicks properly
-    const electrodeXmin = Math.min(...props.electrodes.map((point) => point.x))
-    const electrodeYmin = Math.min(...props.electrodes.map((point) => point.y))
+    // Read the data to figure out an appropriate scale.
+    // NOTE: To be USEFUL the coordinate space computations should exist somewhere
+    // more accessible (for reuse and for persistence of the computational result)
+    // (After all we need the inverse to handle click events properly)
+    const electrodeXs = electrodes.map((point) => point.x)
+    const electrodeYs = electrodes.map((point) => point.y)
+    
+    const electrodeRect = {
+        xmin: Math.min(...electrodeXs),
+        xmax: Math.max(...electrodeXs),
+        ymin: Math.min(...electrodeYs),
+        ymax: Math.max(...electrodeYs)
+    }
+
+    // Assuming we want to keep the origin in the range, while the min point is not at (0,0), a perfectly
+    // tight fit to mins and maxes will give more bottom-left margin than top or right margin.
+    // To compensate, xmax and ymax need to include a point that's the
+    // max plus the difference between min and 0.
+    const extraXoffsetFrom0 = Math.max(electrodeRect.xmin, 0)
+    const extraYoffsetFrom0 = Math.max(electrodeRect.ymin, 0)
 
     const electrodeRanges = {
-        xmin: Math.min(...props.electrodes.map((point) => point.x), 0),
-        ymin: Math.min(...props.electrodes.map((point) => point.y), 0),
-        xmax: Math.max(...props.electrodes.map((point) => point.x)),
-        ymax: Math.max(...props.electrodes.map((point) => point.y))
+        xmin: Math.min(electrodeRect.xmin, 0),
+        ymin: Math.min(electrodeRect.ymin, 0),
+        xmax: Math.max(electrodeRect.xmax, electrodeRect.xmax + extraXoffsetFrom0),
+        ymax: Math.max(electrodeRect.ymax, electrodeRect.ymax + extraYoffsetFrom0)
     }
-    // keep it square
+    // keep it square -- TODO: This should actually worry about the aspect ratio of the underlying canvas?
     const side = Math.max(getWidth(electrodeRanges), getHeight(electrodeRanges))
     // add a margin
     const margin = side * .05
     const scaledCoordinates = {
-        xmin: Math.min(electrodeRanges.xmin, 0) - margin,
-        xmax: side + margin,
-        ymin: Math.min(electrodeRanges.ymin, 0) - margin,
-        ymax: side + margin
+        xmin: electrodeRanges.xmin - margin,
+        xmax: electrodeRanges.xmin + side + margin,
+        ymin: electrodeRanges.ymin - margin,
+        ymax: electrodeRanges.ymin + side + margin
     }
+
+    console.log(`Ranges: ${JSON.stringify(scaledCoordinates)} from ${JSON.stringify(electrodeRanges)}`)
+    return {scaledCoordinates: scaledCoordinates, electrodeRect: electrodeRect}
+}
+
+// TODO: memoize? least-distance computation is O(N^2) after all
+// if that's not possible, we could sort and compare adjacent elements in each dimension for O(n log n) (assuming it is ever noticeably slow)
+const computeRadius = (electrodes: Electrode[], scaledCoordinates: RectangularRegion, electrodeRect: RectangularRegion): number => {
     // how big should each electrode dot be? Really depends on how close
     // the dots are to each other. Let's find the closest pair of dots and
     // set the radius to 40% of the distance between them.
-    let leastNorm = Math.min(electrodeXmin - scaledCoordinates.xmin, electrodeYmin - scaledCoordinates.ymin)
-    props.electrodes.forEach((point) => {
-        props.electrodes.forEach((otherPoint) => {
+    let leastNorm = Math.min(electrodeRect.xmin - scaledCoordinates.xmin, electrodeRect.ymin - scaledCoordinates.ymin,
+                             scaledCoordinates.xmax - electrodeRect.xmax, scaledCoordinates.ymax - electrodeRect.ymax)
+    electrodes.forEach((point) => {
+        electrodes.forEach((otherPoint) => {
             const dist = norm([point.x - otherPoint.x, point.y - otherPoint.y])
             if (dist === 0) return
             leastNorm = Math.min(leastNorm, dist as number)
         })
     })
     const radius = 0.4 * leastNorm
+    console.log(`LeastNorm: ${leastNorm}`)
+    return radius
+}
+
+const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) => {
+    console.log('PaintTestLayer')
+    painter.wipe()
+
+    const {scaledCoordinates, electrodeRect} = {...computeElectrodeCoordinates(props.electrodes)}
+    const radius = computeRadius(props.electrodes, scaledCoordinates, electrodeRect)
 
     const tmatrix = painter.getNewTransformationMatrix(scaledCoordinates)
     const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
 
-// NOT INVERTING PROPERLY??
     console.log(JSON.stringify(props.electrodes))
-    console.log(`Ranges: ${JSON.stringify(scaledCoordinates)} from ${JSON.stringify(electrodeRanges)}`)
-    console.log(`LeastNorm: ${leastNorm} radius: ${radius}`)
     console.log(`Realized matrix: ${JSON.stringify(scaledPainter.getTransformationMatrix())}`)
     const pen: Pen = {color: 'rgb(22, 22, 22)', width: 3}
-    scaledPainter.fillRect(scaledCoordinates, {color: 'rgb(210, 160, 220)'})
-    // scaledPainter.fillRect({xmin: 0, ymin: 0, xmax: 80, ymax: 120}, {color: 'rgb(210, 160, 220)'})
-    scaledPainter.fillRect({xmin: 0, ymin: 0, xmax: 63, ymax: 63}, {color: 'rgb(160, 210, 220)'})
-    // ll red
-    scaledPainter.drawLine(scaledCoordinates.xmin, scaledCoordinates.ymin, scaledCoordinates.xmin + 3, scaledCoordinates.ymin + 3, {color: 'rgb(255, 0, 0)', width: 3})
-    // lr blue
-    scaledPainter.drawLine(scaledCoordinates.xmax, scaledCoordinates.ymin, scaledCoordinates.xmax - 3, scaledCoordinates.ymin + 3, {color: 'rgb(0, 0, 255)', width: 3})
-    // ul green
-    scaledPainter.drawLine(scaledCoordinates.xmin, scaledCoordinates.ymax, scaledCoordinates.xmin + 3, scaledCoordinates.ymax - 3, {color: 'rgb(0, 255, 0)', width: 3})
-    // ur black
-    scaledPainter.drawLine(scaledCoordinates.xmax, scaledCoordinates.ymax, scaledCoordinates.xmax - 3, scaledCoordinates.ymax - 3, {color: 'rgb(0, 0, 0)', width: 3})
-
 
     props.electrodes.forEach(electrode => {
         const electrodeBoundingRect = {
