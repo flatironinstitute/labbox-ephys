@@ -1,7 +1,7 @@
 import { norm } from 'mathjs';
 import React, { useCallback, useRef } from 'react';
 import { CanvasPainter, getHeight, getWidth, Pen, RectangularRegion, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+import CanvasWidget, { CanvasWidgetLayer, pointFromEvent } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
 
 type Electrode = {
     label: string,
@@ -111,6 +111,9 @@ interface ClickLayerProps extends ElectrodeGeometryProps {
 const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
     console.log('PaintClickLayer')
     painter.wipe()
+    const { scaledCoordinates } = computeElectrodeCoordinates(props.electrodes)
+    const tmatrix = painter.getNewTransformationMatrix(scaledCoordinates)
+    const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
     props.clickHistory.forEach((point, i) => {
         const color = i * 50
         const pen = {color: `rgb(${color}, 0, 128)`, width: 3}
@@ -120,7 +123,7 @@ const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
             xmax: point[0] + 5,
             ymax: point[1] + 5
         }
-        painter.drawEllipse(boundingRect, pen)
+        scaledPainter.drawEllipse(boundingRect, pen)
     })
 }
 
@@ -176,20 +179,42 @@ const animateClickLayer = (painter: CanvasPainter, props: AnimatedLayerProps, ti
     if (!done) window.requestAnimationFrame(stepFrame)
 }
 
+const reportMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, painter: CanvasPainter, props: any, scaledCoords: any) => {
+    console.log(`Received point at ${JSON.stringify(e)}`)
+    const { point, mouseButton } = pointFromEvent(e)
+    const tmatrix = painter.getNewTransformationMatrix(scaledCoords)
+    const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
+    const scaledPoint = scaledPainter.clickToCoordinateSystem(point)
+    console.log(`Converted to ${scaledPoint[0]}, ${scaledPoint[1]} in my system.`)
+}
+
 
 const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const { electrodes } = props;
+    const { scaledCoordinates } = computeElectrodeCoordinates(electrodes)
 
+    const _handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, painter: CanvasPainter, props: any) => {
+        return reportMouseMove(e, painter, props, scaledCoordinates)
+    }
     const testLayer = useRef(new CanvasWidgetLayer<ElectrodeGeometryProps>(paintTestLayer, props)).current
-    const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, {...props, clickHistory: []})).current
+    const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, 
+        {...props, clickHistory: []},
+        { mouseMove: [_handleMouseMove] }
+        )).current
     const animatedLayer = useRef(new CanvasWidgetLayer<AnimatedLayerProps>(animateClickLayer, {...props, point: undefined, requestRepaint: () => (''), start: undefined })).current
     // note self-referentiality here. animatedLayer needs an ability to request its canvas schedule a repaint during its animation cycle.
     animatedLayer.setProps({...animatedLayer.getProps(), requestRepaint: animatedLayer.scheduleRepaint})
     const layers = [testLayer, clickLayer, animatedLayer]
 
-    const _handleMouseMove = useCallback((pos: Vec2) => {
-        // console.log('--- on mouse move', pos)
-    }, [])
+
+    // const _handleMouseMove = useCallback((pos: Vec2) => {
+    //     // console.log('--- on mouse move', pos)
+    // }, [])
+    const _newHandleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => { 
+        for (let layer of layers) {
+            layer.invokeHandler(e, 'mouseMove')
+        }
+     }
     const _handleMousePress = useCallback((pos: Vec2) => {
         const clickLayerProps = clickLayer.getProps()
         clickLayer.setProps({
@@ -216,7 +241,7 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
             layers={layers}
             width={200}
             height={200}
-            onMouseMove={_handleMouseMove}
+            onMouseMove={_newHandleMouseMove}
             onMousePress={_handleMousePress}
             onMouseRelease={_handleMouseRelease}
             onMouseDrag={_handleMouseDrag}

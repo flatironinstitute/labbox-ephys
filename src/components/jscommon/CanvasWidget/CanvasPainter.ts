@@ -358,7 +358,7 @@ export class CanvasPainter {
         this.#context2D = context2d
         this.#canvasLayer = canvasLayer
         this.#coordRange = { xmin: 0, ymin: 0, xmax: 1, ymax: 1 }
-        this.#transformMatrix = transformMatrix || this.setBaseTransformationMatrix()
+        this.#transformMatrix = transformMatrix || this.setPixelTransformationMatrix()
         this.#inverseMatrix = getInverseTransformationMatrix(this.#transformMatrix)
     }
 
@@ -390,7 +390,7 @@ export class CanvasPainter {
     // Sets up the transformation matrix that converts from the default coordinate space to pixelspace.
     // This matrix ALSO inverts the y-axis so that (0,0) is the bottom left corner of the coordinate
     // space, even though it is the top left corner of the canvas/pixelspace.
-    setBaseTransformationMatrix(canvasLayer?: CanvasWidgetLayer): TransformationMatrix {
+    setPixelTransformationMatrix(canvasLayer?: CanvasWidgetLayer): TransformationMatrix {
         const layer = canvasLayer || this.#canvasLayer
         if (!layer) throw Error('Cannot build default transformation matrix with no canvas.')
         const shape = layer.width() === layer.height() ? 'square' :

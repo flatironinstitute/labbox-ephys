@@ -3,11 +3,29 @@ import { CanvasPainter, Vec2, Vec4 } from './CanvasPainter'
 
 type OnPaint = (painter: CanvasPainter, layerProps: any) => void
 
+// generalize this maybe?
+export type EventType = 'mouseMove' | 'mouseDown' | 'mouseUp' | 'mouseEnter' | 'mouseLeave'
+export const isEventType = (x: any): x is EventType => {
+    if (typeof(x) !== 'string') return false
+    for (let type of ['mouseMove', 'mouseDown', 'mouseUp', 'mouseEnter', 'mouseLeave']) {
+        if (x === type) return true
+    }
+    return false
+}
+
+export interface EventListeners{
+    mouseMove?:  any[],
+    mouseDown?:  any[],
+    mouseUp?:    any[],
+    mouseEnter?: any[],
+    mouseLeave?: any[]
+}
+
 export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     #onPaint: OnPaint
     #props: LayerProps
-    #preserveAspectRatio = false
 
+    // TODO: FIX THIS ****
     // these are set in _initialize
     #width: number = 100
     #height: number = 100 // todo: figure out how to get this from the actual Canvas
@@ -17,9 +35,12 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     #lastRepaintTimestamp = Number(new Date())
     #repaintNeeded = false
 
-    constructor(onPaint: OnPaint, initialProps: LayerProps) {
+    #handlers: EventListeners
+
+    constructor(onPaint: OnPaint, initialProps: LayerProps, listeners?: EventListeners) {
         this.#onPaint = onPaint
         this.#props = {...initialProps}
+        this.#handlers = listeners || {}
     }
     setProps(p: LayerProps) {
         this.#props = {...p}
@@ -43,11 +64,15 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
     height() {
         return this.#height
     }
-    setPreserveAspectRatio(val: boolean) {
-        this.#preserveAspectRatio = val
-    }
-    preserveAspectRatio() {
-        return this.#preserveAspectRatio
+    invokeHandler(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: string) {
+        if (!isEventType(type)) return;
+        this.#handlers[type]?.map((handler) => {
+            // TODO: constructing a new CanvasPainter every time seems weird
+            const ctx = this.context()
+            if (!ctx) return
+            const painter = new CanvasPainter(ctx, this)
+            handler(e, painter,  this.#props)
+        })
     }
     
     scheduleRepaint() {
@@ -72,7 +97,7 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
         this._doRepaint()
     }
     _initialize(width: number, height: number, canvasElement: any) {
-        let doScheduleRepaint = (
+        const doScheduleRepaint = (
             (width !== this.#width) ||
             (height !== this.#height) ||
             canvasElement !== this.#canvasElement
@@ -86,9 +111,6 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
         }
     }
     _doRepaint = () => {
-        // for (let handler of this._repaintHandlers) {
-        //     handler();
-        // }
         this.#lastRepaintTimestamp = Number(new Date())
 
         let ctx = this.context()
@@ -98,8 +120,10 @@ export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
         }
         this.#repaintNeeded = false
         // this._mouseHandler.setElement(L.canvasElement());
+        // ****** TODO *******
+        // a) do we really need to reconstruct this every time? and
+        // b) can we pre-compute the transform matrix?
         let painter = new CanvasPainter(ctx, this)
-        // painter._initialize(this.props.width, this.props.height);
         painter.clear()
         this.#onPaint(painter, this.#props)
     }
@@ -110,7 +134,7 @@ interface ClickEvent {
     mouseButton: boolean
 }
 
-const _pointFromEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>): ClickEvent => {
+export const pointFromEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>): ClickEvent => {
     const element = e.currentTarget
     const point: Vec2 = [
         e.clientX - element.getBoundingClientRect().x,
@@ -186,7 +210,7 @@ interface Props {
     layers: CanvasWidgetLayer<{[key: string]: any}>[],
     width: number,
     height: number,
-    onMouseMove: (pos: Vec2) => void
+    onMouseMove: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void
     onMousePress: (pos: Vec2) => void
     onMouseRelease: (pos: Vec2) => void
     onMouseDrag: (args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => void
@@ -208,7 +232,8 @@ const CanvasWidget = (props: Props) => {
     useEffect(() => {
         // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
         props.layers.forEach((L, index) => {
-            /// todo: figure out what to do here
+            // /// TODO: figure out what to do here
+            // console.log(`I am layer ${index} and my props were ${JSON.stringify(props)}`)
             const divElement = divRef.current
             if (divElement) {
                 const canvasElement = divElement.children[index]
@@ -221,10 +246,11 @@ const CanvasWidget = (props: Props) => {
     })
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point, mouseButton } = _pointFromEvent(e)
+        const { point, mouseButton } = pointFromEvent(e)
         dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton, point: point})
         onMouseDrag({ anchor: state.dragAnchor, pos: state.dragPosition, rect: state.dragRect })
-        onMouseMove(point)
+        // onMouseMove(point)
+        onMouseMove(e)
     }, [onMouseDrag, onMouseMove, state.dragAnchor, state.dragPosition, state.dragRect])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -238,7 +264,7 @@ const CanvasWidget = (props: Props) => {
     }, [onMousePress])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = _pointFromEvent(e)
+        const { point } = pointFromEvent(e)
         onMouseRelease && onMouseRelease(point)
         if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
             // No need to recompute the dragRect--we already computed it on mouse move
@@ -248,12 +274,12 @@ const CanvasWidget = (props: Props) => {
     }, [onMouseRelease, onMouseDragRelease, state.dragging, state.dragAnchor, state.dragPosition, state.dragRect])
 
     const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = _pointFromEvent(e)
+        const { point } = pointFromEvent(e)
         // todo
     }, [])
 
     const _handleMouseLeave = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = _pointFromEvent(e)
+        const { point } = pointFromEvent(e)
         // todo
     }, [])
 
