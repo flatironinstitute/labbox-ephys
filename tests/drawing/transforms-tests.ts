@@ -1,6 +1,6 @@
 import { matrix, multiply } from 'mathjs'
 import * as mocha from 'mocha'
-import * as ut from '../../src/components/jscommon/CanvasWidget/CanvasPainter'
+import * as ut from '../../src/components/jscommon/CanvasWidget/Geometry'
 // import * as sinon from 'sinon'
 
 // If you get vague errors about All files must be modules when the --isolatedModules flag is provided,
@@ -156,6 +156,28 @@ describe('RectangularRegion functionality', () => {
             expect(ut.rectangularRegionsIntersect(region, belowRegion)).to.be.false()
         })
     })
+    describe('Point intersectino', () => {
+        const rect = { xmin: 0, xmax: 5, ymin: 0, ymax: 10 }
+        it('pointInRect() returns true for point in the region', () => {
+            const pt = [2, 2]
+            expect(ut.pointInRect(pt, rect)).to.be.true()
+        })
+        it('pointInRect() is transparent to inverted y-axis', () => {
+            const goofyRect = { ...rect, ymin: 10, ymax: 0}
+            const pt = [2, 2]
+            expect(ut.pointInRect(pt, goofyRect)).to.be.true()
+        })
+        it('pointInRect() returns false for points outside the region', () => {
+            const tooLeft = [-1, 4]
+            const tooRight = [6, 4]
+            const tooHigh = [3, 12]
+            const tooLow = [3, -4]
+            const onBorder = [0, 0]
+            for (let pt of [tooLeft, tooRight, tooHigh, tooLow, onBorder]) {
+                expect(ut.pointInRect(pt, rect)).to.be.false()
+            }
+        })
+    })
 })
 
 describe('Transformation matrix functionality', () => {
@@ -192,6 +214,58 @@ describe('Transformation matrix functionality', () => {
         it('toTransformationMatrix() throws on wrong last row', () => {
             const badFn = () => ut.toTransformationMatrix(matrix([[1, 0, 0], [0, -1, 5], [0, 1, 1]]))
             expect(badFn).to.throw()
+        })
+    })
+    describe('Base Transformation Matrix setup and inversions', () => {
+        const baseWidth = 600
+        const baseHeight = 600
+        const portraitWidth = 400
+        const portraitHeight = baseHeight
+        const landscapeWidth = baseWidth
+        const landscapeHeight = 400
+
+        it('getBasePixelTransformationMatrix() sets expected base transform matrix for square canvas', () => {
+            const { matrix } = ut.getBasePixelTransformationMatrix(baseWidth, baseHeight)
+            expect(JSON.stringify(matrix)).to.equal(JSON.stringify([[600, 0, 0], [0, -600, 600], [0, 0, 1]]))
+        })
+        it('getBasePixelTransformationMatrix() sets expected base transform matrix for landscape canvas', () => {
+            const { matrix } = ut.getBasePixelTransformationMatrix(landscapeWidth, landscapeHeight)
+            expect(JSON.stringify(matrix)).to.equal(JSON.stringify([[400, 0, 0], [0, -400, 400], [0, 0, 1]]))
+        })
+        it('getBasePixelTransformationMatrix() sets expected base transform matrix for portrait canvas', () => {
+            const { matrix } = ut.getBasePixelTransformationMatrix(portraitWidth, portraitHeight)
+            expect(JSON.stringify(matrix)).to.equal(JSON.stringify([[400, 0, 0], [0, -400, 600], [0, 0, 1]]))
+        })
+        it('getBasePixelTransformationMatrix() sets expected coordinate ranges for all orientations', () => {
+            let { coords } = ut.getBasePixelTransformationMatrix(baseWidth, baseHeight)
+            expect(ut.rectsAreEqual(coords, {xmin: 0, xmax: 1, ymin: 0, ymax: 1} )).to.be.true()
+            coords = ut.getBasePixelTransformationMatrix(landscapeWidth, landscapeHeight)['coords']
+            expect(ut.rectsAreEqual(coords, {xmin: 0, xmax: 1.5, ymin: 0, ymax: 1} )).to.be.true()
+            coords = ut.getBasePixelTransformationMatrix(portraitWidth, portraitHeight)['coords']
+            expect(ut.rectsAreEqual(coords, {xmin: 0, xmax: 1, ymin: 0, ymax: 1.5} )).to.be.true()
+        })
+        it('getBasePixelTransformationMatrix() uses input target system when provided', () => {
+            const newTargetSystem = { xmin: 150, xmax: 450, ymin: 100, ymax: 700 }
+            const { matrix, coords } = ut.getBasePixelTransformationMatrix(baseWidth, baseHeight, newTargetSystem)
+            const expectedMatrix = [[2, 0, -300], [0, -1, 700], [0, 0, 1]]
+            expect(ut.rectsAreEqual(coords, newTargetSystem))
+            expect(JSON.stringify(matrix)).to.equal(JSON.stringify(expectedMatrix))
+        })
+        it('getBasePixelTransformationMatrix() throws when width or height unset', () => {
+            const noWidth = () => ut.getBasePixelTransformationMatrix(undefined as any as number, baseHeight)
+            const noHeight = () => ut.getBasePixelTransformationMatrix(baseWidth, undefined as any as number)
+            expect(noWidth).to.throw()
+            expect(noHeight).to.throw()
+        })
+        it('applyNewTransformationMatrix() returns object with correct transformation matrix', () => {
+            const { matrix, coords } = ut.getBasePixelTransformationMatrix(baseWidth, baseHeight)
+            const baseRange = {xmin: 0, xmax: 1, ymin: 0, ymax: 1}
+            expect(ut.rectsAreEqual(coords, baseRange)).to.be.true('Assert base coord range is unit square')
+            const newSystem = {xmin: 20, xmax: 80, ymin: 0, ymax: 60}
+            const finalMatrix = ut.updateTransformationMatrix(newSystem, baseRange, matrix)
+            // Got the new matrix, which (per my pencil math) should be [10, 0, -200], [0, -10, 600], [0 0 1]
+            // (Assuming mathjs downscaled and upscaled without loss of fidelity)
+            expect(JSON.stringify(finalMatrix)).to.equal(JSON.stringify([[10, 0, -200], [0, -10, 600], [0, 0, 1]]))
         })
     })
     describe('Getting new transformation matrix', () => {
@@ -299,70 +373,6 @@ describe('Transformation matrix functionality', () => {
                 const distances = [20, 30]
                 const converted = ut.transformDistance(newTmatrix, distances)
                 expect(JSON.stringify(converted)).to.equal(JSON.stringify([100, 150]))
-            })
-        })
-    })
-})
-
-describe('CanvasPainter proper', () => {
-    describe('Transformation Matrix handlers', () => {
-        describe('Setting base transform matrix', () => {
-            const fakeContext2D = { } as any as ut.Context2D
-            const fakeCanvasLayer = { width: () => 600, height: () => 600 } as any as ut.CanvasWidgetLayer
-            const fakeLandscapeCanvas = { width: () => 600, height: () => 400 } as any as ut.CanvasWidgetLayer
-            const fakePortraitCanvas = { width: () => 400, height: () => 600 } as any as ut.CanvasWidgetLayer
-            it('CanvasPainter constructor sets a base transform matrix', () => {
-                const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
-                expect(painter.getTransformationMatrix()).to.not.be.null()
-            })
-            it('CanvasPainter constructor sets inverse transformation matrix', () => {
-                const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
-                expect(painter.getInverseTransformationMatrix()).to.not.be.null()
-            })
-            it('CanvasPainter constructor sets expected base transform matrix for square canvas', () => {
-                const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
-                expect(JSON.stringify(painter.getTransformationMatrix())).to.equal(JSON.stringify([[600, 0, 0], [0, -600, 600], [0, 0, 1]]))
-            })
-            it('CanvasPainter constructor sets expected base transform matrix for landscape canvas', () => {
-                const painter = new ut.CanvasPainter(fakeContext2D, fakeLandscapeCanvas)
-                expect(JSON.stringify(painter.getTransformationMatrix())).to.equal(JSON.stringify([[400, 0, 0], [0, -400, 400], [0, 0, 1]]))
-            })
-            it('CanvasPainter constructor sets expected base transform matrix for portrait canvas', () => {
-                const painter = new ut.CanvasPainter(fakeContext2D, fakePortraitCanvas)
-                expect(JSON.stringify(painter.getTransformationMatrix())).to.equal(JSON.stringify([[400, 0, 0], [0, -400, 600], [0, 0, 1]]))                
-            })
-            it('CanvasPainter constructor sets expected coordinate ranges for all orientations', () => {
-                let painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
-                expect(ut.rectsAreEqual(painter.getCoordRange(), {xmin: 0, xmax: 1, ymin: 0, ymax: 1} )).to.be.true()
-                painter = new ut.CanvasPainter(fakeContext2D, fakeLandscapeCanvas)
-                expect(ut.rectsAreEqual(painter.getCoordRange(), {xmin: 0, xmax: 1.5, ymin: 0, ymax: 1} )).to.be.true()
-                painter = new ut.CanvasPainter(fakeContext2D, fakePortraitCanvas)
-                expect(ut.rectsAreEqual(painter.getCoordRange(), {xmin: 0, xmax: 1, ymin: 0, ymax: 1.5} )).to.be.true()
-            })
-            it('setBaseTransformationMatrix() throws if canvasLayer undefined', () => {
-                const badFn = () => {new ut.CanvasPainter(fakeContext2D, undefined as any as ut.CanvasWidgetLayer)}
-                expect(badFn).to.throw()
-            })
-        })
-        describe('Updating transformation matrix', () => {
-            const fakeContext2D = {} as any as ut.Context2D
-            const fakeCanvasLayer = { width: () => 600, height: () => 600 } as any as ut.CanvasWidgetLayer
-            const painter = new ut.CanvasPainter(fakeContext2D, fakeCanvasLayer)
-            it('applyNewTransformationMatrix() returns new object', () => {
-                const tmatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-                const newPainter = painter.applyNewTransformationMatrix(tmatrix)
-                expect(newPainter).to.not.equal(painter) // if newPainter is a copy, these s.b. different per reference equality comparison
-            })
-            it('applyNewTransformationMatrix() returns object with correct transformation matrix', () => {
-                const baseRange = {xmin: 0, xmax: 1, ymin: 0, ymax: 1}
-                expect(ut.rectsAreEqual(painter.getCoordRange(), baseRange)).to.be.true('Assert base coord range is unit square')
-                const newSystem = {xmin: 20, xmax: 80, ymin: 0, ymax: 60}
-                const tmatrix = ut.getTransformationMatrix(newSystem, baseRange)
-                const newPainter = painter.applyNewTransformationMatrix(tmatrix)
-                const finalMatrix = newPainter.getTransformationMatrix()
-                // Got the new matrix, which (per my pencil math) should be [10, 0, -200], [0, -10, 600], [0 0 1]
-                // (Assuming mathjs downscaled and upscaled without loss of fidelity)
-                expect(JSON.stringify(finalMatrix)).to.equal(JSON.stringify([[10, 0, -200], [0, -10, 600], [0, 0, 1]]))
             })
         })
     })

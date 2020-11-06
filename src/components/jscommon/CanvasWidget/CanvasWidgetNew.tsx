@@ -1,147 +1,12 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
-import { CanvasPainter, Vec2, Vec4 } from './CanvasPainter'
+import { CanvasWidgetLayer, ClickEventFromMouseEvent, EventTypeFromString } from './CanvasWidgetLayer'
+import { Vec2, Vec4 } from './Geometry'
 
-type OnPaint = (painter: CanvasPainter, layerProps: any) => void
-
-// generalize this maybe?
-export type EventType = 'mouseMove' | 'mouseDown' | 'mouseUp' | 'mouseEnter' | 'mouseLeave'
-export const isEventType = (x: any): x is EventType => {
-    if (typeof(x) !== 'string') return false
-    for (let type of ['mouseMove', 'mouseDown', 'mouseUp', 'mouseEnter', 'mouseLeave']) {
-        if (x === type) return true
-    }
-    return false
-}
-
-export interface EventListeners{
-    mouseMove?:  any[],
-    mouseDown?:  any[],
-    mouseUp?:    any[],
-    mouseEnter?: any[],
-    mouseLeave?: any[]
-}
-
-export class CanvasWidgetLayer<LayerProps extends {[key: string]: any}> {
-    #onPaint: OnPaint
-    #props: LayerProps
-
-    // TODO: FIX THIS ****
-    // these are set in _initialize
-    #width: number = 100
-    #height: number = 100 // todo: figure out how to get this from the actual Canvas
-    #canvasElement: any | null = null
-
-    #repaintScheduled = false
-    #lastRepaintTimestamp = Number(new Date())
-    #repaintNeeded = false
-
-    #handlers: EventListeners
-
-    constructor(onPaint: OnPaint, initialProps: LayerProps, listeners?: EventListeners) {
-        this.#onPaint = onPaint
-        this.#props = {...initialProps}
-        this.#handlers = listeners || {}
-    }
-    setProps(p: LayerProps) {
-        this.#props = {...p}
-    }
-    getProps(): LayerProps {
-        return {...this.#props}
-    }
-    context() {
-        if (!this.#canvasElement) return null
-        return this.#canvasElement.getContext('2d')
-    }
-    canvasElement() {
-        return this.#canvasElement
-    }
-    repaintNeeded() {
-        return this.#repaintNeeded
-    }
-    width() {
-        return this.#width
-    }
-    height() {
-        return this.#height
-    }
-    invokeHandler(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: string) {
-        if (!isEventType(type)) return;
-        this.#handlers[type]?.map((handler) => {
-            // TODO: constructing a new CanvasPainter every time seems weird
-            const ctx = this.context()
-            if (!ctx) return
-            const painter = new CanvasPainter(ctx, this)
-            handler(e, painter,  this.#props)
-        })
-    }
-    
-    scheduleRepaint() {
-        this.#repaintNeeded = true
-        if (this.#repaintScheduled) {
-            return;
-        }
-        const elapsedSinceLastRepaint =  Number(new Date()) - this.#lastRepaintTimestamp
-        if (elapsedSinceLastRepaint > 10) {
-            // do it right away
-            this._doRepaint();
-            return;
-        }
-        this.#repaintScheduled = true;
-        setTimeout(() => {
-            // let elapsed = (new Date()) - timer;
-            this.#repaintScheduled = false;
-            this._doRepaint();
-        }, 5);
-    }
-    repaintImmediate() {
-        this._doRepaint()
-    }
-    _initialize(width: number, height: number, canvasElement: any) {
-        const doScheduleRepaint = (
-            (width !== this.#width) ||
-            (height !== this.#height) ||
-            canvasElement !== this.#canvasElement
-        )
-        this.#width = width
-        this.#height = height
-        this.#canvasElement = canvasElement
-        // this.scheduleRepaint()
-        if (doScheduleRepaint) {
-            this.scheduleRepaint()
-        }
-    }
-    _doRepaint = () => {
-        this.#lastRepaintTimestamp = Number(new Date())
-
-        let ctx = this.context()
-        if (!ctx) {
-            this.#repaintNeeded = true
-            return
-        }
-        this.#repaintNeeded = false
-        // this._mouseHandler.setElement(L.canvasElement());
-        // ****** TODO *******
-        // a) do we really need to reconstruct this every time? and
-        // b) can we pre-compute the transform matrix?
-        let painter = new CanvasPainter(ctx, this)
-        painter.clear()
-        this.#onPaint(painter, this.#props)
-    }
-}
-
-interface ClickEvent {
-    point: Vec2,
-    mouseButton: boolean
-}
-
-export const pointFromEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>): ClickEvent => {
-    const element = e.currentTarget
-    const point: Vec2 = [
-        e.clientX - element.getBoundingClientRect().x,
-        e.clientY - element.getBoundingClientRect().y
-    ]
-    return { point: point, mouseButton: e.buttons === 1 }
-}
+// This class serves three purposes:
+// 1. It collects & is a repository for the Layers that actually execute view and display output
+// 2. It maintains drag/interaction state & dispatches user interactions back to the Layers
+// 3. It creates and lays out the Canvas elements the Layers draw to.
+// Essentially it's an interface between the browser and the Layer logic.
 
 const COMPUTE_DRAG = 'COMPUTE_DRAG'
 const END_DRAG = 'END_DRAG'
@@ -207,20 +72,22 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 }
 
 interface Props {
-    layers: CanvasWidgetLayer<{[key: string]: any}>[],
+    layers: CanvasWidgetLayer<any>[],
     width: number,
     height: number,
-    onMouseMove: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void
-    onMousePress: (pos: Vec2) => void
-    onMouseRelease: (pos: Vec2) => void
-    onMouseDrag: (args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => void
-    onMouseDragRelease: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
+    // Might choose to delete these hooks. Maybe it could be useful to have an action for the Widget itself, but
+    // generally the Layer should be handling most of the responsibility here.
+    onMouseMove?: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void
+    onMousePress?: (pos: Vec2) => void
+    onMouseRelease?: (pos: Vec2) => void
+    onMouseDrag?: (args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => void
+    onMouseDragRelease?: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
 }
 
 const CanvasWidget = (props: Props) => {
     const divRef = React.useRef<HTMLDivElement>(null)
 
-    const { onMouseMove, onMouseDrag, onMousePress, onMouseRelease, onMouseDragRelease } = props
+    // const { onMouseMove, onMouseDrag, onMousePress, onMouseRelease, onMouseDragRelease } = props
 
     const [state, dispatch] = useReducer(dragReducer, {
         dragging: false,
@@ -245,13 +112,31 @@ const CanvasWidget = (props: Props) => {
         })
     })
 
+    const _dispatchDragEvents = useCallback((released: boolean) => {
+        if (!state.dragRect) return
+        const pixelDragRect = {
+            xmin: state.dragRect[0],
+            xmax: state.dragRect[0] + state.dragRect[2],
+            ymin: state.dragRect[1] + state.dragRect[3],
+            ymax: state.dragRect[1]
+        }
+        for (let l of props.layers) {
+            l.handleDrag(pixelDragRect, released, state.dragAnchor, state.dragPosition)
+        }
+    }, [props.layers, state.dragAnchor, state.dragRect, state.dragPosition])
+
+    const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: string) => {
+        for (let l of props.layers) {
+            l.handleDiscreteEvent(e, EventTypeFromString(type))
+        }
+    }, [props.layers])
+
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point, mouseButton } = pointFromEvent(e)
-        dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton, point: point})
-        onMouseDrag({ anchor: state.dragAnchor, pos: state.dragPosition, rect: state.dragRect })
-        // onMouseMove(point)
-        onMouseMove(e)
-    }, [onMouseDrag, onMouseMove, state.dragAnchor, state.dragPosition, state.dragRect])
+        const { point, mouseButton } = ClickEventFromMouseEvent(e, EventTypeFromString('Move'))
+        dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point})
+        _dispatchDragEvents(false)
+        _dispatchDiscreteMouseEvents(e, "Move")
+    }, [_dispatchDragEvents, _dispatchDiscreteMouseEvents])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const elmt = e.currentTarget
@@ -259,27 +144,24 @@ const CanvasWidget = (props: Props) => {
             e.clientX - elmt.getBoundingClientRect().x,
             e.clientY - elmt.getBoundingClientRect().y
         ]
-        onMousePress && onMousePress(pos)
+        _dispatchDiscreteMouseEvents(e, "Press")
         dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: pos })
-    }, [onMousePress])
+    }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = pointFromEvent(e)
-        onMouseRelease && onMouseRelease(point)
+        _dispatchDiscreteMouseEvents(e, "Release")
         if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
             // No need to recompute the dragRect--we already computed it on mouse move
-            onMouseDragRelease && onMouseDragRelease({anchor: state.dragAnchor, pos: state.dragPosition, rect: state.dragRect})
+            _dispatchDragEvents(true)
         }
-        dispatch({ type: END_DRAG, mouseButton: false, point: [0, 0] })
-    }, [onMouseRelease, onMouseDragRelease, state.dragging, state.dragAnchor, state.dragPosition, state.dragRect])
+        dispatch({ type: END_DRAG, mouseButton: false, point: [0, 0] }) // resets drag rectangle. point is ignored.
+    }, [state.dragging, state.dragAnchor, state.dragPosition, state.dragRect, _dispatchDragEvents, _dispatchDiscreteMouseEvents])
 
     const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = pointFromEvent(e)
         // todo
     }, [])
 
     const _handleMouseLeave = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = pointFromEvent(e)
         // todo
     }, [])
 

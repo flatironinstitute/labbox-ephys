@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { CanvasPainter, isTextAlignment, Vec2 } from '../../components/jscommon/CanvasWidget/CanvasPainter'
-import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew'
+import { CanvasPainter, isTextAlignment } from '../../components/jscommon/CanvasWidget/CanvasPainter'
+import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
+import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew'
+import { Vec2 } from '../../components/jscommon/CanvasWidget/Geometry'
 
+// TODO: FIXME
 
 interface ElectrodePlotData {
     label: string | null
@@ -184,7 +187,7 @@ const ElectrodeLayoutPlot = (props: Props) => {
             layers={layers}
             width={props.width}
             height={props.height}
-            onMouseMove={_handleMouseMove}
+            //onMouseMove={_handleMouseMove}
             onMousePress={_handleMousePress}
             onMouseRelease={() => {}}
             onMouseDrag={() => {}}

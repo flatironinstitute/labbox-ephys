@@ -1,7 +1,9 @@
 import { norm } from 'mathjs';
 import React, { useCallback, useRef } from 'react';
-import { CanvasPainter, getHeight, getWidth, Pen, RectangularRegion, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-import CanvasWidget, { CanvasWidgetLayer, pointFromEvent } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+import { CanvasPainter, Pen } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer, ClickEvent, DiscreteMouseEventHandler, DragHandler, DrawingSpaceProps } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
+import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+import { getBasePixelTransformationMatrix, getHeight, getInverseTransformationMatrix, getWidth, RectangularRegion, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/Geometry';
 
 type Electrode = {
     label: string,
@@ -13,13 +15,18 @@ interface ElectrodeGeometryProps {
     electrodes: Electrode[]
 }
 
-// TODO: Might be more efficient to compute and store this at a higher level or something.
+interface ElectrodeLayerProps extends ElectrodeGeometryProps {
+    width: number
+    height: number
+    Transform: DrawingSpaceProps
+    electrodeRect: RectangularRegion
+    scaledCoordinates: RectangularRegion
+    electrodeRadius: number
+}
+
 const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinates: RectangularRegion, electrodeRect: RectangularRegion} => {
     // we don't actually know the number or locations of the electrodes.
     // Read the data to figure out an appropriate scale.
-    // NOTE: To be USEFUL the coordinate space computations should exist somewhere
-    // more accessible (for reuse and for persistence of the computational result)
-    // (After all we need the inverse to handle click events properly)
     const electrodeXs = electrodes.map((point) => point.x)
     const electrodeYs = electrodes.map((point) => point.y)
     
@@ -30,10 +37,9 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
         ymax: Math.max(...electrodeYs)
     }
 
-    // Assuming we want to keep the origin in the range, while the min point is not at (0,0), a perfectly
-    // tight fit to mins and maxes will give more bottom-left margin than top or right margin.
-    // To compensate, xmax and ymax need to include a point that's the
-    // max plus the difference between min and 0.
+    // Assuming we want to keep the origin in the range, while the min point is not at (0,0), a perfect
+    // fit to min((0,0), lowest-left point) and maxes will give more bottom-left margin than top or right margin.
+    // To compensate, xmax and ymax need to include padding from their maxes up to the difference b/w min and 0.
     const extraXoffsetFrom0 = Math.max(electrodeRect.xmin, 0)
     const extraYoffsetFrom0 = Math.max(electrodeRect.ymin, 0)
 
@@ -43,7 +49,7 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
         xmax: Math.max(electrodeRect.xmax, electrodeRect.xmax + extraXoffsetFrom0),
         ymax: Math.max(electrodeRect.ymax, electrodeRect.ymax + extraYoffsetFrom0)
     }
-    // keep it square -- TODO: This should actually worry about the aspect ratio of the underlying canvas?
+    // keep it square -- TODO: Should actually worry about the aspect ratio of the underlying canvas?
     const side = Math.max(getWidth(electrodeRanges), getHeight(electrodeRanges))
     // add a margin
     const margin = side * .05
@@ -54,12 +60,10 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
         ymax: electrodeRanges.ymin + side + margin
     }
 
-    console.log(`Ranges: ${JSON.stringify(scaledCoordinates)} from ${JSON.stringify(electrodeRanges)}`)
+    // console.log(`Ranges: ${JSON.stringify(scaledCoordinates)} from ${JSON.stringify(electrodeRanges)}`)
     return {scaledCoordinates: scaledCoordinates, electrodeRect: electrodeRect}
 }
 
-// TODO: memoize? least-distance computation is O(N^2) after all
-// if that's not possible, we could sort and compare adjacent elements in each dimension for O(n log n) (assuming it is ever noticeably slow)
 const computeRadius = (electrodes: Electrode[], scaledCoordinates: RectangularRegion, electrodeRect: RectangularRegion): number => {
     // how big should each electrode dot be? Really depends on how close
     // the dots are to each other. Let's find the closest pair of dots and
@@ -74,46 +78,48 @@ const computeRadius = (electrodes: Electrode[], scaledCoordinates: RectangularRe
         })
     })
     const radius = 0.4 * leastNorm
-    console.log(`LeastNorm: ${leastNorm}`)
+    // console.log(`LeastNorm: ${leastNorm}`)
     return radius
 }
 
-const paintTestLayer = (painter: CanvasPainter, props: ElectrodeGeometryProps) => {
-    console.log('PaintTestLayer')
+const paintTestLayer = (painter: CanvasPainter, props: ElectrodeLayerProps) => {
     painter.wipe()
-
-    const {scaledCoordinates, electrodeRect} = {...computeElectrodeCoordinates(props.electrodes)}
-    const radius = computeRadius(props.electrodes, scaledCoordinates, electrodeRect)
-
-    const tmatrix = painter.getNewTransformationMatrix(scaledCoordinates)
-    const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
-
-    console.log(JSON.stringify(props.electrodes))
-    console.log(`Realized matrix: ${JSON.stringify(scaledPainter.getTransformationMatrix())}`)
     const pen: Pen = {color: 'rgb(22, 22, 22)', width: 3}
 
     props.electrodes.forEach(electrode => {
         const electrodeBoundingRect = {
-            xmin: electrode.x - radius,
-            ymin: electrode.y - radius,
-            xmax: electrode.x + radius,
-            ymax: electrode.y + radius
+            xmin: electrode.x - props.electrodeRadius,
+            ymin: electrode.y - props.electrodeRadius,
+            xmax: electrode.x + props.electrodeRadius,
+            ymax: electrode.y + props.electrodeRadius
         }
-        scaledPainter.drawEllipse(electrodeBoundingRect, pen)
+        painter.drawEllipse(electrodeBoundingRect, pen)
         // painter.drawMarker(electrode.x, electrode.y, 20);
     })
 }
 
+const reportMouseMove: DiscreteMouseEventHandler = (e: ClickEvent, layer: CanvasWidgetLayer<ElectrodeLayerProps>) => {
+    if (e.type !== 'Move') return
+    console.log(`Mouse moved to relcoords at ${JSON.stringify(e.point)}`)
+}
 
-interface ClickLayerProps extends ElectrodeGeometryProps {
+const reportMouseClick: DiscreteMouseEventHandler = (e: ClickEvent, layer: CanvasWidgetLayer<ElectrodeLayerProps>) => {
+    if (e.type !== 'Press' && e.type !== 'Release') return
+    console.log(`Mouse ${e.type === 'Press' ? 'down' : 'up'} at ${JSON.stringify(e.point)}`)
+}
+
+const reportMouseDrag: DragHandler = ( layer: CanvasWidgetLayer<any>, dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => {
+    console.log(`Drag state: ${released ? 'final' : 'ongoing'}`)
+    console.log(`Rect: ${JSON.stringify(dragRect)} anchor: ${anchor} point: ${position}`)
+}
+
+
+interface ClickLayerProps extends ElectrodeLayerProps {
     clickHistory: Vec2[]
 }
 const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
     console.log('PaintClickLayer')
     painter.wipe()
-    const { scaledCoordinates } = computeElectrodeCoordinates(props.electrodes)
-    const tmatrix = painter.getNewTransformationMatrix(scaledCoordinates)
-    const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
     props.clickHistory.forEach((point, i) => {
         const color = i * 50
         const pen = {color: `rgb(${color}, 0, 128)`, width: 3}
@@ -123,12 +129,22 @@ const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
             xmax: point[0] + 5,
             ymax: point[1] + 5
         }
-        scaledPainter.drawEllipse(boundingRect, pen)
+        painter.drawEllipse(boundingRect, pen)
     })
 }
 
+const handleClickTrail: DiscreteMouseEventHandler = (e: ClickEvent, layer: CanvasWidgetLayer<ClickLayerProps>) => {
+    if (e.type !== 'Press') return
+    const clickLayerProps = layer.getProps()
+    layer.setProps({
+        ...clickLayerProps,
+        clickHistory: [e.point, ...clickLayerProps.clickHistory.slice(0,9)]
+    })
+    layer.scheduleRepaint()
+}
+
 // TODO: This doesn't currently work :(
-interface AnimatedLayerProps extends ElectrodeGeometryProps {
+interface AnimatedLayerProps extends ElectrodeLayerProps {
     point: Vec2 | undefined,
     requestRepaint: () => void,
     start: DOMHighResTimeStamp | undefined
@@ -179,49 +195,52 @@ const animateClickLayer = (painter: CanvasPainter, props: AnimatedLayerProps, ti
     if (!done) window.requestAnimationFrame(stepFrame)
 }
 
-const reportMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, painter: CanvasPainter, props: any, scaledCoords: any) => {
-    console.log(`Received point at ${JSON.stringify(e)}`)
-    const { point, mouseButton } = pointFromEvent(e)
-    const tmatrix = painter.getNewTransformationMatrix(scaledCoords)
-    const scaledPainter = painter.applyNewTransformationMatrix(tmatrix)
-    const scaledPoint = scaledPainter.clickToCoordinateSystem(point)
-    console.log(`Converted to ${scaledPoint[0]}, ${scaledPoint[1]} in my system.`)
-}
-
 
 const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
-    const { electrodes } = props;
-    const { scaledCoordinates } = computeElectrodeCoordinates(electrodes)
-
-    const _handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, painter: CanvasPainter, props: any) => {
-        return reportMouseMove(e, painter, props, scaledCoordinates)
+    const width = 200
+    const height = 200
+    const { electrodes } = props
+    const { scaledCoordinates, electrodeRect } = computeElectrodeCoordinates(electrodes)
+    const radius = computeRadius(electrodes, scaledCoordinates, electrodeRect)
+    const {matrix} = getBasePixelTransformationMatrix(width, height, scaledCoordinates)
+    const inverse = getInverseTransformationMatrix(matrix)
+    const augmentedProps = {
+        ...props,
+        width: width,
+        height: height,
+        Transform: { coordinateRange: scaledCoordinates, transformationMatrix: matrix, inverseMatrix: inverse },
+        scaledCoordinates: scaledCoordinates,
+        electrodeRect: electrodeRect,
+        electrodeRadius: radius,
     }
-    const testLayer = useRef(new CanvasWidgetLayer<ElectrodeGeometryProps>(paintTestLayer, props)).current
+
+    const testLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps>(paintTestLayer, augmentedProps,
+        {
+            discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // this gets real chatty
+            dragHandlers: []//[reportMouseDrag]
+        })).current
     const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, 
-        {...props, clickHistory: []},
-        { mouseMove: [_handleMouseMove] }
+        {...augmentedProps, clickHistory: []},
+        {
+            discreteMouseEventHandlers: [handleClickTrail],
+            dragHandlers: []
+        }
         )).current
-    const animatedLayer = useRef(new CanvasWidgetLayer<AnimatedLayerProps>(animateClickLayer, {...props, point: undefined, requestRepaint: () => (''), start: undefined })).current
+
+    // this is still all kinds of messed up
+    const animatedLayer = useRef(new CanvasWidgetLayer<AnimatedLayerProps>(animateClickLayer, {...augmentedProps, point: undefined, requestRepaint: () => (''), start: undefined })).current
     // note self-referentiality here. animatedLayer needs an ability to request its canvas schedule a repaint during its animation cycle.
     animatedLayer.setProps({...animatedLayer.getProps(), requestRepaint: animatedLayer.scheduleRepaint})
-    const layers = [testLayer, clickLayer, animatedLayer]
+    const layers = [testLayer, clickLayer ]//, animatedLayer]
 
 
-    // const _handleMouseMove = useCallback((pos: Vec2) => {
-    //     // console.log('--- on mouse move', pos)
-    // }, [])
-    const _newHandleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => { 
-        for (let layer of layers) {
-            layer.invokeHandler(e, 'mouseMove')
-        }
-     }
     const _handleMousePress = useCallback((pos: Vec2) => {
         const clickLayerProps = clickLayer.getProps()
-        clickLayer.setProps({
-            ...clickLayer.getProps(),
-            clickHistory: [pos, ...clickLayerProps.clickHistory.slice(0, 9)]
-        })
-        clickLayer.scheduleRepaint()
+        // clickLayer.setProps({
+        //     ...clickLayer.getProps(),
+        //     clickHistory: [pos, ...clickLayerProps.clickHistory.slice(0, 9)]
+        // })
+        // clickLayer.scheduleRepaint()
 
         animatedLayer.setProps({...animatedLayer.getProps(), point: pos})
         console.log('--- on mouse press', pos)
@@ -239,9 +258,8 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
         <CanvasWidget
             key='canvas'
             layers={layers}
-            width={200}
-            height={200}
-            onMouseMove={_newHandleMouseMove}
+            width={width}
+            height={height}
             onMousePress={_handleMousePress}
             onMouseRelease={_handleMouseRelease}
             onMouseDrag={_handleMouseDrag}

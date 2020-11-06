@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import CanvasWidget, { CanvasWidgetLayer } from './jscommon/CanvasWidget';
-import { getTransformationMatrix, pointSpanToRegion, rectangularRegionsIntersect } from './jscommon/CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer } from './jscommon/CanvasWidget/CanvasWidgetLayer'
+import CanvasWidget from './jscommon/CanvasWidget';
+import { getTransformationMatrix, pointSpanToRegion, rectangularRegionsIntersect } from './jscommon/CanvasWidget/Geometry';
 // import AutoDetermineWidth from './jscommon/AutoDetermineWidth';
 import { SizeMe } from 'react-sizeme';
 const stable_stringify = require('json-stable-stringify');

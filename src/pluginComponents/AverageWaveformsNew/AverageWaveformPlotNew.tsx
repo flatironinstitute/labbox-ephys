@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
-import { CanvasPainter, getTransformationMatrix, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-import CanvasWidget, { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
+import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+
+// TODO: FIXME
 
 interface PlotData {
     average_waveform: number[]
@@ -74,14 +77,14 @@ const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) 
         ymax: 0.75
     }
 
-    const T = getTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem)
-    const painter2 = painter.applyNewTransformationMatrix(T)
+    // const T = getTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem)
+    // const painter2 = painter.applyNewTransformationMatrix(T)
 
     const path = new PainterPath()
     data.forEach(a => {
         path.lineTo(a.x, a.y)
     })
-    painter2.drawPath(path, painter.getDefaultPen())
+    // painter2.drawPath(path, painter.getDefaultPen())
 }
 
 const HelperPlot = (props: HelperPlotProps) => {
