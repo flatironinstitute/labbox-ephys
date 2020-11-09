@@ -86,9 +86,6 @@ interface Props {
 
 const CanvasWidget = (props: Props) => {
     const divRef = React.useRef<HTMLDivElement>(null)
-
-    // const { onMouseMove, onMouseDrag, onMousePress, onMouseRelease, onMouseDragRelease } = props
-
     const [state, dispatch] = useReducer(dragReducer, {
         dragging: false,
         dragAnchor: undefined,

@@ -210,8 +210,8 @@ export class CanvasPainter {
     getEllipseFromBoundingRect(boundingRect: RectangularRegion) {
         const r = transformRect(this.#transformMatrix, boundingRect)
         const center = getCenter(r)
-        const W = getWidth(r)
-        const H = getHeight(r)
+        const W = Math.abs(getWidth(r))
+        const H = Math.abs(getHeight(r))
         return {center, W, H}
     }
     fillEllipse(boundingRect: RectangularRegion, brush: Brush) {
@@ -227,7 +227,7 @@ export class CanvasPainter {
         const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}
         this.#context2D.save()
         applyPen(this.#context2D, pen)
-        console.log(`Attempting to draw ellipse: ${center[0]} ${center[1]} ${W/2} ${H/2}`)
+        // console.log(`Attempting to draw ellipse: ${center[0]} ${center[1]} ${W/2} ${H/2}`)
         this.#context2D.beginPath()
         this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
         this.#context2D.stroke()

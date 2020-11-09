@@ -1,9 +1,9 @@
 import { norm } from 'mathjs';
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import { CanvasPainter, Pen } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer, ClickEvent, DiscreteMouseEventHandler, DragHandler, DrawingSpaceProps } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
-import { getBasePixelTransformationMatrix, getHeight, getInverseTransformationMatrix, getWidth, RectangularRegion, Vec2, Vec4 } from '../../components/jscommon/CanvasWidget/Geometry';
+import { getBasePixelTransformationMatrix, getHeight, getInverseTransformationMatrix, getWidth, RectangularRegion, Vec2 } from '../../components/jscommon/CanvasWidget/Geometry';
 
 type Electrode = {
     label: string,
@@ -49,7 +49,7 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
         xmax: Math.max(electrodeRect.xmax, electrodeRect.xmax + extraXoffsetFrom0),
         ymax: Math.max(electrodeRect.ymax, electrodeRect.ymax + extraYoffsetFrom0)
     }
-    // keep it square -- TODO: Should actually worry about the aspect ratio of the underlying canvas?
+    // keep it square -- TODO: Should we actually worry about the aspect ratio of the underlying canvas?
     const side = Math.max(getWidth(electrodeRanges), getHeight(electrodeRanges))
     // add a margin
     const margin = side * .05
@@ -143,56 +143,76 @@ const handleClickTrail: DiscreteMouseEventHandler = (e: ClickEvent, layer: Canva
     layer.scheduleRepaint()
 }
 
-// TODO: This doesn't currently work :(
-interface AnimatedLayerProps extends ElectrodeLayerProps {
-    point: Vec2 | undefined,
-    requestRepaint: () => void,
-    start: DOMHighResTimeStamp | undefined
+interface AnimationPoint {
+    loc: Vec2
+    start: DOMHighResTimeStamp
+    end: DOMHighResTimeStamp
+    pct: number
+    done: boolean
 }
-const animateClickLayer = (painter: CanvasPainter, props: AnimatedLayerProps, timestamp?: DOMHighResTimeStamp) => {
-    console.log('AnimateClickLayer')
+interface AnimatedLayerProps extends ElectrodeLayerProps {
+    points: AnimationPoint[],
+    newQueue: AnimationPoint[]
+}
+const paintAnimationLayer = (painter: CanvasPainter, props: AnimatedLayerProps) => {
+    painter.wipe() // avoids afterimages. Placing before the short-circuit return also cleans up when done.
+    if (props.points.length === 0) return
 
-    const firstFrame = (timestamp: DOMHighResTimeStamp) => {
-        return animateClickLayer(painter, {...props, start: timestamp}, timestamp)
-    }
-
-    const stepFrame = (timestamp: DOMHighResTimeStamp) => {
-        return animateClickLayer(painter, props, timestamp)
-    }
-
-    if (!props.point) return
-    if (!props.start) {
-        window.requestAnimationFrame(firstFrame)
-        return
-    }
-    if (!timestamp) { // this may be unreachable
-        window.requestAnimationFrame(stepFrame)
-        return
-    }
-
-
-    console.log('Animating next frame')
-    const duration = 250  // animation runs for a quarter-second
-    const end = props.start + duration
-    const pct = (Math.min(end, timestamp) - props.start) / duration
-    const maxRadius = 20
-    const currentRadius = Math.floor(maxRadius * pct)
-    const color = Math.floor(255 * pct)
-    const done = timestamp > end
-
-    painter.wipe()
-    if (!done) {
-        const pen = {color: `rgb(128, 0, ${color})`, width: 3}
+    for (let pt of props.points) {
+        const maxRadius = 20 // proof-of-concept; in practice this might be attached to the data entry
+        const currentRadius = Math.floor(maxRadius * pt.pct)
+        const blueLevel = Math.floor(255 * pt.pct)
+        const redLevel = Math.floor(255 - (255*pt.pct))
+        // const pen = { color: `rgb(${redLevel}, 0, ${blueLevel})`, width: 2}
+        const brush = { color: `rgb(${redLevel}, 0, ${blueLevel})`}
         const boundingBox = {
-            xmin: props.point[0] - currentRadius,
-            ymin: props.point[1] - currentRadius,
-            xmax: props.point[0] + currentRadius,
-            ymax: props.point[1] + currentRadius
+            xmin: pt.loc[0] - currentRadius,
+            ymin: pt.loc[1] - currentRadius,
+            xmax: pt.loc[0] + currentRadius,
+            ymax: pt.loc[1] + currentRadius
         }
-        painter.drawEllipse(boundingBox, pen)
+        painter.fillEllipse(boundingBox, brush)
     }
-    props.requestRepaint()
-    if (!done) window.requestAnimationFrame(stepFrame)
+}
+
+// NOTE: Possible race condition in adding new points.
+// If this were actually something important, we'd want to use a safer multiprocessing model for it.
+const animate = (layer: CanvasWidgetLayer<AnimatedLayerProps>, timeStamp: DOMHighResTimeStamp) => {
+    const nextFrame = (stamp: DOMHighResTimeStamp) => {
+        return animate(layer, stamp)
+    }
+    // update data for the points
+    const candidatePts = layer.getProps().points
+    while (layer.getProps().newQueue.length > 0) {
+        const pt = layer.getProps().newQueue.shift()
+        pt && candidatePts.push(pt)
+    }
+    const pts = candidatePts.filter((pt) => !pt.done)
+    for (let pt of pts) {
+        pt.pct = (Math.min(pt.end, timeStamp) - pt.start) / (pt.end - pt.start)
+        pt.done = pt.pct === 1
+    }
+    layer.setProps({...layer.getProps(), points: pts})
+    layer.scheduleRepaint()
+    if(layer.getProps().points.length > 0) {
+        window.requestAnimationFrame(nextFrame)
+    }
+}
+const handleAnimatedClick: DiscreteMouseEventHandler = (e: ClickEvent, layer: CanvasWidgetLayer<AnimatedLayerProps>) => {
+    if (e.type !== 'Press') return
+    const now = performance.now()
+    const duration = 250 //quarter-second
+    const newPoint = {
+        loc: e.point,
+        start: now,
+        end: now + duration,
+        pct: 0,
+        done: false
+    }
+    const pts = layer.getProps().newQueue
+    pts.push(newPoint)
+    layer.setProps({...layer.getProps(), newQueue: pts})
+    animate(layer, now)
 }
 
 
@@ -216,7 +236,7 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
 
     const testLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps>(paintTestLayer, augmentedProps,
         {
-            discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // this gets real chatty
+            discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // this gets REAL chatty
             dragHandlers: []//[reportMouseDrag]
         })).current
     const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, 
@@ -224,46 +244,21 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
         {
             discreteMouseEventHandlers: [handleClickTrail],
             dragHandlers: []
-        }
-        )).current
+        })).current
+    const animatedLayer = useRef(new CanvasWidgetLayer<AnimatedLayerProps>(paintAnimationLayer,
+        {...augmentedProps, points: [], newQueue: [] },
+        {  
+            discreteMouseEventHandlers: [handleAnimatedClick],
+            dragHandlers: []
+        })).current
+    const layers = [testLayer, clickLayer, animatedLayer]
 
-    // this is still all kinds of messed up
-    const animatedLayer = useRef(new CanvasWidgetLayer<AnimatedLayerProps>(animateClickLayer, {...augmentedProps, point: undefined, requestRepaint: () => (''), start: undefined })).current
-    // note self-referentiality here. animatedLayer needs an ability to request its canvas schedule a repaint during its animation cycle.
-    animatedLayer.setProps({...animatedLayer.getProps(), requestRepaint: animatedLayer.scheduleRepaint})
-    const layers = [testLayer, clickLayer ]//, animatedLayer]
-
-
-    const _handleMousePress = useCallback((pos: Vec2) => {
-        const clickLayerProps = clickLayer.getProps()
-        // clickLayer.setProps({
-        //     ...clickLayer.getProps(),
-        //     clickHistory: [pos, ...clickLayerProps.clickHistory.slice(0, 9)]
-        // })
-        // clickLayer.scheduleRepaint()
-
-        animatedLayer.setProps({...animatedLayer.getProps(), point: pos})
-        console.log('--- on mouse press', pos)
-    }, [clickLayer, animatedLayer])
-    const _handleMouseRelease = useCallback((pos: Vec2) => {
-        console.log('--- on mouse release', pos)
-    }, [])
-    const _handleMouseDrag = useCallback((args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => {
-        args.rect && console.log('--- on mouse drag [upper left corner x, y; width, height]', args.rect)
-    }, [])
-    const _handleMouseDragRelease = useCallback((args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => {
-        console.log('--- on mouse drag release', args.rect)
-    }, [])
     return (
         <CanvasWidget
             key='canvas'
             layers={layers}
             width={width}
             height={height}
-            onMousePress={_handleMousePress}
-            onMouseRelease={_handleMouseRelease}
-            onMouseDrag={_handleMouseDrag}
-            onMouseDragRelease={_handleMouseDragRelease}
         />
     )
 }
