@@ -2,8 +2,7 @@ import React, { useRef } from 'react';
 import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
-
-// TODO: FIXME
+import { updateTransformationMatrix } from '../../components/jscommon/CanvasWidget/Geometry';
 
 interface PlotData {
     average_waveform: number[]
@@ -38,6 +37,10 @@ const AverageWaveformPlotNew = (props: Props) => {
 
     const xAxisLabel = 'dt (msec)'
 
+    // TODO: The 'Average Waveform' label is rendering next to the canvas and displacing it to the right,
+    // which isn't what we want. I've compensated below by narrowing the drawing window, but it'd be better
+    // to just do it right.
+    // I figure this is out of scope for what I'm currently rewriting though.
     return (
         <div className="App" style={{width: props.boxSize.width, height: props.boxSize.height, display: "flex", padding: 10}}
             key={"plot-"+props.argsObject.id}
@@ -61,9 +64,17 @@ interface HelperPlotProps {
 
 const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) => {
     const brush = {color: 'green'}
+    const { data } = props    
 
+    const path = new PainterPath()
+    data.forEach(a => {
+        path.lineTo(a.x, a.y)
+    })
+    painter.drawPath(path, painter.getDefaultPen())
+}
+
+const HelperPlot = (props: HelperPlotProps) => {
     const { data } = props
-
     const optimalBoundingRectangle = {
         xmin: Math.min(...data.map(a => (a.x))),
         xmax: Math.max(...data.map(a => (a.x))),
@@ -72,24 +83,16 @@ const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) 
     }
     const targetInCurrentCoordinateSystem = {
         xmin: 0,
-        xmax: 0.9,
+        xmax: 0.8,
         ymin: 0,
         ymax: 0.75
     }
-
-    // const T = getTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem)
-    // const painter2 = painter.applyNewTransformationMatrix(T)
-
-    const path = new PainterPath()
-    data.forEach(a => {
-        path.lineTo(a.x, a.y)
-    })
-    // painter2.drawPath(path, painter.getDefaultPen())
-}
-
-const HelperPlot = (props: HelperPlotProps) => {
-
     const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps>(paintCanvasWidgetLayer, props)).current
+    const T = updateTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem, plotWaveformLayer.getTransformMatrix())
+    // In general would be better to set it right the first time--I don't see a way to trigger it here, but I am
+    // concerned that with this pattern, we could wind up progressively shrinking or monkeying with our drawing area
+    // by re-applying this set of coordinate system transforms when it was already set up correctly the first time.
+    plotWaveformLayer.updateTransformAndCoordinateSystem(T, optimalBoundingRectangle)
 
     const layers = [plotWaveformLayer]
     return (
@@ -97,15 +100,9 @@ const HelperPlot = (props: HelperPlotProps) => {
             layers={layers}
             width={props.width}
             height={props.height}
-            onMouseMove={() => {}}
-            onMousePress={() => {}}
-            onMouseRelease={() => {}}
-            onMouseDrag={() => {}}
-            onMouseDragRelease={() => {}}
         />
     )
 }
-
 
 
 export default AverageWaveformPlotNew

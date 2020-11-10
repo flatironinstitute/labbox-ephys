@@ -105,11 +105,19 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
             this.#dragHandlers = handlers.dragHandlers || []
         }
     }
+    getProps(): LayerProps {
+        return {...this.#props}
+    }
     setProps(p: LayerProps) {
         this.#props = {...p}
     }
-    getProps(): LayerProps {
-        return {...this.#props}
+    // I'm not sure this is a good idea...
+    updateTransformAndCoordinateSystem(newTransformationMatrix: TransformationMatrix, newCoordinateSystem: RectangularRegion) {
+        this.setTransformMatrix(newTransformationMatrix)
+        this.setCoordRange(newCoordinateSystem)
+    }
+    getTransformMatrix() {
+        return this.#transformMatrix
     }
     setTransformMatrix(t: TransformationMatrix) {
         this.#transformMatrix = t
@@ -118,9 +126,16 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
     getCoordRange() {
         return this.#coordRange
     }
+    setCoordRange(r: RectangularRegion) {
+        this.#coordRange = r
+    }
     clipToSelf() {
         // TODO: Set this up so that it sets a bounding clip box on the Layer's full coordinate range
-        // then make sure to remove that at the end of _doRepaint()
+        return;
+    }
+    unclipToSelf() {
+        // TODO: Whatever's needed here to remove the clipbox on the current Layer.
+        // Gets called at the end of _doRepaint().
         return;
     }
     context() {
@@ -188,6 +203,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
         let painter = new CanvasPainter(ctx, this.#coordRange, this.#transformMatrix)
         painter.clear()
         this.#onPaint(painter, this.#props)
+        this.unclipToSelf()
     }
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {

@@ -118,7 +118,6 @@ interface ClickLayerProps extends ElectrodeLayerProps {
     clickHistory: Vec2[]
 }
 const paintClickLayer = (painter: CanvasPainter, props: ClickLayerProps) => {
-    console.log('PaintClickLayer')
     painter.wipe()
     props.clickHistory.forEach((point, i) => {
         const color = i * 50
@@ -223,12 +222,11 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const { scaledCoordinates, electrodeRect } = computeElectrodeCoordinates(electrodes)
     const radius = computeRadius(electrodes, scaledCoordinates, electrodeRect)
     const {matrix} = getBasePixelTransformationMatrix(width, height, scaledCoordinates)
-    const inverse = getInverseTransformationMatrix(matrix)
     const augmentedProps = {
         ...props,
         width: width,
         height: height,
-        Transform: { coordinateRange: scaledCoordinates, transformationMatrix: matrix, inverseMatrix: inverse },
+        Transform: { coordinateRange: scaledCoordinates, transformationMatrix: matrix, inverseMatrix: getInverseTransformationMatrix(matrix) },
         scaledCoordinates: scaledCoordinates,
         electrodeRect: electrodeRect,
         electrodeRadius: radius,
