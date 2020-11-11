@@ -1,2 +1,4 @@
+from .snippets1nwbrecordingextractor import Snippets1NwbRecordingExtractor
+from .snippets1nwbsortingextractor import Snippets1NwbSortingExtractor
 from .snippets1recordingextractor import Snippets1RecordingExtractor
 from .snippets1sortingextractor import Snippets1SortingExtractor

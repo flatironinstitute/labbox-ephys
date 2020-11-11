@@ -8,7 +8,8 @@ import spikeextractors as se
 
 from .h5extractors.h5sortingextractorv1 import H5SortingExtractorV1
 from .mdaextractors import MdaSortingExtractor
-from .snippetsextractors import Snippets1SortingExtractor
+from .snippetsextractors import (Snippets1NwbSortingExtractor,
+                                 Snippets1SortingExtractor)
 
 
 def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None, dict]:
@@ -92,8 +93,10 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             S.set_times_labels(times_npy.ravel(), labels_npy.ravel())
             self._sorting = S
         elif sorting_format == 'snippets1':
-            S = Snippets1SortingExtractor(snippets_h5_uri = data['snippets_h5_uri'], p2p=True)
+            S = Snippets1SortingExtractor(snippets_h5_uri=data['snippets_h5_uri'], p2p=True)
             self._sorting = S
+        elif sorting_format == 'snippets1_nwb':
+            S = Snippets1NwbSortingExtractor(snippets_nwb_uri=data['snippets_nwb_uri'], nwb_object_prefix=data['nwb_object_prefix'], p2p=True)
         elif sorting_format == 'npy2':
             npz = kp.load_npy(data['npz_uri'])
             times_npy = npz['spike_indexes']
