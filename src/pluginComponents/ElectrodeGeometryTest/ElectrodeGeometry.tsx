@@ -1,9 +1,9 @@
 import { norm } from 'mathjs';
 import React, { useRef } from 'react';
-import { CanvasPainter, Pen } from '../../components/jscommon/CanvasWidget/CanvasPainter';
+import { Brush, CanvasPainter, Pen } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer, ClickEvent, DiscreteMouseEventHandler, DragHandler, DrawingSpaceProps } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
-import { getBasePixelTransformationMatrix, getHeight, getInverseTransformationMatrix, getWidth, RectangularRegion, Vec2 } from '../../components/jscommon/CanvasWidget/Geometry';
+import { getBasePixelTransformationMatrix, getHeight, getInverseTransformationMatrix, getWidth, RectangularRegion, rectangularRegionsIntersect, Vec2 } from '../../components/jscommon/CanvasWidget/Geometry';
 
 type Electrode = {
     label: string,
@@ -82,6 +82,16 @@ const computeRadius = (electrodes: Electrode[], scaledCoordinates: RectangularRe
     return radius
 }
 
+const getBoundingRect = (e: Electrode, r: number, fill: boolean = false): RectangularRegion => {
+    const myRadius = fill ? r - 1 : r
+    return {
+        xmin: e.x - myRadius,
+        ymin: e.y - myRadius,
+        xmax: e.x + myRadius,
+        ymax: e.y + myRadius
+    }
+}
+
 const paintTestLayer = (painter: CanvasPainter, props: ElectrodeLayerProps) => {
     painter.wipe()
     const pen: Pen = {color: 'rgb(22, 22, 22)', width: 3}
@@ -113,6 +123,37 @@ const reportMouseDrag: DragHandler = ( layer: CanvasWidgetLayer<any>, dragRect: 
     console.log(`Rect: ${JSON.stringify(dragRect)} anchor: ${anchor} point: ${position}`)
 }
 
+interface DragLayerProps extends ElectrodeLayerProps {
+    dragRegion: RectangularRegion | null
+    selectedElectrodes: Electrode[]
+    draggedElectrodes: Electrode[]
+}
+const paintDragLayer = (painter: CanvasPainter, props: DragLayerProps) => {
+    painter.wipe()
+    if (!props.dragRegion && props.selectedElectrodes.length === 0 && props.draggedElectrodes.length === 0) return;
+    const regionBrush: Brush = {color: 'rgba(127, 127, 127, 0.5)'}
+    const selectedElectrodeBrush: Brush = {color: 'rgb(0, 0, 192)'}
+    const draggedElectrodeBrush: Brush = {color: 'rgb(192, 192, 255)'}
+
+    props.selectedElectrodes.forEach(e => {
+        painter.fillEllipse(getBoundingRect(e, props.electrodeRadius, true), selectedElectrodeBrush)
+    })
+    props.draggedElectrodes.forEach(e => {
+        painter.fillEllipse(getBoundingRect(e, props.electrodeRadius, true), draggedElectrodeBrush)
+    })
+    props.dragRegion && painter.fillRect(props.dragRegion, regionBrush)
+}
+const updateDragRegion: DragHandler = (layer: CanvasWidgetLayer<any>, dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => {
+    const { electrodes, electrodeRadius } = layer.getProps()
+    const rects = electrodes.map((e: Electrode) => {return {...e, br: getBoundingRect(e, electrodeRadius)}})
+    const hits = rects.filter((r: any) => rectangularRegionsIntersect(r.br, dragRect))
+    if (released) {
+        layer.setProps({...layer.getProps(), dragRegion: null, draggedElectrodes: [], selectedElectrodes: hits})
+    } else {
+        layer.setProps({...layer.getProps(), dragRegion: dragRect, draggedElectrodes: hits})
+    }
+    layer.scheduleRepaint()
+}
 
 interface ClickLayerProps extends ElectrodeLayerProps {
     clickHistory: Vec2[]
@@ -235,7 +276,13 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const testLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps>(paintTestLayer, augmentedProps,
         {
             discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // this gets REAL chatty
-            dragHandlers: []//[reportMouseDrag]
+            dragHandlers: []//reportMouseDrag]
+        })).current
+    const dragLayer = useRef(new CanvasWidgetLayer<DragLayerProps>(paintDragLayer,
+        {...augmentedProps, dragRegion: null, selectedElectrodes: [], draggedElectrodes: []},
+        {
+            discreteMouseEventHandlers: [],
+            dragHandlers: [updateDragRegion]
         })).current
     const clickLayer = useRef(new CanvasWidgetLayer<ClickLayerProps>(paintClickLayer, 
         {...augmentedProps, clickHistory: []},
@@ -249,7 +296,7 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
             discreteMouseEventHandlers: [handleAnimatedClick],
             dragHandlers: []
         })).current
-    const layers = [testLayer, clickLayer, animatedLayer]
+    const layers = [testLayer, dragLayer, clickLayer, animatedLayer]
 
     return (
         <CanvasWidget

@@ -1,6 +1,6 @@
 import { matrix, multiply } from 'mathjs'
 import { isNumber, isString } from '../../../util/Utility'
-import { getCenter, getHeight, getWidth, isVec2, isVec3, RectangularRegion, TransformationMatrix, transformRect, Vec2, Vec3 } from './Geometry'
+import { getCenter, getHeight, getWidth, isVec2, isVec3, isVec4, RectangularRegion, TransformationMatrix, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
 
 interface TextAlignment {
     Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
@@ -194,7 +194,7 @@ export class CanvasPainter {
         // console.log(`Transformed ${JSON.stringify(rect)} to ${JSON.stringify(pr)}`)
         // console.log(`Measure (pixelspace) width: ${getWidth(pr)}, height: ${getHeight(pr)}`)
         this.#context2D.save()
-        this.#context2D.fillStyle = toColorStr(brush.color) // TODO: create an applyBrush() function?
+        applyBrush(this.#context2D, brush)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
         this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr))
         this.#context2D.restore()
@@ -352,13 +352,14 @@ export class PainterPath {
     }
 }
 
-const toColorStr = (col: string | Vec3): string => {
-    // TODO: Could do more validity check here
+const toColorStr = (col: string | Vec3 | Vec4): string => {
+    // TODO: Could do more validity checking here
     if (isString(col)) return col
-    else if (isVec3(col)) {
-        return 'rgb(' + Math.floor(col[0]) + ',' + Math.floor(col[1]) + ',' + Math.floor(col[2]) + ')'
-    }
-    else {
+    else if (isVec4(col)) {
+        return (`rgba(${Math.floor(col[0])}, ${Math.floor(col[1])}, ${Math.floor(col[2])}, ${col[3]})`)
+    } else if (isVec3(col)) {
+        return (`rgb(${Math.floor(col[0])}, ${Math.floor(col[1])}, ${Math.floor(col[2])})`)
+    } else {
         throw Error('unexpected')
     }
 }

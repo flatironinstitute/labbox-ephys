@@ -30,7 +30,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 
     switch (type) {
         case END_DRAG:
-            return { ...state, dragging: false, dragAnchor: undefined }
+            return { ...state, dragging: false, dragAnchor: undefined, dragRect: undefined }
         case COMPUTE_DRAG:
             if (!mouseButton) return { // no button held; unset any drag state & return.
                 dragging: false,
@@ -136,13 +136,9 @@ const CanvasWidget = (props: Props) => {
     }, [_dispatchDragEvents, _dispatchDiscreteMouseEvents])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const elmt = e.currentTarget
-        const pos: Vec2 = [
-            e.clientX - elmt.getBoundingClientRect().x,
-            e.clientY - elmt.getBoundingClientRect().y
-        ]
+        const { point } = ClickEventFromMouseEvent(e, EventTypeFromString('Press'))
         _dispatchDiscreteMouseEvents(e, "Press")
-        dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: pos })
+        dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: point })
     }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {

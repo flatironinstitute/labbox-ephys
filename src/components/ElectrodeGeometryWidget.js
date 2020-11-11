@@ -44,8 +44,8 @@ class ElectrodeGeometryWidgetInner extends Component {
             _canvasHeight: 0
         }
 
-        this.dragSelectLayer = new CanvasWidgetLayer(this.paintDragSelect);
-        this.mainLayer = new CanvasWidgetLayer(this.paintMainLayer);
+        // this.dragSelectLayer = new CanvasWidgetLayer(this.paintDragSelect, props);
+        this.mainLayer = new CanvasWidgetLayer(this.paintMainLayer, {...props, width: props.width || 400, height: props.height || 400});
     }
 
     componentDidMount() {

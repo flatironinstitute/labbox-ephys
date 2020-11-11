@@ -142,15 +142,6 @@ export const getBasePixelTransformationMatrix = (pixelSpaceWidth: number, pixelS
     // the user. Subsequent transforms could change this, but better not to draw warped out of the box
     const aspectRatio = Math.max(pixelSpaceWidth, pixelSpaceHeight) / Math.min(pixelSpaceWidth, pixelSpaceHeight)
     let coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
-    // if (newTargetSystem) {
-    //     coordRange = newTargetSystem
-    //     const xRatio = pixelSpaceWidth / getWidth(coordRange)
-    //     const yRatio = pixelSpaceHeight / getHeight(coordRange)
-    //     const matrix = [[xRatio,            0,            pixelSpaceWidth - (xRatio * coordRange.xmax) ],
-    //                     [0,             -1 * yRatio,  2 * pixelSpaceHeight - (yRatio * coordRange.ymax)],
-    //                     [0,                 0,                                                     1   ]] as any as TransformationMatrix
-    //     return {matrix: matrix, coords: coordRange}    
-    // } else {
     // in the event of non-square canvas, make the shorter side have unit dimension in default
     // coordinate space. So we get 1:1.6 rather than 0.625:1.
     if (shape !== 'square') {

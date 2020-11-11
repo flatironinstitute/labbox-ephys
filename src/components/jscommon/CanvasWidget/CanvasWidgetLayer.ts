@@ -95,15 +95,22 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
             this.#transformMatrix = initialProps.Transform.transformationMatrix
             this.#inverseMatrix = initialProps.Transform.inverseMatrix
         } else {
-            const {matrix, coords} = getBasePixelTransformationMatrix(this.#pixelWidth, this.#pixelHeight)
-            this.#coordRange = coords
-            this.#transformMatrix = matrix
-            this.#inverseMatrix = getInverseTransformationMatrix(matrix)
+            // These defaults immediately get overridden, but they keep the typescript compiler happy.
+            this.#coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
+            this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
+            this.#inverseMatrix = this.#transformMatrix
+            this.setBasePixelTransformationMatrix()
         }
         if (handlers) {
             this.#discreteMouseEventHandlers = handlers.discreteMouseEventHandlers || []
             this.#dragHandlers = handlers.dragHandlers || []
         }
+    }
+    setBasePixelTransformationMatrix() {
+        const {matrix, coords} = getBasePixelTransformationMatrix(this.#pixelWidth, this.#pixelHeight)
+        this.#coordRange = coords
+        this.#transformMatrix = matrix
+        this.#inverseMatrix = getInverseTransformationMatrix(matrix)
     }
     getProps(): LayerProps {
         return {...this.#props}
@@ -187,6 +194,15 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
         this.#canvasElement = canvasElement
         // this.scheduleRepaint()
         if (doScheduleRepaint) {
+            // TODO: I'm not convinced what I do below is a good idea: there's too many factors involved
+            // in resizing. We might want to insist that consumers create and reinitialize a
+            // new Layer if the canvas size actually changes.
+            // const coordRange = this.#coordRange
+            // this.setBasePixelTransformationMatrix() // we resized: need to resize our matrices.
+            // const newT = updateTransformationMatrix(coordRange, this.#coordRange, this.#transformMatrix)
+            // this.updateTransformAndCoordinateSystem(newT, coordRange)
+            // NOTE: This would NOT preserve the aspect ratio!!!
+            // NOTE: Have to figure out how this will work if further transforms have been applied?
             this.scheduleRepaint()
         }
     }
