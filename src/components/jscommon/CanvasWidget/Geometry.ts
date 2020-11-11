@@ -153,7 +153,7 @@ export const getBasePixelTransformationMatrix = (pixelSpaceWidth: number, pixelS
                   [0,             -1 * systemsRatio,  pixelSpaceHeight],
                   [0,             0,                                 1]] as any as TransformationMatrix
     if (newTargetSystem) {
-        matrix = updateTransformationMatrix(newTargetSystem, coordRange, matrix)
+        matrix = getUpdatedTransformationMatrix(newTargetSystem, coordRange, matrix)
         coordRange = newTargetSystem
     }
     return {matrix: matrix, coords: coordRange}
@@ -181,7 +181,7 @@ export const getInverseTransformationMatrix = (t: TransformationMatrix): Transfo
     const inverse = inv(tmatrix).toArray() as number[][]
     return inverse as TransformationMatrix
 }
-export const updateTransformationMatrix = (newSystem: RectangularRegion, targetRangeInCurrentSystem: RectangularRegion, oldTransform: TransformationMatrix): TransformationMatrix => {
+export const getUpdatedTransformationMatrix = (newSystem: RectangularRegion, targetRangeInCurrentSystem: RectangularRegion, oldTransform: TransformationMatrix): TransformationMatrix => {
     // transforming from a coordinate system to pixelspace is written as Ax = b, where:
     // b is the (homogeneous) vector in pixel space
     // x is the (homogeneous) vector in the current coordinate system

@@ -262,7 +262,7 @@ describe('Transformation matrix functionality', () => {
             const baseRange = {xmin: 0, xmax: 1, ymin: 0, ymax: 1}
             expect(ut.rectsAreEqual(coords, baseRange)).to.be.true('Assert base coord range is unit square')
             const newSystem = {xmin: 20, xmax: 80, ymin: 0, ymax: 60}
-            const finalMatrix = ut.updateTransformationMatrix(newSystem, baseRange, matrix)
+            const finalMatrix = ut.getUpdatedTransformationMatrix(newSystem, baseRange, matrix)
             // Got the new matrix, which (per my pencil math) should be [10, 0, -200], [0, -10, 600], [0 0 1]
             // (Assuming mathjs downscaled and upscaled without loss of fidelity)
             expect(JSON.stringify(finalMatrix)).to.equal(JSON.stringify([[10, 0, -200], [0, -10, 600], [0, 0, 1]]))

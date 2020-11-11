@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
-import { updateTransformationMatrix } from '../../components/jscommon/CanvasWidget/Geometry';
+import { getUpdatedTransformationMatrix } from '../../components/jscommon/CanvasWidget/Geometry';
 
 interface PlotData {
     average_waveform: number[]
@@ -88,7 +88,7 @@ const HelperPlot = (props: HelperPlotProps) => {
         ymax: 0.75
     }
     const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps>(paintCanvasWidgetLayer, props)).current
-    const T = updateTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem, plotWaveformLayer.getTransformMatrix())
+    const T = getUpdatedTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem, plotWaveformLayer.getTransformMatrix())
     // In general would be better to set it right the first time--I don't see a way to trigger it here, but I am
     // concerned that with this pattern, we could wind up progressively shrinking or monkeying with our drawing area
     // by re-applying this set of coordinate system transforms when it was already set up correctly the first time.
