@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import ElectrodeGeometryWidget from './ElectrodeGeometryWidget'
+// import ElectrodeGeometryWidget from './ElectrodeGeometryWidget'
 import { Table, TableHead, TableRow, TableBody, TableCell } from '@material-ui/core';
 
 const RecordingInfoView = ({ recordingInfo  }) => {
     const ri = recordingInfo;
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState({});
+    // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState({});
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
@@ -21,12 +21,12 @@ const RecordingInfoView = ({ recordingInfo  }) => {
                     is_local={ri.is_local}
                 />
             </div>
-            <ElectrodeGeometryWidget
+            {/* <ElectrodeGeometryWidget
                 locations={ri.geom}
                 selectedElectrodeIds={selectedElectrodeIds}
                 onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
                 width={350}
-            />
+            /> */}
         </div>
     );
 }
