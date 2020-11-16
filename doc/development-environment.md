@@ -8,22 +8,38 @@ These instructions will allow you to open labbox-ephys in a development environm
 * [Visual studio code](https://code.visualstudio.com/) with the [Remote-Containers Extension](https://code.visualstudio.com/docs/remote/containers)
 * Docker (be sure that your non-root user is in the docker group)
 
+### Start kachery-p2p and set environment variables
+
+Follow [these instructions](../README.md) to start a kachery-p2p daemon and set the following environment variables to the approprate values:
+
+```
+KACHERY_STORAGE_DIR
+KACHERY_P2P_CONFIG_DIR
+KACHERY_P2P_API_PORT
+```
+
 ### Clone the source code
 
-To use open labbox-ephys in a development environment, you should clone the source code of labbox-ephys, hither, and kachery:
+To use open labbox-ephys in a development environment, you should clone the source code of labbox-ephys, hither, kachery, and kachery-p2p:
 
 ```bash
 # Adjust this source path as needed
 cd /home/user/src
 git clone https://github.com/laboratorybox/labbox-ephys labbox-ephys
+git clone https://github.com/flatironinstitute/hither hither
 git clone https://github.com/flatironinstitute/kachery kachery
 git clone https://github.com/flatironinstitute/kachery-p2p kachery-p2p
-git clone https://github.com/flatironinstitute/hither hither
 ```
 
-and be sure that the following environment variables are set
+Be sure that you are on the `new-protocol` branch of kachery-p2p (TODO: remove this line once new-protocol has been merged into master)
+
+### Set environment variables for source code
+
+Set the following environment variables (add these lines to ~/.bashrc so that they are set on each new login)
+
+
 ```bash
-# Adjust the source path to match above
+# Adjust the source paths to match above
 export HITHER_SOURCE_DIR=/home/user/src/hither
 export KACHERY_SOURCE_DIR=/home/user/src/kachery
 export KACHERY_P2P_SOURCE_DIR=/home/user/src/kachery-p2p
@@ -38,6 +54,8 @@ code .
 ```
 
 Run the vscode command: `Remote-Containers: Reopen in Container`
+
+If the .devcontainer configuration has changed, you may need to select the option to rebuild the container.
 
 See [this guide](https://github.com/flatironinstitute/learn-sciware-dev/blob/master/07_RemoteWork/vscode/remote_containers.md) for more information on using devcontainers.
 
@@ -55,25 +73,16 @@ You can learn more about vscode tasks [here](https://code.visualstudio.com/docs/
 
 The following ports are used by the development container:
 
-* 15351 - development client (yarn start)
-* 15308 - development api server (flask `api/`)
-* 15353 - development event stream server
-* 15353 - development websocket for event stream server
-* 15361 - test production client (serving `build/` directory)
-* 15362 - test production api server (gunicorn flask `api/`)
-* 15363 - test production event stream server
-* 15363 - test production websocket for event stream server
-* 15371 - test production nginx server
+* 15351 - development web server
+* 15308 - development api websocket server (flask `api/`)
+
+TODO: finish this list
 
 **In deployed production container**
 
 The following ports are used inside the deployed production container:
 
-* 15306 - client (serving `build/` directory)
-* 15307 - server (gunicorn flask `api/`)
-* 15308 - event stream server
-* 15308 - websocket for event stream server
-* 15310 - nginx server (main port to connect to)
+TODO: finish this list
 
 ### Deploying docker image
 

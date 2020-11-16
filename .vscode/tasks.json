@@ -15,14 +15,6 @@
             "command": "bash -ic .vscode/tasks/start_dev_client.sh"
         },
         {
-            "label": "start dev kachery-p2p daemon",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_dev_kachery_p2p_daemon.sh",
-            "problemMatcher": [
-                "$eslint-compact"
-            ]
-        },
-        {
             "label": "_start_dev",
             "type": "shell",
             "command": "echo 'Starting the dev api and client tasks...' && sleep 3 && echo 'Point your browser to http://localhost:15351'"
@@ -32,7 +24,6 @@
             "type": "shell",
             "command": "echo 'Starting the dev api and client tasks...' && sleep 3 && echo 'Point your browser to http://localhost:15351'",
             "dependsOn": [
-                "start dev kachery-p2p daemon",
                 "start dev api",
                 "start dev client",
                 "_start_dev"
@@ -54,11 +45,6 @@
             "command": "bash -ic .vscode/tasks/start_test_prod_client.sh"
         },
         {
-            "label": "start test prod kachery-p2p daemon",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_test_prod_kachery_p2p_daemon.sh"
-        },
-        {
             "label": "_start_test_prod",
             "type": "shell",
             "command": "echo 'This will start the test prod api and client as well as the nginx server. Point your browser to http://localhost:15371'"
@@ -68,7 +54,6 @@
             "dependsOn": [
                 "start test prod api",
                 "start test prod client",
-                "start test prod kachery-p2p daemon",
                 "start nginx",
                 "_start_test_prod"
             ]

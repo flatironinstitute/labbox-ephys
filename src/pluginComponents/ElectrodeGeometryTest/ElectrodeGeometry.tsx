@@ -276,7 +276,7 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const testLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps>(paintTestLayer, augmentedProps,
         {
             discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // this gets REAL chatty
-            dragHandlers: []//reportMouseDrag]
+            dragHandlers: []//reportMouseDrag],
         })).current
     const dragLayer = useRef(new CanvasWidgetLayer<DragLayerProps>(paintDragLayer,
         {...augmentedProps, dragRegion: null, selectedElectrodes: [], draggedElectrodes: []},

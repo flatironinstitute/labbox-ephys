@@ -1,8 +1,9 @@
 import os
+import time
+
+import hither as hi
 import kachery_p2p as kp
 import numpy as np
-import hither as hi
-import time
 
 job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
 if not os.path.exists(job_cache_path):

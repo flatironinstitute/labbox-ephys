@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 // import ElectrodeGeometryWidget from './ElectrodeGeometryWidget'
-import { Table, TableHead, TableRow, TableBody, TableCell } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 
 const RecordingInfoView = ({ recordingInfo  }) => {
     const ri = recordingInfo;

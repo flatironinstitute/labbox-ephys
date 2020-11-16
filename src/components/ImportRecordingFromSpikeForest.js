@@ -1,8 +1,8 @@
-import React, { useState, Fragment, useEffect } from 'react'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, Select, MenuItem, makeStyles } from '@material-ui/core'
-import { createHitherJob } from '../hither'
-import { sleep } from '../actions'
+import { Button, CircularProgress, FormControl, FormGroup, Input, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { sleep } from '../actions';
 import RecordingInfoView from '../components/RecordingInfoView';
+import { createHitherJob } from '../hither';
 
 const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }) => {
     const [recordingPath, setRecordingPath] = useState('');
