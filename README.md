@@ -13,22 +13,34 @@ Analysis and visualization of neurophysiology recordings and spike sorting resul
     - For Linux, be sure that your non-root user is in the docker group
     - Recommended test from command line: `docker run hello-world`
 * Python (>= 3.6)
+* [kachery-p2p](https://github.com/flatironinstitute/kachery-p2p)
 * git
 
-### Create directories and set environment variables
+### Start a kachery-p2p daemon
 
-You will need to create a data directory. You can choose any location you want, but on Linux this could look like the following (where `<user>` is the name of the logged-in user):
+See [kachery-p2p](https://github.com/flatironinstitute/kachery-p2p) for details on running a kachery-p2p daemon on your local system.
 
-* `/home/<user>/labbox/labbox-ephys-data-dir`
+### Set environment variables
 
-Set an environment variable to point to this directory so we can refer to it elsewhere
+Set the following environment variables
 
 ```bash
-# Adjust as needed to match above
-export LABBOX_EPHYS_DATA_DIR=/home/user/labbox/labbox-ephys-data
+# KACHERY_STORAGE_DIR
+# This should already be set if 
+export KACHERY_STORAGE_DIR="<directory where kachery files will be stored>"
+
+# KACHERY_P2P_CONFIG_DIR
+# This should correspond to the config directory being used by the kachery-p2p daemon
+# By default it is $HOME/.kachery-p2p
+export KACHERY_P2P_CONFIG_DIR="<Config directory for kachery-p2p>"
+
+# KACHERY_P2P_API_PORT
+# This should correspond to the port being used by the kachery-p2p daemon
+# By default it is 20431
+export KACHERY_P2P_CONFIG_DIR="<Port number used by kachery-p2p daemon>"
 ```
 
-Ensure that this environment variable is set with each new terminal session by adding that line to your ~/.bashrc file.
+Ensure that these environment variables are set with each new terminal session by adding those lines to your ~/.bashrc file.
 
 ### Install/upgrade labbox-launcher
 
@@ -52,10 +64,10 @@ Then:
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.3.26 --docker_run_opts "--net host" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.4.0 --docker_run_opts "--net host"
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.3.26 --docker_run_opts "-p 15310:15310 -p 15308:15308" --data $LABBOX_EPHYS_DATA_DIR
+labbox-launcher run magland/labbox-ephys:0.4.0 --docker_run_opts "-p 15310:15310 -p 15308:15308"
 ```
 
 ### View in browser
@@ -64,89 +76,15 @@ Now, point your browser (chrome is recommended) to: `http://localhost:15310`
 
 **Note: The terminal output may refer to different ports while starting up, but it is important that you use 15310**
 
-### Optionally host a compute resource server for spike sorting
+### Optionally host a compute resource server for calculations
 
-If you want to use your own computer to run the spike sorting, then you will need to set up a hither compute resource server. Instructions for doing this can be found in the "Job handlers" section of the "Config" page in the GUI.
+If you want to use your own computer to run calculations, then you will need to set up a hither compute resource server. Instructions for doing this will be provided later on.
 
 ## Information for developers
 
 [Instructions on opening labbox-ephys in a development environment](doc/development-environment.md)
 
-### Todo
-
-* 0.1.3 [done]
-    - Import sortings
-        - Start with ground truth from SpikeForest
-* 0.1.4 [done]
-    - labbox-launcher: implement --data
-    - Persist data to disk (not in browser)
-* 0.1.5 [done]
-    - Python script for building/pushing docker images
-    - Minimize size of new docker layers for deploys
-        - should be just a few MB
-        - build app bundle outside of container
-        - parse version from package.json
-    - Timeseries view for recordings
-* 0.1.6 [done]
-    - Code cleanup - separate out ephys-specific code
-    - Reorganize python files
-    - Improve mechanism for job submission from javascript to python
-    - Configure job handlers from GUI
-    - Run spike sorting
-    - View sortings
-    - Read version from package.json to determine tag
-    - Refactor sortingInfo calculation
-    - Select compute resource for spike sorting and other stuff
-    - refactoring to remove fetchRecordingInfo and fetchSortingInfo
-* 0.1.7 [done]
-    - Bokeh integration [done]
-    - Matplotlib integration [done]
-    - Prototypes view [done]
-    - Summary plots of spike sorting
-        - Autocorrelograms [done]
-* 0.1.8 [done-ish]
-    - Update documentation - for users and developers
-    - Create complete instructions for running labbox-ephys with local compute resource
-* 0.1.9 [done]
-    - reorganized labbox rec extractor [done]
-    - switch to using recordingObject throughout [done]
-    - switch to using sortingObject throughout #3 [done]
-    - when recording is deleted, also delete the associated sortings #5 [done]
-    - auto-convert sha1:// strings to hi.File() [done]
-    - Import from local disk [done]
-    - Persisting sorting jobs #6 [done]
-    - Run multiple hither api calls in parallel #8 [done]
-* 0.1.10 [done]
-    - Hither job monitor within GUI #11 [done]
-    - Improved import/download spikeforest recordings system [done]
-    - Timestamps on jobs, sort table by timestamps [done]
-    - Show error messages on job monitor [done]
-    - Show console output on job monitor [done]
-    - Allow cancelling of hither jobs [done]
-* 0.1.11
-    - Persist data using event stream [done]
-    - Use new version of hither compute resource [done]
-    - Improve import efficiency [done]
-    - Switch to recordingLabel/sortingLabel instead of recordingId/sortingId [done]
-    - Job handler config : use event stream [done]
-    - Use hard linking for kachery storage [done]
-    - Use kachery storage directory inside labbox ephys data directory [done]
-    - Fix issue with switch back to NONE job handler for roles [done]
-* 0.1.12
-    - Import .nwb files [done]
-    - Integration with franklab datajoint [***]
-    - Connect back to sorting job even after page reload #9
-    - Additional plots for sorting view
-* Other
-    - Store private job handler configuration on disk only (not in the redux state)
-    - Import/export job handler configuration
-    - Fix fetchSortingInfo and fetchRecordingInfo stuff
-    - syncmark
-    - Design a logo (replace logo.svg and public/favicon.ico)
-    - More efficient serialization to disk
-    - Export/import persisted state
-
-## Authors
+## Primary developers
 
 Jeremy Magland and Jeff Soules
 

@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-import ElectrodeGeometryWidget from './ElectrodeGeometryWidget'
-import { Table, TableHead, TableRow, TableBody, TableCell } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import React, { useState } from 'react';
 
 const RecordingInfoView = ({ recordingInfo  }) => {
     const ri = recordingInfo;
@@ -21,12 +20,12 @@ const RecordingInfoView = ({ recordingInfo  }) => {
                     is_local={ri.is_local}
                 />
             </div>
-            <ElectrodeGeometryWidget
+            {/* <ElectrodeGeometryWidget
                 locations={ri.geom}
                 selectedElectrodeIds={selectedElectrodeIds}
                 onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
                 width={350}
-            />
+            /> */}
         </div>
     );
 }
