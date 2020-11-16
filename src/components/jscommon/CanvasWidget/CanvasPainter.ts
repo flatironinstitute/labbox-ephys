@@ -172,19 +172,20 @@ export class CanvasPainter {
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
-        if (dy === undefined) {
-            if (typeof dx === 'number') {
-                throw Error('unexpected');
-            }
-            let tmp = dx;
-            dx = tmp[0];
-            dy = tmp[1];
-            this.#context2D.translate(dx, dy);
-        }
-        if (typeof dx === 'object') {
-            throw Error('Bad signature: dx object and dy not undef: ctxTranslate')
-        }
-        this.#context2D.translate(dx, dy);
+        throw Error('Deprecated method, needs rewrite.')
+        // if (dy === undefined) {
+        //     if (typeof dx === 'number') {
+        //         throw Error('unexpected');
+        //     }
+        //     let tmp = dx;
+        //     dx = tmp[0];
+        //     dy = tmp[1];
+        //     this.#context2D.translate(dx, dy);
+        // }
+        // if (typeof dx === 'object') {
+        //     throw Error('Bad signature: dx object and dy not undef: ctxTranslate')
+        // }
+        // this.#context2D.translate(dx, dy);
     }
     ctxRotate(theta: number) {
         this.#context2D.rotate(theta)

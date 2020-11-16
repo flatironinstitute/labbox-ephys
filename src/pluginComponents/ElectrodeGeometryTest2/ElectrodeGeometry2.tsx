@@ -1,5 +1,5 @@
 import React from 'react';
-import ElectrodeLayoutPlot from '../AverageWaveformsNew/ElectrodeLayoutPlot';
+// import ElectrodeLayoutPlot from '../AverageWaveformsNew/ElectrodeLayoutPlot';
 
 interface ElectrodeGeometryProps {
     electrodes: ({
@@ -12,19 +12,19 @@ interface ElectrodeGeometryProps {
 const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const { electrodes } = props;
 
-    return (
-        <ElectrodeLayoutPlot
-            width={200}
-            height={200}
-            data={{
-                waveformYScaleFactor: 1,
-                electrodes: electrodes.map(e => ({
-                    label: e.label,
-                    position: {x: e.x, y: e.y}
-                }))
-            }}
-            plotElectrodes={true}
-        />
+    return ( <div></div>
+        // <ElectrodeLayoutPlot
+        //     width={200}
+        //     height={200}
+        //     data={{
+        //         waveformYScaleFactor: 1,
+        //         electrodes: electrodes.map(e => ({
+        //             label: e.label,
+        //             position: {x: e.x, y: e.y}
+        //         }))
+        //     }}
+        //     plotElectrodes={true}
+        // />
     )
     // return (
     //     <CanvasWidget

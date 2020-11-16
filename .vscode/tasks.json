@@ -7,7 +7,8 @@
         {
             "label": "start dev api",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_dev_api.sh"
+            "command": "bash -ic .vscode/tasks/start_dev_api.sh",
+            "problemMatcher": []
         },
         {
             "label": "start dev client",

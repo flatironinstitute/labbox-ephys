@@ -1,7 +1,8 @@
-import { CanvasPainter } from './CanvasPainter'
-import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, isRectangularRegion, isTransformationMatrix, pointInRect, RectangularRegion, rectangularRegionsIntersect, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
+import { CanvasPainter, Context2D } from './CanvasPainter'
+import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, pointInRect, RectangularRegion, rectangularRegionsIntersect, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
 
-type OnPaint = (painter: CanvasPainter, layerProps: any) => void
+type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => void
+type OnPropsChange<T extends BaseLayerProps> = (layer: CanvasWidgetLayer<T, any>, layerProps: T) => void
 
 export interface BaseLayerProps {
     width: number;
@@ -9,44 +10,35 @@ export interface BaseLayerProps {
     [key: string]: any
 }
 
-export interface DrawingSpaceProps {
-    coordinateRange: RectangularRegion,
-    transformationMatrix: TransformationMatrix,
-    inverseMatrix: TransformationMatrix
-}
-export const isDrawingSpaceProps = (x: any): x is DrawingSpaceProps => {
-    if (!x || typeof(x) !== 'object') return false
-    for (let y of ['coordinateRange', 'transformationMatrix', 'inverseMatrix']) {
-        if (!(y in x)) return false
-    }
-    return (isRectangularRegion(x.coordinateRange) &&
-        isTransformationMatrix(x.transformationMatrix) && isTransformationMatrix(x.inverseMatrix))
-}
-
+// Events-handling stuff should probably go somewhere else
 export interface ClickEvent {
     point: Vec2,
     mouseButton: number,
+    modifiers: ClickEventModifiers,
     type: ClickEventType
 }
 
-// TODO: I'm sure there's a more elegant way of using types to implement enums in ts...
-export type ClickEventType = 'Move' | 'Press' | 'Release'
-export const EventTypeFromString = (x: string): ClickEventType => {
-    switch(x) {
-        case 'Move': return 'Move' as ClickEventType
-        case 'Press': return 'Press' as ClickEventType
-        case 'Release': return 'Release' as ClickEventType
-        default: throw Error('Invalid click event type.')
-    }
+export interface ClickEventModifiers {
+    alt?: boolean,
+    ctrl?: boolean,
+    shift?: boolean
 }
+
+export enum ClickEventType {
+    Move = 'MOVE',
+    Press = 'PRESS',
+    Release = 'RELEASE'
+    // TODO: Wheel, etc?
+}
+export type ClickEventTypeStrings = keyof typeof ClickEventType
 
 // These two handlers, and the EventHandlerSet, could all instead have parameterized types.
 // But I couldn't figure out how to make the inheritance work right, so I bagged it.
 // Reader, know that the layer in question ought to be a self-reference for the layer that owns the handler:
 // this allows the handler functions to modify the parent function state without having direct reference
 // to values outside their own scope.
-export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any>) => void
-export type DragHandler = (layer: CanvasWidgetLayer<any>,  dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => void
+export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
+export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => void
 
 export interface EventHandlerSet {
     discreteMouseEventHandlers: DiscreteMouseEventHandler[],
@@ -60,14 +52,22 @@ export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, 
         const pointH = transformXY(i, point[0], point[1])
         point = [pointH[0], pointH[1]]
     }
-    return {point: [point[0], point[1]], mouseButton: e.buttons, type: t}
+    const modifiers = {
+        alt: e.altKey,
+        ctrl: e.ctrlKey,
+        shift: e.shiftKey,
+    }
+    return {point: [point[0], point[1]], mouseButton: e.buttons, modifiers: modifiers, type: t}
 }
 
-export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
-    #onPaint: OnPaint
-    #props: LayerProps
+export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends object> {
+    #onPaint: OnPaint<LayerProps, State>
+    #onPropsChange: OnPropsChange<LayerProps>
 
-    #pixelWidth: number
+    #props: LayerProps | null
+    #state: State | null
+
+    #pixelWidth: number // TODO: Do we actually need these? Once the matrices and coord range have been set?
     #pixelHeight: number
     #canvasElement: any | null = null
 
@@ -82,57 +82,56 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
     #discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
     #dragHandlers: DragHandler[] = []
 
-    constructor(onPaint: OnPaint, initialProps: LayerProps, handlers?: EventHandlerSet) {
+    constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
+        this.#state = null
+        this.#props = null
         this.#onPaint = onPaint
-        this.#pixelWidth = initialProps.width
-        this.#pixelHeight = initialProps.height
-        this.#props = {...initialProps}
-        this.#discreteMouseEventHandlers = []
-        this.#dragHandlers = []
-        if ('Transform' in initialProps) {
-            if (!isDrawingSpaceProps(initialProps.Transform)) throw Error('LayerProps.Transform does not match DrawingSpaceProps interface')
-            this.#coordRange = initialProps.Transform.coordinateRange
-            this.#transformMatrix = initialProps.Transform.transformationMatrix
-            this.#inverseMatrix = initialProps.Transform.inverseMatrix
-        } else {
-            // These defaults immediately get overridden, but they keep the typescript compiler happy.
-            this.#coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
-            this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
-            this.#inverseMatrix = this.#transformMatrix
-            this.setBasePixelTransformationMatrix()
-        }
-        if (handlers) {
-            this.#discreteMouseEventHandlers = handlers.discreteMouseEventHandlers || []
-            this.#dragHandlers = handlers.dragHandlers || []
-        }
+        this.#onPropsChange = onPropsChange
+        this.#discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
+        this.#dragHandlers = handlers?.dragHandlers || []
+        this.#pixelWidth = -1
+        this.#pixelHeight = -1
+        this.#coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
+        this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
+        this.#inverseMatrix = this.#transformMatrix
     }
-    setBasePixelTransformationMatrix() {
-        const {matrix, coords} = getBasePixelTransformationMatrix(this.#pixelWidth, this.#pixelHeight)
+    setBasePixelTransformationMatrix(system?: RectangularRegion) {
+        const {matrix, coords} = getBasePixelTransformationMatrix(this.#pixelWidth, this.#pixelHeight, system)
         this.#coordRange = coords
         this.#transformMatrix = matrix
         this.#inverseMatrix = getInverseTransformationMatrix(matrix)
     }
-    getProps(): LayerProps {
-        return {...this.#props}
+    getProps() {    // TODO: Probably delete this?
+        return this.#props ? this.#props : {} as BaseLayerProps
     }
-    setProps(p: LayerProps) {
-        this.#props = {...p}
+    updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
+        console.log('Doing updateProps for a layer (but I do not know my own name).')
+        this.#props = p
+        this.#pixelWidth = p.width
+        this.#pixelHeight = p.height
+        this.#onPropsChange(this, p)
+        console.log('Completed props update.')
     }
-    // I'm not sure this is a good idea...
-    updateTransformAndCoordinateSystem(newTransformationMatrix: TransformationMatrix, newCoordinateSystem: RectangularRegion) {
-        this.setTransformMatrix(newTransformationMatrix)
-        this.setCoordRange(newCoordinateSystem)
+    getState() {
+        return this.#state ? this.#state : {} as State
     }
+    setState(s: State) {
+        this.#state = s
+    }
+    // TODO: Should probably get rid of this?
     getTransformMatrix() {
         return this.#transformMatrix
     }
+    // TODO: Should definitely get rid of this & replace with an update method
     setTransformMatrix(t: TransformationMatrix) {
         this.#transformMatrix = t
         this.#inverseMatrix = getInverseTransformationMatrix(t)
     }
+    // TODO: Should probably get rid of this?
     getCoordRange() {
         return this.#coordRange
     }
+    // TODO: Again should definitely be computed as part of an update method on transform matrix
     setCoordRange(r: RectangularRegion) {
         this.#coordRange = r
     }
@@ -140,17 +139,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
         // TODO: Set this up so that it sets a bounding clip box on the Layer's full coordinate range
         return;
     }
-    unclipToSelf() {
-        // TODO: Whatever's needed here to remove the clipbox on the current Layer.
-        // Gets called at the end of _doRepaint().
-        return;
-    }
-    context() {
-        if (!this.#canvasElement) return null
-        return this.#canvasElement.getContext('2d')
-    }
-    canvasElement() {
-        return this.#canvasElement
+    unclipToSelf(ctx: Context2D) { // Gets called at the end of _doRepaint().
+        ctx.restore()
     }
     repaintNeeded() {
         return this.#repaintNeeded
@@ -160,6 +150,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
     }
     pixelHeight() {
         return this.#pixelHeight
+    }
+    resetCanvasElement(canvasElement: any) {
+        this.#canvasElement = canvasElement
     }
     
     scheduleRepaint() {
@@ -183,43 +176,25 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps> {
     repaintImmediate() {
         this._doRepaint()
     }
-    _initialize(width: number, height: number, canvasElement: any) {
-        const doScheduleRepaint = (
-            (width !== this.#pixelWidth) ||
-            (height !== this.#pixelHeight) ||
-            canvasElement !== this.#canvasElement
-        )
-        this.#pixelWidth = width
-        this.#pixelHeight = height
-        this.#canvasElement = canvasElement
-        // this.scheduleRepaint()
-        if (doScheduleRepaint) {
-            // TODO: I'm not convinced what I do below is a good idea: there's too many factors involved
-            // in resizing. We might want to insist that consumers create and reinitialize a
-            // new Layer if the canvas size actually changes.
-            // const coordRange = this.#coordRange
-            // this.setBasePixelTransformationMatrix() // we resized: need to resize our matrices.
-            // const newT = updateTransformationMatrix(coordRange, this.#coordRange, this.#transformMatrix)
-            // this.updateTransformAndCoordinateSystem(newT, coordRange)
-            // NOTE: This would NOT preserve the aspect ratio!!!
-            // NOTE: Have to figure out how this will work if further transforms have been applied?
-            this.scheduleRepaint()
-        }
-    }
     _doRepaint = () => {
+        console.log('Commencing repaint.')
         this.#lastRepaintTimestamp = Number(new Date())
 
-        let ctx = this.context()
+        console.log('Context check')
+        const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
         if (!ctx) {
             this.#repaintNeeded = true
             return
         }
+        console.log('Context check completed.')
         this.#repaintNeeded = false
-        // this._mouseHandler.setElement(L.canvasElement());
         let painter = new CanvasPainter(ctx, this.#coordRange, this.#transformMatrix)
         painter.clear()
-        this.#onPaint(painter, this.#props)
-        this.unclipToSelf()
+        console.log('Calling #onPaint.')
+        this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
+        console.log('Unclipping.')
+        this.unclipToSelf(ctx)
+        console.log('Completed dorepaint call..')
     }
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {

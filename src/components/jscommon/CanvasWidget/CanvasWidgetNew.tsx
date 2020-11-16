@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react'
-import { CanvasWidgetLayer, ClickEventFromMouseEvent, EventTypeFromString } from './CanvasWidgetLayer'
+import { BaseLayerProps, CanvasWidgetLayer, ClickEventFromMouseEvent, ClickEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
 // This class serves three purposes:
@@ -71,20 +71,12 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
     return { dragging: true } // unreachable, but keeps ESLint happy
 }
 
-interface Props {
-    layers: CanvasWidgetLayer<any>[],
-    width: number,
-    height: number,
-    // Might choose to delete these hooks. Maybe it could be useful to have an action for the Widget itself, but
-    // generally the Layer should be handling most of the responsibility here.
-    onMouseMove?: (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void
-    onMousePress?: (pos: Vec2) => void
-    onMouseRelease?: (pos: Vec2) => void
-    onMouseDrag?: (args: {anchor?: Vec2, pos?: Vec2, rect?: Vec4}) => void
-    onMouseDragRelease?: (args: {anchor: Vec2, pos: Vec2, rect: Vec4}) => void
+interface Props<T extends BaseLayerProps> {
+    layers: CanvasWidgetLayer<T, any>[],
+    widgetProps: T
 }
 
-const CanvasWidget = (props: Props) => {
+const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     const divRef = React.useRef<HTMLDivElement>(null)
     const [state, dispatch] = useReducer(dragReducer, {
         dragging: false,
@@ -94,6 +86,7 @@ const CanvasWidget = (props: Props) => {
     })
 
     useEffect(() => {
+        console.log('Firing CanvasWidget useEffect()')
         // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
         props.layers.forEach((L, index) => {
             // /// TODO: figure out what to do here
@@ -101,13 +94,13 @@ const CanvasWidget = (props: Props) => {
             const divElement = divRef.current
             if (divElement) {
                 const canvasElement = divElement.children[index]
-                L._initialize(props.width, props.height, canvasElement)
-                if (L.repaintNeeded()) {
-                    L.scheduleRepaint()
-                }
+                L.resetCanvasElement(canvasElement)
+                L.updateProps(props.widgetProps)
+                L.scheduleRepaint() // The dependency list means this only gets called if props/canvas changed.
+                // In those cases, we definitely need to repaint, so scheduling it should be safe.
             }
         })
-    })
+    }, [props, divRef])
 
     const _dispatchDragEvents = useCallback((released: boolean) => {
         if (!state.dragRect) return
@@ -122,27 +115,27 @@ const CanvasWidget = (props: Props) => {
         }
     }, [props.layers, state.dragAnchor, state.dragRect, state.dragPosition])
 
-    const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: string) => {
+    const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of props.layers) {
-            l.handleDiscreteEvent(e, EventTypeFromString(type))
+            l.handleDiscreteEvent(e, type)
         }
     }, [props.layers])
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point, mouseButton } = ClickEventFromMouseEvent(e, EventTypeFromString('Move'))
+        const { point, mouseButton } = ClickEventFromMouseEvent(e, ClickEventType.Move)
         dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point})
         _dispatchDragEvents(false)
-        _dispatchDiscreteMouseEvents(e, "Move")
+        _dispatchDiscreteMouseEvents(e, ClickEventType.Move)
     }, [_dispatchDragEvents, _dispatchDiscreteMouseEvents])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = ClickEventFromMouseEvent(e, EventTypeFromString('Press'))
-        _dispatchDiscreteMouseEvents(e, "Press")
+        const { point } = ClickEventFromMouseEvent(e, ClickEventType.Press)
+        _dispatchDiscreteMouseEvents(e, ClickEventType.Press)
         dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: point })
     }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        _dispatchDiscreteMouseEvents(e, "Release")
+        _dispatchDiscreteMouseEvents(e, ClickEventType.Release)
         if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
             // No need to recompute the dragRect--we already computed it on mouse move
             _dispatchDragEvents(true)
@@ -157,11 +150,12 @@ const CanvasWidget = (props: Props) => {
     const _handleMouseLeave = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         // todo
     }, [])
+    // Similar for mousewheel, etc.
 
     return (
         <div
             ref={divRef}
-            style={{position: 'relative', width: props.width, height: props.height, left: 0, top: 0}}
+            style={{position: 'relative', width: props.widgetProps.width, height: props.widgetProps.height, left: 0, top: 0}}
             // style={style0}
             // onKeyDown={(evt) => {this.props.onKeyPress && this.props.onKeyPress(evt);}}
             tabIndex={0} // tabindex needed to handle keypress
@@ -171,8 +165,8 @@ const CanvasWidget = (props: Props) => {
                     <canvas
                         key={index}
                         style={{position: 'absolute', left: 0, top: 0}}
-                        width={props.width}
-                        height={props.height}
+                        width={props.widgetProps.width}
+                        height={props.widgetProps.height}
                         onMouseMove={_handleMouseMove}
                         onMouseDown={_handleMouseDown}
                         onMouseUp={_handleMouseUp}
