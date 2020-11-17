@@ -105,12 +105,10 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         return this.#props ? this.#props : {} as BaseLayerProps
     }
     updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
-        console.log('Doing updateProps for a layer (but I do not know my own name).')
         this.#props = p
         this.#pixelWidth = p.width
         this.#pixelHeight = p.height
         this.#onPropsChange(this, p)
-        console.log('Completed props update.')
     }
     getState() {
         return this.#state ? this.#state : {} as State
@@ -177,24 +175,18 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._doRepaint()
     }
     _doRepaint = () => {
-        console.log('Commencing repaint.')
         this.#lastRepaintTimestamp = Number(new Date())
 
-        console.log('Context check')
         const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
         if (!ctx) {
             this.#repaintNeeded = true
             return
         }
-        console.log('Context check completed.')
         this.#repaintNeeded = false
         let painter = new CanvasPainter(ctx, this.#coordRange, this.#transformMatrix)
         painter.clear()
-        console.log('Calling #onPaint.')
         this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
-        console.log('Unclipping.')
         this.unclipToSelf(ctx)
-        console.log('Completed dorepaint call..')
     }
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {

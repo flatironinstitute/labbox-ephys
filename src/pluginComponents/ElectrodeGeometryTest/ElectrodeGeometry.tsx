@@ -84,12 +84,10 @@ const computeRadius = (electrodes: Electrode[], scaledCoordinates: RectangularRe
 }
 
 export const setCanvasFromProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, any>, layerProps: ElectrodeLayerProps) => {
-    console.log('Calling setCanvasFromProps() presumably via an updateProps call.')
     layer.setBasePixelTransformationMatrix(layerProps.scaledCoordinates)
 }
 
 const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
-    console.log('Render ElectrodeGeometry')
     const width = 200
     const height = 200
     const { electrodes } = props
