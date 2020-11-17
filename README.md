@@ -64,10 +64,10 @@ Then:
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.4.0 --docker_run_opts "--net host"
+labbox-launcher run magland/labbox-ephys:0.4.0 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "--net host"
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.4.0 --docker_run_opts "-p 15310:15310 -p 15308:15308"
+labbox-launcher run magland/labbox-ephys:0.4.0 --kachery $KACHERY_STORAGE_DIR --docker_run_opts "-p 15310:15310 -p 15308:15308"
 ```
 
 ### View in browser

@@ -9,28 +9,20 @@ set -ex
 #   service nginx restart
 # fi
 
-
 # yarn global add serve
 # yarn global add concurrently
 # pip install gunicorn
 
 # export PATH=$(yarn global bin):~/.local/bin:$PATH
 
-export KACHERY_STORAGE_DIR=/data/kachery-storage
-mkdir -p $KACHERY_STORAGE_DIR
-
-export KACHERY_P2P_CONFIG_DIR=/data/kachery-p2p-config
-export KACHERY_P2P_API_PORT=15320
-mkdir -p $KACHERY_P2P_CONFIG_DIR
-
-kachery-p2p-start-daemon --verbose 1 --channel flatiron1 --channel flatiron1 $KACHERY_P2P_START_DAEMON_OPTS &
+# export KACHERY_STORAGE_DIR=/data/kachery-storage
 
 cd /labbox-ephys
 # concurrently "cd /labbox-ephys && serve -s build -l 15306" "cd /labbox-ephys/api && gunicorn -b 127.0.0.1:15307 api:app"
 
 serve -s build -l 15310 &
 
-# The following is just to make sure the user is not confused by the message of the serve command
+# # The following is just to make sure the user is not confused by the message of the serve command
 set +x
 echo -e "\e[31mPlease wait...\e[39m"
 sleep 1

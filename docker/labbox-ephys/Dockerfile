@@ -46,7 +46,7 @@ RUN pip install pynwb
 
 # #########################################
 # ### Install kachery-p2p
-RUN pip install kachery-p2p==0.4.28
+RUN pip install kachery-p2p==0.5.9
 
 # #########################################
 # ### Install hither
@@ -67,8 +67,6 @@ COPY src /labbox-ephys/src
 COPY python /labbox-ephys/python
 COPY build /labbox-ephys/build
 
-RUN cd /labbox-ephys/python && pip install -e .
-
 # COPY docker/labbox-ephys/labbox-ephys.nginx /etc/nginx/sites-available/labbox-ephys.nginx
 # RUN rm /etc/nginx/sites-enabled/default && \
 #     ln -s /etc/nginx/sites-available/labbox-ephys.nginx /etc/nginx/sites-enabled/labbox-ephys.nginx
@@ -76,7 +74,7 @@ RUN cd /labbox-ephys/python && pip install -e .
 COPY docker/labbox-ephys/run_inside_container.sh /run_inside_container.sh
 
 # Install labbox_ephys
-RUN cd /labbox-ephys/python && pip install .
+RUN cd /labbox-ephys/python && pip install -e .
 
 EXPOSE 15310
 
