@@ -86,7 +86,6 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     })
 
     useEffect(() => {
-        console.log('Firing CanvasWidget useEffect()')
         // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
         props.layers.forEach((L, index) => {
             // /// TODO: figure out what to do here
