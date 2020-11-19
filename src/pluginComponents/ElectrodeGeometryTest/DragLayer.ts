@@ -1,6 +1,6 @@
 import { Brush, CanvasPainter } from '../../components/jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, DragHandler } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
-import { RectangularRegion, rectangularRegionsIntersect, Vec2 } from '../../components/jscommon/CanvasWidget/Geometry'
+import { CanvasWidgetLayer, DragEvent, DragHandler } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
+import { RectangularRegion, rectangularRegionsIntersect } from '../../components/jscommon/CanvasWidget/Geometry'
 import { Electrode, ElectrodeLayerProps, setCanvasFromProps } from './ElectrodeGeometry'
 
 // This could just as well have gone in the ElectrodeGeometry.tsx file since it touches on the data that's 'owned' by the
@@ -50,13 +50,14 @@ export const paintDragLayer = (painter: CanvasPainter, props: ElectrodeLayerProp
     })
     state.dragRegion && painter.fillRect(state.dragRegion, regionBrush)
 }
-export const updateDragRegion: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>, dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => {
+export const updateDragRegion: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>, drag: DragEvent) => {
     const { electrodeBoundingBoxes } = layer.getState()
-    const hits = electrodeBoundingBoxes.filter((r: any) => rectangularRegionsIntersect(r.br, dragRect))
-    if (released) {
-        layer.setState({...layer.getState(), dragRegion: null, draggedElectrodes: [], selectedElectrodes: hits})
+    const hits = electrodeBoundingBoxes.filter((r: any) => rectangularRegionsIntersect(r.br, drag.dragRect))
+    if (drag.released) {
+        const currentSelected = drag.shift ? layer.getState().selectedElectrodes : []
+        layer.setState({...layer.getState(), dragRegion: null, draggedElectrodes: [], selectedElectrodes: [...currentSelected, ...hits]})
     } else {
-        layer.setState({...layer.getState(), dragRegion: dragRect, draggedElectrodes: hits})
+        layer.setState({...layer.getState(), dragRegion: drag.dragRect, draggedElectrodes: hits})
     }
     layer.scheduleRepaint()
 }

@@ -32,13 +32,21 @@ export enum ClickEventType {
 }
 export type ClickEventTypeStrings = keyof typeof ClickEventType
 
+export interface DragEvent {
+    dragRect: RectangularRegion,
+    released: boolean,
+    shift: boolean, // might extend this to the full modifier set later
+    anchor?: Vec2,
+    position?: Vec2
+}
+
 // These two handlers, and the EventHandlerSet, could all instead have parameterized types.
 // But I couldn't figure out how to make the inheritance work right, so I bagged it.
 // Reader, know that the layer in question ought to be a self-reference for the layer that owns the handler:
 // this allows the handler functions to modify the parent function state without having direct reference
 // to values outside their own scope.
 export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
-export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => void
+export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: DragEvent) => void
 
 export interface EventHandlerSet {
     discreteMouseEventHandlers: DiscreteMouseEventHandler[],
@@ -57,6 +65,7 @@ export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, 
         ctrl: e.ctrlKey,
         shift: e.shiftKey,
     }
+    if (e.shiftKey) console.log('Got one!')
     return {point: [point[0], point[1]], mouseButton: e.buttons, modifiers: modifiers, type: t}
 }
 
@@ -200,7 +209,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         }
     }
 
-    handleDrag(pixelDragRect: RectangularRegion, released: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
+    handleDrag(pixelDragRect: RectangularRegion, released: boolean, shift?: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
         if (this.#dragHandlers.length === 0) return
         const coordDragRect = transformRect(this.#inverseMatrix, pixelDragRect)
         if (!rectangularRegionsIntersect(coordDragRect, this.#coordRange)) return // short-circuit if event is nothing to do with us
@@ -208,7 +217,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         const coordAnchor = pixelAnchor ? transformPoint(this.#inverseMatrix, [...pixelAnchor, 1]) : undefined
         const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined
         for (let fn of this.#dragHandlers) {
-            fn(this, coordDragRect, released, coordAnchor, coordPosition)
+            fn(this, {dragRect: coordDragRect, released: released, shift: shift || false, anchor: coordAnchor, position: coordPosition})
         }
     }
 }

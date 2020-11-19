@@ -15,22 +15,24 @@ interface DragState {
     dragging: boolean,
     dragAnchor?: Vec2,
     dragPosition?: Vec2,
-    dragRect?: Vec4
+    dragRect?: Vec4,
+    shift?: boolean
 }
 
 interface DragAction {
     type: 'COMPUTE_DRAG' | 'END_DRAG',
     mouseButton: boolean,
-    point: Vec2
+    point: Vec2,
+    shift: boolean
 }
 
 const dragReducer = (state: DragState, action: DragAction): DragState => {
     let {dragging, dragAnchor } = state
-    const {type, mouseButton, point} = action
+    const {type, mouseButton, point, shift} = action
 
     switch (type) {
         case END_DRAG:
-            return { ...state, dragging: false, dragAnchor: undefined, dragRect: undefined }
+            return { ...state, dragging: false, dragAnchor: undefined, dragRect: undefined, shift: shift || false }
         case COMPUTE_DRAG:
             if (!mouseButton) return { // no button held; unset any drag state & return.
                 dragging: false,
@@ -43,6 +45,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
             if (!dragging && !dragAnchor) return {
                 dragging: false,
                 dragAnchor: point,
+                shift: shift || false
             }
             // 2: dragging no, dragAnchor yes: check if the mouse has moved past tolerance to see if we initiate dragging.
             if (!dragging && dragAnchor) {
@@ -50,7 +53,8 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
                 dragging = ((Math.abs(point[0] - dragAnchor[0]) > tol) || (Math.abs(point[1] - dragAnchor[1]) > tol))
                 if (!dragging) return {
                     dragging: false,
-                    dragAnchor: dragAnchor
+                    dragAnchor: dragAnchor,
+                    shift: shift || false
                 }
             }
             // 3: dragging yes (or newly dragging), and dragAnchor yes. Compute point and rect, & return all.
@@ -61,7 +65,8 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
                 dragRect: [ Math.min(dragAnchor[0],  point[0]), // x: upper left corner of rect, NOT the anchor
                             Math.min(dragAnchor[1],  point[1]), // y: upper left corner of rect, NOT the anchor
                             Math.abs(dragAnchor[0] - point[0]), // width
-                            Math.abs(dragAnchor[1] - point[1]) ] //height
+                            Math.abs(dragAnchor[1] - point[1]) ], //height
+                shift: shift || false
             }
         break;
         default: {
@@ -110,9 +115,9 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
             ymax: state.dragRect[1]
         }
         for (let l of props.layers) {
-            l.handleDrag(pixelDragRect, released, state.dragAnchor, state.dragPosition)
+            l.handleDrag(pixelDragRect, released, state.shift, state.dragAnchor, state.dragPosition)
         }
-    }, [props.layers, state.dragAnchor, state.dragRect, state.dragPosition])
+    }, [props.layers, state.dragAnchor, state.dragRect, state.dragPosition, state.shift])
 
     const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of props.layers) {
@@ -121,25 +126,26 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [props.layers])
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point, mouseButton } = ClickEventFromMouseEvent(e, ClickEventType.Move)
-        dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point})
+        const { point, mouseButton, modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Move)
+        dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
         _dispatchDragEvents(false)
         _dispatchDiscreteMouseEvents(e, ClickEventType.Move)
     }, [_dispatchDragEvents, _dispatchDiscreteMouseEvents])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point } = ClickEventFromMouseEvent(e, ClickEventType.Press)
+        const { point, modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Press)
         _dispatchDiscreteMouseEvents(e, ClickEventType.Press)
-        dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: point })
+        dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: point, shift: modifiers.shift || false})
     }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const { modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Release)
         _dispatchDiscreteMouseEvents(e, ClickEventType.Release)
         if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
             // No need to recompute the dragRect--we already computed it on mouse move
             _dispatchDragEvents(true)
         }
-        dispatch({ type: END_DRAG, mouseButton: false, point: [0, 0] }) // resets drag rectangle. point is ignored.
+        dispatch({ type: END_DRAG, mouseButton: false, point: [0, 0], shift: modifiers.shift || false }) // resets drag rectangle. point is ignored.
     }, [state.dragging, state.dragAnchor, state.dragPosition, state.dragRect, _dispatchDragEvents, _dispatchDiscreteMouseEvents])
 
     const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {

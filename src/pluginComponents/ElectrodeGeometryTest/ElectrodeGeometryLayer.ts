@@ -1,6 +1,5 @@
 import { CanvasPainter, Pen } from '../../components/jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
-import { RectangularRegion, Vec2 } from '../../components/jscommon/CanvasWidget/Geometry'
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
 import { ElectrodeLayerProps } from './ElectrodeGeometry'
 
 export const paintTestLayer = (painter: CanvasPainter, props: ElectrodeLayerProps) => {
@@ -30,7 +29,7 @@ export const reportMouseClick: DiscreteMouseEventHandler = (e: ClickEvent, layer
 }
 
 export const reportMouseDrag: DragHandler = 
-( layer: CanvasWidgetLayer<ElectrodeLayerProps, any>, dragRect: RectangularRegion, released: boolean, anchor?: Vec2, position?: Vec2) => {
-    console.log(`Drag state: ${released ? 'final' : 'ongoing'}`)
-    console.log(`Rect: ${JSON.stringify(dragRect)} anchor: ${anchor} point: ${position}`)
+( layer: CanvasWidgetLayer<ElectrodeLayerProps, any>, drag: DragEvent) => {
+    console.log(`Drag state: ${drag.released ? 'final' : 'ongoing'} ${drag.shift ? 'additive' : 'new'}`)
+    console.log(`Rect: ${JSON.stringify(drag.dragRect)} anchor: ${drag.anchor} point: ${drag.position}`)
 }
