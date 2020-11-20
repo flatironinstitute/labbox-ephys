@@ -1,8 +1,8 @@
-import React from 'react'
-import { connect } from 'react-redux'
+import React from 'react';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import TimeseriesView from '../components/TimeseriesView'
 import { SizeMe } from 'react-sizeme';
+import TimeseriesViewNew from '../components/TimeseriesViewNew/TimeseriesViewNew';
 
 const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => {
   if (!recording) {
@@ -22,7 +22,7 @@ const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => 
             const height = 650; // hard-coded for now
             return (
               <div>
-                <TimeseriesView
+                <TimeseriesViewNew
                   recordingObject={recording.recordingObject}
                   width={width}
                   height={height}
