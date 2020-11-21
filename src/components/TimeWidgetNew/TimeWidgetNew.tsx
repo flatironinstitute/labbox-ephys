@@ -1,11 +1,17 @@
-import React, { FunctionComponent, ReactElement, useState } from 'react'
+import React, { FunctionComponent, ReactElement, useEffect, useRef, useState } from 'react'
+import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
 import TimeWidgetToolBar from '../TimeWidget/TimeWidgetToolBar'
+import { createCursorLayer } from './cursorLayer'
+import { createMainLayer } from './mainLayer'
+import { createPanelLabelLayer } from './panelLabelLayer'
 import Splitter from './Splitter'
+import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar, { BottomBarInfo } from './TimeWidgetBottomBar'
+import { CanvasPainterInterface, TimeWidgetLayerProps } from './timeWidgetLayer'
 
 interface Props {
-    panels: any[]
+    panels: TimeWidgetPanel[]
     actions: any[]
     width: number
     height: number
@@ -18,16 +24,24 @@ interface Props {
     onTimeRangeChanged: (tr: {min: number, max: number} | null) => void
 }
 
+export interface TimeWidgetPanel {
+    paint: (painter: CanvasPainterInterface, timeRange: {min: number, max: number}) => void
+    label: () => string
+    onUpdate: (callback: () => void) => void
+}
+
 const toolbarWidth = 50
 const spanWidgetHeight = 50
 
 const TimeWidgetNew = (props: Props) => {
 
-    const {width, height, actions, onCurrentTimeChanged, onTimeRangeChanged} = props
+    const {panels, width, height, actions, numTimepoints, maxTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({})
     const [bottomBarInfo, setBottomBarInfo] = useState<BottomBarInfo>({})
     const [bottomBarHeight, setBottomBarHeight] = useState(0)
+    const [currentTime, setCurrentTime] = useState<number | null>(null)
+    const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
 
     const _zoomTime = (fac: number) => {
         // todo
@@ -40,7 +54,39 @@ const TimeWidgetNew = (props: Props) => {
         // todo
     }
 
+    const mainLayer = useRef(createMainLayer()).current
+    const timeAxisLayer = useRef(createTimeAxisLayer()).current
+    const panelLabelLayer = useRef(createPanelLabelLayer()).current
+    const cursorLayer = useRef(createCursorLayer()).current
+    
+    const layers = [mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer]
+
+    useEffect(() => {
+        if ((!timeRange) && (numTimepoints)) {
+            const tmax = Math.min(maxTimeSpan, numTimepoints)
+            setTimeRange({
+                min: 0,
+                max: tmax
+            })
+            setCurrentTime( tmax / 2 )
+        }
+    })
+
+    // todo: important: figure out how to do this
+    panels.forEach(p => {
+        p.onUpdate(() => {
+            mainLayer.scheduleRepaint()
+        })
+    })
+
     const leftPanel = null
+
+    const plotMargins = {
+        left: 100,
+        top: 50,
+        right: 50,
+        bottom: 100
+    }
 
     const innerContainer = (
         <InnerContainer>
@@ -52,8 +98,21 @@ const TimeWidgetNew = (props: Props) => {
                 onCurrentTimeChanged={onCurrentTimeChanged}
                 onTimeRangeChanged={onTimeRangeChanged}
             />
-            {/* <CanvasWidget
+            <CanvasWidget<TimeWidgetLayerProps>
                 key='canvas'
+                layers={layers}
+                widgetProps={{
+                    panels,
+                    width: width - toolbarWidth,
+                    height: height - spanWidgetHeight - bottomBarHeight,
+                    timeRange,
+                    currentTime,
+                    samplerate,
+                    margins: plotMargins
+                }}
+            />
+            {/* <CanvasWidget
+                
                 layers={layers}
                 width={this.props.width}
                 height={this.props.height - this._spanWidgetHeight - this._bottomBarHeight}
@@ -123,7 +182,7 @@ const InnerContainer: FunctionComponent<InnerContainerProps> = (props) => {
     }
     const ch = props.children as any as ReactElement[]
     return (
-        <div style={{position: 'relative', ...style0}}>
+        <div className="innerContainer" style={{position: 'relative', ...style0}}>
             {
                 ch.map((child, ii) => (
                     <child.type key={ii} {...child.props} width={props.width} />
@@ -146,7 +205,7 @@ const OuterContainer: FunctionComponent<OuterContainerProps> = (props) => {
         height: props.height
     }
     return (
-        <div style={{position: 'relative', ...style0}}>
+        <div className="outerContainer" style={{position: 'relative', ...style0}}>
             {props.children}
         </div>
     )

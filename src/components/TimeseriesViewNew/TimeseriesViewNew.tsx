@@ -61,9 +61,7 @@ const TimeseriesViewNew = (props: Props) => {
                 num_timepoints: info.num_timepoints,
                 segment_size: info.segment_size
             });
-            model.onRequestDataSegment((ds_factor: number, segment_num: number) => {
-                handleRequestDataSegment(ds_factor, segment_num)
-            });
+            
             setTimeseriesModel(model);
             setStatus('finished');
 
@@ -112,7 +110,11 @@ const TimeseriesViewNew = (props: Props) => {
         timeseriesModel.setDataSegment(ds_factor, segment_num, X);
     }
 
-    if (status === 'finished') {
+    if ((status === 'finished') && (timeseriesInfo) && (timeseriesModel)) {
+        // todo: important, when to do this!
+        timeseriesModel.onRequestDataSegment((ds_factor: number, segment_num: number) => {
+            handleRequestDataSegment(ds_factor, segment_num)
+        });
         if (!timeseriesModel) throw Error('Unexpected timeseriesModel is null')
         if (!timeseriesInfo) throw Error('Unexpected timeseriesInfo is null')
         return (

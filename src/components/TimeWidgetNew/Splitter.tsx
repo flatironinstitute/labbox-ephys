@@ -74,7 +74,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
         onChange && onChange()
     }
     return (
-        <div style={{position: 'absolute', ...style0}}>
+        <div className="splitter" style={{position: 'absolute', ...style0}}>
             <div key="child1" style={style1} className="SplitterChild">
                 <child1.type {...child1.props} width={width1} height={height} />
             </div>

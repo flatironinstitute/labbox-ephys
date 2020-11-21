@@ -2,7 +2,7 @@ import { matrix, multiply } from 'mathjs'
 import { isNumber, isString } from '../../../util/Utility'
 import { getCenter, getHeight, getWidth, isVec2, isVec3, isVec4, RectangularRegion, TransformationMatrix, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
 
-interface TextAlignment {
+export interface TextAlignment {
     Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
     Vertical: 'AlignTop' | 'AlignCenter' | 'AlignBottom'
 }
@@ -324,6 +324,12 @@ export class PainterPath {
             x,
             y
         })
+    }
+    _actions() {
+        return [...this.#actions]
+    }
+    _setActions(actions: PainterPathAction[]) {
+        this.#actions = [...actions]
     }
     _draw(ctx: Context2D, tmatrix: TransformationMatrix) {
         ctx.beginPath();
