@@ -80,7 +80,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #pixelHeight: number
     #canvasElement: any | null = null
 
-    #coordRange: RectangularRegion
+    #coordRange: RectangularRegion | null
     #transformMatrix: TransformationMatrix
     #inverseMatrix: TransformationMatrix
 
@@ -100,7 +100,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#dragHandlers = handlers?.dragHandlers || []
         this.#pixelWidth = -1
         this.#pixelHeight = -1
-        this.#coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
+        this.#coordRange = null
         this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
         this.#inverseMatrix = this.#transformMatrix
     }
@@ -111,7 +111,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#inverseMatrix = getInverseTransformationMatrix(matrix)
     }
     getProps() {    // TODO: Probably delete this?
-        return this.#props ? this.#props : {} as BaseLayerProps
+        return this.#props ? this.#props : null
     }
     updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
         this.#props = p
@@ -136,7 +136,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     }
     // TODO: Should probably get rid of this?
     getCoordRange() {
-        return this.#coordRange
+        const coordRange = this.#coordRange !== null ? this.#coordRange : {xmin: 0, xmax: this.#pixelWidth, ymin: 0, ymax: this.#pixelHeight}
+        return coordRange
     }
     // TODO: Again should definitely be computed as part of an update method on transform matrix
     setCoordRange(r: RectangularRegion) {
@@ -192,7 +193,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             return
         }
         this.#repaintNeeded = false
-        let painter = new CanvasPainter(ctx, this.#coordRange, this.#transformMatrix)
+        let painter = new CanvasPainter(ctx, this.getCoordRange(), this.#transformMatrix)
         painter.clear()
         this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
         this.unclipToSelf(ctx)
@@ -203,7 +204,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         const click = ClickEventFromMouseEvent(e, type, this.#inverseMatrix)
         // Don't respond to events outside the layer
         // NB possible minor efficiency gain if we cache our bounding coordinates in pixelspace.
-        if (!pointInRect(click.point, this.#coordRange)) return
+        if (!pointInRect(click.point, this.getCoordRange())) return
         for (let fn of this.#discreteMouseEventHandlers) {
             fn(click, this)
         }
@@ -212,7 +213,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     handleDrag(pixelDragRect: RectangularRegion, released: boolean, shift?: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
         if (this.#dragHandlers.length === 0) return
         const coordDragRect = transformRect(this.#inverseMatrix, pixelDragRect)
-        if (!rectangularRegionsIntersect(coordDragRect, this.#coordRange)) return // short-circuit if event is nothing to do with us
+        if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
         // Note: append a 1 to make the Vec2s into Vec2Hs
         const coordAnchor = pixelAnchor ? transformPoint(this.#inverseMatrix, [...pixelAnchor, 1]) : undefined
         const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined

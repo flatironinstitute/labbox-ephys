@@ -1,28 +1,27 @@
 import { Brush, CanvasPainter, Font, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import { RectangularRegion } from "../jscommon/CanvasWidget/Geometry"
-import { Point2D, TimeWidgetLayerProps, transformPainter } from "./timeWidgetLayer"
+import { Point2D, TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
+import { linearInverse, transformPainter } from "./transformPainter"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
 interface LayerState {
-
+    transformation: (p: Point2D) => Point2D
+    inverseTransformation: (p: Point2D) => Point2D
 }
 
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
-    const { timeRange, samplerate, width, height, margins } = layerProps
+    const { timeRange, samplerate } = layerProps
     if (!timeRange) return
+
+    painter.wipe()
+
     const pen = {color: 'rgb(22, 22, 22)'}
     const font: Font = {'pixel-size': 12, family: 'Arial'}
     const brush: Brush = {color: 'rgb(22, 22, 22)'}
 
-    const transformation = (p: Point2D): Point2D => {
-        const xfrac = (p.x - timeRange.min) / (timeRange.max - timeRange.min)
-        const yfrac = p.y
-        const x = margins.left + xfrac * (width - margins.left - margins.right)
-        const y = height - margins.bottom + 50 - yfrac * 50
-        return {x, y}
-    }
+    const { transformation } = state
 
     const painter2 = transformPainter(painter, transformation)
 
@@ -43,6 +42,20 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
 }
 
 const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
+    const { timeRange, width, height, margins } = layerProps
+    if (!timeRange) return
+    const transformation = (p: Point2D): Point2D => {
+        const xfrac = (p.x - timeRange.min) / (timeRange.max - timeRange.min)
+        const yfrac = p.y
+        const x = margins.left + xfrac * (width - margins.left - margins.right)
+        const y = height - margins.bottom + 50 - yfrac * 50
+        return {x, y}
+    }
+    const inverseTransformation = linearInverse(transformation)
+    layer.setState({
+        transformation,
+        inverseTransformation
+    })
 }
 
 interface TicksData {
@@ -164,5 +177,8 @@ const get_ticks = (t1: number, t2: number, width: number, samplerate: number): T
 }
 
 export const createTimeAxisLayer = () => {
-    return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(onPaint, onPropsChange)
+    return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(
+        onPaint,
+        onPropsChange
+    )
 }

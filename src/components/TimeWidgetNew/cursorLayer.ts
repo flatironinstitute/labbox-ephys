@@ -1,6 +1,7 @@
 import { CanvasPainter, Pen } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { Point2D, TimeWidgetLayerProps, transformPainter } from "./timeWidgetLayer"
+import { Point2D, TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
+import { transformPainter } from "./transformPainter"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
@@ -11,6 +12,9 @@ interface LayerState {
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
     const { currentTime, timeRange, samplerate, width, height, margins } = layerProps
     if (!timeRange) return
+
+    painter.wipe()
+
     if (currentTime === null) return
 
     if (currentTime < timeRange.min) return

@@ -1,7 +1,8 @@
 import { CanvasPainter, Font, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import { RectangularRegion } from "../jscommon/CanvasWidget/Geometry"
-import { Point2D, TimeWidgetLayerProps, transformPainter } from "./timeWidgetLayer"
+import { Point2D, TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
+import { transformPainter } from "./transformPainter"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
@@ -13,6 +14,7 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
     const { panels, width, height, margins } = layerProps
     if (panels.length === 0) return
 
+    painter.wipe()
     for (let i = 0; i < panels.length; i++) {
         const transformation = (p: Point2D): Point2D => {
             const xfrac = p.x

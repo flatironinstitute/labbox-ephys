@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createHitherJob } from '../../hither';
 import CalculationPool from '../../pluginComponents/common/CalculationPool';
 import Mda from '../TimeseriesView/Mda';
-import TimeseriesModel from "../TimeseriesView/TimeseriesModel";
+import TimeseriesModelNew from './TimeseriesModelNew';
 import TimeseriesWidgetNew from './TimeseriesWidgetNew';
 
 const timeseriesCalculationPool = new CalculationPool({maxSimultaneous: 4, method: 'stack'})
@@ -36,7 +36,7 @@ const TimeseriesViewNew = (props: Props) => {
     const [status, setStatus] = useState<StatusString>('waiting')
     const [statusMessage, setStatusMessage] = useState('')
     const [timeseriesInfo, setTimeseriesInfo] = useState<TimeseriesInfo | null>(null)
-    const [timeseriesModel, setTimeseriesModel] = useState<TimeseriesModel | null>(null)
+    const [timeseriesModel, setTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [widgetKey, setWidgetKey] = useState<number>(0)
 
     const effect = async () => {
@@ -55,11 +55,48 @@ const TimeseriesViewNew = (props: Props) => {
             setTimeseriesInfo(info)
             setStatusMessage('Setting timeseries model')
 
-            const model = new TimeseriesModel({
+            const model = new TimeseriesModelNew({
                 samplerate: info.samplerate,
                 num_channels: info.num_channels,
                 num_timepoints: info.num_timepoints,
                 segment_size: info.segment_size
+            });
+            model.onRequestDataSegment((ds_factor: number, segment_num: number) => {
+                ;(async () => {
+                    let result: {
+                        data_b64: string
+                    }
+                    const slot = await timeseriesCalculationPool.requestSlot();
+                    try {
+                        const resultJob = await createHitherJob(
+                            'get_timeseries_segment',
+                            {
+                                recording_object: props.recordingObject,
+                                ds_factor: ds_factor,
+                                segment_num: segment_num,
+                                segment_size: info.segment_size
+                            },
+                            {
+                                hither_config: {
+                                },
+                                job_handler_name: 'timeseries',
+                                useClientCache: true,
+                                auto_substitute_file_objects: false
+                            }
+                        );
+                        result = await resultJob.wait();
+                    }
+                    catch(err) {
+                        console.error('Error getting timeseries segment', ds_factor, segment_num);
+                        return;
+                    }
+                    finally {
+                        slot.complete();
+                    }
+                    let X = new Mda();
+                    X.setFromBase64(result.data_b64);
+                    model.setDataSegment(ds_factor, segment_num, X);
+                })()
             });
             
             setTimeseriesModel(model);
@@ -72,49 +109,7 @@ const TimeseriesViewNew = (props: Props) => {
     }
     useEffect(() => { effect(); });
 
-    const handleRequestDataSegment = async (ds_factor: number, segment_num: number) => {
-        if (!timeseriesInfo) return
-        if (!timeseriesModel) return
-        let result: {
-            data_b64: string
-        }
-        const slot = await timeseriesCalculationPool.requestSlot();
-        try {
-            const resultJob = await createHitherJob(
-                'get_timeseries_segment',
-                {
-                    recording_object: props.recordingObject,
-                    ds_factor: ds_factor,
-                    segment_num: segment_num,
-                    segment_size: timeseriesInfo.segment_size
-                },
-                {
-                    hither_config: {
-                    },
-                    job_handler_name: 'timeseries',
-                    useClientCache: true,
-                    auto_substitute_file_objects: false
-                }
-            );
-            result = await resultJob.wait();
-        }
-        catch(err) {
-            console.error('Error getting timeseries segment', ds_factor, segment_num);
-            return;
-        }
-        finally {
-            slot.complete();
-        }
-        let X = new Mda();
-        X.setFromBase64(result.data_b64);
-        timeseriesModel.setDataSegment(ds_factor, segment_num, X);
-    }
-
     if ((status === 'finished') && (timeseriesInfo) && (timeseriesModel)) {
-        // todo: important, when to do this!
-        timeseriesModel.onRequestDataSegment((ds_factor: number, segment_num: number) => {
-            handleRequestDataSegment(ds_factor, segment_num)
-        });
         if (!timeseriesModel) throw Error('Unexpected timeseriesModel is null')
         if (!timeseriesInfo) throw Error('Unexpected timeseriesInfo is null')
         return (
@@ -122,7 +117,6 @@ const TimeseriesViewNew = (props: Props) => {
                 <TimeseriesWidgetNew
                     key={widgetKey}
                     timeseriesModel={timeseriesModel}
-                    num_channels={timeseriesInfo.num_channels}
                     channel_ids={timeseriesInfo.channel_ids}
                     channel_locations={timeseriesInfo.channel_locations}
                     num_timepoints={timeseriesInfo.num_timepoints}

@@ -1,4 +1,5 @@
-import React, { FunctionComponent, ReactElement, useEffect, useRef, useState } from 'react'
+import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react'
+import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
 import TimeWidgetToolBar from '../TimeWidget/TimeWidgetToolBar'
 import { createCursorLayer } from './cursorLayer'
@@ -8,7 +9,8 @@ import Splitter from './Splitter'
 import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar, { BottomBarInfo } from './TimeWidgetBottomBar'
-import { CanvasPainterInterface, TimeWidgetLayerProps } from './timeWidgetLayer'
+import { TimeWidgetLayerProps } from './TimeWidgetLayerProps'
+import { CanvasPainterInterface } from './transformPainter'
 
 interface Props {
     panels: TimeWidgetPanel[]
@@ -25,13 +27,21 @@ interface Props {
 }
 
 export interface TimeWidgetPanel {
-    paint: (painter: CanvasPainterInterface, timeRange: {min: number, max: number}) => void
+    setTimeRange: (timeRange: {min: number, max: number}) => void
+    paint: (painter: CanvasPainterInterface) => void
     label: () => string
-    onUpdate: (callback: () => void) => void
+    register: (onUpdate: () => void) => void
 }
 
 const toolbarWidth = 50
 const spanWidgetHeight = 50
+
+const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {min: number, max: number} => {
+    return {
+        min: Math.floor(timeRange.min + shift),
+        max: Math.floor(timeRange.max + shift)
+    }
+}
 
 const TimeWidgetNew = (props: Props) => {
 
@@ -42,6 +52,40 @@ const TimeWidgetNew = (props: Props) => {
     const [bottomBarHeight, setBottomBarHeight] = useState(0)
     const [currentTime, setCurrentTime] = useState<number | null>(null)
     const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
+
+    const [layers, setLayers] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
+
+    useEffect(() => {
+        if (!layers) {
+            const mainLayer = createMainLayer()
+            const timeAxisLayer = createTimeAxisLayer()
+            const panelLabelLayer = createPanelLabelLayer()
+            const cursorLayer = createCursorLayer()
+            
+            setLayers([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
+        }
+    }, [layers])
+
+    const handleClick = useCallback(
+        (args: {timepoint: number, panelIndex: number, y: number}) => {
+            console.log(args)
+            setCurrentTime(args.timepoint)
+        },
+        []
+    )
+    const handleDrag = useCallback(
+        (args: {anchorTimepoint: number, newTimepoint: number}) => {
+            if ((timeRange) && (layers)) {
+                const newTimeRange = shiftTimeRange(timeRange, args.anchorTimepoint - args.newTimepoint)
+                setTimeRange(newTimeRange)
+                if (layers) {
+                    layers.forEach(layer => {layer.scheduleRepaint()})
+                }
+                // mainLayer.scheduleRepaint()
+            }
+        },
+        [timeRange, layers]
+    )
 
     const _zoomTime = (fac: number) => {
         // todo
@@ -54,30 +98,17 @@ const TimeWidgetNew = (props: Props) => {
         // todo
     }
 
-    const mainLayer = useRef(createMainLayer()).current
-    const timeAxisLayer = useRef(createTimeAxisLayer()).current
-    const panelLabelLayer = useRef(createPanelLabelLayer()).current
-    const cursorLayer = useRef(createCursorLayer()).current
-    
-    const layers = [mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer]
-
     useEffect(() => {
         if ((!timeRange) && (numTimepoints)) {
-            const tmax = Math.min(maxTimeSpan, numTimepoints)
+            // const tmax = Math.min(maxTimeSpan, numTimepoints)
+            const tmax = 1000
             setTimeRange({
                 min: 0,
                 max: tmax
             })
             setCurrentTime( tmax / 2 )
         }
-    })
-
-    // todo: important: figure out how to do this
-    panels.forEach(p => {
-        p.onUpdate(() => {
-            mainLayer.scheduleRepaint()
-        })
-    })
+    }, [timeRange, numTimepoints])
 
     const leftPanel = null
 
@@ -86,6 +117,10 @@ const TimeWidgetNew = (props: Props) => {
         top: 50,
         right: 50,
         bottom: 100
+    }
+
+    if (!layers) {
+        return <div></div>
     }
 
     const innerContainer = (
@@ -108,7 +143,9 @@ const TimeWidgetNew = (props: Props) => {
                     timeRange,
                     currentTime,
                     samplerate,
-                    margins: plotMargins
+                    margins: plotMargins,
+                    onClick: handleClick,
+                    onDrag: handleDrag
                 }}
             />
             {/* <CanvasWidget

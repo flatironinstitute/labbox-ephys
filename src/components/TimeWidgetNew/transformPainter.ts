@@ -1,25 +1,28 @@
-import { Brush, CanvasPainter, Font, PainterPath, Pen, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter";
-import { BaseLayerProps } from "../jscommon/CanvasWidget/CanvasWidgetLayer";
-import { RectangularRegion } from "../jscommon/CanvasWidget/Geometry";
-import { TimeWidgetPanel } from "./TimeWidgetNew";
-
-export interface TimeWidgetLayerProps extends BaseLayerProps {
-    panels: TimeWidgetPanel[]
-    currentTime: number | null
-    timeRange: {min: number, max: number} | null
-    samplerate: number
-    margins: {left: number, right: number, top: number, bottom: number}
-}
-
-export interface Point2D {
-    x: number,
-    y: number
-}
+import { Brush, CanvasPainter, Font, PainterPath, Pen, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter"
+import { getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, transformPoint } from "../jscommon/CanvasWidget/Geometry"
+import { Point2D } from "./TimeWidgetLayerProps"
 
 export interface CanvasPainterInterface {
     drawLine: (x1: number, y1: number, x2: number, y2: number, pen: Pen) => void
     drawText: (rect: RectangularRegion, alignment: TextAlignment, font: Font, pen: Pen, brush: Brush, txt: string) => void
     drawPath: (painterPath: PainterPath, pen: Pen) => void
+}
+
+export const linearInverse = (transformation: (p: Point2D) => Point2D) => {
+    const p00 = transformation({x: 0, y: 0})
+    const p10 = transformation({x: 1, y: 0})
+    const p01 = transformation({x: 0, y: 1})
+
+    const M: TransformationMatrix = [
+        [p10.x - p00.x, p01.x - p00.x, p00.x],
+        [p10.y - p00.y, p01.y - p00.y, p00.y],
+        [0, 0, 1]
+    ]
+    const Minv = getInverseTransformationMatrix(M)
+    return (P: Point2D) => {
+        const v = transformPoint(Minv, [P.x, P.y, 1])
+        return {x: v[0], y: v[1]}
+    }
 }
 
 export const transformPainter = (painter: CanvasPainter, transformation: (p: Point2D) => Point2D): CanvasPainterInterface => {

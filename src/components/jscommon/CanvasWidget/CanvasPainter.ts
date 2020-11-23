@@ -168,7 +168,7 @@ export class CanvasPainter {
     }
     wipe(): void {
         const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
-        this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr));
+        this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
