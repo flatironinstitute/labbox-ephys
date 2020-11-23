@@ -1,14 +1,14 @@
 import { Brush, CanvasPainter, Font, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { RectangularRegion } from "../jscommon/CanvasWidget/Geometry"
-import { Point2D, TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
-import { linearInverse, transformPainter } from "./transformPainter"
+import { getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, Vec2 } from "../jscommon/CanvasWidget/Geometry"
+import { funcToTransform } from "./mainLayer"
+import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
 interface LayerState {
-    transformation: (p: Point2D) => Point2D
-    inverseTransformation: (p: Point2D) => Point2D
+    transformation: TransformationMatrix
+    inverseTransformation: TransformationMatrix
 }
 
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
@@ -23,7 +23,7 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
 
     const { transformation } = state
 
-    const painter2 = transformPainter(painter, transformation)
+    const painter2 = painter.transform(transformation)
 
     painter2.drawLine(timeRange.min, 1, timeRange.max, 1, pen);
     const tickData = get_ticks(timeRange.min, timeRange.max, layerProps.width, samplerate)
@@ -44,14 +44,14 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
 const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
     const { timeRange, width, height, margins } = layerProps
     if (!timeRange) return
-    const transformation = (p: Point2D): Point2D => {
-        const xfrac = (p.x - timeRange.min) / (timeRange.max - timeRange.min)
-        const yfrac = p.y
+    const transformation = funcToTransform((p: Vec2): Vec2 => {
+        const xfrac = (p[0] - timeRange.min) / (timeRange.max - timeRange.min)
+        const yfrac = p[1]
         const x = margins.left + xfrac * (width - margins.left - margins.right)
         const y = height - margins.bottom + 50 - yfrac * 50
-        return {x, y}
-    }
-    const inverseTransformation = linearInverse(transformation)
+        return [x, y]
+    })
+    const inverseTransformation = getInverseTransformationMatrix(transformation)
     layer.setState({
         transformation,
         inverseTransformation

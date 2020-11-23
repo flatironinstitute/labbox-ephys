@@ -1,4 +1,5 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react'
+import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
 import TimeWidgetToolBar from '../TimeWidget/TimeWidgetToolBar'
@@ -10,7 +11,6 @@ import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar, { BottomBarInfo } from './TimeWidgetBottomBar'
 import { TimeWidgetLayerProps } from './TimeWidgetLayerProps'
-import { CanvasPainterInterface } from './transformPainter'
 
 interface Props {
     panels: TimeWidgetPanel[]
@@ -28,7 +28,7 @@ interface Props {
 
 export interface TimeWidgetPanel {
     setTimeRange: (timeRange: {min: number, max: number}) => void
-    paint: (painter: CanvasPainterInterface) => void
+    paint: (painter: CanvasPainter) => void
     label: () => string
     register: (onUpdate: () => void) => void
 }

@@ -1,8 +1,8 @@
 import { CanvasPainter, Font, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { RectangularRegion } from "../jscommon/CanvasWidget/Geometry"
-import { Point2D, TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
-import { transformPainter } from "./transformPainter"
+import { RectangularRegion, Vec2 } from "../jscommon/CanvasWidget/Geometry"
+import { funcToTransform } from "./mainLayer"
+import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
@@ -16,14 +16,14 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
 
     painter.wipe()
     for (let i = 0; i < panels.length; i++) {
-        const transformation = (p: Point2D): Point2D => {
-            const xfrac = p.x
-            const yfrac = (i / panels.length) + p.y * (1 / panels.length)
+        const transformation = funcToTransform((p: Vec2): Vec2 => {
+            const xfrac = p[0]
+            const yfrac = (i / panels.length) + p[1] * (1 / panels.length)
             const x = 0 + xfrac * margins.left
             const y = height - margins.bottom - yfrac * (height - margins.bottom - margins.top)
-            return {x, y}
-        }
-        const painter2 = transformPainter(painter, transformation)
+            return [x, y]
+        })
+        const painter2 = painter.transform(transformation)
         const label: string = panels[i].label()
         let rect: RectangularRegion = {xmin: 0.2, ymin: 0.2, xmax: 0.6, ymax: 0.6}
         let alignment: TextAlignment = {Horizontal: 'AlignRight', Vertical: "AlignCenter"}

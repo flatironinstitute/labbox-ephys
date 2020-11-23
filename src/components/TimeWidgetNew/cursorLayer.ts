@@ -1,7 +1,8 @@
 import { CanvasPainter, Pen } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { Point2D, TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
-import { transformPainter } from "./transformPainter"
+import { Vec2 } from "../jscommon/CanvasWidget/Geometry"
+import { funcToTransform } from "./mainLayer"
+import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
@@ -22,15 +23,15 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
 
     const pen: Pen = {color: 'blue', width: 2}
 
-    const transformation = (p: Point2D): Point2D => {
-        const xfrac = (p.x - timeRange.min) / (timeRange.max - timeRange.min)
-        const yfrac = p.y
+    const transformation = funcToTransform((p: Vec2): Vec2 => {
+        const xfrac = (p[0] - timeRange.min) / (timeRange.max - timeRange.min)
+        const yfrac = p[1]
         const x = margins.left + xfrac * (width - margins.left - margins.right)
         const y = height - margins.bottom - yfrac * (height - margins.bottom - margins.top)
-        return {x, y}
-    }
+        return [x, y]
+    })
 
-    const painter2 = transformPainter(painter, transformation)
+    const painter2 = painter.transform(transformation)
 
     painter2.drawLine(currentTime, 0, currentTime, 1, pen)
 }

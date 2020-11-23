@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { PainterPath } from '../jscommon/CanvasWidget'
+import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
 import TimeWidgetNew from '../TimeWidgetNew/TimeWidgetNew'
-import { CanvasPainterInterface } from '../TimeWidgetNew/transformPainter'
 import TimeseriesModelNew from './TimeseriesModelNew'
 
 interface Props {
@@ -31,10 +31,9 @@ class Panel {
     setTimeRange(timeRange: {min: number, max: number}) {
         this.#timeRange = timeRange
     }
-    paint(painter: CanvasPainterInterface) {
+    paint(painter: CanvasPainter) {
         if (!this.#timeRange) return
         const timeRange = this.#timeRange
-        painter.drawLine(timeRange.min, 0, timeRange.max, 1, {color: 'blue'})
         const t1 = timeRange.min
         const t2 = timeRange.max
         const data: number[] = this.timeseriesModel.getChannelData(this.channelIndex, t1, t2, 1) // todo: ds factor
