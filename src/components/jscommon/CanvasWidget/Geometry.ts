@@ -56,6 +56,12 @@ export const Vec2HToVector = (v: Vec2H): math.Matrix => {
     return matrix(v);
 }
 
+export const pointIsInEllipse = (pt: Vec2 | Vec2H, center: Vec2 | Vec2H, xRadius: number, yRadius?: number): boolean => {
+    yRadius = yRadius || xRadius
+    const dist = ((pt[0] - center[0])/xRadius)**2 + ((pt[1] - center[1])/yRadius) ** 2
+    return dist <= 1
+}
+
 export type RectangularRegion = {
     xmin: number,
     xmax: number,
@@ -110,6 +116,14 @@ export const rectangularRegionsIntersect = (r1: RectangularRegion, r2: Rectangul
 export const pointInRect = (point: Vec2, rect: RectangularRegion): boolean => {
     return rect.xmin < point[0] && point[0] < rect.xmax &&
            Math.min(rect.ymin, rect.ymax) < point[1] && point[1] < Math.max(rect.ymax, rect.ymin)
+}
+export const getBoundingBoxForEllipse = (point: Vec2, xRadius: number, yRadius: number): RectangularRegion => {
+    return {
+        xmin: point[0] - xRadius,
+        xmax: point[0] + xRadius,
+        ymin: point[1] - yRadius,
+        ymax: point[1] + yRadius
+    }
 }
 
 export type TransformationMatrix = Vec3[]

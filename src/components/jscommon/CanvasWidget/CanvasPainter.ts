@@ -2,7 +2,7 @@ import { matrix, multiply } from 'mathjs'
 import { isNumber, isString } from '../../../util/Utility'
 import { getCenter, getHeight, getWidth, isVec2, isVec3, isVec4, RectangularRegion, TransformationMatrix, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
 
-interface TextAlignment {
+export interface TextAlignment {
     Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
     Vertical: 'AlignTop' | 'AlignCenter' | 'AlignBottom'
 }
@@ -110,7 +110,7 @@ export interface Pen {
 }
 
 export interface Font {
-    "pixel-size": number,
+    pixelSize: number,
     family: 'Arial' | string
 }
 
@@ -378,7 +378,7 @@ const applyBrush = (ctx: Context2D, brush: Brush) => {
 }
 
 const applyFont = (ctx: Context2D, font: Font) => {
-    const size = font['pixel-size'] || '12'
+    const size = font.pixelSize || '12'
     const face = font.family || 'Arial'
     ctx.font = `${size}px ${face}`
 }

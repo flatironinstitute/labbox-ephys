@@ -78,6 +78,61 @@ mocha.describe('VecX Types', () => {
     // TODO: rest of these
 })
 
+describe('Miscellaneous computations', () => {
+    describe('Ellipse bounding boxes', () => {
+        it('getBoundingBoxForEllipse() returns expected value', () => {
+            const xrad = 5
+            const yrad = 3
+            const point = [4, 6]
+            const boundingRect = ut.getBoundingBoxForEllipse(point, xrad, yrad)
+            expect(ut.rectsAreEqual(boundingRect, {xmin: -1, xmax: 9, ymin: 3, ymax: 9})).to.be.true()
+        })
+    })
+    describe('Ellipse point check', () => {
+        const center = [3, 5]
+        const xRadius = 10
+        const yRadius = 3
+        const topOfYAxis = [center[0], center[1] + yRadius]
+        const bottomOfYAxis = [center[0], center[1] - yRadius]
+        const leftOfXAxis = [center[0] - xRadius, center[1]]
+        const rightOfXAxis = [center[0] + xRadius, center[1]]
+        it('pointIsInEllipse() returns true for point at ellipse center', () => {
+            expect(ut.pointIsInEllipse(center, center, xRadius, yRadius)).to.be.true()
+        })
+        it('pointIsInEllipse() returns true for points at axis extremes', () => {
+            expect(ut.pointIsInEllipse(topOfYAxis, center, xRadius, yRadius)).to.be.true()
+            expect(ut.pointIsInEllipse(bottomOfYAxis, center, xRadius, yRadius)).to.be.true()
+            expect(ut.pointIsInEllipse(rightOfXAxis, center, xRadius, yRadius)).to.be.true()
+            expect(ut.pointIsInEllipse(leftOfXAxis, center, xRadius, yRadius)).to.be.true()
+        })
+        it('pointIsInEllipse() returns false for points just past axis extremes', () => {
+            expect(ut.pointIsInEllipse([center[0], topOfYAxis[1] + 0.001], center, xRadius, yRadius)).to.be.false()
+            expect(ut.pointIsInEllipse([center[0], bottomOfYAxis[1] - 0.001], center, xRadius, yRadius)).to.be.false()
+            expect(ut.pointIsInEllipse([rightOfXAxis[0] + 0.001, center[1]], center, xRadius, yRadius)).to.be.false()
+            expect(ut.pointIsInEllipse([leftOfXAxis[0] - 0.001, center[1]], center, xRadius, yRadius)).to.be.false()
+        })
+        // by some pencil math, if x = 0, we should be in the ellipse from a little under y=2.139
+        // to a little over 7.861. Let's confirm those points and the ones just outside them.
+        it('pointIsInEllipse() returns correct values for off-axis points within ellipse', () => {
+            expect(ut.pointIsInEllipse([0, 2.139], center, xRadius, yRadius)).to.be.true()
+            expect(ut.pointIsInEllipse([0, 7.861], center, xRadius, yRadius)).to.be.true()
+            expect(ut.pointIsInEllipse([0, 2.138], center, xRadius, yRadius)).to.be.false()
+            expect(ut.pointIsInEllipse([0, 7.862], center, xRadius, yRadius)).to.be.false()
+        })
+        it('pointIsInEllipse() handles circles correctly', () => {
+            const radius = xRadius
+            expect(ut.pointIsInEllipse([center[0] + radius, center[1]], center, radius)).to.be.true()
+            expect(ut.pointIsInEllipse([center[0] - radius, center[1]], center, radius)).to.be.true()
+            expect(ut.pointIsInEllipse([center[0], center[1] + radius], center, radius)).to.be.true()
+            expect(ut.pointIsInEllipse([center[0], center[1] - radius], center, radius)).to.be.true()
+            expect(ut.pointIsInEllipse([center[0] + radius + .001, center[1]], center, radius)).to.be.false()
+            expect(ut.pointIsInEllipse([center[0] - radius - .001, center[1]], center, radius)).to.be.false()
+            expect(ut.pointIsInEllipse([center[0], center[1] + radius + .001], center, radius)).to.be.false()
+            expect(ut.pointIsInEllipse([center[0], center[1] - radius - .001], center, radius)).to.be.false()
+        })
+    })
+})
+
 describe('RectangularRegion functionality', () => {
     const region = { xmin: 0, xmax: 10, ymin: 6, ymax: 12 }
     describe('Type guard', () => {
@@ -156,8 +211,7 @@ describe('RectangularRegion functionality', () => {
             expect(ut.rectangularRegionsIntersect(region, belowRegion)).to.be.false()
         })
     })
-    describe('Point intersectino', () => {
-        const rect = { xmin: 0, xmax: 5, ymin: 0, ymax: 10 }
+    describe('Point intersection', () => {        const rect = { xmin: 0, xmax: 5, ymin: 0, ymax: 10 }
         it('pointInRect() returns true for point in the region', () => {
             const pt = [2, 2]
             expect(ut.pointInRect(pt, rect)).to.be.true()

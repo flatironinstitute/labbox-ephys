@@ -65,7 +65,6 @@ export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, 
         ctrl: e.ctrlKey,
         shift: e.shiftKey,
     }
-    if (e.shiftKey) console.log('Got one!')
     return {point: [point[0], point[1]], mouseButton: e.buttons, modifiers: modifiers, type: t}
 }
 
@@ -110,8 +109,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#transformMatrix = matrix
         this.#inverseMatrix = getInverseTransformationMatrix(matrix)
     }
-    getProps() {    // TODO: Probably delete this?
-        return this.#props ? this.#props : {} as BaseLayerProps
+    getProps() {
+        return this.#props ? this.#props : {} as LayerProps
     }
     updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
         this.#props = p
@@ -134,7 +133,6 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#transformMatrix = t
         this.#inverseMatrix = getInverseTransformationMatrix(t)
     }
-    // TODO: Should probably get rid of this?
     getCoordRange() {
         return this.#coordRange
     }
