@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useReducer } from 'react'
-import { BaseLayerProps, CanvasWidgetLayer, ClickEventFromMouseEvent, ClickEventType } from './CanvasWidgetLayer'
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { BaseLayerProps, CanvasWidgetLayer, ClickEventFromMouseEvent, ClickEventType, KeyEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
 // This class serves three purposes:
@@ -78,46 +78,64 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 
 interface Props<T extends BaseLayerProps> {
     layers: CanvasWidgetLayer<T, any>[],
+    preventDefaultWheel?: boolean // whether to prevent default behavior of mouse wheel
     widgetProps: T
 }
 
 const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     const divRef = React.useRef<HTMLDivElement>(null)
-    const [state, dispatch] = useReducer(dragReducer, {
-        dragging: false,
-        dragAnchor: undefined,
-        dragPosition: undefined,
-        dragRect: undefined
+    const [dragState, dispatchDrag] = useReducer(dragReducer, {
+        dragging: false
     })
+    const [prevDivElement, setPrevDivElement] = useState<HTMLDivElement | null>(null)
+    const [prevDragState, setPrevDragState] = useState<DragState | null>(null)
+    const [prevWidth, setPrevWidth] = useState<number>(0)
+    const [prevHeight, setPrevHeight] = useState<number>(0)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const [prevCanvasRef, setPrevCanvasRef] = useState<HTMLCanvasElement | null>(null)
 
     useEffect(() => {
-        // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
+        const divElement = divRef.current
         props.layers.forEach((L, index) => {
-            // /// TODO: figure out what to do here
-            // console.log(`I am layer ${index} and my props were ${JSON.stringify(props)}`)
-            const divElement = divRef.current
-            if (divElement) {
+            L.updateProps(props.widgetProps)
+            if ((divElement) && (divElement !== prevDivElement)) {
+                // only repaint if we have a new div element
                 const canvasElement = divElement.children[index]
                 L.resetCanvasElement(canvasElement)
-                L.updateProps(props.widgetProps)
-                L.scheduleRepaint() // The dependency list means this only gets called if props/canvas changed.
-                // In those cases, we definitely need to repaint, so scheduling it should be safe.
+                L.scheduleRepaint()
+            }
+            if ((props.widgetProps.width !== prevWidth) || (props.widgetProps.height !== prevHeight)) {
+                // repaint if dimensions have changed
+                L.scheduleRepaint()
             }
         })
-    }, [props, divRef])
-
-    const _dispatchDragEvents = useCallback((released: boolean) => {
-        if (!state.dragRect) return
-        const pixelDragRect = {
-            xmin: state.dragRect[0],
-            xmax: state.dragRect[0] + state.dragRect[2],
-            ymin: state.dragRect[1] + state.dragRect[3],
-            ymax: state.dragRect[1]
+        if ((dragState) && (dragState !== prevDragState) && (dragState.dragRect)) {
+            // The drag state has changed, so we'll call the handleDrag on the layers
+            const pixelDragRect = {
+                xmin: dragState.dragRect[0],
+                xmax: dragState.dragRect[0] + dragState.dragRect[2],
+                ymin: dragState.dragRect[1] + dragState.dragRect[3],
+                ymax: dragState.dragRect[1]
+            }
+            for (let l of props.layers) {
+                l.handleDrag(pixelDragRect, !dragState.dragging, dragState.shift, dragState.dragAnchor, dragState.dragPosition)
+            }
         }
-        for (let l of props.layers) {
-            l.handleDrag(pixelDragRect, released, state.shift, state.dragAnchor, state.dragPosition)
+        setPrevDivElement(divElement)
+        setPrevDragState(dragState)
+        setPrevWidth(props.widgetProps.width)
+        setPrevHeight(props.widgetProps.height)
+        if (props.preventDefaultWheel) {
+            const c = canvasRef.current
+            if ((c) && (c !== prevCanvasRef)) {
+                // see: https://github.com/facebook/react/issues/5845#issuecomment-492955321
+                c.addEventListener("wheel", (event) => {
+                    event.preventDefault()
+                })
+                setPrevCanvasRef(c)
+            }
         }
-    }, [props.layers, state.dragAnchor, state.dragRect, state.dragPosition, state.shift])
+    }, [canvasRef, prevCanvasRef, props, divRef, prevDivElement, setPrevDivElement, dragState, prevDragState, prevWidth, prevHeight])
 
     const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of props.layers) {
@@ -127,26 +145,21 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { point, mouseButton, modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Move)
-        dispatch({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
-        _dispatchDragEvents(false)
+        dispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
         _dispatchDiscreteMouseEvents(e, ClickEventType.Move)
-    }, [_dispatchDragEvents, _dispatchDiscreteMouseEvents])
+    }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { point, modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Press)
         _dispatchDiscreteMouseEvents(e, ClickEventType.Press)
-        dispatch({ type: COMPUTE_DRAG, mouseButton: true, point: point, shift: modifiers.shift || false})
+        dispatchDrag({ type: COMPUTE_DRAG, mouseButton: true, point: point, shift: modifiers.shift || false})
     }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Release)
         _dispatchDiscreteMouseEvents(e, ClickEventType.Release)
-        if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
-            // No need to recompute the dragRect--we already computed it on mouse move
-            _dispatchDragEvents(true)
-        }
-        dispatch({ type: END_DRAG, mouseButton: false, point: [0, 0], shift: modifiers.shift || false }) // resets drag rectangle. point is ignored.
-    }, [state.dragging, state.dragAnchor, state.dragPosition, state.dragRect, _dispatchDragEvents, _dispatchDiscreteMouseEvents])
+        dispatchDrag({ type: END_DRAG, mouseButton: false, point: [0, 0], shift: modifiers.shift || false }) // resets drag rectangle. point is ignored.
+    }, [_dispatchDiscreteMouseEvents])
 
     const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         // todo
@@ -157,17 +170,32 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [])
     // Similar for mousewheel, etc.
 
+    const _handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+        for (let l of props.layers) {
+            l.handleWheelEvent(e)
+        }
+    }, [props])
+
+    const _handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+        for (let l of props.layers) {
+            if (l.handleKeyboardEvent(KeyEventType.Press, e) === false) {
+                e.preventDefault()
+            }
+        }
+    }, [props])
+
     return (
         <div
             ref={divRef}
             style={{position: 'relative', width: props.widgetProps.width, height: props.widgetProps.height, left: 0, top: 0}}
             // style={style0}
-            // onKeyDown={(evt) => {this.props.onKeyPress && this.props.onKeyPress(evt);}}
+            onKeyDown={_handleKeyPress}
             tabIndex={0} // tabindex needed to handle keypress
         >
             {
                 props.layers.map((L, index) => (
                     <canvas
+                        ref={canvasRef}
                         key={index}
                         style={{position: 'absolute', left: 0, top: 0}}
                         width={props.widgetProps.width}
@@ -177,6 +205,7 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
                         onMouseUp={_handleMouseUp}
                         onMouseEnter={_handleMouseEnter}
                         onMouseLeave={_handleMouseLeave}
+                        onWheel={_handleWheel}
                     />
                 ))
             }

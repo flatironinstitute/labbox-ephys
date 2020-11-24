@@ -80,8 +80,6 @@ const fitElectrodesToCanvas = (canvasAspect: number, electrodes: Electrode[]) =>
     // set margin to edge of bounding box to equal the same as the least distance b/w any pair of electrodes
     // Note: Might want to set a cap on that, if we wind up with very sparse probes (unlikely, but possible)
     const margin = radius / 0.4
-//    const radius = computeRadius(electrodes, margin)
-//    const margin = 0.05 * Math.min(getWidth(baseElectrodeBox), getHeight(baseElectrodeBox))
     
     // If aspect ratio of the canvas and the electrode bounding box don't match, then transpose the electrodes
     // so they fit better in the canvas (i.e. don't draw a portrait probe in a landscape canvas.)
@@ -109,8 +107,6 @@ const computeRadius = (electrodes: Electrode[]): number => {
     // how big should each electrode dot be? Really depends on how close
     // the dots are to each other. Let's find the closest pair of dots and
     // set the radius to 40% of the distance between them.
-    // a prior plan: include margin to edge of bounding box as a parameter & use that as a starting guess.
-    // let leastNorm = margin // use the margin (distance between edge points and edge of canvas) as an initial guess
     let leastNorm = Number.MAX_VALUE
     electrodes.forEach((point) => {
         electrodes.forEach((otherPoint) => {
@@ -119,8 +115,7 @@ const computeRadius = (electrodes: Electrode[]): number => {
             leastNorm = Math.min(leastNorm, dist as number)
         })
     })
-    // const radius = Math.min(0.4 * leastNorm, 40) // set hard cap of 40-pixel radius...?
-    // (remember these numbers are in electrode-space coordinates)
+    // (might set a hard cap, but remember these numbers are in electrode-space coordinates)
     const radius = 0.4 * leastNorm
     return radius
 }
@@ -202,8 +197,8 @@ const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerPr
     const { electrodeBoundingBoxes } = layer.getState()
     const hits = electrodeBoundingBoxes.filter((r) => rectangularRegionsIntersect(r.br, drag.dragRect))
     if (drag.released) {
-        const currentSelected = drag.shift ? layer.getProps().selectedElectrodeIds : []
-        layer.getProps().onSelectedElectrodeIdsChanged([...currentSelected, ...hits.map(r => r.id)])
+        const currentSelected = drag.shift ? layer.getProps()?.selectedElectrodeIds || [] : []
+        layer.getProps()?.onSelectedElectrodeIdsChanged([...currentSelected, ...hits.map(r => r.id)])
         layer.setState({...layer.getState(), dragRegion: null, draggedElectrodeIds: []})
     } else {
         layer.setState({...layer.getState(), dragRegion: drag.dragRect, draggedElectrodeIds: hits.map(r => r.id)})
@@ -219,7 +214,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     if (hitIds.length === 0) {
         if (!(event.modifiers.ctrl || event.modifiers.shift || layer.getState().dragRegion)) {
             // simple-click that doesn't select anything should deselect everything. Shift- or Ctrl-clicks on empty space do nothing.
-            layer.getProps().onSelectedElectrodeIdsChanged([])
+            layer.getProps()?.onSelectedElectrodeIdsChanged([])
         }
         return
     }
@@ -227,7 +222,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     // Since we've already handled the case where it's 0, now it must be 1.
     const hitId = hitIds[0]
     
-    const currentSelection = layer.getProps().selectedElectrodeIds
+    const currentSelection = layer.getProps()?.selectedElectrodeIds || []
     const newSelection = event.modifiers.ctrl  // ctrl-click: toggle state of clicked item
                             ? currentSelection.includes(hitId)
                                 ? currentSelection.filter(id => id !== hitId)
@@ -235,7 +230,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
                             : event.modifiers.shift
                                 ? [...currentSelection, hitId] // shift-click: add selected item unconditionally
                                 : [hitId] // simple click: clear all selections except clicked item
-    layer.getProps().onSelectedElectrodeIdsChanged(newSelection)
+    layer.getProps()?.onSelectedElectrodeIdsChanged(newSelection)
     layer.scheduleRepaint()
 }
 

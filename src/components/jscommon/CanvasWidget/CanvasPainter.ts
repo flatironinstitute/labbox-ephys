@@ -1,6 +1,6 @@
 import { matrix, multiply } from 'mathjs'
 import { isNumber, isString } from '../../../util/Utility'
-import { getCenter, getHeight, getWidth, isVec2, isVec3, isVec4, RectangularRegion, TransformationMatrix, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
+import { getCenter, getHeight, getWidth, isVec2, isVec3, isVec4, RectangularRegion, toTransformationMatrix, TransformationMatrix, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
 
 export interface TextAlignment {
     Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
@@ -135,6 +135,12 @@ export class CanvasPainter {
         this.#fullDimensions = fullDimensions
         this.#transformMatrix = transformMatrix
     }
+    // Return a new, transformed painter
+    transform(m: TransformationMatrix) {
+        // todo: figure out whether this should be left or right-multiplication
+        const m2 = toTransformationMatrix(multiply(matrix(this.#transformMatrix), matrix(m)))
+        return new CanvasPainter(this.#context2D, transformRect(m, this.#fullDimensions), m2)
+    }
     // TODO: Delete these default methods?
     getDefaultPen() {
         return { color: 'black' }
@@ -168,7 +174,7 @@ export class CanvasPainter {
     }
     wipe(): void {
         const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
-        this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr));
+        this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {

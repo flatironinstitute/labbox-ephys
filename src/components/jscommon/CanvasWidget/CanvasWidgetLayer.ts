@@ -18,6 +18,20 @@ export interface ClickEvent {
     type: ClickEventType
 }
 
+export interface WheelEvent {
+    deltaY: number
+}
+
+export interface KeyboardEvent {
+    type: KeyEventType,
+    keyCode: number
+}
+
+export enum KeyEventType {
+    Press = 'PRESS',
+    Release = 'RELEASE'
+}
+
 export interface ClickEventModifiers {
     alt?: boolean,
     ctrl?: boolean,
@@ -47,10 +61,14 @@ export interface DragEvent {
 // to values outside their own scope.
 export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
 export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: DragEvent) => void
+export type WheelEventHandler = (event: WheelEvent, layer: CanvasWidgetLayer<any, any>) => void
+export type KeyboardEventHandler = (event: KeyboardEvent, layer: CanvasWidgetLayer<any, any>) => boolean // return false to prevent default
 
 export interface EventHandlerSet {
-    discreteMouseEventHandlers: DiscreteMouseEventHandler[],
-    dragHandlers:   DragHandler[]
+    discreteMouseEventHandlers?: DiscreteMouseEventHandler[],
+    dragHandlers?:   DragHandler[],
+    wheelEventHandlers?: WheelEventHandler[]
+    keyboardEventHandlers?: KeyboardEventHandler[]
 }
 
 export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, t: ClickEventType, i?: TransformationMatrix): ClickEvent => {
@@ -68,6 +86,19 @@ export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, 
     return {point: [point[0], point[1]], mouseButton: e.buttons, modifiers: modifiers, type: t}
 }
 
+export const formWheelEvent = (e: React.WheelEvent<HTMLCanvasElement>): WheelEvent => {
+    return {
+        deltaY: e.deltaY
+    }
+}
+
+export const formKeyboardEvent = (type: KeyEventType, e: React.KeyboardEvent<HTMLDivElement>): KeyboardEvent => {
+    return {
+        type,
+        keyCode: e.keyCode
+    }
+}
+
 export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends object> {
     #onPaint: OnPaint<LayerProps, State>
     #onPropsChange: OnPropsChange<LayerProps>
@@ -79,7 +110,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #pixelHeight: number
     #canvasElement: any | null = null
 
-    #coordRange: RectangularRegion
+    #coordRange: RectangularRegion | null
     #transformMatrix: TransformationMatrix
     #inverseMatrix: TransformationMatrix
 
@@ -89,6 +120,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     #discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
     #dragHandlers: DragHandler[] = []
+    #wheelEventHandlers: WheelEventHandler[] = []
+    #keyboardEventHandlers: KeyboardEventHandler[] = []
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
         this.#state = null
@@ -97,9 +130,11 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#onPropsChange = onPropsChange
         this.#discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
         this.#dragHandlers = handlers?.dragHandlers || []
+        this.#wheelEventHandlers = handlers?.wheelEventHandlers || []
+        this.#keyboardEventHandlers = handlers?.keyboardEventHandlers || []
         this.#pixelWidth = -1
         this.#pixelHeight = -1
-        this.#coordRange = {xmin: 0, ymin: 0, xmax: 1, ymax: 1}
+        this.#coordRange = null
         this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
         this.#inverseMatrix = this.#transformMatrix
     }
@@ -110,7 +145,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#inverseMatrix = getInverseTransformationMatrix(matrix)
     }
     getProps() {
-        return this.#props ? this.#props : {} as LayerProps
+        return this.#props ? this.#props as LayerProps : null
     }
     updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
         this.#props = p
@@ -134,7 +169,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#inverseMatrix = getInverseTransformationMatrix(t)
     }
     getCoordRange() {
-        return this.#coordRange
+        const coordRange = this.#coordRange !== null ? this.#coordRange : {xmin: 0, xmax: this.#pixelWidth, ymin: 0, ymax: this.#pixelHeight}
+        return coordRange
     }
     // TODO: Again should definitely be computed as part of an update method on transform matrix
     setCoordRange(r: RectangularRegion) {
@@ -182,18 +218,17 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._doRepaint()
     }
     _doRepaint = () => {
-        this.#lastRepaintTimestamp = Number(new Date())
-
         const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
         if (!ctx) {
             this.#repaintNeeded = true
             return
         }
         this.#repaintNeeded = false
-        let painter = new CanvasPainter(ctx, this.#coordRange, this.#transformMatrix)
-        painter.clear()
+        let painter = new CanvasPainter(ctx, this.getCoordRange(), this.#transformMatrix)
+        // painter.clear()
         this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
-        this.unclipToSelf(ctx)
+        // this.unclipToSelf(ctx)
+        this.#lastRepaintTimestamp = Number(new Date())
     }
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {
@@ -201,7 +236,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         const click = ClickEventFromMouseEvent(e, type, this.#inverseMatrix)
         // Don't respond to events outside the layer
         // NB possible minor efficiency gain if we cache our bounding coordinates in pixelspace.
-        if (!pointInRect(click.point, this.#coordRange)) return
+        if (!pointInRect(click.point, this.getCoordRange())) return
         for (let fn of this.#discreteMouseEventHandlers) {
             fn(click, this)
         }
@@ -210,12 +245,31 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     handleDrag(pixelDragRect: RectangularRegion, released: boolean, shift?: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
         if (this.#dragHandlers.length === 0) return
         const coordDragRect = transformRect(this.#inverseMatrix, pixelDragRect)
-        if (!rectangularRegionsIntersect(coordDragRect, this.#coordRange)) return // short-circuit if event is nothing to do with us
+        if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
         // Note: append a 1 to make the Vec2s into Vec2Hs
         const coordAnchor = pixelAnchor ? transformPoint(this.#inverseMatrix, [...pixelAnchor, 1]) : undefined
         const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined
         for (let fn of this.#dragHandlers) {
             fn(this, {dragRect: coordDragRect, released: released, shift: shift || false, anchor: coordAnchor, position: coordPosition})
         }
+    }
+
+    handleWheelEvent(e: React.WheelEvent<HTMLCanvasElement>) {
+        if (this.#wheelEventHandlers.length === 0) return
+        const wheelEvent = formWheelEvent(e)
+        for (let fn of this.#wheelEventHandlers) {
+            fn(wheelEvent, this)
+        }
+    }
+
+    handleKeyboardEvent(type: KeyEventType, e: React.KeyboardEvent<HTMLDivElement>): boolean {
+        if (this.#keyboardEventHandlers.length === 0) return true
+        const keyboardEvent = formKeyboardEvent(type, e)
+        let passEventBackToUi = true
+        for (let fn of this.#keyboardEventHandlers) {
+            if (fn(keyboardEvent, this) === false)
+                passEventBackToUi = false
+        }
+        return passEventBackToUi
     }
 }
