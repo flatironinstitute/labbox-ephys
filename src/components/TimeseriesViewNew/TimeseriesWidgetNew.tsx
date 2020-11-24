@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { PainterPath } from '../jscommon/CanvasWidget'
 import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
-import TimeWidgetNew from '../TimeWidgetNew/TimeWidgetNew'
+import TimeWidgetNew, { TimeWidgetAction } from '../TimeWidgetNew/TimeWidgetNew'
 import TimeseriesModelNew from './TimeseriesModelNew'
 
 interface Props {
@@ -16,9 +17,18 @@ interface Props {
     leftPanels: any[]
 }
 
+const channelColors = [
+    'rgb(80,80,80)',
+    'rgb(104,42,42)',
+    'rgb(42,104,42)',
+    'rgb(42,42,152)'
+]
+
+
 class Panel {
     #updateHandler: (() => void) | null = null
     #timeRange: {min: number, max: number} | null = null
+    #yScale: number = 1
     constructor(private channelIndex: number, private channelId: number, private timeseriesModel: TimeseriesModelNew, private y_offset: number, private y_scale_factor: number) {
         timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
             const timeRange = this.#timeRange
@@ -30,6 +40,11 @@ class Panel {
     }
     setTimeRange(timeRange: {min: number, max: number}) {
         this.#timeRange = timeRange
+    }
+    setYScale(s: number) {
+        if (this.#yScale === s) return
+        this.#yScale = s
+        this.#updateHandler && this.#updateHandler()
     }
     paint(painter: CanvasPainter) {
         const timeRange = this.#timeRange
@@ -48,7 +63,7 @@ class Panel {
         for (let tt = t1; tt < t2; tt++) {
             let val = data[tt - t1];
             if (!isNaN(val)) {
-                let val2 = ((val + this.y_offset) * this.y_scale_factor) / 2 + 0.5; // to
+                let val2 = ((val + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5; // to
                 if (penDown) {
                     pp.lineTo(tt, val2);    
                 }
@@ -61,7 +76,8 @@ class Panel {
                 penDown = false;
             }
         }
-        const pen = {color: 'purple'}
+        const color = channelColors[this.channelIndex % channelColors.length]
+        const pen = {color, width: 1}
         painter.drawPath(pp, pen)
     }
     label() {
@@ -80,12 +96,21 @@ const TimeseriesWidgetNew = (props: Props) => {
     const [internalTimeseriesModel, setInternalTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [currentTime, setCurrentTime] = useState<number | null>(null)
     const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
+    const [yScale, setYScale] = useState<number>(1)
+    const [prevYScale, setPrevYScale] = useState<number>(1)
     const _handleCurrentTimeChanged = useCallback((t: number | null) => {
         setCurrentTime(t)
     }, [setCurrentTime])
     const _handleTimeRangeChanged = useCallback((tr: {min: number, max: number} | null) => {
         setTimeRange(tr)
     }, [setTimeRange])
+    const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
+    const _handleScaleAmplitudeUp = useCallback(() => {
+        setYScale(yScale * 1.15)
+    }, [setYScale, yScale])
+    const _handleScaleAmplitudeDown = useCallback(() => {
+        setYScale(yScale / 1.15)
+    }, [setYScale, yScale])
 
     useEffect(() => {
         if (timeseriesModel !== internalTimeseriesModel) {
@@ -99,12 +124,42 @@ const TimeseriesWidgetNew = (props: Props) => {
             setPanels(panels0)
             setInternalTimeseriesModel(timeseriesModel)
         }
-    }, [channel_ids, internalTimeseriesModel, timeseriesModel, setPanels, setInternalTimeseriesModel, y_offsets, y_scale_factor])
+        if (actions === null) {
+            const a: TimeWidgetAction[] = [
+                {
+                    type: 'button',
+                    callback: _handleScaleAmplitudeUp,
+                    title: 'Scale amplitude up [up arrow]',
+                    icon: <FaArrowUp />,
+                    key: 38
+                },
+                {
+                    type: 'button',
+                    callback: _handleScaleAmplitudeDown,
+                    title: 'Scale amplitude down [down arrow]',
+                    icon: <FaArrowDown />,
+                    key: 40
+                },
+                {
+                    type: 'divider'
+                }
+            ]
+            setActions(a)
+        }
+        if (yScale !== prevYScale) {
+            if (panels) {
+                panels.forEach(p => {
+                    p.setYScale(yScale)
+                })
+            }
+        }
+        setPrevYScale(yScale)
+    }, [channel_ids, internalTimeseriesModel, timeseriesModel, setPanels, setInternalTimeseriesModel, y_offsets, y_scale_factor, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp, actions])
 
     return (
         <TimeWidgetNew
             panels={panels}
-            actions={[]}
+            actions={actions || []}
             width={width}
             height={height}
             samplerate={timeseriesModel.getSampleRate()}

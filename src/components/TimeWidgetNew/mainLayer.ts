@@ -18,7 +18,7 @@ interface LayerState {
 }
 
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
-    const { panels, timeRange, width, height, margins } = layerProps
+    const { panels, timeRange } = layerProps
     if (!timeRange) return
     if (panels.length === 0) return
 

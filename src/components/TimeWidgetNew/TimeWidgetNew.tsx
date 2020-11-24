@@ -2,7 +2,6 @@ import React, { FunctionComponent, ReactElement, useCallback, useEffect, useStat
 import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
-import TimeWidgetToolBar from '../TimeWidget/TimeWidgetToolBar'
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
 import { createPanelLabelLayer } from './panelLabelLayer'
@@ -11,10 +10,24 @@ import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar, { BottomBarInfo } from './TimeWidgetBottomBar'
 import { TimeWidgetLayerProps } from './TimeWidgetLayerProps'
+import TimeWidgetToolbarNew from './TimeWidgetToolbarNew'
+
+interface ActionItem {
+    type: 'button'
+    callback: () => void
+    title: string
+    icon: any
+    key: number
+}
+interface DividerItem {
+    type: 'divider'
+}
+
+export type TimeWidgetAction = ActionItem | DividerItem
 
 interface Props {
     panels: TimeWidgetPanel[]
-    actions: any[]
+    actions: TimeWidgetAction[]
     width: number
     height: number
     samplerate: number
@@ -92,8 +105,7 @@ const TimeWidgetNew = (props: Props) => {
     )
     const handleDrag = useCallback(
         (args: {newTimeRange: {min: number, max: number}}) => {
-            if ((timeRange) && (layers)) {
-                // const newTimeRange = shiftTimeRange(timeRange, args.anchorTimepoint - args.newTimepoint)
+            if (timeRange) {
                 setTimeRange(args.newTimeRange)
             }
         },
@@ -101,14 +113,32 @@ const TimeWidgetNew = (props: Props) => {
     )
 
     const _zoomTime = (fac: number) => {
-        // todo
+        if (timeRange) {
+            let t: number
+            if ((currentTime === null) || (currentTime < timeRange.min))
+                t = timeRange.min
+            else if (currentTime > timeRange.max)
+                t = timeRange.max
+            else
+                t = currentTime
+            const newTimeRange = zoomTimeRange(timeRange, fac, t)
+            setTimeRange(newTimeRange)
+        }
     }
 
-    const _handleKeyLeft = () => {
-        // todo
+    const _handleShiftTimeLeft = () => {
+        if (timeRange) {
+            const span = timeRange.max - timeRange.min
+            const newTimeRange = shiftTimeRange(timeRange, -span * 0.2)
+            setTimeRange(newTimeRange)
+        }
     }
-    const _handleKeyRight = () => {
-        // todo
+    const _handleShiftTimeRight = () => {
+        if (timeRange) {
+            const span = timeRange.max - timeRange.min
+            const newTimeRange = shiftTimeRange(timeRange, +span * 0.2)
+            setTimeRange(newTimeRange)
+        }
     }
 
     useEffect(() => {
@@ -189,14 +219,14 @@ const TimeWidgetNew = (props: Props) => {
             width={width}
             height={height}
         >
-            <TimeWidgetToolBar
+            <TimeWidgetToolbarNew
                 width={toolbarWidth}
                 height={height}
                 top={spanWidgetHeight}
                 onZoomIn={() => {_zoomTime(1.15)}}
                 onZoomOut={() => {_zoomTime(1 / 1.15)}}
-                onShiftTimeLeft={() => {_handleKeyLeft()}}
-                onShiftTimeRight={() => {_handleKeyRight()}}
+                onShiftTimeLeft={() => {_handleShiftTimeLeft()}}
+                onShiftTimeRight={() => {_handleShiftTimeRight()}}
                 customActions={actions}
             />
             <Splitter
@@ -215,6 +245,21 @@ const TimeWidgetNew = (props: Props) => {
             </Splitter>
         </OuterContainer>
     );
+}
+
+const zoomTimeRange = (timeRange: {min: number, max: number}, factor: number, anchorTime: number): {min: number, max: number} => {
+    const oldT1 = timeRange.min
+    const oldT2 = timeRange.max
+    const t1 = anchorTime + (oldT1 - anchorTime) / factor
+    const t2 = anchorTime + (oldT2 - anchorTime) / factor
+    return {min: Math.floor(t1), max: Math.floor(t2)}
+}
+
+const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {min: number, max: number} => {
+    return {
+        min: Math.floor(timeRange.min + shift),
+        max: Math.floor(timeRange.max + shift)
+    }
 }
 
 interface InnerContainerProps {
