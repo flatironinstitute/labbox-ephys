@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { PainterPath } from '../jscommon/CanvasWidget'
 import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
@@ -88,15 +88,27 @@ class Panel {
     }
 }
 
-const TimeseriesWidgetNew = (props: Props) => {
+interface YScaleState {
+    yScale: number
+}
 
+interface YScaleAction {
+    scaleFactor: number
+}
+
+const yScaleReducer = (state: YScaleState, action: YScaleAction): YScaleState => {
+    return {
+        yScale: state.yScale * action.scaleFactor
+    }
+}
+
+const TimeseriesWidgetNew = (props: Props) => {
     const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids } = props
-    
     const [panels, setPanels] = useState<Panel[]>([])
-    const [internalTimeseriesModel, setInternalTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
+    const [prevTimeseriesModel, setPrevTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [currentTime, setCurrentTime] = useState<number | null>(null)
     const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
-    const [yScale, setYScale] = useState<number>(1)
+    const [yScaleState, yScaleDispatch] = useReducer(yScaleReducer, {yScale: 1})
     const [prevYScale, setPrevYScale] = useState<number>(1)
     const _handleCurrentTimeChanged = useCallback((t: number | null) => {
         setCurrentTime(t)
@@ -106,14 +118,14 @@ const TimeseriesWidgetNew = (props: Props) => {
     }, [setTimeRange])
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {
-        setYScale(yScale * 1.15)
-    }, [setYScale, yScale])
+        yScaleDispatch({scaleFactor: 1.15})
+    }, [yScaleDispatch])
     const _handleScaleAmplitudeDown = useCallback(() => {
-        setYScale(yScale / 1.15)
-    }, [setYScale, yScale])
+        yScaleDispatch({scaleFactor: 1 / 1.15})
+    }, [yScaleDispatch])
 
     useEffect(() => {
-        if (timeseriesModel !== internalTimeseriesModel) {
+        if (timeseriesModel !== prevTimeseriesModel) {
             // we only want to do this once (as a function of the timeseries model)
             const panels0: Panel[] = []
             for (let ch = 0; ch < timeseriesModel.numChannels(); ch ++) {
@@ -122,8 +134,10 @@ const TimeseriesWidgetNew = (props: Props) => {
                 panels0.push(p)
             }
             setPanels(panels0)
-            setInternalTimeseriesModel(timeseriesModel)
+            setPrevTimeseriesModel(timeseriesModel)
         }
+    }, [channel_ids, setPanels, setPrevTimeseriesModel, timeseriesModel, prevTimeseriesModel, y_offsets, y_scale_factor])
+    useEffect(() => {
         if (actions === null) {
             const a: TimeWidgetAction[] = [
                 {
@@ -146,15 +160,17 @@ const TimeseriesWidgetNew = (props: Props) => {
             ]
             setActions(a)
         }
-        if (yScale !== prevYScale) {
+    }, [actions, setActions, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp])
+    useEffect(() => {
+        if (yScaleState.yScale !== prevYScale) {
             if (panels) {
                 panels.forEach(p => {
-                    p.setYScale(yScale)
+                    p.setYScale(yScaleState.yScale)
                 })
             }
+            setPrevYScale(yScaleState.yScale)
         }
-        setPrevYScale(yScale)
-    }, [channel_ids, internalTimeseriesModel, timeseriesModel, setPanels, setInternalTimeseriesModel, y_offsets, y_scale_factor, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp, actions])
+    }, [yScaleState, setPrevYScale, prevYScale, panels])
 
     return (
         <TimeWidgetNew

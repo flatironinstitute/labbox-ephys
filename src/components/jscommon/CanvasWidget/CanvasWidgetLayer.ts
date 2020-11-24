@@ -18,6 +18,10 @@ export interface ClickEvent {
     type: ClickEventType
 }
 
+export interface WheelEvent {
+    deltaY: number
+}
+
 export interface ClickEventModifiers {
     alt?: boolean,
     ctrl?: boolean,
@@ -47,10 +51,12 @@ export interface DragEvent {
 // to values outside their own scope.
 export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
 export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: DragEvent) => void
+export type WheelEventHandler = (event: WheelEvent, layer: CanvasWidgetLayer<any, any>) => void
 
 export interface EventHandlerSet {
-    discreteMouseEventHandlers: DiscreteMouseEventHandler[],
-    dragHandlers:   DragHandler[]
+    discreteMouseEventHandlers?: DiscreteMouseEventHandler[],
+    dragHandlers?:   DragHandler[],
+    wheelHandlers?: WheelEventHandler[]
 }
 
 export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, t: ClickEventType, i?: TransformationMatrix): ClickEvent => {
@@ -67,6 +73,12 @@ export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, 
     }
     if (e.shiftKey) console.log('Got one!')
     return {point: [point[0], point[1]], mouseButton: e.buttons, modifiers: modifiers, type: t}
+}
+
+export const formWheelEvent = (e: React.WheelEvent<HTMLCanvasElement>): WheelEvent => {
+    return {
+        deltaY: e.deltaY
+    }
 }
 
 export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends object> {
@@ -90,6 +102,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     #discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
     #dragHandlers: DragHandler[] = []
+    #wheelEventHandlers: WheelEventHandler[] = []
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
         this.#state = null
@@ -98,6 +111,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#onPropsChange = onPropsChange
         this.#discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
         this.#dragHandlers = handlers?.dragHandlers || []
+        this.#wheelEventHandlers = handlers?.wheelHandlers || []
         this.#pixelWidth = -1
         this.#pixelHeight = -1
         this.#coordRange = null
@@ -218,6 +232,14 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined
         for (let fn of this.#dragHandlers) {
             fn(this, {dragRect: coordDragRect, released: released, shift: shift || false, anchor: coordAnchor, position: coordPosition})
+        }
+    }
+
+    handleWheelEvent(e: React.WheelEvent<HTMLCanvasElement>) {
+        if (this.#wheelEventHandlers.length === 0) return
+        const wheelEvent = formWheelEvent(e)
+        for (let fn of this.#wheelEventHandlers) {
+            fn(wheelEvent, this)
         }
     }
 }

@@ -203,6 +203,7 @@ export const transformXY = (tmatrix: TransformationMatrix, x: number, y: number)
 }
 
 export const transformPoint = (tmatrix: TransformationMatrix, point: Vec2H): Vec2H => {
+    // append a 1 if needed
     if (point.length === 2) point = [point[0], point[1], 1]
     const A = matrix(tmatrix)
     const x = matrix(point)

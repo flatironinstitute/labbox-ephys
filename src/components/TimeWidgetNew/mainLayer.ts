@@ -1,5 +1,5 @@
 import { CanvasPainter } from "../jscommon/CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, WheelEvent, WheelEventHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../jscommon/CanvasWidget/Geometry"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
@@ -153,6 +153,17 @@ export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayer
     props.onDrag && props.onDrag({newTimeRange})
 }
 
+export const handleWheel: WheelEventHandler = (e: WheelEvent, layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>) => {
+    const props = layer.getProps()
+    if (!props) return
+    if (e.deltaY > 0) {
+        props.onTimeZoom && props.onTimeZoom(1 / 1.15)
+    }
+    else if (e.deltaY < 0) {
+        props.onTimeZoom && props.onTimeZoom(1.15)
+    }
+}
+
 
 export const createMainLayer = () => {
     return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(
@@ -160,7 +171,8 @@ export const createMainLayer = () => {
         onPropsChange,
         {  
             discreteMouseEventHandlers: [handleClick],
-            dragHandlers: [handleDrag]
+            dragHandlers: [handleDrag],
+            wheelHandlers: [handleWheel]
         }
     )
 }

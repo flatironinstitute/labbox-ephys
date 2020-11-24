@@ -135,9 +135,10 @@ export class CanvasPainter {
         this.#fullDimensions = fullDimensions
         this.#transformMatrix = transformMatrix
     }
+    // Return a new, transformed painter
     transform(m: TransformationMatrix) {
         // todo: figure out whether this should be left or right-multiplication
-        const m2 = toTransformationMatrix(multiply(matrix(m), matrix(this.#transformMatrix)))
+        const m2 = toTransformationMatrix(multiply(matrix(this.#transformMatrix), matrix(m)))
         return new CanvasPainter(this.#context2D, transformRect(m, this.#fullDimensions), m2)
     }
     // TODO: Delete these default methods?
@@ -160,9 +161,7 @@ export class CanvasPainter {
         return this.#exportingFigure
     }
     clear(): void {
-        if (this.#fullDimensions) {
-            this.clearRect( { ...this.#fullDimensions } );
-        }
+        this.clearRect( { ...this.#fullDimensions } );
     }
     clearRect(rect: RectangularRegion) {
         this.fillRect(rect, {color: 'transparent'})
@@ -174,10 +173,8 @@ export class CanvasPainter {
         this.#context2D.restore();
     }
     wipe(): void {
-        if (this.#fullDimensions) {
-            const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
-            this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
-        }
+        const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
+        this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
@@ -333,12 +330,6 @@ export class PainterPath {
             x,
             y
         })
-    }
-    _actions() {
-        return [...this.#actions]
-    }
-    _setActions(actions: PainterPathAction[]) {
-        this.#actions = [...actions]
     }
     _draw(ctx: Context2D, tmatrix: TransformationMatrix) {
         ctx.beginPath();

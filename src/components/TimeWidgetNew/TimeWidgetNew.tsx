@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react'
+import React, { FunctionComponent, ReactElement, useCallback, useEffect, useReducer, useState } from 'react'
 import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
 import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
@@ -49,6 +49,72 @@ export interface TimeWidgetPanel {
 const toolbarWidth = 50
 const spanWidgetHeight = 50
 
+interface TimeState {
+    currentTime: number | null
+    timeRange: {min: number, max: number} | null
+}
+interface ZoomTimeRangeAction {
+    type: 'zoomTimeRange'
+    factor: number
+}
+interface SetTimeRangeAction {
+    type: 'setTimeRange'
+    timeRange: {min: number, max: number}
+}
+interface shiftTimeRangeByFrac {
+    type: 'shiftTimeRangeByFrac',
+    frac: number
+}
+interface SetCurrentTime {
+    type: 'setCurrentTime'
+    currentTime: number
+}
+type TimeAction = ZoomTimeRangeAction | SetTimeRangeAction | shiftTimeRangeByFrac | SetCurrentTime
+const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
+    if (action.type === 'zoomTimeRange') {
+        const currentTime = state.currentTime
+        const timeRange = state.timeRange
+        if (!timeRange) return state
+        let t: number
+        if ((currentTime === null) || (currentTime < timeRange.min))
+            t = timeRange.min
+        else if (currentTime > timeRange.max)
+            t = timeRange.max
+        else
+            t = currentTime
+        const newTimeRange = zoomTimeRange(timeRange, action.factor, t)
+        return {
+            ...state,
+            timeRange: newTimeRange
+        }
+    }
+    else if (action.type === 'setTimeRange') {
+        return {
+            ...state,
+            timeRange: action.timeRange
+        }
+    }
+    else if (action.type === 'setCurrentTime') {
+        return {
+            ...state,
+            currentTime: action.currentTime
+        }
+    }
+    else if (action.type === 'shiftTimeRangeByFrac') {
+        const timeRange = state.timeRange
+        if (!timeRange) return state
+        const span = timeRange.max - timeRange.min
+        const newTimeRange = shiftTimeRange(timeRange, span * action.frac)
+        return {
+            ...state,
+            timeRange: newTimeRange
+        }
+    }
+    else {
+        return state
+    }
+}
+
 const TimeWidgetNew = (props: Props) => {
 
     const {panels, width, height, actions, numTimepoints, maxTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
@@ -56,12 +122,11 @@ const TimeWidgetNew = (props: Props) => {
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({})
     const [bottomBarInfo, setBottomBarInfo] = useState<BottomBarInfo>({})
     const [bottomBarHeight, setBottomBarHeight] = useState(0)
-    const [currentTime, setCurrentTime] = useState<number | null>(null)
-    const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
 
     const [layers, setLayers] = useState<{[key: string]: CanvasWidgetLayer<TimeWidgetLayerProps, any>} | null>(null)
     const [layerList, setLayerList] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
 
+    const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null})
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
 
@@ -83,75 +148,56 @@ const TimeWidgetNew = (props: Props) => {
             })
         })
         if (layers) {
-            if (currentTime !== prevCurrentTime) {
+            if (timeState.currentTime !== prevCurrentTime) {
                 layers.cursorLayer.scheduleRepaint()
             }
-            if (timeRange !== prevTimeRange) {
+            if (timeState.timeRange !== prevTimeRange) {
                 Object.values(layers).forEach(layer => {
                     layer.scheduleRepaint()
                 })
             }
         }
-        setPrevCurrentTime(currentTime)
-        setPrevTimeRange(timeRange)
-    }, [layers, panels, currentTime, timeRange, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange])
+        setPrevCurrentTime(timeState.currentTime)
+        setPrevTimeRange(timeState.timeRange)
+    }, [layers, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange])
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {
             console.log(args)
-            setCurrentTime(args.timepoint)
+            timeDispatch({type: 'setCurrentTime', currentTime: args.timepoint})
         },
         []
     )
     const handleDrag = useCallback(
         (args: {newTimeRange: {min: number, max: number}}) => {
-            if (timeRange) {
-                setTimeRange(args.newTimeRange)
-            }
+            timeDispatch({type: 'setTimeRange', timeRange: args.newTimeRange})
         },
-        [timeRange, layers]
+        [timeDispatch, layers]
     )
+    const handleTimeZoom = useCallback((factor: number) => {
+        timeDispatch({type: 'zoomTimeRange', factor})
+    }, [timeDispatch])
 
     const _zoomTime = (fac: number) => {
-        if (timeRange) {
-            let t: number
-            if ((currentTime === null) || (currentTime < timeRange.min))
-                t = timeRange.min
-            else if (currentTime > timeRange.max)
-                t = timeRange.max
-            else
-                t = currentTime
-            const newTimeRange = zoomTimeRange(timeRange, fac, t)
-            setTimeRange(newTimeRange)
-        }
+        timeDispatch({type: 'zoomTimeRange', factor: fac})
     }
 
     const _handleShiftTimeLeft = () => {
-        if (timeRange) {
-            const span = timeRange.max - timeRange.min
-            const newTimeRange = shiftTimeRange(timeRange, -span * 0.2)
-            setTimeRange(newTimeRange)
-        }
+        timeDispatch({type: 'shiftTimeRangeByFrac', frac: -0.2})
     }
     const _handleShiftTimeRight = () => {
-        if (timeRange) {
-            const span = timeRange.max - timeRange.min
-            const newTimeRange = shiftTimeRange(timeRange, +span * 0.2)
-            setTimeRange(newTimeRange)
-        }
+        timeDispatch({type: 'shiftTimeRangeByFrac', frac: 0.2})
     }
 
     useEffect(() => {
+        const timeRange = timeState.timeRange
         if ((!timeRange) && (numTimepoints)) {
             // const tmax = Math.min(maxTimeSpan, numTimepoints)
             const tmax = 9000
-            setTimeRange({
-                min: 0,
-                max: tmax
-            })
-            setCurrentTime( tmax / 2 )
+            timeDispatch({type: 'setTimeRange', timeRange: {min: 0, max: tmax}})
+            timeDispatch({type: 'setCurrentTime', currentTime: Math.floor(tmax / 2)})
         }
-    }, [timeRange, numTimepoints])
+    }, [timeState, numTimepoints])
 
     const leftPanel = null
 
@@ -179,16 +225,18 @@ const TimeWidgetNew = (props: Props) => {
             <CanvasWidget<TimeWidgetLayerProps>
                 key='canvas'
                 layers={layerList}
+                preventDefaultWheel={true}
                 widgetProps={{
                     panels,
                     width: width - toolbarWidth,
                     height: height - spanWidgetHeight - bottomBarHeight,
-                    timeRange,
-                    currentTime,
+                    timeRange: timeState.timeRange,
+                    currentTime: timeState.currentTime,
                     samplerate,
                     margins: plotMargins,
                     onClick: handleClick,
-                    onDrag: handleDrag
+                    onDrag: handleDrag,
+                    onTimeZoom: handleTimeZoom
                 }}
             />
             {/* <CanvasWidget

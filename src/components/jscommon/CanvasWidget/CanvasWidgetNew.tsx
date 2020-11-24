@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { BaseLayerProps, CanvasWidgetLayer, ClickEventFromMouseEvent, ClickEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
@@ -78,6 +78,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 
 interface Props<T extends BaseLayerProps> {
     layers: CanvasWidgetLayer<T, any>[],
+    preventDefaultWheel?: boolean // whether to prevent default behavior of mouse wheel
     widgetProps: T
 }
 
@@ -90,25 +91,26 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     const [prevDragState, setPrevDragState] = useState<DragState | null>(null)
     const [prevWidth, setPrevWidth] = useState<number>(0)
     const [prevHeight, setPrevHeight] = useState<number>(0)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const [prevCanvasRef, setPrevCanvasRef] = useState<HTMLCanvasElement | null>(null)
 
     useEffect(() => {
         const divElement = divRef.current
-        // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
         props.layers.forEach((L, index) => {
             L.updateProps(props.widgetProps)
-            // /// TODO: figure out what to do here
-            // console.log(`I am layer ${index} and my props were ${JSON.stringify(props)}`)
             if ((divElement) && (divElement !== prevDivElement)) {
+                // only repaint if we have a new div element
                 const canvasElement = divElement.children[index]
                 L.resetCanvasElement(canvasElement)
-                L.scheduleRepaint() // The dependency list means this only gets called if props/canvas changed.
-                // In those cases, we definitely need to repaint, so scheduling it should be safe.
+                L.scheduleRepaint()
             }
             if ((props.widgetProps.width !== prevWidth) || (props.widgetProps.height !== prevHeight)) {
+                // repaint if dimensions have changed
                 L.scheduleRepaint()
             }
         })
         if ((dragState) && (dragState !== prevDragState) && (dragState.dragRect)) {
+            // The drag state has changed, so we'll call the handleDrag on the layers
             const pixelDragRect = {
                 xmin: dragState.dragRect[0],
                 xmax: dragState.dragRect[0] + dragState.dragRect[2],
@@ -123,7 +125,17 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         setPrevDragState(dragState)
         setPrevWidth(props.widgetProps.width)
         setPrevHeight(props.widgetProps.height)
-    }, [props, divRef, prevDivElement, setPrevDivElement, dragState, prevDragState, prevWidth, prevHeight])
+        if (props.preventDefaultWheel) {
+            const c = canvasRef.current
+            if ((c) && (c !== prevCanvasRef)) {
+                // see: https://github.com/facebook/react/issues/5845#issuecomment-492955321
+                c.addEventListener("wheel", (event) => {
+                    event.preventDefault()
+                })
+                setPrevCanvasRef(c)
+            }
+        }
+    }, [canvasRef, prevCanvasRef, props, divRef, prevDivElement, setPrevDivElement, dragState, prevDragState, prevWidth, prevHeight])
 
     const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of props.layers) {
@@ -146,10 +158,6 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Release)
         _dispatchDiscreteMouseEvents(e, ClickEventType.Release)
-        // if (state.dragging && state.dragAnchor && state.dragPosition && state.dragRect) {
-        //     // No need to recompute the dragRect--we already computed it on mouse move
-        //     _dispatchDragEvents(true)
-        // }
         dispatchDrag({ type: END_DRAG, mouseButton: false, point: [0, 0], shift: modifiers.shift || false }) // resets drag rectangle. point is ignored.
     }, [_dispatchDiscreteMouseEvents])
 
@@ -162,6 +170,12 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [])
     // Similar for mousewheel, etc.
 
+    const _handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+        for (let l of props.layers) {
+            l.handleWheelEvent(e)
+        }
+    }, [props])
+
     return (
         <div
             ref={divRef}
@@ -173,6 +187,7 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
             {
                 props.layers.map((L, index) => (
                     <canvas
+                        ref={canvasRef}
                         key={index}
                         style={{position: 'absolute', left: 0, top: 0}}
                         width={props.widgetProps.width}
@@ -182,6 +197,7 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
                         onMouseUp={_handleMouseUp}
                         onMouseEnter={_handleMouseEnter}
                         onMouseLeave={_handleMouseLeave}
+                        onWheel={(e) => {_handleWheel(e)}}
                     />
                 ))
             }
