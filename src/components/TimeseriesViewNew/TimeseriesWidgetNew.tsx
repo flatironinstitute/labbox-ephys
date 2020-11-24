@@ -29,6 +29,8 @@ class Panel {
     #updateHandler: (() => void) | null = null
     #timeRange: {min: number, max: number} | null = null
     #yScale: number = 1
+    #pixelWidth: number | null = null // for determining the downsampling factor
+    #paintCode: number = 0
     constructor(private channelIndex: number, private channelId: number, private timeseriesModel: TimeseriesModelNew, private y_offset: number, private y_scale_factor: number) {
         timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
             const timeRange = this.#timeRange
@@ -46,39 +48,130 @@ class Panel {
         this.#yScale = s
         this.#updateHandler && this.#updateHandler()
     }
+    setPixelWidth(w: number) {
+        if (this.#pixelWidth === w) return
+        this.#pixelWidth = w
+        this.#updateHandler && this.#updateHandler()
+    }
     paint(painter: CanvasPainter) {
+        this.#paintCode ++
+        const paintCode = this.#paintCode
+
+        this._paintHelper(painter, 0.2)
+        setTimeout(() => {
+            if (this.#paintCode === paintCode) {
+                this._paintHelper(painter, 1)
+            }
+        }, 50)
+        
+    }
+    _paintHelper(painter: CanvasPainter, completenessFactor: number) {
         const timeRange = this.#timeRange
         if (!timeRange) return
 
+        const downsample_factor = this._determineDownsampleFactor(completenessFactor)
+        if (downsample_factor === null) return
+
+        painter.wipe()
+
         const t1 = timeRange.min
         const t2 = timeRange.max
-        const data: number[] = this.timeseriesModel.getChannelData(this.channelIndex, t1, t2, 1) // todo: ds factor
+        let t1b = Math.floor(t1 / downsample_factor);
+        let t2b = Math.floor(t2 / downsample_factor);
+
+        const data: number[] = this.timeseriesModel.getChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
         if (data.filter(x => (!isNaN(x))).length === 0) return
         if (data.filter(x => (isNaN(x))).length > 0) {
-            this.timeseriesModel.requestChannelData(this.channelIndex, t1, t2, 1) // todo: ds factor
+            this.timeseriesModel.requestChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
         }
 
         const pp = new PainterPath()
-        let penDown = false;
-        for (let tt = t1; tt < t2; tt++) {
-            let val = data[tt - t1];
-            if (!isNaN(val)) {
-                let val2 = ((val + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5; // to
-                if (penDown) {
-                    pp.lineTo(tt, val2);    
+        if (downsample_factor === 1) {
+            let penDown = false;
+            for (let tt = t1; tt < t2; tt++) {
+                let val = data[tt - t1];
+                if (!isNaN(val)) {
+                    let val2 = ((val + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
+                    if (penDown) {
+                        pp.lineTo(tt, val2);    
+                    }
+                    else {
+                        pp.moveTo(tt, val2);
+                        penDown = true;
+                    }
                 }
                 else {
-                    pp.moveTo(tt, val2);
-                    penDown = true;
+                    penDown = false;
                 }
             }
-            else {
-                penDown = false;
+        }
+        else {
+            let penDown = false;
+            for (let tt = t1b; tt < t2b; tt++) {
+                let val_min = data[(tt - t1b) * 2];
+                let val_max = data[(tt - t1b) * 2 + 1];
+                if ((!isNaN(val_min)) && (!isNaN(val_max))) {
+                    let val2_min = ((val_min + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
+                    let val2_max = ((val_max + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
+                    if (penDown) {
+                        pp.lineTo(tt * downsample_factor, val2_min);
+                        pp.lineTo(tt * downsample_factor, val2_max);
+                    }
+                    else {
+                        pp.moveTo(tt * downsample_factor, val2_min);
+                        pp.lineTo(tt * downsample_factor, val2_max);
+                        penDown = true;
+                    }
+                }
+                else {
+                    penDown = false;
+                }
             }
         }
+
+        // let penDown = false;
+        // for (let tt = t1; tt < t2; tt++) {
+        //     let val = data[tt - t1];
+        //     if (!isNaN(val)) {
+        //         let val2 = ((val + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
+        //         if (penDown) {
+        //             pp.lineTo(tt, val2);    
+        //         }
+        //         else {
+        //             pp.moveTo(tt, val2);
+        //             penDown = true;
+        //         }
+        //     }
+        //     else {
+        //         penDown = false;
+        //     }
+        // }
+
         const color = channelColors[this.channelIndex % channelColors.length]
         const pen = {color, width: 1}
         painter.drawPath(pp, pen)
+    }
+    _determineDownsampleFactor(completenessFactor: number) {
+        let timeRange = this.#timeRange
+        if (!timeRange) return null
+        if (this.#pixelWidth === null) return null
+        const numChannels = this.timeseriesModel.numChannels()
+        let factor0 = 1.3; // this is a tradeoff between rendering speed and appearance
+        if (numChannels > 32) {
+            factor0 = 0.5;
+        }
+
+        // determine what the downsample factor should be based on the number
+        // of timepoints in the view range
+        // we also need to consider the number of pixels it corresponds to
+        const targetNumPix = Math.max(500, this.#pixelWidth * factor0 * completenessFactor)
+        const numPoints = timeRange.max - timeRange.min
+        let ds_factor = 1;
+        let factor = 3;
+        while (numPoints / (ds_factor * factor) > targetNumPix) {
+            ds_factor *= factor
+        }
+        return ds_factor;
     }
     label() {
         return this.channelId + ''
@@ -172,6 +265,12 @@ const TimeseriesWidgetNew = (props: Props) => {
         }
     }, [yScaleState, setPrevYScale, prevYScale, panels])
 
+    if (panels) {
+        panels.forEach(p => {
+            p.setPixelWidth(width)
+        })
+    }
+
     return (
         <TimeWidgetNew
             panels={panels}
@@ -179,7 +278,8 @@ const TimeseriesWidgetNew = (props: Props) => {
             width={width}
             height={height}
             samplerate={timeseriesModel.getSampleRate()}
-            maxTimeSpan={1e6 / timeseriesModel.numChannels()}
+            startTimeSpan={1e7 / timeseriesModel.numChannels()}
+            maxTimeSpan={1e7 / timeseriesModel.numChannels()}
             numTimepoints={timeseriesModel ? timeseriesModel.numTimepoints() : 0}
             currentTime={currentTime}
             timeRange={timeRange}

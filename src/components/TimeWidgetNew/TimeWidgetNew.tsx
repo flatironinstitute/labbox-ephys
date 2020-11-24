@@ -32,6 +32,7 @@ interface Props {
     height: number
     samplerate: number
     maxTimeSpan: number
+    startTimeSpan: number
     numTimepoints: number
     currentTime: number | null
     timeRange: {min: number, max: number} | null
@@ -51,6 +52,7 @@ const spanWidgetHeight = 50
 
 interface TimeState {
     numTimepoints: number
+    maxTimeSpan: number
     currentTime: number | null
     timeRange: {min: number, max: number} | null
 }
@@ -72,10 +74,60 @@ interface SetCurrentTime {
 }
 type TimeAction = ZoomTimeRangeAction | SetTimeRangeAction | TimeShiftFrac | SetCurrentTime | {type: 'gotoHome' | 'gotoEnd'}
 const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
+
+    const fix = (s: TimeState): TimeState => {
+        if (s.numTimepoints === null) return s
+        let ret: TimeState = s
+        if (ret.currentTime !== null) {
+            if (ret.currentTime >= ret.numTimepoints) {
+                ret = {
+                    ...ret,
+                    currentTime: ret.numTimepoints - 1
+                }
+            }
+        }
+        if (ret.currentTime !== null) {
+            if (ret.currentTime < 0) {
+                ret = {
+                    ...ret,
+                    currentTime: 0
+                }
+            }
+        }
+        if (ret.timeRange !== null) {
+            if (ret.timeRange.max - ret.timeRange.min > ret.maxTimeSpan) {
+                ret = {
+                    ...ret,
+                    timeRange: {min: ret.timeRange.min, max: ret.timeRange.min + ret.maxTimeSpan}
+                }
+            }
+        }
+        if (ret.timeRange !== null) {
+            if (ret.timeRange.max > ret.numTimepoints) {
+                const dt = ret.numTimepoints - ret.timeRange.max
+                ret = {
+                    ...ret,
+                    timeRange: {min: ret.timeRange.min + dt, max: ret.timeRange.max + dt}
+                }
+            }
+        }
+        if (ret.timeRange !== null) {
+            if (ret.timeRange.min < 0) {
+                const dt = -ret.timeRange.min
+                ret = {
+                    ...ret,
+                    timeRange: {min: ret.timeRange.min + dt, max: ret.timeRange.max + dt}
+                }
+            }
+        }
+        return ret
+    }
+
     if (action.type === 'zoomTimeRange') {
         const currentTime = state.currentTime
         const timeRange = state.timeRange
         if (!timeRange) return state
+        if ((timeRange.max - timeRange.min) / action.factor > state.maxTimeSpan ) return state
         let t: number
         if ((currentTime === null) || (currentTime < timeRange.min))
             t = timeRange.min
@@ -84,22 +136,22 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
         else
             t = currentTime
         const newTimeRange = zoomTimeRange(timeRange, action.factor, t)
-        return {
+        return fix({
             ...state,
             timeRange: newTimeRange
-        }
+        })
     }
     else if (action.type === 'setTimeRange') {
-        return {
+        return fix({
             ...state,
             timeRange: action.timeRange
-        }
+        })
     }
     else if (action.type === 'setCurrentTime') {
-        return {
+        return fix({
             ...state,
             currentTime: action.currentTime
-        }
+        })
     }
     else if (action.type === 'timeShiftFrac') {
         const timeRange = state.timeRange
@@ -109,22 +161,22 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
         const shift = Math.floor(span * action.frac)
         const newTimeRange = shiftTimeRange(timeRange, shift)
         const newCurrentTime = currentTime !== null ? currentTime + shift : null
-        return {
+        return fix({
             ...state,
             currentTime: newCurrentTime,
             timeRange: newTimeRange
-        }
+        })
     }
     else if (action.type === 'gotoHome') {
         const timeRange = state.timeRange
         if (!timeRange) return state
         const span = timeRange.max - timeRange.min
         const newTimeRange = {min: 0, max: span}
-        return {
+        return fix({
             ...state,
             currentTime: newTimeRange.min,
             timeRange: newTimeRange
-        }
+        })
     }
     else if (action.type === 'gotoEnd') {
         const timeRange = state.timeRange
@@ -133,11 +185,11 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
         if (numTimepoints === null) return state
         const span = timeRange.max - timeRange.min
         const newTimeRange = {min: numTimepoints - span, max: numTimepoints}
-        return {
+        return fix({
             ...state,
             currentTime: newTimeRange.max - 1,
             timeRange: newTimeRange
-        }
+        })
     }
     else {
         return state
@@ -146,7 +198,7 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
 
 const TimeWidgetNew = (props: Props) => {
 
-    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
+    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({})
     const [bottomBarInfo, setBottomBarInfo] = useState<BottomBarInfo>({})
@@ -155,7 +207,7 @@ const TimeWidgetNew = (props: Props) => {
     const [layers, setLayers] = useState<{[key: string]: CanvasWidgetLayer<TimeWidgetLayerProps, any>} | null>(null)
     const [layerList, setLayerList] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
 
-    const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null, numTimepoints})
+    const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null, numTimepoints, maxTimeSpan})
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
 
@@ -200,7 +252,7 @@ const TimeWidgetNew = (props: Props) => {
         (args: {newTimeRange: {min: number, max: number}}) => {
             timeDispatch({type: 'setTimeRange', timeRange: args.newTimeRange})
         },
-        [timeDispatch, layers]
+        [timeDispatch]
     )
     const handleTimeZoom = useCallback((factor: number) => {
         timeDispatch({type: 'zoomTimeRange', factor})
@@ -232,12 +284,11 @@ const TimeWidgetNew = (props: Props) => {
     useEffect(() => {
         const timeRange = timeState.timeRange
         if ((!timeRange) && (numTimepoints)) {
-            // const tmax = Math.min(maxTimeSpan, numTimepoints)
-            const tmax = 9000
+            const tmax = Math.min(startTimeSpan, numTimepoints)
             timeDispatch({type: 'setTimeRange', timeRange: {min: 0, max: tmax}})
             timeDispatch({type: 'setCurrentTime', currentTime: Math.floor(tmax / 2)})
         }
-    }, [timeState, numTimepoints])
+    }, [timeState, numTimepoints, startTimeSpan])
 
     const leftPanel = null
 
