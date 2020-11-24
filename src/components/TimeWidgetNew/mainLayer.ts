@@ -6,10 +6,15 @@ import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
 interface LayerState {
+    timeRange: {min: number, max: number}
     transformations: TransformationMatrix[]
     inverseTransformations: TransformationMatrix[]
     anchorTimepoint: number | null
     dragging: boolean
+    paintStatus: {
+        painting: boolean,
+        nextPaint: (() => void) | null
+    }
 }
 
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
@@ -17,14 +22,47 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
     if (!timeRange) return
     if (panels.length === 0) return
 
-    const {transformations} = state
-
     painter.wipe()
     for (let i = 0; i < panels.length; i++) {
-        const painter2 = painter.transform(transformations[i])
+        const painter2 = painter.transform(state.transformations[i])
         panels[i].setTimeRange(timeRange)
         panels[i].paint(painter2)
     }
+
+    // const thisTimestamp = Number(new Date())
+
+    // const doPaint = () => {
+    //     painter.wipe()
+    //     for (let i = 0; i < panels.length; i++) {
+    //         const painter2 = painter.transform(state.transformations[i])
+    //         panels[i].setTimeRange(timeRange)
+    //         panels[i].paint(painter2)
+    //     }
+    // }
+
+    // const tryNextPaint = () => {
+    //     if (state.paintStatus.nextPaint) {
+    //         state.paintStatus.nextPaint()
+    //         setTimeout(() => {
+    //             tryNextPaint()
+    //         }, 2)
+    //     }
+    //     else {
+    //         state.paintStatus.painting = false
+    //     }
+    // }
+
+    // if (!state.paintStatus.painting) {
+    //     state.paintStatus.nextPaint = null
+    //     state.paintStatus.painting = true
+    //     doPaint()
+    //     setTimeout(() => {
+    //         tryNextPaint()
+    //     }, 2)
+    // }
+    // else {
+    //     state.paintStatus.nextPaint = doPaint
+    // }
 }
 
 export const funcToTransform = (transformation: (p: Vec2) => Vec2): TransformationMatrix => {
@@ -42,11 +80,6 @@ export const funcToTransform = (transformation: (p: Vec2) => Vec2): Transformati
 
 const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
     const { panels } = layerProps
-    panels.forEach((panel) => {
-        panel.register(() => {
-            layer.scheduleRepaint()
-        })
-    })
 
     const { timeRange, width, height, margins } = layerProps
     if (!timeRange) return
@@ -63,8 +96,15 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
     const inverseTransformations = transformations.map(T => (getInverseTransformationMatrix(T)))
     layer.setState({
         ...layer.getState(),
+        timeRange,
         transformations,
-        inverseTransformations
+        inverseTransformations,
+        paintStatus: layer.getState().paintStatus || {
+            painting: false,
+            timestamp: Number(new Date()),
+            pendingTimestamp: Number(new Date()),
+            lastPaintFinishedTimestamp: Number(new Date())
+        }
     })
 }
 
@@ -91,18 +131,26 @@ export const handleClick: DiscreteMouseEventHandler = (e: ClickEvent, layer: Can
     }
 }
 
+const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {min: number, max: number} => {
+    return {
+        min: Math.floor(timeRange.min + shift),
+        max: Math.floor(timeRange.max + shift)
+    }
+}
+
 export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>, drag: DragEvent) => {
     const props = layer.getProps()
     if (!props) return
-    const {anchorTimepoint, inverseTransformations} = layer.getState()
+    const {anchorTimepoint, inverseTransformations, timeRange} = layer.getState()
     if (anchorTimepoint === null) return
     const pos = drag.position
     if (!pos) return
     if (inverseTransformations.length === 0) return
     layer.setState({...layer.getState(), dragging: true})
     const t = transformPoint(inverseTransformations[0], pos)[0]
+    const newTimeRange = shiftTimeRange(timeRange, anchorTimepoint - t)
     // now we want
-    props.onDrag && props.onDrag({anchorTimepoint, newTimepoint: t})
+    props.onDrag && props.onDrag({newTimeRange})
 }
 
 

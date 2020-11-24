@@ -36,13 +36,6 @@ export interface TimeWidgetPanel {
 const toolbarWidth = 50
 const spanWidgetHeight = 50
 
-const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {min: number, max: number} => {
-    return {
-        min: Math.floor(timeRange.min + shift),
-        max: Math.floor(timeRange.max + shift)
-    }
-}
-
 const TimeWidgetNew = (props: Props) => {
 
     const {panels, width, height, actions, numTimepoints, maxTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
@@ -53,7 +46,11 @@ const TimeWidgetNew = (props: Props) => {
     const [currentTime, setCurrentTime] = useState<number | null>(null)
     const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
 
-    const [layers, setLayers] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
+    const [layers, setLayers] = useState<{[key: string]: CanvasWidgetLayer<TimeWidgetLayerProps, any>} | null>(null)
+    const [layerList, setLayerList] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
+
+    const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
+    const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
 
     useEffect(() => {
         if (!layers) {
@@ -62,9 +59,29 @@ const TimeWidgetNew = (props: Props) => {
             const panelLabelLayer = createPanelLabelLayer()
             const cursorLayer = createCursorLayer()
             
-            setLayers([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
+            setLayers({mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer})
+            setLayerList([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
         }
-    }, [layers])
+        panels.forEach(p => {
+            p.register(() => {
+                if (layers) {
+                    layers.mainLayer.scheduleRepaint()
+                }
+            })
+        })
+        if (layers) {
+            if (currentTime !== prevCurrentTime) {
+                layers.cursorLayer.scheduleRepaint()
+            }
+            if (timeRange !== prevTimeRange) {
+                Object.values(layers).forEach(layer => {
+                    layer.scheduleRepaint()
+                })
+            }
+        }
+        setPrevCurrentTime(currentTime)
+        setPrevTimeRange(timeRange)
+    }, [layers, panels, currentTime, timeRange, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange])
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {
@@ -74,14 +91,10 @@ const TimeWidgetNew = (props: Props) => {
         []
     )
     const handleDrag = useCallback(
-        (args: {anchorTimepoint: number, newTimepoint: number}) => {
+        (args: {newTimeRange: {min: number, max: number}}) => {
             if ((timeRange) && (layers)) {
-                const newTimeRange = shiftTimeRange(timeRange, args.anchorTimepoint - args.newTimepoint)
-                setTimeRange(newTimeRange)
-                if (layers) {
-                    layers.forEach(layer => {layer.scheduleRepaint()})
-                }
-                // mainLayer.scheduleRepaint()
+                // const newTimeRange = shiftTimeRange(timeRange, args.anchorTimepoint - args.newTimepoint)
+                setTimeRange(args.newTimeRange)
             }
         },
         [timeRange, layers]
@@ -101,7 +114,7 @@ const TimeWidgetNew = (props: Props) => {
     useEffect(() => {
         if ((!timeRange) && (numTimepoints)) {
             // const tmax = Math.min(maxTimeSpan, numTimepoints)
-            const tmax = 1000
+            const tmax = 9000
             setTimeRange({
                 min: 0,
                 max: tmax
@@ -119,7 +132,7 @@ const TimeWidgetNew = (props: Props) => {
         bottom: 100
     }
 
-    if (!layers) {
+    if (!layerList) {
         return <div></div>
     }
 
@@ -135,7 +148,7 @@ const TimeWidgetNew = (props: Props) => {
             />
             <CanvasWidget<TimeWidgetLayerProps>
                 key='canvas'
-                layers={layers}
+                layers={layerList}
                 widgetProps={{
                     panels,
                     width: width - toolbarWidth,

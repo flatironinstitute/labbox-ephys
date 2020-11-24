@@ -32,8 +32,9 @@ class Panel {
         this.#timeRange = timeRange
     }
     paint(painter: CanvasPainter) {
-        if (!this.#timeRange) return
         const timeRange = this.#timeRange
+        if (!timeRange) return
+
         const t1 = timeRange.min
         const t2 = timeRange.max
         const data: number[] = this.timeseriesModel.getChannelData(this.channelIndex, t1, t2, 1) // todo: ds factor

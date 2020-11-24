@@ -8,7 +8,7 @@ export interface TimeWidgetLayerProps extends BaseLayerProps {
     samplerate: number
     margins: {left: number, right: number, top: number, bottom: number}
     onClick: (args: {timepoint: number, panelIndex: number, y: number}) => void
-    onDrag: (args: {anchorTimepoint: number, newTimepoint: number}) => void
+    onDrag: (args: {newTimeRange: {min: number, max: number}}) => void
 }
 
 export interface Point2D {

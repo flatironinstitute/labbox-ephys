@@ -185,8 +185,6 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._doRepaint()
     }
     _doRepaint = () => {
-        this.#lastRepaintTimestamp = Number(new Date())
-
         const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
         if (!ctx) {
             this.#repaintNeeded = true
@@ -194,9 +192,10 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         }
         this.#repaintNeeded = false
         let painter = new CanvasPainter(ctx, this.getCoordRange(), this.#transformMatrix)
-        painter.clear()
+        // painter.clear()
         this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
-        this.unclipToSelf(ctx)
+        // this.unclipToSelf(ctx)
+        this.#lastRepaintTimestamp = Number(new Date())
     }
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {
