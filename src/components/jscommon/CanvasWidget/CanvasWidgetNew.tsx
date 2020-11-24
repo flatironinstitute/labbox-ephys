@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { BaseLayerProps, CanvasWidgetLayer, ClickEventFromMouseEvent, ClickEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
@@ -78,6 +78,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 
 interface Props<T extends BaseLayerProps> {
     layers: CanvasWidgetLayer<T, any>[],
+    preventDefaultWheel?: boolean // whether to prevent default behavior of mouse wheel
     widgetProps: T
 }
 
@@ -90,6 +91,8 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     const [prevDragState, setPrevDragState] = useState<DragState | null>(null)
     const [prevWidth, setPrevWidth] = useState<number>(0)
     const [prevHeight, setPrevHeight] = useState<number>(0)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const [prevCanvasRef, setPrevCanvasRef] = useState<HTMLCanvasElement | null>(null)
 
     useEffect(() => {
         const divElement = divRef.current
@@ -122,7 +125,17 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         setPrevDragState(dragState)
         setPrevWidth(props.widgetProps.width)
         setPrevHeight(props.widgetProps.height)
-    }, [props, divRef, prevDivElement, setPrevDivElement, dragState, prevDragState, prevWidth, prevHeight])
+        if (props.preventDefaultWheel) {
+            const c = canvasRef.current
+            if ((c) && (c !== prevCanvasRef)) {
+                // see: https://github.com/facebook/react/issues/5845#issuecomment-492955321
+                c.addEventListener("wheel", (event) => {
+                    event.preventDefault()
+                })
+                setPrevCanvasRef(c)
+            }
+        }
+    }, [canvasRef, prevCanvasRef, props, divRef, prevDivElement, setPrevDivElement, dragState, prevDragState, prevWidth, prevHeight])
 
     const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of props.layers) {
@@ -157,17 +170,32 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [])
     // Similar for mousewheel, etc.
 
+    const _handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
+        for (let l of props.layers) {
+            l.handleWheelEvent(e)
+        }
+    }, [props])
+
+    const _handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+        for (let l of props.layers) {
+            if (l.handleKeyboardEvent('press', e) === false) {
+                e.preventDefault()
+            }
+        }
+    }, [props])
+
     return (
         <div
             ref={divRef}
             style={{position: 'relative', width: props.widgetProps.width, height: props.widgetProps.height, left: 0, top: 0}}
             // style={style0}
-            // onKeyDown={(evt) => {this.props.onKeyPress && this.props.onKeyPress(evt);}}
+            onKeyDown={_handleKeyPress}
             tabIndex={0} // tabindex needed to handle keypress
         >
             {
                 props.layers.map((L, index) => (
                     <canvas
+                        ref={canvasRef}
                         key={index}
                         style={{position: 'absolute', left: 0, top: 0}}
                         width={props.widgetProps.width}
@@ -177,6 +205,7 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
                         onMouseUp={_handleMouseUp}
                         onMouseEnter={_handleMouseEnter}
                         onMouseLeave={_handleMouseLeave}
+                        onWheel={_handleWheel}
                     />
                 ))
             }
