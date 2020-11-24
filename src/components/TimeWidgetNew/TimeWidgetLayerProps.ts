@@ -1,7 +1,8 @@
 import { BaseLayerProps } from "../jscommon/CanvasWidget/CanvasWidgetLayer";
-import { TimeWidgetPanel } from "./TimeWidgetNew";
+import { TimeWidgetAction, TimeWidgetPanel } from "./TimeWidgetNew";
 
 export interface TimeWidgetLayerProps extends BaseLayerProps {
+    customActions: TimeWidgetAction[]
     panels: TimeWidgetPanel[]
     currentTime: number | null
     timeRange: {min: number, max: number} | null
@@ -10,6 +11,9 @@ export interface TimeWidgetLayerProps extends BaseLayerProps {
     onClick: (args: {timepoint: number, panelIndex: number, y: number}) => void
     onDrag: (args: {newTimeRange: {min: number, max: number}}) => void
     onTimeZoom: (factor: number) => void
+    onTimeShiftFrac: (frac: number) => void
+    onGotoHome: () => void
+    onGotoEnd: () => void
 }
 
 export interface Point2D {

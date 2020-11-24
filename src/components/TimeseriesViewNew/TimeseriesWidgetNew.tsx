@@ -145,14 +145,14 @@ const TimeseriesWidgetNew = (props: Props) => {
                     callback: _handleScaleAmplitudeUp,
                     title: 'Scale amplitude up [up arrow]',
                     icon: <FaArrowUp />,
-                    key: 38
+                    keyCode: 38
                 },
                 {
                     type: 'button',
                     callback: _handleScaleAmplitudeDown,
                     title: 'Scale amplitude down [down arrow]',
                     icon: <FaArrowDown />,
-                    key: 40
+                    keyCode: 40
                 },
                 {
                     type: 'divider'
@@ -175,7 +175,7 @@ const TimeseriesWidgetNew = (props: Props) => {
     return (
         <TimeWidgetNew
             panels={panels}
-            actions={actions || []}
+            customActions={actions || []}
             width={width}
             height={height}
             samplerate={timeseriesModel.getSampleRate()}

@@ -176,12 +176,20 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         }
     }, [props])
 
+    const _handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+        for (let l of props.layers) {
+            if (l.handleKeyboardEvent('press', e) === false) {
+                e.preventDefault()
+            }
+        }
+    }, [props])
+
     return (
         <div
             ref={divRef}
             style={{position: 'relative', width: props.widgetProps.width, height: props.widgetProps.height, left: 0, top: 0}}
             // style={style0}
-            // onKeyDown={(evt) => {this.props.onKeyPress && this.props.onKeyPress(evt);}}
+            onKeyDown={_handleKeyPress}
             tabIndex={0} // tabindex needed to handle keypress
         >
             {
@@ -197,7 +205,7 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
                         onMouseUp={_handleMouseUp}
                         onMouseEnter={_handleMouseEnter}
                         onMouseLeave={_handleMouseLeave}
-                        onWheel={(e) => {_handleWheel(e)}}
+                        onWheel={_handleWheel}
                     />
                 ))
             }

@@ -22,6 +22,11 @@ export interface WheelEvent {
     deltaY: number
 }
 
+export interface KeyboardEvent {
+    type: 'press' | 'release'
+    keyCode: number
+}
+
 export interface ClickEventModifiers {
     alt?: boolean,
     ctrl?: boolean,
@@ -52,11 +57,13 @@ export interface DragEvent {
 export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
 export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: DragEvent) => void
 export type WheelEventHandler = (event: WheelEvent, layer: CanvasWidgetLayer<any, any>) => void
+export type KeyboardEventHandler = (event: KeyboardEvent, layer: CanvasWidgetLayer<any, any>) => boolean // return false to prevent default
 
 export interface EventHandlerSet {
     discreteMouseEventHandlers?: DiscreteMouseEventHandler[],
     dragHandlers?:   DragHandler[],
-    wheelHandlers?: WheelEventHandler[]
+    wheelEventHandlers?: WheelEventHandler[]
+    keyboardEventHandlers?: KeyboardEventHandler[]
 }
 
 export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, t: ClickEventType, i?: TransformationMatrix): ClickEvent => {
@@ -78,6 +85,13 @@ export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, 
 export const formWheelEvent = (e: React.WheelEvent<HTMLCanvasElement>): WheelEvent => {
     return {
         deltaY: e.deltaY
+    }
+}
+
+export const formKeyboardEvent = (type: 'press' | 'release', e: React.KeyboardEvent<HTMLDivElement>): KeyboardEvent => {
+    return {
+        type,
+        keyCode: e.keyCode
     }
 }
 
@@ -103,6 +117,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
     #dragHandlers: DragHandler[] = []
     #wheelEventHandlers: WheelEventHandler[] = []
+    #keyboardEventHandlers: KeyboardEventHandler[] = []
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
         this.#state = null
@@ -111,7 +126,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#onPropsChange = onPropsChange
         this.#discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
         this.#dragHandlers = handlers?.dragHandlers || []
-        this.#wheelEventHandlers = handlers?.wheelHandlers || []
+        this.#wheelEventHandlers = handlers?.wheelEventHandlers || []
+        this.#keyboardEventHandlers = handlers?.keyboardEventHandlers || []
         this.#pixelWidth = -1
         this.#pixelHeight = -1
         this.#coordRange = null
@@ -241,5 +257,16 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         for (let fn of this.#wheelEventHandlers) {
             fn(wheelEvent, this)
         }
+    }
+
+    handleKeyboardEvent(type: 'press' | 'release', e: React.KeyboardEvent<HTMLDivElement>): boolean {
+        if (this.#keyboardEventHandlers.length === 0) return true
+        const keyboardEvent = formKeyboardEvent(type, e)
+        let ret = true
+        for (let fn of this.#keyboardEventHandlers) {
+            if (fn(keyboardEvent, this) === false)
+                ret = false
+        }
+        return ret
     }
 }

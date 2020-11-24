@@ -1,5 +1,5 @@
 import { CanvasPainter } from "../jscommon/CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, WheelEvent, WheelEventHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../jscommon/CanvasWidget/Geometry"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
@@ -164,6 +164,27 @@ export const handleWheel: WheelEventHandler = (e: WheelEvent, layer: CanvasWidge
     }
 }
 
+export const handleKeyboardEvent: KeyboardEventHandler = (e: KeyboardEvent, layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>): boolean => {
+    const props = layer.getProps()
+    if (!props) return true
+    for (let a of props.customActions || []) {
+        if (a.type === 'button') {
+            if (a.keyCode === e.keyCode) {
+                a.callback()
+                return false
+            }
+        }
+    }
+    switch (e.keyCode) {
+        case 37: props.onTimeShiftFrac && props.onTimeShiftFrac(-0.2); return false;
+        case 39: props.onTimeShiftFrac && props.onTimeShiftFrac(+0.2); return false;
+        case 187: props.onTimeZoom && props.onTimeZoom(1.15); return false;
+        case 189: props.onTimeZoom && props.onTimeZoom(1 / 1.15); return false;
+        case 35: props.onGotoEnd && props.onGotoEnd(); return false;
+        case 36: props.onGotoHome && props.onGotoHome(); return false;
+        default: console.info('key: ' + e.keyCode); return true;
+    }
+}
 
 export const createMainLayer = () => {
     return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(
@@ -172,7 +193,8 @@ export const createMainLayer = () => {
         {  
             discreteMouseEventHandlers: [handleClick],
             dragHandlers: [handleDrag],
-            wheelHandlers: [handleWheel]
+            wheelEventHandlers: [handleWheel],
+            keyboardEventHandlers: [handleKeyboardEvent]
         }
     )
 }

@@ -17,7 +17,7 @@ interface ActionItem {
     callback: () => void
     title: string
     icon: any
-    key: number
+    keyCode: number
 }
 interface DividerItem {
     type: 'divider'
@@ -27,7 +27,7 @@ export type TimeWidgetAction = ActionItem | DividerItem
 
 interface Props {
     panels: TimeWidgetPanel[]
-    actions: TimeWidgetAction[]
+    customActions: TimeWidgetAction[]
     width: number
     height: number
     samplerate: number
@@ -50,6 +50,7 @@ const toolbarWidth = 50
 const spanWidgetHeight = 50
 
 interface TimeState {
+    numTimepoints: number
     currentTime: number | null
     timeRange: {min: number, max: number} | null
 }
@@ -61,15 +62,15 @@ interface SetTimeRangeAction {
     type: 'setTimeRange'
     timeRange: {min: number, max: number}
 }
-interface shiftTimeRangeByFrac {
-    type: 'shiftTimeRangeByFrac',
+interface TimeShiftFrac {
+    type: 'timeShiftFrac',
     frac: number
 }
 interface SetCurrentTime {
     type: 'setCurrentTime'
     currentTime: number
 }
-type TimeAction = ZoomTimeRangeAction | SetTimeRangeAction | shiftTimeRangeByFrac | SetCurrentTime
+type TimeAction = ZoomTimeRangeAction | SetTimeRangeAction | TimeShiftFrac | SetCurrentTime | {type: 'gotoHome' | 'gotoEnd'}
 const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
     if (action.type === 'zoomTimeRange') {
         const currentTime = state.currentTime
@@ -100,13 +101,41 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
             currentTime: action.currentTime
         }
     }
-    else if (action.type === 'shiftTimeRangeByFrac') {
+    else if (action.type === 'timeShiftFrac') {
+        const timeRange = state.timeRange
+        const currentTime = state.currentTime
+        if (!timeRange) return state
+        const span = timeRange.max - timeRange.min
+        const shift = Math.floor(span * action.frac)
+        const newTimeRange = shiftTimeRange(timeRange, shift)
+        const newCurrentTime = currentTime !== null ? currentTime + shift : null
+        return {
+            ...state,
+            currentTime: newCurrentTime,
+            timeRange: newTimeRange
+        }
+    }
+    else if (action.type === 'gotoHome') {
         const timeRange = state.timeRange
         if (!timeRange) return state
         const span = timeRange.max - timeRange.min
-        const newTimeRange = shiftTimeRange(timeRange, span * action.frac)
+        const newTimeRange = {min: 0, max: span}
         return {
             ...state,
+            currentTime: newTimeRange.min,
+            timeRange: newTimeRange
+        }
+    }
+    else if (action.type === 'gotoEnd') {
+        const timeRange = state.timeRange
+        if (!timeRange) return state
+        const numTimepoints = state.numTimepoints
+        if (numTimepoints === null) return state
+        const span = timeRange.max - timeRange.min
+        const newTimeRange = {min: numTimepoints - span, max: numTimepoints}
+        return {
+            ...state,
+            currentTime: newTimeRange.max - 1,
             timeRange: newTimeRange
         }
     }
@@ -117,7 +146,7 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
 
 const TimeWidgetNew = (props: Props) => {
 
-    const {panels, width, height, actions, numTimepoints, maxTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
+    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({})
     const [bottomBarInfo, setBottomBarInfo] = useState<BottomBarInfo>({})
@@ -126,7 +155,7 @@ const TimeWidgetNew = (props: Props) => {
     const [layers, setLayers] = useState<{[key: string]: CanvasWidgetLayer<TimeWidgetLayerProps, any>} | null>(null)
     const [layerList, setLayerList] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
 
-    const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null})
+    const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null, numTimepoints})
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
 
@@ -163,7 +192,6 @@ const TimeWidgetNew = (props: Props) => {
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {
-            console.log(args)
             timeDispatch({type: 'setCurrentTime', currentTime: args.timepoint})
         },
         []
@@ -178,15 +206,27 @@ const TimeWidgetNew = (props: Props) => {
         timeDispatch({type: 'zoomTimeRange', factor})
     }, [timeDispatch])
 
+    const handleTimeShiftFrac = useCallback((frac: number) => {
+        timeDispatch({type: 'timeShiftFrac', frac})
+    }, [timeDispatch])
+
+    const handleGotoHome = useCallback(() => {
+        timeDispatch({type: 'gotoHome'})
+    }, [timeDispatch])
+
+    const handleGotoEnd = useCallback(() => {
+        timeDispatch({type: 'gotoEnd'})
+    }, [timeDispatch])
+
     const _zoomTime = (fac: number) => {
         timeDispatch({type: 'zoomTimeRange', factor: fac})
     }
 
     const _handleShiftTimeLeft = () => {
-        timeDispatch({type: 'shiftTimeRangeByFrac', frac: -0.2})
+        timeDispatch({type: 'timeShiftFrac', frac: -0.2})
     }
     const _handleShiftTimeRight = () => {
-        timeDispatch({type: 'shiftTimeRangeByFrac', frac: 0.2})
+        timeDispatch({type: 'timeShiftFrac', frac: 0.2})
     }
 
     useEffect(() => {
@@ -227,6 +267,7 @@ const TimeWidgetNew = (props: Props) => {
                 layers={layerList}
                 preventDefaultWheel={true}
                 widgetProps={{
+                    customActions,
                     panels,
                     width: width - toolbarWidth,
                     height: height - spanWidgetHeight - bottomBarHeight,
@@ -236,7 +277,10 @@ const TimeWidgetNew = (props: Props) => {
                     margins: plotMargins,
                     onClick: handleClick,
                     onDrag: handleDrag,
-                    onTimeZoom: handleTimeZoom
+                    onTimeZoom: handleTimeZoom,
+                    onTimeShiftFrac: handleTimeShiftFrac,
+                    onGotoHome: handleGotoHome,
+                    onGotoEnd: handleGotoEnd,
                 }}
             />
             {/* <CanvasWidget
@@ -275,7 +319,7 @@ const TimeWidgetNew = (props: Props) => {
                 onZoomOut={() => {_zoomTime(1 / 1.15)}}
                 onShiftTimeLeft={() => {_handleShiftTimeLeft()}}
                 onShiftTimeRight={() => {_handleShiftTimeRight()}}
-                customActions={actions}
+                customActions={customActions}
             />
             <Splitter
                 width={width - toolbarWidth}
