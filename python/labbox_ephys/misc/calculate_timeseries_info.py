@@ -1,10 +1,13 @@
 import time
+
 import hither as hi
-import numpy as np
 import labbox_ephys as le
+import numpy as np
+
 from .get_recording_info import geom_from_recording
 
-@hi.function('calculate_timeseries_info', '0.1.0')
+
+@hi.function('calculate_timeseries_info', '0.1.2')
 def calculate_timeseries_info(recording_object):
     recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)
 

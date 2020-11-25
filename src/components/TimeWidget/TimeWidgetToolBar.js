@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
-
 import { IconButton } from '@material-ui/core';
-import { FaSearchMinus, FaSearchPlus, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import React, { Component } from 'react';
+import { FaArrowLeft, FaArrowRight, FaSearchMinus, FaSearchPlus } from "react-icons/fa";
+
 
 export default class TimeWidgetToolBar extends Component {
     render() {
         const style0 = {
-            position: 'relative',
             width: this.props.width,
             height: this.props.height,
             top: this.props.top,
@@ -50,7 +49,7 @@ export default class TimeWidgetToolBar extends Component {
             });
         }
         return (
-            <div style={style0}>
+            <div className="TimeWidgetToolBar" style={{position: 'absolute', ...style0}}>
                 {
                     buttons.map((button, ii) => {
                         if (button.type === 'button') {
