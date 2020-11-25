@@ -166,16 +166,8 @@ const TimeseriesWidgetNew = (props: Props) => {
     const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids } = props
     const [panels, setPanels] = useState<Panel[]>([])
     const [prevTimeseriesModel, setPrevTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
-    const [currentTime, setCurrentTime] = useState<number | null>(null)
-    const [timeRange, setTimeRange] = useState<{min: number, max: number} | null>(null)
     const [yScaleState, yScaleDispatch] = useReducer(yScaleReducer, {yScale: 1})
     const [prevYScale, setPrevYScale] = useState<number>(1)
-    const _handleCurrentTimeChanged = useCallback((t: number | null) => {
-        setCurrentTime(t)
-    }, [setCurrentTime])
-    const _handleTimeRangeChanged = useCallback((tr: {min: number, max: number} | null) => {
-        setTimeRange(tr)
-    }, [setTimeRange])
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {
         yScaleDispatch({scaleFactor: 1.15})
@@ -248,10 +240,6 @@ const TimeseriesWidgetNew = (props: Props) => {
             startTimeSpan={1e7 / timeseriesModel.numChannels()}
             maxTimeSpan={1e7 / timeseriesModel.numChannels()}
             numTimepoints={timeseriesModel ? timeseriesModel.numTimepoints() : 0}
-            currentTime={currentTime}
-            timeRange={timeRange}
-            onCurrentTimeChanged={_handleCurrentTimeChanged}
-            onTimeRangeChanged={_handleTimeRangeChanged}
             // leftPanel={leftPanel}
         />
     )

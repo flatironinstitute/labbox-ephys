@@ -8,7 +8,7 @@ import { createPanelLabelLayer } from './panelLabelLayer'
 import Splitter from './Splitter'
 import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
-import TimeWidgetBottomBar, { BottomBarInfo } from './TimeWidgetBottomBar'
+import TimeWidgetBottomBar from './TimeWidgetBottomBar'
 import { TimeWidgetLayerProps } from './TimeWidgetLayerProps'
 import TimeWidgetToolbarNew from './TimeWidgetToolbarNew'
 
@@ -34,10 +34,6 @@ interface Props {
     maxTimeSpan: number
     startTimeSpan: number
     numTimepoints: number
-    currentTime: number | null
-    timeRange: {min: number, max: number} | null
-    onCurrentTimeChanged: (t: number | null) => void
-    onTimeRangeChanged: (tr: {min: number, max: number} | null) => void
 }
 
 export interface TimeWidgetPanel {
@@ -70,7 +66,7 @@ interface TimeShiftFrac {
 }
 interface SetCurrentTime {
     type: 'setCurrentTime'
-    currentTime: number
+    currentTime: number | null
 }
 type TimeAction = ZoomTimeRangeAction | SetTimeRangeAction | TimeShiftFrac | SetCurrentTime | {type: 'gotoHome' | 'gotoEnd'}
 const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
@@ -198,11 +194,9 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
 
 const TimeWidgetNew = (props: Props) => {
 
-    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate, onCurrentTimeChanged, onTimeRangeChanged} = props
+    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate} = props
 
-    const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({})
-    const [bottomBarInfo, setBottomBarInfo] = useState<BottomBarInfo>({})
-    const [bottomBarHeight, setBottomBarHeight] = useState(0)
+    const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({numTimepoints})
 
     const [layers, setLayers] = useState<{[key: string]: CanvasWidgetLayer<TimeWidgetLayerProps, any>} | null>(null)
     const [layerList, setLayerList] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
@@ -228,10 +222,17 @@ const TimeWidgetNew = (props: Props) => {
                 }
             })
         })
+        if ((timeState.currentTime !== prevCurrentTime) || (timeState.timeRange !== prevTimeRange)) {
+            setSpanWidgetInfo({
+                ...spanWidgetInfo,
+                currentTime: timeState.currentTime,
+                timeRange: timeState.timeRange
+            })
+        }
         if (layers) {
             if (timeState.currentTime !== prevCurrentTime) {
                 layers.cursorLayer.scheduleRepaint()
-            }
+            }   
             if (timeState.timeRange !== prevTimeRange) {
                 Object.values(layers).forEach(layer => {
                     layer.scheduleRepaint()
@@ -240,7 +241,7 @@ const TimeWidgetNew = (props: Props) => {
         }
         setPrevCurrentTime(timeState.currentTime)
         setPrevTimeRange(timeState.timeRange)
-    }, [layers, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange])
+    }, [layers, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {
@@ -260,6 +261,14 @@ const TimeWidgetNew = (props: Props) => {
 
     const handleTimeShiftFrac = useCallback((frac: number) => {
         timeDispatch({type: 'timeShiftFrac', frac})
+    }, [timeDispatch])
+
+    const handleCurrentTimeChanged = useCallback((t: number | null) => {
+        timeDispatch({type: 'setCurrentTime', currentTime: t})
+    }, [timeDispatch])
+
+    const handleTimeRangeChanged = useCallback((timeRange: {min: number, max: number}) => {
+        timeDispatch({type: 'setTimeRange', timeRange})
     }, [timeDispatch])
 
     const handleGotoHome = useCallback(() => {
@@ -313,6 +322,16 @@ const TimeWidgetNew = (props: Props) => {
         return <div></div>
     }
 
+    const bottomBarInfo = {
+        show: true,
+        currentTime: timeState.currentTime,
+        timeRange: timeState.timeRange,
+        samplerate,
+        statusText: ''
+    }
+    const showBottomBar = true
+    const bottomBarHeight = showBottomBar ? 40 : 0;
+
     const innerContainer = (
         <InnerContainer>
             <TimeSpanWidget
@@ -320,8 +339,8 @@ const TimeWidgetNew = (props: Props) => {
                 width={width}
                 height={spanWidgetHeight}
                 info={spanWidgetInfo}
-                onCurrentTimeChanged={onCurrentTimeChanged}
-                onTimeRangeChanged={onTimeRangeChanged}
+                onCurrentTimeChanged={handleCurrentTimeChanged}
+                onTimeRangeChanged={handleTimeRangeChanged}
             />
             <CanvasWidget<TimeWidgetLayerProps>
                 key='canvas'
@@ -362,8 +381,8 @@ const TimeWidgetNew = (props: Props) => {
                 width={width}
                 height={bottomBarHeight}
                 info={bottomBarInfo}
-                onCurrentTimeChanged={onCurrentTimeChanged}
-                onTimeRangeChanged={onTimeRangeChanged}
+                onCurrentTimeChanged={handleCurrentTimeChanged}
+                onTimeRangeChanged={handleTimeRangeChanged}
             />
         </InnerContainer>
     )

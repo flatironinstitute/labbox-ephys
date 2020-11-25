@@ -116,10 +116,16 @@ export class CanvasPainter {
         this.#transformMatrix = transformMatrix
     }
     // Return a new, transformed painter
-    transform(m: TransformationMatrix) {
+    transform(m: TransformationMatrix): CanvasPainter {
         // todo: figure out whether this should be left or right-multiplication
-        const m2 = toTransformationMatrix(multiply(matrix(this.#transformMatrix), matrix(m)))
-        return new CanvasPainter(this.#context2D, transformRect(m, this.#fullDimensions), m2)
+        try {
+            const m2 = toTransformationMatrix(multiply(matrix(this.#transformMatrix), matrix(m)))
+            return new CanvasPainter(this.#context2D, this.#fullDimensions, m2)
+        }
+        catch(err) {
+            console.warn('Problem transforming painter:', err)
+            return this
+        }
     }
     useOffscreenCanvas(W: number, H: number) {
         const c = new OffscreenCanvas(W, H)
@@ -168,8 +174,9 @@ export class CanvasPainter {
         this.#context2D.restore();
     }
     wipe(): void {
-        const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
-        this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
+        // const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
+        // this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
+        this.#context2D.clearRect(this.#fullDimensions.xmin, this.#fullDimensions.ymin, this.#fullDimensions.xmax - this.#fullDimensions.xmin, this.#fullDimensions.ymax - this.#fullDimensions.ymin)
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
@@ -198,7 +205,7 @@ export class CanvasPainter {
         this.#context2D.save()
         applyBrush(this.#context2D, brush)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
-        this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr))
+        this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
         this.#context2D.restore()
     }
     drawRect(rect: RectangularRegion, pen: Pen) {
@@ -206,7 +213,7 @@ export class CanvasPainter {
         this.#context2D.save()
         applyPen(this.#context2D, pen)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
-        this.#context2D.strokeRect(pr.xmin, pr.ymin, getWidth(pr), -getHeight(pr))
+        this.#context2D.strokeRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
         this.#context2D.restore()
     }
     getEllipseFromBoundingRect(boundingRect: RectangularRegion) {

@@ -1,5 +1,5 @@
 import { CanvasPainter, Context2D } from './CanvasPainter'
-import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, pointInRect, RectangularRegion, rectangularRegionsIntersect, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
+import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
 
 type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => Promise<void> | void
 type OnPropsChange<T extends BaseLayerProps> = (layer: CanvasWidgetLayer<T, any>, layerProps: T) => void
@@ -222,7 +222,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     repaintImmediate() {
         this._doRepaint()
     }
-    _doRepaint = async () => {
+    async _doRepaint() {
         const canvasElement = this.#canvasElement
         if (!canvasElement) {
             this.#repaintNeeded = true
@@ -251,7 +251,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         const click = ClickEventFromMouseEvent(e, type, this.#inverseMatrix)
         // Don't respond to events outside the layer
         // NB possible minor efficiency gain if we cache our bounding coordinates in pixelspace.
-        if (!pointInRect(click.point, this.getCoordRange())) return
+        // if (!pointInRect(click.point, this.getCoordRange())) return
         for (let fn of this.#discreteMouseEventHandlers) {
             fn(click, this)
         }
@@ -260,7 +260,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     handleDrag(pixelDragRect: RectangularRegion, released: boolean, shift?: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
         if (this.#dragHandlers.length === 0) return
         const coordDragRect = transformRect(this.#inverseMatrix, pixelDragRect)
-        if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
+        // if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
         // Note: append a 1 to make the Vec2s into Vec2Hs
         const coordAnchor = pixelAnchor ? transformPoint(this.#inverseMatrix, [...pixelAnchor, 1]) : undefined
         const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined
