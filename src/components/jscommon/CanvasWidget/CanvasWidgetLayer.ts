@@ -1,7 +1,7 @@
 import { CanvasPainter, Context2D } from './CanvasPainter'
-import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, pointInRect, RectangularRegion, rectangularRegionsIntersect, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
+import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
 
-type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => void
+type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => Promise<void> | void
 type OnPropsChange<T extends BaseLayerProps> = (layer: CanvasWidgetLayer<T, any>, layerProps: T) => void
 
 export interface BaseLayerProps {
@@ -108,7 +108,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     #pixelWidth: number // TODO: Do we actually need these? Once the matrices and coord range have been set?
     #pixelHeight: number
-    #canvasElement: any | null = null
+    #canvasElement: HTMLCanvasElement | null = null
 
     #coordRange: RectangularRegion | null
     #transformMatrix: TransformationMatrix
@@ -122,6 +122,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #dragHandlers: DragHandler[] = []
     #wheelEventHandlers: WheelEventHandler[] = []
     #keyboardEventHandlers: KeyboardEventHandler[] = []
+
+    #refreshRate = 120 // Hz
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
         this.#state = null
@@ -195,14 +197,20 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     resetCanvasElement(canvasElement: any) {
         this.#canvasElement = canvasElement
     }
-    
+    refreshRate() {
+        return this.#refreshRate
+    }
+    setRefreshRate(hz: number) {
+        this.#refreshRate = hz
+    }
     scheduleRepaint() {
         this.#repaintNeeded = true
         if (this.#repaintScheduled) {
             return;
         }
         const elapsedSinceLastRepaint =  Number(new Date()) - this.#lastRepaintTimestamp
-        if (elapsedSinceLastRepaint > 10) {
+        const refreshDelay = 1000 / this.#refreshRate
+        if (elapsedSinceLastRepaint > refreshDelay * 2) {
             // do it right away
             this._doRepaint();
             return;
@@ -214,25 +222,32 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             this.#repaintScheduled = false;
             console.log('Calling doREpaint from timeout')
             this._doRepaint();
-        }, 5);
+        }, refreshDelay) // this timeout controls the refresh rate
     }
     repaintImmediate() {
         this._doRepaint()
     }
-    _doRepaint = () => {
+    async _doRepaint() {
         console.log('doing repaint')
-        const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
-        console.log(`Got context: ${ctx}`)
-        if (!ctx) {
+        const context: Context2D | null = this.#canvasElement?.getContext('2d') ?? null
+        console.log(`Got context: ${context}`)
+        if (!context) {
             this.#repaintNeeded = true
             return
         }
         this.#repaintNeeded = false
         console.log('Getting painter')
-        let painter = new CanvasPainter(ctx, this.getCoordRange(), this.#transformMatrix)
+        let painter = new CanvasPainter(context, this.getCoordRange(), this.#transformMatrix)
         // painter.clear()
         console.log('Calling onPaint with painter')
-        this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
+        // #onPaint may or may not be async
+        const promise = this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
+        if (promise) {
+            // if returned a promise, it was async, and let's await
+            // in this case we should update the lastRepaintTimestamp both before and after the paint
+            this.#lastRepaintTimestamp = Number(new Date())
+            await promise
+        }
         // this.unclipToSelf(ctx)
         console.log('Updating repaint timestamp')
         this.#lastRepaintTimestamp = Number(new Date())
@@ -243,7 +258,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         const click = ClickEventFromMouseEvent(e, type, this.#inverseMatrix)
         // Don't respond to events outside the layer
         // NB possible minor efficiency gain if we cache our bounding coordinates in pixelspace.
-        if (!pointInRect(click.point, this.getCoordRange())) return
+        // if (!pointInRect(click.point, this.getCoordRange())) return
         for (let fn of this.#discreteMouseEventHandlers) {
             fn(click, this)
         }
@@ -252,7 +267,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     handleDrag(pixelDragRect: RectangularRegion, released: boolean, shift?: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
         if (this.#dragHandlers.length === 0) return
         const coordDragRect = transformRect(this.#inverseMatrix, pixelDragRect)
-        if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
+        // if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
         // Note: append a 1 to make the Vec2s into Vec2Hs
         const coordAnchor = pixelAnchor ? transformPoint(this.#inverseMatrix, [...pixelAnchor, 1]) : undefined
         const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined
