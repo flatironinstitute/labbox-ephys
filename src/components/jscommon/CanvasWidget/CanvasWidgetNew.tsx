@@ -98,7 +98,9 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         const divElement = divRef.current
         props.layers.forEach((L, index) => {
             L.updateProps(props.widgetProps)
-            if ((divElement) && (divElement !== prevDivElement)) {
+            if ((divElement) && (divElement !== prevDivElement || (divElement.children?.length ?? -1 !== prevDivElement.children?.length ?? -1))) {
+                // Something in here is still being weird for electrode geometry widget
+            // if ((divElement)) {
                 // only repaint if we have a new div element
                 const canvasElement = divElement.children[index]
                 L.resetCanvasElement(canvasElement)
@@ -136,6 +138,36 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
             }
         }
     }, [canvasRef, prevCanvasRef, props, divRef, prevDivElement, setPrevDivElement, dragState, prevDragState, prevWidth, prevHeight])
+    // original version for reference
+    // useEffect(() => {
+    //     // this is only needed if the previous repaint occurred before the canvas element was rendered to the browser
+    //     const divElement = divRef.current
+    //     if (divElement) {
+    //         props.layers.forEach((L, index) => {
+    //             // /// TODO: figure out what to do here
+    //             // console.log(`I am layer ${index} and my props were ${JSON.stringify(props)}`)
+    //             const canvasElement = divElement.children[index]
+    //             L.resetCanvasElement(canvasElement)
+    //             L.updateProps(props.widgetProps)
+    //             L.scheduleRepaint() // The dependency list means this only gets called if props/canvas changed.
+    //             // In those cases, we definitely need to repaint, so scheduling it should be safe.
+    //         })
+    //     }
+    //     if ((dragState) && (dragState !== prevDragState) && (dragState.dragRect)) {
+    //         // The drag state has changed, so we'll call the handleDrag on the layers
+    //         const pixelDragRect = {
+    //             xmin: dragState.dragRect[0],
+    //             xmax: dragState.dragRect[0] + dragState.dragRect[2],
+    //             ymin: dragState.dragRect[1] + dragState.dragRect[3],
+    //             ymax: dragState.dragRect[1]
+    //         }
+    //         for (let l of props.layers) {
+    //             l.handleDrag(pixelDragRect, !dragState.dragging, dragState.shift, dragState.dragAnchor, dragState.dragPosition)
+    //         }
+    //        setPrevDragState(dragState)
+    //     }
+
+    // }, [props, divRef, dragState, prevDragState])
 
     const _dispatchDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of props.layers) {
