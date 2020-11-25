@@ -52,7 +52,7 @@ const onPaint = async (painter: CanvasPainter, layerProps: TimeWidgetLayerProps,
             // let's adjust the completeness factor based on a target elapsed time
             const targetElapsed = 40
             state.paintStatus.completenessFactor = state.paintStatus.completenessFactor * targetElapsed / elapsed
-            state.paintStatus.completenessFactor = Math.min(1, Math.max(0.1, state.paintStatus.completenessFactor))
+            state.paintStatus.completenessFactor = Math.min(1, Math.max(0.15, state.paintStatus.completenessFactor))
         }
         painter.transferOffscreenToPrimary()
         if (completenessFactor === 1) break
