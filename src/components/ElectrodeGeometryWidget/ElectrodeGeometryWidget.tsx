@@ -60,6 +60,8 @@ interface ElectrodeLayerState {
     hoveredElectrodeId: number | null
     radius: number
     pixelRadius: number
+    lastDragUpdate: DOMHighResTimeStamp | null
+    lastProps: ElectrodeLayerProps
 }
 
 const fitElectrodesToCanvas = (canvasAspect: number, electrodes: Electrode[]) => {
@@ -120,11 +122,36 @@ const computeRadius = (electrodes: Electrode[]): number => {
     return radius
 }
 
+const serializeElectrodes = (e: Electrode[]): string => {
+    const sortedList = e.sort((a, b) => (a.label > b.label) ? 1 : (a.label === b.label) ? (a.x > b.x) ? 1 : -1 : -1)
+    return sortedList.map((e) => `${e.label}-${e.x}-${e.y}`).join(':')
+}
+
+const propSetsDiffer = (a: ElectrodeLayerProps, b: ElectrodeLayerProps): boolean => {
+    if (!a || !b) return true // definitely need to recompute if one of the prop sets is undefined!
+    if (a.height !== b.height || a.width !== b.width) return true
+    if (a.electrodes.length !== b.electrodes.length) return true
+    return (serializeElectrodes(a.electrodes) !== serializeElectrodes(b.electrodes))
+}
+
 const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>, layerProps: ElectrodeLayerProps) => {
     if (!layerProps.width || ! layerProps.height) { // This happens when we're called before the canvas element exists & has dimensions.
-        layer.setState({electrodeBoundingBoxes: [], draggedElectrodeIds: [], radius: -1, dragRegion: null, hoveredElectrodeId: null, pixelRadius: -1})
+        layer.setState({
+            electrodeBoundingBoxes: [],
+            draggedElectrodeIds: [],
+            radius: -1,
+            dragRegion: null,
+            hoveredElectrodeId: null,
+            pixelRadius: -1,
+            lastDragUpdate: null,
+            lastProps: layerProps
+        })
         return
     }
+    // check if there were any actual electrode changes--if not we can skip this whole business
+    const oldState = layer.getState() || {} as ElectrodeLayerState
+    // if (!propSetsDiffer(oldState.lastProps, layerProps)) return
+    console.log("Doing an update")
     layer.setBasePixelTransformationMatrix()
     const canvasAspect = layerProps.width/ layerProps.height
     const { coordinates, radius, electrodeBoxes } = fitElectrodesToCanvas(canvasAspect, layerProps.electrodes)
@@ -158,10 +185,13 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     layer.setTransformMatrix(newTransform)
     layer.setCoordRange(coordinates)
     const pixelRadius = transformDistance(layer.getTransformMatrix(), [radius, 0])[0]
-    layer.setState({...layer.getState(), electrodeBoundingBoxes: electrodeBoxes, radius: radius, pixelRadius: pixelRadius})
+    layer.setState({...oldState, electrodeBoundingBoxes: electrodeBoxes, radius: radius, pixelRadius: pixelRadius, lastProps: layerProps})
+    layer.repaintImmediate()
+    console.log('Just called scheduleRepoaint')
 }
 
 const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLayerProps, state: ElectrodeLayerState) => {
+    console.log('Painting electrode geometry layer')
     painter.wipe()
     const useLabels = state.pixelRadius > 5
     for (let e of state.electrodeBoundingBoxes) {
@@ -194,25 +224,29 @@ const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLay
 }
 
 const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>, drag: DragEvent) => {
-    const { electrodeBoundingBoxes } = layer.getState()
-    const hits = electrodeBoundingBoxes.filter((r) => rectangularRegionsIntersect(r.br, drag.dragRect))
+    const state = layer.getState()
+    if (state === null) return // state not set; can't happen but keeps linter happy
+    if (state.lastDragUpdate && performance.now() - state.lastDragUpdate < 50) return // rate-limit the drag updates to improve performance
+    const thisUpdate = performance.now()
+    const hits = state.electrodeBoundingBoxes.filter((r) => rectangularRegionsIntersect(r.br, drag.dragRect)) ?? []
     if (drag.released) {
-        const currentSelected = drag.shift ? layer.getProps()?.selectedElectrodeIds || [] : []
+        const currentSelected = drag.shift ? layer.getProps()?.selectedElectrodeIds ?? [] : []
         layer.getProps()?.onSelectedElectrodeIdsChanged([...currentSelected, ...hits.map(r => r.id)])
-        layer.setState({...layer.getState(), dragRegion: null, draggedElectrodeIds: []})
+        layer.setState({...state, dragRegion: null, draggedElectrodeIds: [], lastDragUpdate: thisUpdate})
     } else {
-        layer.setState({...layer.getState(), dragRegion: drag.dragRect, draggedElectrodeIds: hits.map(r => r.id)})
+        layer.setState({...state, dragRegion: drag.dragRect, draggedElectrodeIds: hits.map(r => r.id), lastDragUpdate: thisUpdate})
     }
     layer.scheduleRepaint()
 }
 
 const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>) => {
     if (event.type !== ClickEventType.Release) return
-    const { electrodeBoundingBoxes, radius } = layer.getState()
-    const hitIds = electrodeBoundingBoxes.filter((r) => pointIsInEllipse(event.point, [r.x, r.y], radius)).map(r => r.id)
+    const state = layer.getState()
+    if (state === null) return
+    const hitIds = state.electrodeBoundingBoxes.filter((r) => pointIsInEllipse(event.point, [r.x, r.y], state.radius)).map(r => r.id)
     // handle clicks that weren't on an electrode
     if (hitIds.length === 0) {
-        if (!(event.modifiers.ctrl || event.modifiers.shift || layer.getState().dragRegion)) {
+        if (!(event.modifiers.ctrl || event.modifiers.shift || state.dragRegion)) {
             // simple-click that doesn't select anything should deselect everything. Shift- or Ctrl-clicks on empty space do nothing.
             layer.getProps()?.onSelectedElectrodeIdsChanged([])
         }
@@ -236,17 +270,20 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
 
 const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>) => {
     if (event.type !== ClickEventType.Move) return
-    const { electrodeBoundingBoxes, radius } = layer.getState()
-    const hoveredIds = electrodeBoundingBoxes.filter((r) => pointIsInEllipse(event.point, [r.x, r.y], radius)).map(r => r.id)
-    layer.setState({...layer.getState(), hoveredElectrodeId: hoveredIds.length === 0 ? null : hoveredIds[0]})
+    const state = layer.getState()
+    if (state === null) return
+    const hoveredIds = state.electrodeBoundingBoxes.filter((r) => pointIsInEllipse(event.point, [r.x, r.y], state.radius)).map(r => r.id)
+    layer.setState({...state, hoveredElectrodeId: hoveredIds.length === 0 ? null : hoveredIds[0]})
     layer.scheduleRepaint()
 }
 
 type LayerArray = Array<CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>> 
 const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
+    console.log('Rendering ElectrodeGeometryCanvas')
     const [layers, setLayers] = useState<LayerArray>([])
     useEffect(() => {
         if (!layers || layers.length === 0) {
+            console.log('Populating persisted layers')
             const layer = new CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>(
                 paintElectrodeGeometryLayer,
                 onUpdateLayerProps,
@@ -274,6 +311,8 @@ const ElectrodeGeometryWidget = (props: WidgetProps) => {
     return (
         <SizeMe monitorHeight>
             {({ size }) =>
+                <React.Fragment>
+                <div>LOOK HERE</div>
                 <div style={{width: "100%", height: "40%"}}>
                     <ElectrodeGeometryCanvas 
                         {...props}
@@ -281,6 +320,8 @@ const ElectrodeGeometryWidget = (props: WidgetProps) => {
                         height={Math.min(size.height || 5, 1800)} // maxHeight hard-coded to 1800
                     />
                 </div>
+                <div>BELOW CANVAS</div>
+                </React.Fragment>
             }
         </SizeMe>
     )

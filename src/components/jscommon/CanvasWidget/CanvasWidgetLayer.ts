@@ -154,7 +154,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#onPropsChange(this, p)
     }
     getState() {
-        return this.#state ? this.#state : {} as State
+        return this.#state ? this.#state as State : null
     }
     setState(s: State) {
         this.#state = s
@@ -207,10 +207,12 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             this._doRepaint();
             return;
         }
+        console.log('Scheduling repaint for future')
         this.#repaintScheduled = true;
         setTimeout(() => {
             // let elapsed = (new Date()) - timer;
             this.#repaintScheduled = false;
+            console.log('Calling doREpaint from timeout')
             this._doRepaint();
         }, 5);
     }
@@ -218,16 +220,21 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._doRepaint()
     }
     _doRepaint = () => {
+        console.log('doing repaint')
         const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
+        console.log(`Got context: ${ctx}`)
         if (!ctx) {
             this.#repaintNeeded = true
             return
         }
         this.#repaintNeeded = false
+        console.log('Getting painter')
         let painter = new CanvasPainter(ctx, this.getCoordRange(), this.#transformMatrix)
         // painter.clear()
+        console.log('Calling onPaint with painter')
         this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
         // this.unclipToSelf(ctx)
+        console.log('Updating repaint timestamp')
         this.#lastRepaintTimestamp = Number(new Date())
     }
 
