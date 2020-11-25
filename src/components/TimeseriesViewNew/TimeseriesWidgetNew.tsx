@@ -30,7 +30,6 @@ class Panel {
     #timeRange: {min: number, max: number} | null = null
     #yScale: number = 1
     #pixelWidth: number | null = null // for determining the downsampling factor
-    #paintCode: number = 0
     constructor(private channelIndex: number, private channelId: number, private timeseriesModel: TimeseriesModelNew, private y_offset: number, private y_scale_factor: number) {
         timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
             const timeRange = this.#timeRange
@@ -53,26 +52,12 @@ class Panel {
         this.#pixelWidth = w
         this.#updateHandler && this.#updateHandler()
     }
-    paint(painter: CanvasPainter) {
-        this.#paintCode ++
-        const paintCode = this.#paintCode
-
-        this._paintHelper(painter, 0.2)
-        setTimeout(() => {
-            if (this.#paintCode === paintCode) {
-                this._paintHelper(painter, 1)
-            }
-        }, 50)
-        
-    }
-    _paintHelper(painter: CanvasPainter, completenessFactor: number) {
+    paint(painter: CanvasPainter, completenessFactor: number) {
         const timeRange = this.#timeRange
         if (!timeRange) return
 
         const downsample_factor = this._determineDownsampleFactor(completenessFactor)
         if (downsample_factor === null) return
-
-        painter.wipe()
 
         const t1 = timeRange.min
         const t2 = timeRange.max
@@ -114,12 +99,12 @@ class Panel {
                     let val2_min = ((val_min + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
                     let val2_max = ((val_max + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
                     if (penDown) {
-                        pp.lineTo(tt * downsample_factor, val2_min);
-                        pp.lineTo(tt * downsample_factor, val2_max);
+                        pp.lineTo((tt - 1/3) * downsample_factor, val2_min);
+                        pp.lineTo((tt + 1/3) * downsample_factor, val2_max);
                     }
                     else {
-                        pp.moveTo(tt * downsample_factor, val2_min);
-                        pp.lineTo(tt * downsample_factor, val2_max);
+                        pp.moveTo((tt - 1/3) * downsample_factor, val2_min);
+                        pp.lineTo((tt + 1/3) * downsample_factor, val2_max);
                         penDown = true;
                     }
                 }
@@ -128,24 +113,6 @@ class Panel {
                 }
             }
         }
-
-        // let penDown = false;
-        // for (let tt = t1; tt < t2; tt++) {
-        //     let val = data[tt - t1];
-        //     if (!isNaN(val)) {
-        //         let val2 = ((val + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
-        //         if (penDown) {
-        //             pp.lineTo(tt, val2);    
-        //         }
-        //         else {
-        //             pp.moveTo(tt, val2);
-        //             penDown = true;
-        //         }
-        //     }
-        //     else {
-        //         penDown = false;
-        //     }
-        // }
 
         const color = channelColors[this.channelIndex % channelColors.length]
         const pen = {color, width: 1}
@@ -164,7 +131,7 @@ class Panel {
         // determine what the downsample factor should be based on the number
         // of timepoints in the view range
         // we also need to consider the number of pixels it corresponds to
-        const targetNumPix = Math.max(500, this.#pixelWidth * factor0 * completenessFactor)
+        const targetNumPix = Math.max(500, this.#pixelWidth * factor0) * completenessFactor
         const numPoints = timeRange.max - timeRange.min
         let ds_factor = 1;
         let factor = 3;

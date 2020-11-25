@@ -42,7 +42,7 @@ interface Props {
 
 export interface TimeWidgetPanel {
     setTimeRange: (timeRange: {min: number, max: number}) => void
-    paint: (painter: CanvasPainter) => void
+    paint: (painter: CanvasPainter, completenessFactor: number) => void
     label: () => string
     register: (onUpdate: () => void) => void
 }
@@ -270,6 +270,16 @@ const TimeWidgetNew = (props: Props) => {
         timeDispatch({type: 'gotoEnd'})
     }, [timeDispatch])
 
+    const handleRepaintTimeEstimate = useCallback((ms: number) => {
+        if (layerList) {
+            const refreshRateEstimate = 1000 / ms
+            const refreshRate = refreshRateEstimate / 2
+            layerList.forEach(layer => {
+                layer.setRefreshRate(refreshRate)
+            })
+        }
+    }, [layerList])
+
     const _zoomTime = (fac: number) => {
         timeDispatch({type: 'zoomTimeRange', factor: fac})
     }
@@ -332,6 +342,7 @@ const TimeWidgetNew = (props: Props) => {
                     onTimeShiftFrac: handleTimeShiftFrac,
                     onGotoHome: handleGotoHome,
                     onGotoEnd: handleGotoEnd,
+                    onRepaintTimeEstimate: handleRepaintTimeEstimate
                 }}
             />
             {/* <CanvasWidget

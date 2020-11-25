@@ -14,6 +14,7 @@ export interface TimeWidgetLayerProps extends BaseLayerProps {
     onTimeShiftFrac: (frac: number) => void
     onGotoHome: () => void
     onGotoEnd: () => void
+    onRepaintTimeEstimate: (ms: number) => void
 }
 
 export interface Point2D {

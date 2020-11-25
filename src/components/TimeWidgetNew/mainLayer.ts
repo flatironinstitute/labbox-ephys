@@ -1,3 +1,4 @@
+import { sleepMsec } from "../../hither/createHitherJob"
 import { CanvasPainter } from "../jscommon/CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../jscommon/CanvasWidget/Geometry"
@@ -12,57 +13,50 @@ interface LayerState {
     anchorTimepoint: number | null
     dragging: boolean
     paintStatus: {
-        painting: boolean,
-        nextPaint: (() => void) | null
+        paintCode: number,
+        completenessFactor: number
     }
 }
 
-const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
+const onPaint = async (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState): Promise<void> => {
     const { panels, timeRange } = layerProps
     if (!timeRange) return
     if (panels.length === 0) return
+    state.paintStatus.paintCode ++
+    const paintCode = state.paintStatus.paintCode
 
-    painter.wipe()
-    for (let i = 0; i < panels.length; i++) {
-        const painter2 = painter.transform(state.transformations[i])
-        panels[i].setTimeRange(timeRange)
-        panels[i].paint(painter2)
+    for (let level = 1 ; level <= 2; level++) {
+        let completenessFactor = state.paintStatus.completenessFactor
+        painter.useOffscreenCanvas(layerProps.width, layerProps.height)
+        if (level === 1) {
+            painter.wipe()
+        }
+        else if (level === 2) {
+            completenessFactor = 1
+        }
+        const timer = Number(new Date())
+        for (let i = 0; i < panels.length; i++) {
+            const painter2 = painter.transform(state.transformations[i])
+            panels[i].setTimeRange(timeRange)
+            panels[i].paint(painter2, completenessFactor)
+            if (level === 2) {
+                await sleepMsec(0)
+                if (paintCode !== state.paintStatus.paintCode) {
+                    return
+                }
+            }
+        }
+        const elapsed = Number(new Date()) - timer
+        if ((level === 1) && (elapsed)) {
+            layerProps.onRepaintTimeEstimate(elapsed)
+            // let's adjust the completeness factor based on a target elapsed time
+            const targetElapsed = 40
+            state.paintStatus.completenessFactor = state.paintStatus.completenessFactor * targetElapsed / elapsed
+            state.paintStatus.completenessFactor = Math.min(1, Math.max(0.1, state.paintStatus.completenessFactor))
+        }
+        painter.transferOffscreenToPrimary()
+        if (completenessFactor === 1) break
     }
-
-    // const thisTimestamp = Number(new Date())
-
-    // const doPaint = () => {
-    //     painter.wipe()
-    //     for (let i = 0; i < panels.length; i++) {
-    //         const painter2 = painter.transform(state.transformations[i])
-    //         panels[i].setTimeRange(timeRange)
-    //         panels[i].paint(painter2)
-    //     }
-    // }
-
-    // const tryNextPaint = () => {
-    //     if (state.paintStatus.nextPaint) {
-    //         state.paintStatus.nextPaint()
-    //         setTimeout(() => {
-    //             tryNextPaint()
-    //         }, 2)
-    //     }
-    //     else {
-    //         state.paintStatus.painting = false
-    //     }
-    // }
-
-    // if (!state.paintStatus.painting) {
-    //     state.paintStatus.nextPaint = null
-    //     state.paintStatus.painting = true
-    //     doPaint()
-    //     setTimeout(() => {
-    //         tryNextPaint()
-    //     }, 2)
-    // }
-    // else {
-    //     state.paintStatus.nextPaint = doPaint
-    // }
 }
 
 export const funcToTransform = (transformation: (p: Vec2) => Vec2): TransformationMatrix => {
@@ -100,10 +94,8 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
         transformations,
         inverseTransformations,
         paintStatus: layer.getState().paintStatus || {
-            painting: false,
-            timestamp: Number(new Date()),
-            pendingTimestamp: Number(new Date()),
-            lastPaintFinishedTimestamp: Number(new Date())
+            paintCode: 0,
+            completenessFactor: 0.2
         }
     })
 }

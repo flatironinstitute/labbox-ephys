@@ -1,7 +1,7 @@
 import { CanvasPainter, Context2D } from './CanvasPainter'
 import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, pointInRect, RectangularRegion, rectangularRegionsIntersect, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
 
-type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => void
+type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => Promise<void> | void
 type OnPropsChange<T extends BaseLayerProps> = (layer: CanvasWidgetLayer<T, any>, layerProps: T) => void
 
 export interface BaseLayerProps {
@@ -104,7 +104,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     #pixelWidth: number // TODO: Do we actually need these? Once the matrices and coord range have been set?
     #pixelHeight: number
-    #canvasElement: any | null = null
+    #canvasElement: HTMLCanvasElement | null = null
 
     #coordRange: RectangularRegion | null
     #transformMatrix: TransformationMatrix
@@ -118,6 +118,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #dragHandlers: DragHandler[] = []
     #wheelEventHandlers: WheelEventHandler[] = []
     #keyboardEventHandlers: KeyboardEventHandler[] = []
+
+    #refreshRate = 120 // Hz
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
         this.#state = null
@@ -192,14 +194,20 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     resetCanvasElement(canvasElement: any) {
         this.#canvasElement = canvasElement
     }
-    
+    refreshRate() {
+        return this.#refreshRate
+    }
+    setRefreshRate(hz: number) {
+        this.#refreshRate = hz
+    }
     scheduleRepaint() {
         this.#repaintNeeded = true
         if (this.#repaintScheduled) {
             return;
         }
         const elapsedSinceLastRepaint =  Number(new Date()) - this.#lastRepaintTimestamp
-        if (elapsedSinceLastRepaint > 10) {
+        const refreshDelay = 1000 / this.#refreshRate
+        if (elapsedSinceLastRepaint > refreshDelay * 2) {
             // do it right away
             this._doRepaint();
             return;
@@ -209,22 +217,32 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             // let elapsed = (new Date()) - timer;
             this.#repaintScheduled = false;
             this._doRepaint();
-        }, 5);
+        }, refreshDelay) // this timeout controls the refresh rate
     }
     repaintImmediate() {
         this._doRepaint()
     }
-    _doRepaint = () => {
-        const ctx: Context2D | null = this.#canvasElement?.getContext('2d')
-        if (!ctx) {
+    _doRepaint = async () => {
+        const canvasElement = this.#canvasElement
+        if (!canvasElement) {
+            this.#repaintNeeded = true
+            return
+        }
+        const context = canvasElement.getContext('2d')
+        if (!context) {
             this.#repaintNeeded = true
             return
         }
         this.#repaintNeeded = false
-        let painter = new CanvasPainter(ctx, this.getCoordRange(), this.#transformMatrix)
-        // painter.clear()
-        this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
-        // this.unclipToSelf(ctx)
+        let painter = new CanvasPainter(context, this.getCoordRange(), this.#transformMatrix)
+        // #onPaint may or may not be async
+        const promise = this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
+        if (promise) {
+            // if returned a promise, it was async, and let's await
+            // in this case we should update the lastRepaintTimestamp both before and after the paint
+            this.#lastRepaintTimestamp = Number(new Date())
+            await promise
+        }
         this.#lastRepaintTimestamp = Number(new Date())
     }
 

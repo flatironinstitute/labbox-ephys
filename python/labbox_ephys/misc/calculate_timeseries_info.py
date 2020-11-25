@@ -7,7 +7,7 @@ import numpy as np
 from .get_recording_info import geom_from_recording
 
 
-@hi.function('calculate_timeseries_info', '0.1.1')
+@hi.function('calculate_timeseries_info', '0.1.2')
 def calculate_timeseries_info(recording_object):
     recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)
 
@@ -20,7 +20,7 @@ def calculate_timeseries_info(recording_object):
     for m in range(traces0.shape[0]):
         traces0[m, :] = traces0[m, :] + y_offsets[m]
     vv = np.percentile(np.abs(traces0), 90)
-    y_scale_factor = 1 / (4 * vv) if vv > 0 else 1
+    y_scale_factor = 1 / (2 * vv) if vv > 0 else 1
 
     # segment_size_times_num_channels = 1000000
     segment_size_times_num_channels = 100000
