@@ -66,6 +66,7 @@ const createTimeSpanLayer = () => {
         const props = layer.getProps()
         const state = layer.getState()
         if (!props) return
+        if (!state) return
         if (e.type === ClickEventType.Press) {
             layer.setState({
                 ...layer.getState(),

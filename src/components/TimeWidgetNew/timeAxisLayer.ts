@@ -18,7 +18,7 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
     painter.wipe()
 
     const pen = {color: 'rgb(22, 22, 22)'}
-    const font: Font = {'pixel-size': 12, family: 'Arial'}
+    const font: Font = {pixelSize: 12, family: 'Arial'}
     const brush: Brush = {color: 'rgb(22, 22, 22)'}
 
     const { transformation } = state

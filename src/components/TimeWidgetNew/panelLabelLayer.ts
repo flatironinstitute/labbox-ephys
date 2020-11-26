@@ -27,7 +27,7 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
         const label: string = panels[i].label()
         let rect: RectangularRegion = {xmin: 0.2, ymin: 0.2, xmax: 0.6, ymax: 0.6}
         let alignment: TextAlignment = {Horizontal: 'AlignRight', Vertical: "AlignCenter"}
-        const font: Font = {'pixel-size': 12, family: 'Arial'}
+        const font: Font = {pixelSize: 12, family: 'Arial'}
         painter2.drawText(rect, alignment, font, {color: 'black'}, {color: 'black'}, label)
     }
 }

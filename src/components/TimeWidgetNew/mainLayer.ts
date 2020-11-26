@@ -90,10 +90,12 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
     const inverseTransformations = transformations.map(T => (getInverseTransformationMatrix(T)))
     layer.setState({
         ...layer.getState(),
+        dragging: false,
+        anchorTimepoint: null,
         timeRange,
         transformations,
         inverseTransformations,
-        paintStatus: layer.getState().paintStatus || {
+        paintStatus: layer.getState()?.paintStatus || {
             paintCode: 0,
             completenessFactor: 0.2
         }
@@ -104,14 +106,16 @@ export const handleClick: DiscreteMouseEventHandler = (e: ClickEvent, layer: Can
     if (e.type === ClickEventType.Move) return
     
     const props = layer.getProps()
+    const state = layer.getState()
     if (!props) return
-    const { inverseTransformations, dragging } = layer.getState()
+    if (!state) return
+    const { inverseTransformations, dragging } = state
 
     for (let i = 0; i< inverseTransformations.length; i++) {
         const p = transformPoint(inverseTransformations[i], e.point)
         if ((0 <= p[1]) && (p[1] <= 1)) {
             if (e.type === ClickEventType.Press) {
-                layer.setState({...layer.getState(), anchorTimepoint: p[0], dragging: false})
+                layer.setState({...state, anchorTimepoint: p[0], dragging: false})
             }
             else if (e.type === ClickEventType.Release) {
                 if (!dragging) {
@@ -133,12 +137,14 @@ const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {
 export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>, drag: DragEvent) => {
     const props = layer.getProps()
     if (!props) return
-    const {anchorTimepoint, inverseTransformations, timeRange} = layer.getState()
+    const state = layer.getState()
+    if (!state) return
+    const {anchorTimepoint, inverseTransformations, timeRange} = state
     if (anchorTimepoint === null) return
     const pos = drag.position
     if (!pos) return
     if (inverseTransformations.length === 0) return
-    layer.setState({...layer.getState(), dragging: true})
+    layer.setState({...state, dragging: true})
     const t = transformPoint(inverseTransformations[0], pos)[0]
     const newTimeRange = shiftTimeRange(timeRange, anchorTimepoint - t)
     // now we want
