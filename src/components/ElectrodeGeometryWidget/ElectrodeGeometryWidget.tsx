@@ -64,6 +64,23 @@ interface ElectrodeLayerState {
     lastProps: ElectrodeLayerProps
 }
 
+const initialElectrodeLayerState: ElectrodeLayerState = {
+    electrodeBoundingBoxes: [],
+    dragRegion: null,
+    draggedElectrodeIds: [],
+    hoveredElectrodeId: null,
+    radius: 0,
+    pixelRadius: 0,
+    lastDragUpdate: null,
+    lastProps: {
+        electrodes: [],
+        selectedElectrodeIds: [],
+        onSelectedElectrodeIdsChanged: () => {},
+        width: 0,
+        height: 0
+    }
+}
+
 const fitElectrodesToCanvas = (canvasAspect: number, electrodes: Electrode[]) => {
     const electrodeXs = electrodes.map((point) => point.x)
     const electrodeYs = electrodes.map((point) => point.y)
@@ -151,7 +168,6 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     // check if there were any actual electrode changes--if not we can skip this whole business
     const oldState = layer.getState() || {} as ElectrodeLayerState
     // if (!propSetsDiffer(oldState.lastProps, layerProps)) return
-    console.log("Doing an update")
     layer.setBasePixelTransformationMatrix()
     const canvasAspect = layerProps.width/ layerProps.height
     const { coordinates, radius, electrodeBoxes } = fitElectrodesToCanvas(canvasAspect, layerProps.electrodes)
@@ -187,11 +203,9 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     const pixelRadius = transformDistance(layer.getTransformMatrix(), [radius, 0])[0]
     layer.setState({...oldState, electrodeBoundingBoxes: electrodeBoxes, radius: radius, pixelRadius: pixelRadius, lastProps: layerProps})
     layer.repaintImmediate()
-    console.log('Just called scheduleRepoaint')
 }
 
 const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLayerProps, state: ElectrodeLayerState) => {
-    console.log('Painting electrode geometry layer')
     painter.wipe()
     const useLabels = state.pixelRadius > 5
     for (let e of state.electrodeBoundingBoxes) {
@@ -279,14 +293,13 @@ const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
 
 type LayerArray = Array<CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>> 
 const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
-    console.log('Rendering ElectrodeGeometryCanvas')
     const [layers, setLayers] = useState<LayerArray>([])
     useEffect(() => {
         if (!layers || layers.length === 0) {
-            console.log('Populating persisted layers')
             const layer = new CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>(
                 paintElectrodeGeometryLayer,
                 onUpdateLayerProps,
+                initialElectrodeLayerState,
                 {
                     dragHandlers: [handleDragSelect],
                     discreteMouseEventHandlers: [handleClick, handleHover]

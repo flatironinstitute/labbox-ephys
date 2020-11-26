@@ -11,6 +11,11 @@ interface LayerState {
     inverseTransformation: TransformationMatrix
 }
 
+const initialLayerState = {
+    transformation: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix,
+    inverseTransformation: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
+}
+
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
     const { timeRange, samplerate } = layerProps
     if (!timeRange) return
@@ -53,6 +58,7 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
     })
     const inverseTransformation = getInverseTransformationMatrix(transformation)
     layer.setState({
+        ...layer.getState(),
         transformation,
         inverseTransformation
     })
@@ -179,6 +185,7 @@ const get_ticks = (t1: number, t2: number, width: number, samplerate: number): T
 export const createTimeAxisLayer = () => {
     return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(
         onPaint,
-        onPropsChange
+        onPropsChange,
+        initialLayerState
     )
 }

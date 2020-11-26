@@ -103,21 +103,35 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     }
 
     const testLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, object>(paintTestLayer, setCanvasFromProps,
+        {},
         {   // note, temporarily not importing the reporting functions since we aren't using them right now
             discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // these get REAL chatty
             dragHandlers: []//reportMouseDrag],
         })).current
     const dragLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>(paintDragLayer, setDragLayerStateFromProps,
         {
+            dragRegion: null,
+            electrodeBoundingBoxes: [],
+            selectedElectrodes: [],
+            draggedElectrodes: []
+        },
+        {
             discreteMouseEventHandlers: [],
             dragHandlers: [updateDragRegion]
         })).current
     const clickLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, ClickHistoryState>(paintClickLayer, setCanvasFromProps,
         {
+            clickHistory: []
+        },
+        {
             discreteMouseEventHandlers: [handleClickTrail],
             dragHandlers: []
         })).current
     const animatedLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, AnimatedLayerState>(paintAnimationLayer, setCanvasFromProps,
+        {
+            points: [],
+            newQueue: []
+        },
         {  
             discreteMouseEventHandlers: [handleAnimatedClick],
             dragHandlers: []

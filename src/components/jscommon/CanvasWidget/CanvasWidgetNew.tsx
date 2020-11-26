@@ -98,9 +98,9 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         const divElement = divRef.current
         props.layers.forEach((L, index) => {
             L.updateProps(props.widgetProps)
-            if ((divElement) && (divElement !== prevDivElement || (divElement.children?.length ?? -1 !== prevDivElement.children?.length ?? -1))) {
+            if ((divElement) && ((divElement !== prevDivElement) || (L.repaintNeeded()))) {
                 // Something in here is still being weird for electrode geometry widget
-            // if ((divElement)) {
+                // if ((divElement)) {
                 // only repaint if we have a new div element
                 const canvasElement = divElement.children[index]
                 L.resetCanvasElement(canvasElement)

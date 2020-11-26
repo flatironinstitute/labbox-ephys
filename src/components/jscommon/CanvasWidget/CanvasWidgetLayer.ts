@@ -104,7 +104,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #onPropsChange: OnPropsChange<LayerProps>
 
     #props: LayerProps | null
-    #state: State | null
+    #state: State
 
     #pixelWidth: number // TODO: Do we actually need these? Once the matrices and coord range have been set?
     #pixelHeight: number
@@ -125,8 +125,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     #refreshRate = 120 // Hz
 
-    constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, handlers?: EventHandlerSet) {
-        this.#state = null
+    constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, initialState: State, handlers?: EventHandlerSet) {
+        this.#state = initialState
         this.#props = null
         this.#onPaint = onPaint
         this.#onPropsChange = onPropsChange
@@ -147,7 +147,8 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#inverseMatrix = getInverseTransformationMatrix(matrix)
     }
     getProps() {
-        return this.#props ? this.#props as LayerProps : null
+        if (!this.#props) throw Error('getProps must not be called before initial props are set')
+        return this.#props
     }
     updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
         this.#props = p
@@ -156,7 +157,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#onPropsChange(this, p)
     }
     getState() {
-        return this.#state ? this.#state as State : null
+        return this.#state
     }
     setState(s: State) {
         this.#state = s
@@ -197,6 +198,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     resetCanvasElement(canvasElement: any) {
         this.#canvasElement = canvasElement
     }
+    canvasElement() {
+        return this.#canvasElement
+    }
     refreshRate() {
         return this.#refreshRate
     }
@@ -215,12 +219,10 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             this._doRepaint();
             return;
         }
-        console.log('Scheduling repaint for future')
         this.#repaintScheduled = true;
         setTimeout(() => {
             // let elapsed = (new Date()) - timer;
             this.#repaintScheduled = false;
-            console.log('Calling doREpaint from timeout')
             this._doRepaint();
         }, refreshDelay) // this timeout controls the refresh rate
     }
@@ -228,18 +230,14 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._doRepaint()
     }
     async _doRepaint() {
-        console.log('doing repaint')
         const context: Context2D | null = this.#canvasElement?.getContext('2d') ?? null
-        console.log(`Got context: ${context}`)
         if (!context) {
             this.#repaintNeeded = true
             return
         }
         this.#repaintNeeded = false
-        console.log('Getting painter')
         let painter = new CanvasPainter(context, this.getCoordRange(), this.#transformMatrix)
         // painter.clear()
-        console.log('Calling onPaint with painter')
         // #onPaint may or may not be async
         const promise = this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
         if (promise) {
@@ -249,7 +247,6 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             await promise
         }
         // this.unclipToSelf(ctx)
-        console.log('Updating repaint timestamp')
         this.#lastRepaintTimestamp = Number(new Date())
     }
 

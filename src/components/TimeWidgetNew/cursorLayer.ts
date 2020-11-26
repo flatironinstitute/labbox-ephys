@@ -10,6 +10,8 @@ interface LayerState {
 
 }
 
+const initialLayerState = {}
+
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
     const { currentTime, timeRange, samplerate, width, height, margins } = layerProps
     if (!timeRange) return
@@ -40,5 +42,5 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
 }
 
 export const createCursorLayer = () => {
-    return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(onPaint, onPropsChange)
+    return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(onPaint, onPropsChange, initialLayerState)
 }

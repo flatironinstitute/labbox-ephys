@@ -7,7 +7,7 @@ import { funcToTransform } from './mainLayer';
 
 
 export interface SpanWidgetInfo {
-    numTimepoints: number
+    numTimepoints: number | null
     currentTime?: number | null
     timeRange?: {min: number, max: number} | null
 }
@@ -32,12 +32,16 @@ interface LayerState {
     anchorCurrentTime?: number | null
 }
 
+const initialLayerState = {
+}
+
 const createTimeSpanLayer = () => {
 
     const onPaint = (painter: CanvasPainter, layerProps: LayerProps, state: LayerState) => {
         const { numTimepoints, timeRange, currentTime }= layerProps.info
         const { dragTimeRange } = state || {}
         if (!timeRange) return
+        if (!numTimepoints) return
         painter.wipe()
         painter.fillRect({xmin: 0, ymin: 0.4, xmax: numTimepoints, ymax: 0.6}, {color: 'lightgray'});
         painter.fillRect({xmin: timeRange.min, ymin: 0.3, xmax: timeRange.max, ymax: 0.7}, {color: 'lightgray'});
@@ -52,8 +56,10 @@ const createTimeSpanLayer = () => {
 
     const onPropsChange = (layer: CanvasWidgetLayer<LayerProps, LayerState>, layerProps: LayerProps) => {
         const transform = (p: Vec2): Vec2 => {
+            const numTimepoints = layerProps.info.numTimepoints
+            if (!numTimepoints) return [0, 0]
             const margins = {left: 50, right: 50}
-            const xfrac = p[0] / layerProps.info.numTimepoints
+            const xfrac = p[0] / numTimepoints
             const yfrac = p[1]
             return [margins.left + xfrac * (layerProps.width - margins.left - margins.right), yfrac * layerProps.height]
         }
@@ -111,7 +117,7 @@ const createTimeSpanLayer = () => {
         }
     }
 
-    return new CanvasWidgetLayer<LayerProps, LayerState>(onPaint, onPropsChange, {
+    return new CanvasWidgetLayer<LayerProps, LayerState>(onPaint, onPropsChange, initialLayerState, {
         discreteMouseEventHandlers: [onMouseEvent],
         dragHandlers: [onDrag]
     })

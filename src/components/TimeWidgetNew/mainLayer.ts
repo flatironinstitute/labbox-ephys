@@ -7,7 +7,7 @@ import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 
 interface LayerState {
-    timeRange: {min: number, max: number}
+    timeRange: {min: number, max: number} | null
     transformations: TransformationMatrix[]
     inverseTransformations: TransformationMatrix[]
     anchorTimepoint: number | null
@@ -15,6 +15,18 @@ interface LayerState {
     paintStatus: {
         paintCode: number,
         completenessFactor: number
+    }
+}
+
+const initialLayerState = {
+    timeRange: null,
+    transformations: [],
+    inverseTransformations: [],
+    anchorTimepoint: null,
+    dragging: false,
+    paintStatus: {
+        paintCode: 0,
+        completenessFactor: 0.2
     }
 }
 
@@ -90,15 +102,9 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
     const inverseTransformations = transformations.map(T => (getInverseTransformationMatrix(T)))
     layer.setState({
         ...layer.getState(),
-        dragging: false,
-        anchorTimepoint: null,
         timeRange,
         transformations,
-        inverseTransformations,
-        paintStatus: layer.getState()?.paintStatus || {
-            paintCode: 0,
-            completenessFactor: 0.2
-        }
+        inverseTransformations
     })
 }
 
@@ -138,17 +144,21 @@ export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayer
     const props = layer.getProps()
     if (!props) return
     const state = layer.getState()
-    if (!state) return
     const {anchorTimepoint, inverseTransformations, timeRange} = state
-    if (anchorTimepoint === null) return
+    if (timeRange === null) return
     const pos = drag.position
     if (!pos) return
     if (inverseTransformations.length === 0) return
     layer.setState({...state, dragging: true})
     const t = transformPoint(inverseTransformations[0], pos)[0]
-    const newTimeRange = shiftTimeRange(timeRange, anchorTimepoint - t)
-    // now we want
-    props.onDrag && props.onDrag({newTimeRange})
+    if (anchorTimepoint !== null) {
+        const newTimeRange = shiftTimeRange(timeRange, anchorTimepoint - t)
+        props.onDrag && props.onDrag({newTimeRange})
+    }
+    else {
+        layer.setState({...state, anchorTimepoint: t})
+    }
+    
 }
 
 export const handleWheel: WheelEventHandler = (e: WheelEvent, layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>) => {
@@ -188,6 +198,7 @@ export const createMainLayer = () => {
     return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(
         onPaint,
         onPropsChange,
+        initialLayerState,
         {  
             discreteMouseEventHandlers: [handleClick],
             dragHandlers: [handleDrag],

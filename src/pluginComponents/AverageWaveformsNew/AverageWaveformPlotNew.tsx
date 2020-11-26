@@ -92,7 +92,7 @@ const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, laye
 }
 
 const HelperPlot = (props: HelperPlotProps) => {
-    const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps, any>(paintCanvasWidgetLayer, setCanvasFromProps)).current
+    const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps, any>(paintCanvasWidgetLayer, setCanvasFromProps, {})).current
     // // In general would be better to set it right the first time--I don't see a way to trigger it here, but I am
     // // concerned that with this pattern, we could wind up progressively shrinking or monkeying with our drawing area
     // // by re-applying this set of coordinate system transforms when it was already set up correctly the first time.

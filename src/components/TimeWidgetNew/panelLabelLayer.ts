@@ -10,6 +10,8 @@ interface LayerState {
 
 }
 
+const initialLayerState = {}
+
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
     const { panels, width, height, margins } = layerProps
     if (panels.length === 0) return
@@ -36,5 +38,5 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
 }
 
 export const createPanelLabelLayer = () => {
-    return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(onPaint, onPropsChange)
+    return new CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>(onPaint, onPropsChange, initialLayerState)
 }
