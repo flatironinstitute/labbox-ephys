@@ -102,7 +102,7 @@ const HelperPlot = (props: HelperPlotProps) => {
         <div style={{gridArea: "2 / 1 / 7 / 2"}}>
             <CanvasWidget<HelperPlotProps>
                 layers={layers}
-                widgetProps={props}
+                layerProps={props}
             />
         </div>
     )

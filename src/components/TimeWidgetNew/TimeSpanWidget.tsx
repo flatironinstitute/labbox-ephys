@@ -139,7 +139,7 @@ const TimeSpanWidget: FunctionComponent<Props> = (props) => {
     return (
         <CanvasWidget
             layers={layers}
-            widgetProps={{
+            layerProps={{
                 width: props.width,
                 height: props.height,
                 info: props.info,

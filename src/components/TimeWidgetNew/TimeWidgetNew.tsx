@@ -346,7 +346,7 @@ const TimeWidgetNew = (props: Props) => {
                 key='canvas'
                 layers={layerList}
                 preventDefaultWheel={true}
-                widgetProps={{
+                layerProps={{
                     customActions,
                     panels,
                     width: width - toolbarWidth,

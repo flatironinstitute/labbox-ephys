@@ -313,7 +313,7 @@ const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
         <CanvasWidget<ElectrodeLayerProps>
             key='electrodeGeometryCanvas'
             layers={layers}
-            widgetProps={props}
+            layerProps={props}
         />
     )
 }
