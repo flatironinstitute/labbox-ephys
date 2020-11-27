@@ -85,7 +85,7 @@ export const rectsAreEqual = (a: RectangularRegion, b: RectangularRegion) => {
             a.ymax === b.ymax)
 }
 export const getWidth = (region: RectangularRegion): number => {
-    return region.xmax - region.xmin
+    return abs(region.xmax - region.xmin)
 }
 export const getHeight = (region: RectangularRegion): number => {
     return abs(region.ymax - region.ymin) // y-axis is inverted in conversion to pixelspace
@@ -230,11 +230,15 @@ export const transformRect = (tmatrix: TransformationMatrix, rect: RectangularRe
     const corners = matrix([[rect.xmin, rect.xmax], [rect.ymin, rect.ymax], [1, 1]]) // note these are manually transposed column vectors.
     const newCorners = multiply(A, corners).toArray() as number[][]
     // And the result is also column vectors, so we want [0][0] = new xmin, [1][0] = new ymin, [0][1] = new xmax, [1][1] = new ymax
+    const x1 = newCorners[0][0]
+    const x2 = newCorners[0][1]
+    const y1 = newCorners[1][0]
+    const y2 = newCorners[1][1]
     return {
-        xmin: newCorners[0][0],
-        xmax: newCorners[0][1],
-        ymin: newCorners[1][0],
-        ymax: newCorners[1][1]
+        xmin: Math.min(x1, x2),
+        xmax: Math.max(x1, x2),
+        ymin: Math.min(y1, y2),
+        ymax: Math.max(y1, y2)
     }
 }
 

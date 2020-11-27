@@ -1,7 +1,8 @@
-import { BaseLayerProps } from "../jscommon/CanvasWidget/CanvasWidgetLayer";
 import { TimeWidgetAction, TimeWidgetPanel } from "./TimeWidgetNew";
 
-export interface TimeWidgetLayerProps extends BaseLayerProps {
+export interface TimeWidgetLayerProps {
+    width: number,
+    height: number,
     customActions: TimeWidgetAction[]
     panels: TimeWidgetPanel[]
     currentTime: number | null

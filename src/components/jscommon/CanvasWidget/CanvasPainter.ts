@@ -105,14 +105,16 @@ export const isBrush = (x: any): x is Brush => {
 export class CanvasPainter {
     #exportingFigure: boolean = false
     #context2D: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+    #pixelWidth: number
+    #pixelHeight: number
     #primaryContext2D: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
     #offscreenCanvas: OffscreenCanvas | null = null
-    #fullDimensions: RectangularRegion
     #transformMatrix: TransformationMatrix
-    constructor(context2d: Context2D, fullDimensions: RectangularRegion, transformMatrix: TransformationMatrix ) {
+    constructor(context2d: Context2D, pixelWidth: number, pixelHeight: number, transformMatrix: TransformationMatrix ) {
         this.#context2D = context2d
         this.#primaryContext2D = context2d
-        this.#fullDimensions = fullDimensions
+        this.#pixelWidth = pixelWidth
+        this.#pixelHeight = pixelHeight
         this.#transformMatrix = transformMatrix
     }
     // Return a new, transformed painter
@@ -120,7 +122,7 @@ export class CanvasPainter {
         // todo: figure out whether this should be left or right-multiplication
         try {
             const m2 = toTransformationMatrix(multiply(matrix(this.#transformMatrix), matrix(m)))
-            return new CanvasPainter(this.#context2D, this.#fullDimensions, m2)
+            return new CanvasPainter(this.#context2D, this.#pixelWidth, this.#pixelHeight, m2)
         }
         catch(err) {
             console.warn('Problem transforming painter:', err)
@@ -162,7 +164,7 @@ export class CanvasPainter {
         return this.#exportingFigure
     }
     clear(): void {
-        this.clearRect( { ...this.#fullDimensions } );
+        this.clearRect({xmin: 0, xmax: this.#pixelWidth, ymin: 0, ymax: this.#pixelHeight});
     }
     clearRect(rect: RectangularRegion) {
         this.fillRect(rect, {color: 'transparent'})
@@ -176,7 +178,7 @@ export class CanvasPainter {
     wipe(): void {
         // const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
         // this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
-        this.#context2D.clearRect(this.#fullDimensions.xmin, this.#fullDimensions.ymin, this.#fullDimensions.xmax - this.#fullDimensions.xmin, this.#fullDimensions.ymax - this.#fullDimensions.ymin)
+        this.#context2D.clearRect(0, 0, this.#pixelWidth, this.#pixelHeight)
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
@@ -205,7 +207,7 @@ export class CanvasPainter {
         this.#context2D.save()
         applyBrush(this.#context2D, brush)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
-        this.#context2D.fillRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
+        this.#context2D.fillRect(Math.min(pr.xmin, pr.xmax), Math.min(pr.ymin, pr.ymax), getWidth(pr), getHeight(pr))
         this.#context2D.restore()
     }
     drawRect(rect: RectangularRegion, pen: Pen) {
@@ -213,7 +215,7 @@ export class CanvasPainter {
         this.#context2D.save()
         applyPen(this.#context2D, pen)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
-        this.#context2D.strokeRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr))
+        this.#context2D.strokeRect(Math.min(pr.xmin, pr.xmax), Math.min(pr.ymin, pr.ymax), getWidth(pr), getHeight(pr))
         this.#context2D.restore()
     }
     getEllipseFromBoundingRect(boundingRect: RectangularRegion) {
@@ -225,12 +227,12 @@ export class CanvasPainter {
     }
     fillEllipse(boundingRect: RectangularRegion, brush: Brush) {
         const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}
-        this.#context2D.save()
+        // this.#context2D.save()
         this.#context2D.fillStyle = toColorStr(brush.color)
         this.#context2D.beginPath()
         this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
         this.#context2D.fill()
-        this.#context2D.restore()
+        // this.#context2D.restore()
     }
     drawEllipse(boundingRect: RectangularRegion, pen: Pen) {
         const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}

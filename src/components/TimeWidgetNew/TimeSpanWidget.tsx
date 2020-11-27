@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter';
-import { BaseLayerProps, CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent } from '../jscommon/CanvasWidget/CanvasWidgetLayer';
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent } from '../jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew';
 import { Vec2 } from '../jscommon/CanvasWidget/Geometry';
 import { funcToTransform } from './mainLayer';
@@ -20,7 +20,9 @@ interface Props {
     onTimeRangeChanged: (tr: {min: number, max: number}) => void
 }
 
-interface LayerProps extends BaseLayerProps {
+interface LayerProps {
+    width: number
+    height: number
     info: SpanWidgetInfo
     onCurrentTimeChanged: (t: number | null) => void
     onTimeRangeChanged: (t: {min: number, max: number}) => void

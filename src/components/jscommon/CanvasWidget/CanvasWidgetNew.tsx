@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
-import { BaseLayerProps, CanvasWidgetLayer, ClickEventFromMouseEvent, ClickEventType, KeyEventType } from './CanvasWidgetLayer'
+import { BaseLayerProps, CanvasWidgetLayer, ClickEventType, formClickEventFromMouseEvent, KeyEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
 // This class serves three purposes:
@@ -21,9 +21,9 @@ interface DragState {
 
 interface DragAction {
     type: 'COMPUTE_DRAG' | 'END_DRAG', // type of action
-    mouseButton: boolean, // whether the mouse is down
-    point: Vec2, // The position (pixels)
-    shift: boolean // Whether shift key is being pressed
+    mouseButton?: boolean, // whether the mouse is down
+    point?: Vec2, // The position (pixels)
+    shift?: boolean // Whether shift key is being pressed
 }
 
 const dragReducer = (state: DragState, action: DragAction): DragState => {
@@ -38,6 +38,7 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
             if (!mouseButton) return { // no button held; unset any drag state & return.
                 dragging: false
             }
+            if (!point) throw Error('Unexpected: no point')
             // with button, 4 cases: dragging yes/no and dragAnchor yes/no.
             // 0: dragging yes, dragAnchor no: this is invalid and throws an error.
             if (dragging && !dragAnchor) throw Error('Invalid state in computing drag: cannot have drag set with no dragAnchor.')
@@ -137,20 +138,36 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         })
     }, [width, height, layers])
 
+    const [prevDragState, setPrevDragState] = useState<DragState | null>(null)
+
     // handle drag when dragState changes
     useEffect(() => {
-        if (dragState.dragRect) {
-            const pixelDragRect = {
-                xmin: dragState.dragRect[0],
-                xmax: dragState.dragRect[0] + dragState.dragRect[2],
-                ymin: dragState.dragRect[1] + dragState.dragRect[3],
-                ymax: dragState.dragRect[1]
-            }
-            for (let l of layers) {
-                l.handleDrag(pixelDragRect, !dragState.dragging, dragState.shift, dragState.dragAnchor, dragState.dragPosition)
+        let ds: DragState | null = null
+        if (dragState.dragging) {
+            ds = dragState
+        }
+        else if ((prevDragState) && (prevDragState.dragging)) {
+            ds = prevDragState
+        }
+        else {
+            ds = null
+        }
+        if (ds) {
+            const dragRect = ds.dragRect
+            if (dragRect) {
+                const pixelDragRect = {
+                    xmin: dragRect[0],
+                    xmax: dragRect[0] + dragRect[2],
+                    ymin: dragRect[1] + dragRect[3],
+                    ymax: dragRect[1]
+                }
+                for (let l of layers) {
+                    l.handleDrag(pixelDragRect, !dragState.dragging, ds.shift, ds.dragAnchor, ds.dragPosition)
+                }
             }
         }
-    }, [dragState, layers])
+        setPrevDragState(dragState)
+    }, [dragState, prevDragState, setPrevDragState, layers])
 
     const _handleDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
         for (let l of layers) {
@@ -159,22 +176,21 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [layers])
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point, mouseButton, modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Move)
+        const { point, mouseButton, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Move)
         dispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
         _handleDiscreteMouseEvents(e, ClickEventType.Move)
     }, [_handleDiscreteMouseEvents])
 
     const _handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { point, modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Press)
+        const { point, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Press)
         _handleDiscreteMouseEvents(e, ClickEventType.Press)
         dispatchDrag({ type: COMPUTE_DRAG, mouseButton: true, point: point, shift: modifiers.shift || false})
     }, [_handleDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        const { modifiers } = ClickEventFromMouseEvent(e, ClickEventType.Release)
         _handleDiscreteMouseEvents(e, ClickEventType.Release)
-        dispatchDrag({ type: END_DRAG, mouseButton: false, point: [0, 0], shift: modifiers.shift || false }) // resets drag rectangle. point is ignored.
-    }, [_handleDiscreteMouseEvents])
+        dispatchDrag({ type: END_DRAG })
+    }, [_handleDiscreteMouseEvents, dispatchDrag])
 
     const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         // todo

@@ -1,13 +1,12 @@
 import { CanvasPainter, Context2D } from './CanvasPainter'
-import { getBasePixelTransformationMatrix, getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
+import { getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
 
 type OnPaint<T extends BaseLayerProps, T2 extends object> = (painter: CanvasPainter, layerProps: T, state: T2) => Promise<void> | void
 type OnPropsChange<T extends BaseLayerProps> = (layer: CanvasWidgetLayer<T, any>, layerProps: T) => void
 
 export interface BaseLayerProps {
-    width: number;
-    height: number;
-    [key: string]: any
+    width: number
+    height: number
 }
 
 // Events-handling stuff should probably go somewhere else
@@ -71,7 +70,7 @@ export interface EventHandlerSet {
     keyboardEventHandlers?: KeyboardEventHandler[]
 }
 
-export const ClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, t: ClickEventType, i?: TransformationMatrix): ClickEvent => {
+export const formClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, t: ClickEventType, i?: TransformationMatrix): ClickEvent => {
     const element = e.currentTarget
     let point: Vec2 = [e.clientX - element.getBoundingClientRect().x, e.clientY - element.getBoundingClientRect().y]
     if (i) {
@@ -103,20 +102,19 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     #onPaint: OnPaint<LayerProps, State>
     #onPropsChange: OnPropsChange<LayerProps>
 
-    #props: LayerProps | null
+    #props: LayerProps | null = null // this will be null until props are passed in from the CanvasWidget
     #state: State
 
-    #pixelWidth: number // TODO: Do we actually need these? Once the matrices and coord range have been set?
-    #pixelHeight: number
+    // these will be null until they are set by the CanvasWidget
+    #pixelWidth: number | null = null
+    #pixelHeight: number | null = null
     #canvasElement: HTMLCanvasElement | null = null
 
-    #coordRange: RectangularRegion | null
-    #transformMatrix: TransformationMatrix
-    #inverseMatrix: TransformationMatrix
+    #transformMatrix: TransformationMatrix // coords to pixels
+    #inverseMatrix: TransformationMatrix // pixels to coords
 
     #repaintScheduled = false
     #lastRepaintTimestamp = Number(new Date())
-    #repaintNeeded = false
 
     #discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
     #dragHandlers: DragHandler[] = []
@@ -127,24 +125,14 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, initialState: State, handlers?: EventHandlerSet) {
         this.#state = initialState
-        this.#props = null
         this.#onPaint = onPaint
         this.#onPropsChange = onPropsChange
         this.#discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
         this.#dragHandlers = handlers?.dragHandlers || []
         this.#wheelEventHandlers = handlers?.wheelEventHandlers || []
         this.#keyboardEventHandlers = handlers?.keyboardEventHandlers || []
-        this.#pixelWidth = -1
-        this.#pixelHeight = -1
-        this.#coordRange = null
         this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
-        this.#inverseMatrix = this.#transformMatrix
-    }
-    setBasePixelTransformationMatrix(system?: RectangularRegion) {
-        const {matrix, coords} = getBasePixelTransformationMatrix(this.#pixelWidth, this.#pixelHeight, system)
-        this.#coordRange = coords
-        this.#transformMatrix = matrix
-        this.#inverseMatrix = getInverseTransformationMatrix(matrix)
+        this.#inverseMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
     }
     getProps() {
         if (!this.#props) throw Error('getProps must not be called before initial props are set')
@@ -162,37 +150,19 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     setState(s: State) {
         this.#state = s
     }
-    // TODO: Should probably get rid of this?
     getTransformMatrix() {
         return this.#transformMatrix
     }
-    // TODO: Should definitely get rid of this & replace with an update method
     setTransformMatrix(t: TransformationMatrix) {
         this.#transformMatrix = t
         this.#inverseMatrix = getInverseTransformationMatrix(t)
     }
-    getCoordRange() {
-        const coordRange = this.#coordRange !== null ? this.#coordRange : {xmin: 0, xmax: this.#pixelWidth, ymin: 0, ymax: this.#pixelHeight}
-        return coordRange
-    }
-    // TODO: Again should definitely be computed as part of an update method on transform matrix
-    setCoordRange(r: RectangularRegion) {
-        this.#coordRange = r
-    }
-    clipToSelf() {
-        // TODO: Set this up so that it sets a bounding clip box on the Layer's full coordinate range
-        return;
-    }
-    unclipToSelf(ctx: Context2D) { // Gets called at the end of _doRepaint().
-        ctx.restore()
-    }
-    repaintNeeded() {
-        return this.#repaintNeeded
-    }
     pixelWidth() {
+        if (this.#pixelWidth === null) throw Error('Cannot get pixelWidth before it is set')
         return this.#pixelWidth
     }
     pixelHeight() {
+        if (this.#pixelHeight === null) throw Error('Cannot get pixelHeight before it is set')
         return this.#pixelHeight
     }
     resetCanvasElement(canvasElement: any) {
@@ -208,7 +178,6 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this.#refreshRate = hz
     }
     scheduleRepaint() {
-        this.#repaintNeeded = true
         if (this.#repaintScheduled) {
             return;
         }
@@ -231,12 +200,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     }
     async _doRepaint() {
         const context: Context2D | null = this.#canvasElement?.getContext('2d') ?? null
-        if (!context) {
-            this.#repaintNeeded = true
-            return
-        }
-        this.#repaintNeeded = false
-        let painter = new CanvasPainter(context, this.getCoordRange(), this.#transformMatrix)
+        if (!context) return
+        if ((this.#pixelWidth === null) || (this.#pixelHeight === null)) return
+        let painter = new CanvasPainter(context, this.#pixelWidth, this.#pixelHeight, this.#transformMatrix)
         // painter.clear()
         // #onPaint may or may not be async
         const promise = this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
@@ -252,7 +218,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {
         if (this.#discreteMouseEventHandlers.length === 0) return
-        const click = ClickEventFromMouseEvent(e, type, this.#inverseMatrix)
+        const click = formClickEventFromMouseEvent(e, type, this.#inverseMatrix)
         // Don't respond to events outside the layer
         // NB possible minor efficiency gain if we cache our bounding coordinates in pixelspace.
         // if (!pointInRect(click.point, this.getCoordRange())) return

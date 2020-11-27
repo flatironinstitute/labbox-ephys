@@ -80,7 +80,7 @@ const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, laye
         ymin: Math.min(...data.map(a => (a.y))),
         ymax: Math.max(...data.map(a => (a.y)))    
     }
-    layer.setBasePixelTransformationMatrix(optimalBoundingRectangle)
+    // layer.setBasePixelTransformationMatrix(optimalBoundingRectangle)
     // Optional: If you want to set a margin, just bump up the coordinate range of the drawing area by some small amount,
     // e.g. 5% on each side or something.
 

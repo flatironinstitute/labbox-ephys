@@ -56,18 +56,28 @@ class Panel {
         const timeRange = this.#timeRange
         if (!timeRange) return
 
-        const downsample_factor = this._determineDownsampleFactor(completenessFactor)
+        let downsample_factor = this._determineDownsampleFactor(completenessFactor)
         if (downsample_factor === null) return
 
-        const t1 = timeRange.min
-        const t2 = timeRange.max
-        let t1b = Math.floor(t1 / downsample_factor);
-        let t2b = Math.floor(t2 / downsample_factor);
+        let t1, t2, t1b, t2b: number
+        let data: number[]
+        while (true) {
+            t1 = timeRange.min
+            t2 = timeRange.max
+            t1b = Math.floor(t1 / downsample_factor);
+            t2b = Math.floor(t2 / downsample_factor);
 
-        const data: number[] = this.timeseriesModel.getChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
-        if (data.filter(x => (!isNaN(x))).length === 0) return
-        if (data.filter(x => (isNaN(x))).length > 0) {
-            this.timeseriesModel.requestChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
+            data = this.timeseriesModel.getChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
+            if (data.filter(x => (isNaN(x))).length > 0) {
+                this.timeseriesModel.requestChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
+            }
+            else {
+                break
+            }
+            if (t2b - t1b < 200) {
+                break
+            }
+            downsample_factor *= 3
         }
 
         const pp = new PainterPath()
