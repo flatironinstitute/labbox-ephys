@@ -68,13 +68,14 @@ class Panel {
             t2b = Math.floor(t2 / downsample_factor);
 
             data = this.timeseriesModel.getChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
+            console.log(data)
             if (data.filter(x => (isNaN(x))).length > 0) {
                 this.timeseriesModel.requestChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
             }
             else {
                 break
             }
-            if (t2b - t1b < 200) {
+            if ((t2b - t1b < 200) || (downsample_factor > 100)) {
                 break
             }
             downsample_factor *= 3

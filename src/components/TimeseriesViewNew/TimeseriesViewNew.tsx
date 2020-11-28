@@ -87,7 +87,7 @@ const TimeseriesViewNew = (props: Props) => {
                         result = await resultJob.wait();
                     }
                     catch(err) {
-                        console.error('Error getting timeseries segment', ds_factor, segment_num);
+                        console.error(`Error getting timeseries segment: ds=${ds_factor} num=${segment_num}`);
                         return;
                     }
                     finally {
