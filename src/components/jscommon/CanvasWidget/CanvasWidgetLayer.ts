@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { CanvasPainter, Context2D } from './CanvasPainter'
 import { getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, transformPoint, transformRect, transformXY, Vec2 } from './Geometry'
 
@@ -257,4 +258,31 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         }
         return passEventBackToUi
     }
+}
+
+export const useCanvasWidgetLayer = <LayerProps extends BaseLayerProps, LayerState extends Object>(createLayer: () => CanvasWidgetLayer<LayerProps, LayerState>): CanvasWidgetLayer<LayerProps, LayerState> | null => {
+    const [layer, setLayer] = useState<CanvasWidgetLayer<LayerProps, LayerState> | null>(null)
+    useEffect(() => {
+        if (layer === null) {
+            setLayer(createLayer())
+        }
+    }, [layer, setLayer, createLayer])
+    return layer
+}
+
+export const useCanvasWidgetLayers = <LayerProps extends BaseLayerProps>(layerList: (CanvasWidgetLayer<LayerProps, any> | null)[]): CanvasWidgetLayer<LayerProps, any>[] | null => {
+    const [layers, setLayers] = useState<CanvasWidgetLayer<LayerProps, Object>[] | null>(null)
+    useEffect(() => {
+        if (layers === null) {
+            if (layerList.filter(L => (L === null)).length === 0) {
+                const layerList2: CanvasWidgetLayer<LayerProps, any>[] = []
+                layerList.forEach(L => {
+                    if (L === null) throw Error('Unexpected null layer')
+                    layerList2.push(L)
+                })
+                setLayers(layerList2)
+            }
+        }
+    }, [layers, setLayers, layerList])
+    return layers
 }

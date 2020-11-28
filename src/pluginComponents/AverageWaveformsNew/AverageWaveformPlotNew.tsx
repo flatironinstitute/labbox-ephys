@@ -1,7 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
+import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
+import { Vec2 } from '../../components/jscommon/CanvasWidget/Geometry';
+import { funcToTransform } from '../../components/TimeWidgetNew/mainLayer';
 
 interface PlotData {
     average_waveform: number[]
@@ -61,25 +63,12 @@ interface HelperPlotProps {
     data: {x: number, y: number}[]
 }
 
-const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) => {
-    // const brush = {color: 'green'}
-    const { data } = props    
-
-    const path = new PainterPath()
-    data.forEach(a => {
-        path.lineTo(a.x, a.y)
-    })
-    painter.drawPath(path, painter.getDefaultPen())
+interface HelperPlotState {
+    
 }
 
 const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, layerProps: HelperPlotProps) => {
-    const data = layerProps.data
-    const optimalBoundingRectangle = {
-        xmin: Math.min(...data.map(a => (a.x))),
-        xmax: Math.max(...data.map(a => (a.x))),
-        ymin: Math.min(...data.map(a => (a.y))),
-        ymax: Math.max(...data.map(a => (a.y)))    
-    }
+    
     // layer.setBasePixelTransformationMatrix(optimalBoundingRectangle)
     // Optional: If you want to set a margin, just bump up the coordinate range of the drawing area by some small amount,
     // e.g. 5% on each side or something.
@@ -91,17 +80,55 @@ const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, laye
     // (Note that that could certainly be simplified. But it's even simpler to do it right the first time...)
 }
 
-const HelperPlot = (props: HelperPlotProps) => {
-    const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps, any>(paintCanvasWidgetLayer, setCanvasFromProps, {})).current
-    // // In general would be better to set it right the first time--I don't see a way to trigger it here, but I am
-    // // concerned that with this pattern, we could wind up progressively shrinking or monkeying with our drawing area
-    // // by re-applying this set of coordinate system transforms when it was already set up correctly the first time.
+const createPlotWaveformLayer = () => {
 
-    const layers = [plotWaveformLayer]
+    const onPaint = (painter: CanvasPainter, layerProps: HelperPlotProps, state: HelperPlotState) => {
+        // const brush = {color: 'green'}
+        const { data } = layerProps    
+
+        const path = new PainterPath()
+        data.forEach(a => {
+            path.lineTo(a.x, a.y)
+        })
+        painter.drawPath(path, painter.getDefaultPen())
+    }
+
+    const onPropsChange = (layer: CanvasWidgetLayer<HelperPlotProps, HelperPlotState>, layerProps: HelperPlotProps) => {
+        const { data, width, height } = layerProps
+        const boundingRectangle = {
+            xmin: Math.min(...data.map(a => (a.x))),
+            xmax: Math.max(...data.map(a => (a.x))),
+            ymin: Math.min(...data.map(a => (a.y))),
+            ymax: Math.max(...data.map(a => (a.y)))    
+        }
+        const margins = {
+            left: 20, right: 20,
+            top: 20, bottom: 20
+        }
+        const transform = funcToTransform((p: Vec2) => {
+            const x1 = p[0]
+            const y1 = p[1]
+            const xfrac = (x1 - boundingRectangle.xmin) / (boundingRectangle.xmax - boundingRectangle.xmin)
+            const yfrac = (y1 - boundingRectangle.ymin) / (boundingRectangle.ymax - boundingRectangle.ymin)
+            const W = width - margins.left - margins.right
+            const H = height - margins.top - margins.bottom
+            const x2 = margins.left + xfrac * W
+            const y2 = height - margins.bottom - yfrac * H
+            return [x2, y2]
+        })
+        layer.setTransformMatrix(transform)
+    }
+
+    return new CanvasWidgetLayer<HelperPlotProps, HelperPlotState>(onPaint, onPropsChange, {})
+}
+
+const HelperPlot = (props: HelperPlotProps) => {
+    const plotWaveformLayer = useCanvasWidgetLayer(createPlotWaveformLayer)
+    const layers = useCanvasWidgetLayers([plotWaveformLayer])
     return (
         <div style={{gridArea: "2 / 1 / 7 / 2"}}>
             <CanvasWidget<HelperPlotProps>
-                layers={layers}
+                layers={layers || []}
                 layerProps={props}
             />
         </div>

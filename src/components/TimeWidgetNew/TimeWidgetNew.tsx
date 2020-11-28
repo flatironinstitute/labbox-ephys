@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useReducer, useState } from 'react'
 import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
+import { useCanvasWidgetLayer, useCanvasWidgetLayers } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
@@ -198,27 +198,22 @@ const TimeWidgetNew = (props: Props) => {
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({numTimepoints})
 
-    const [layers, setLayers] = useState<{[key: string]: CanvasWidgetLayer<TimeWidgetLayerProps, any>} | null>(null)
-    const [layerList, setLayerList] = useState<CanvasWidgetLayer<TimeWidgetLayerProps, any>[] | null>(null)
-
     const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null, numTimepoints, maxTimeSpan})
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
 
+    const mainLayer = useCanvasWidgetLayer(createMainLayer)
+    const timeAxisLayer = useCanvasWidgetLayer(createTimeAxisLayer)
+    const panelLabelLayer = useCanvasWidgetLayer(createPanelLabelLayer)
+    const cursorLayer = useCanvasWidgetLayer(createCursorLayer)
+
+    const layers = useCanvasWidgetLayers([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
+
     useEffect(() => {
-        if (!layers) {
-            const mainLayer = createMainLayer()
-            const timeAxisLayer = createTimeAxisLayer()
-            const panelLabelLayer = createPanelLabelLayer()
-            const cursorLayer = createCursorLayer()
-            
-            setLayers({mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer})
-            setLayerList([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
-        }
         panels.forEach(p => {
             p.register(() => {
-                if (layers) {
-                    layers.mainLayer.scheduleRepaint()
+                if (mainLayer) {
+                    mainLayer.scheduleRepaint()
                 }
             })
         })
@@ -229,19 +224,19 @@ const TimeWidgetNew = (props: Props) => {
                 timeRange: timeState.timeRange
             })
         }
-        if (layers) {
-            if (timeState.currentTime !== prevCurrentTime) {
-                layers.cursorLayer.scheduleRepaint()
-            }   
-            if (timeState.timeRange !== prevTimeRange) {
+        if (timeState.currentTime !== prevCurrentTime) {
+            cursorLayer && cursorLayer.scheduleRepaint()
+        }   
+        if (timeState.timeRange !== prevTimeRange) {
+            if (layers) {
                 Object.values(layers).forEach(layer => {
-                    layer.scheduleRepaint()
+                    layer && layer.scheduleRepaint()
                 })
             }
         }
         setPrevCurrentTime(timeState.currentTime)
         setPrevTimeRange(timeState.timeRange)
-    }, [layers, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
+    }, [layers, cursorLayer, mainLayer, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {
@@ -280,14 +275,14 @@ const TimeWidgetNew = (props: Props) => {
     }, [timeDispatch])
 
     const handleRepaintTimeEstimate = useCallback((ms: number) => {
-        if (layerList) {
-            const refreshRateEstimate = 1000 / ms
-            const refreshRate = refreshRateEstimate / 2
-            layerList.forEach(layer => {
-                layer.setRefreshRate(refreshRate)
+        const refreshRateEstimate = 1000 / ms
+        const refreshRate = refreshRateEstimate / 2
+        if (layers) {
+            layers.forEach(layer => {
+                layer && layer.setRefreshRate(refreshRate)
             })
         }
-    }, [layerList])
+    }, [layers])
 
     const _zoomTime = (fac: number) => {
         timeDispatch({type: 'zoomTimeRange', factor: fac})
@@ -318,10 +313,6 @@ const TimeWidgetNew = (props: Props) => {
         bottom: 100
     }
 
-    if (!layerList) {
-        return <div></div>
-    }
-
     const bottomBarInfo = {
         show: true,
         currentTime: timeState.currentTime,
@@ -344,7 +335,7 @@ const TimeWidgetNew = (props: Props) => {
             />
             <CanvasWidget<TimeWidgetLayerProps>
                 key='canvas'
-                layers={layerList}
+                layers={layers || []}
                 preventDefaultWheel={true}
                 layerProps={{
                     customActions,

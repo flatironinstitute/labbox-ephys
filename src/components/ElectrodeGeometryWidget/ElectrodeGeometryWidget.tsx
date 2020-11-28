@@ -1,8 +1,8 @@
 import { norm } from 'mathjs'
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { SizeMe } from "react-sizeme"
 import { CanvasPainter } from '../../components/jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, useCanvasWidgetLayer, useCanvasWidgetLayers } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../jscommon/CanvasWidget/Geometry'
 import { funcToTransform } from '../TimeWidgetNew/mainLayer'
@@ -61,7 +61,6 @@ interface ElectrodeLayerState {
     hoveredElectrodeId: number | null
     radius: number
     pixelRadius: number
-    lastDragUpdate: DOMHighResTimeStamp | null
     lastProps: ElectrodeLayerProps
 }
 
@@ -72,7 +71,6 @@ const initialElectrodeLayerState: ElectrodeLayerState = {
     hoveredElectrodeId: null,
     radius: 0,
     pixelRadius: 0,
-    lastDragUpdate: null,
     lastProps: {
         electrodes: [],
         selectedElectrodeIds: [],
@@ -186,15 +184,13 @@ const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLay
 const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>, drag: DragEvent) => {
     const state = layer.getState()
     if (state === null) return // state not set; can't happen but keeps linter happy
-    if (state.lastDragUpdate && performance.now() - state.lastDragUpdate < 50) return // rate-limit the drag updates to improve performance
-    const thisUpdate = performance.now()
     const hits = state.electrodeBoundingBoxes.filter((r) => rectangularRegionsIntersect(r.br, drag.dragRect)) ?? []
     if (drag.released) {
         const currentSelected = drag.shift ? layer.getProps()?.selectedElectrodeIds ?? [] : []
         layer.getProps()?.onSelectedElectrodeIdsChanged([...currentSelected, ...hits.map(r => r.id)])
-        layer.setState({...state, dragRegion: null, draggedElectrodeIds: [], lastDragUpdate: thisUpdate})
+        layer.setState({...state, dragRegion: null, draggedElectrodeIds: []})
     } else {
-        layer.setState({...state, dragRegion: drag.dragRect, draggedElectrodeIds: hits.map(r => r.id), lastDragUpdate: thisUpdate})
+        layer.setState({...state, dragRegion: drag.dragRect, draggedElectrodeIds: hits.map(r => r.id)})
     }
     layer.scheduleRepaint()
 }
@@ -237,28 +233,27 @@ const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     layer.scheduleRepaint()
 }
 
+const createLayer = () => {
+    return new CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>(
+        paintElectrodeGeometryLayer,
+        onUpdateLayerProps,
+        initialElectrodeLayerState,
+        {
+            dragHandlers: [handleDragSelect],
+            discreteMouseEventHandlers: [handleClick, handleHover]
+        }
+    )
+}
+
 type LayerArray = Array<CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>> 
 const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
-    const [layers, setLayers] = useState<LayerArray>([])
-    useEffect(() => {
-        if (layers.length === 0) {
-            const layer = new CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>(
-                paintElectrodeGeometryLayer,
-                onUpdateLayerProps,
-                initialElectrodeLayerState,
-                {
-                    dragHandlers: [handleDragSelect],
-                    discreteMouseEventHandlers: [handleClick, handleHover]
-                })
-            setLayers([layer])
-        }
-    }, [layers, setLayers])
-    layers.forEach((l) => l.updateProps(props))
+    const layer = useCanvasWidgetLayer(createLayer)
+    const layers = useCanvasWidgetLayers([layer])
 
     return (
         <CanvasWidget<ElectrodeLayerProps>
             key='electrodeGeometryCanvas'
-            layers={layers}
+            layers={layers || []}
             layerProps={props}
         />
     )

@@ -170,10 +170,11 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [dragState, prevDragState, setPrevDragState, layers])
 
     const _handleDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
+        if (dragState.dragging) return
         for (let l of layers) {
             l.handleDiscreteEvent(e, type)
         }
-    }, [layers])
+    }, [layers, dragState])
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { point, mouseButton, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Move)
@@ -188,7 +189,9 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [_handleDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const { point, mouseButton, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Move)
         _handleDiscreteMouseEvents(e, ClickEventType.Release)
+        dispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
         dispatchDrag({ type: END_DRAG })
     }, [_handleDiscreteMouseEvents, dispatchDrag])
 
