@@ -43,9 +43,9 @@ const animate = (layer: CanvasWidgetLayer<ElectrodeLayerProps, AnimatedLayerStat
     }
     const state = layer.getState()
     // update data for the points
-    const candidatePts = state.points || []
-    while (state.newQueue?.length > 0) {
-        const pt = state.newQueue.shift()
+    const candidatePts = state?.points ?? []
+    while (state?.newQueue?.length ?? -1 > 0) {
+        const pt = state?.newQueue.shift()
         pt && candidatePts.push(pt)
     }
     const pts = candidatePts.filter((pt) => !pt.done)
@@ -53,10 +53,10 @@ const animate = (layer: CanvasWidgetLayer<ElectrodeLayerProps, AnimatedLayerStat
         pt.pct = (Math.min(pt.end, timeStamp) - pt.start) / (pt.end - pt.start)
         pt.done = pt.pct === 1
     }
-    layer.setState({...layer.getState(), points: pts})
-    layer.scheduleRepaint()
     const newState = layer.getState()
-    if(newState.points?.length > 0) {
+    layer.setState({...newState as any as AnimatedLayerState, points: pts})
+    layer.scheduleRepaint()
+    if(newState?.points?.length ?? -1 > 0) {
         window.requestAnimationFrame(nextFrame)
     }
 }
@@ -72,8 +72,8 @@ export const handleAnimatedClick: DiscreteMouseEventHandler = (e: ClickEvent, la
         done: false
     }
     const state = layer.getState()
-    const pts = state.newQueue || []
+    const pts = state?.newQueue ?? []
     pts.push(newPoint)
-    layer.setState({...layer.getState(), newQueue: pts})
+    layer.setState({...layer.getState() as any as AnimatedLayerState, newQueue: pts})
     animate(layer, now)
 }

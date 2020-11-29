@@ -1,17 +1,28 @@
-import React from 'react'
-// import ElectrodeGeometryWidget from './ElectrodeGeometryWidget'
+import React, { useState } from 'react'
+import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { string } from 'mathjs';
+
+
+const zipElectrodes = (locations, ids) => {
+    if (locations && ids && ids.length !== locations.length) throw Error('Electrode ID count does not match location count.')
+    return ids.map((x, index) => {
+        const loc = locations[index]
+        return { label: string(x), x: loc[0], y: loc[1] }
+    })
+}
 
 const RecordingInfoView = ({ recordingInfo  }) => {
     const ri = recordingInfo;
-    // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState({});
+    const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
+    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState([]);
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
         )
     }
     return (
-        <div>
+        <React.Fragment>
             <div style={{ width: 600 }}>
                 <RecordingViewTable
                     sampling_frequency={ri.sampling_frequency}
@@ -21,13 +32,13 @@ const RecordingInfoView = ({ recordingInfo  }) => {
                     is_local={ri.is_local}
                 />
             </div>
-            {/* <ElectrodeGeometryWidget
-                locations={ri.geom}
+            <ElectrodeGeometryWidget
+                electrodes={electrodes}
                 selectedElectrodeIds={selectedElectrodeIds}
                 onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
                 width={350}
-            /> */}
-        </div>
+            />
+        </React.Fragment>
     );
 }
 

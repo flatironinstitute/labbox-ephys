@@ -56,6 +56,12 @@ export const Vec2HToVector = (v: Vec2H): math.Matrix => {
     return matrix(v);
 }
 
+export const pointIsInEllipse = (pt: Vec2 | Vec2H, center: Vec2 | Vec2H, xRadius: number, yRadius?: number): boolean => {
+    yRadius = yRadius || xRadius
+    const dist = ((pt[0] - center[0])/xRadius)**2 + ((pt[1] - center[1])/yRadius) ** 2
+    return dist <= 1
+}
+
 export type RectangularRegion = {
     xmin: number,
     xmax: number,
@@ -79,7 +85,7 @@ export const rectsAreEqual = (a: RectangularRegion, b: RectangularRegion) => {
             a.ymax === b.ymax)
 }
 export const getWidth = (region: RectangularRegion): number => {
-    return region.xmax - region.xmin
+    return abs(region.xmax - region.xmin)
 }
 export const getHeight = (region: RectangularRegion): number => {
     return abs(region.ymax - region.ymin) // y-axis is inverted in conversion to pixelspace
@@ -110,6 +116,14 @@ export const rectangularRegionsIntersect = (r1: RectangularRegion, r2: Rectangul
 export const pointInRect = (point: Vec2, rect: RectangularRegion): boolean => {
     return rect.xmin < point[0] && point[0] < rect.xmax &&
            Math.min(rect.ymin, rect.ymax) < point[1] && point[1] < Math.max(rect.ymax, rect.ymin)
+}
+export const getBoundingBoxForEllipse = (point: Vec2, xRadius: number, yRadius: number): RectangularRegion => {
+    return {
+        xmin: point[0] - xRadius,
+        xmax: point[0] + xRadius,
+        ymin: point[1] - yRadius,
+        ymax: point[1] + yRadius
+    }
 }
 
 export type TransformationMatrix = Vec3[]
@@ -203,6 +217,8 @@ export const transformXY = (tmatrix: TransformationMatrix, x: number, y: number)
 }
 
 export const transformPoint = (tmatrix: TransformationMatrix, point: Vec2H): Vec2H => {
+    // append a 1 if needed
+    if (point.length === 2) point = [point[0], point[1], 1]
     const A = matrix(tmatrix)
     const x = matrix(point)
     const b = multiply(A, x)
@@ -214,11 +230,15 @@ export const transformRect = (tmatrix: TransformationMatrix, rect: RectangularRe
     const corners = matrix([[rect.xmin, rect.xmax], [rect.ymin, rect.ymax], [1, 1]]) // note these are manually transposed column vectors.
     const newCorners = multiply(A, corners).toArray() as number[][]
     // And the result is also column vectors, so we want [0][0] = new xmin, [1][0] = new ymin, [0][1] = new xmax, [1][1] = new ymax
+    const x1 = newCorners[0][0]
+    const x2 = newCorners[0][1]
+    const y1 = newCorners[1][0]
+    const y2 = newCorners[1][1]
     return {
-        xmin: newCorners[0][0],
-        xmax: newCorners[0][1],
-        ymin: newCorners[1][0],
-        ymax: newCorners[1][1]
+        xmin: Math.min(x1, x2),
+        xmax: Math.max(x1, x2),
+        ymin: Math.min(y1, y2),
+        ymax: Math.max(y1, y2)
     }
 }
 

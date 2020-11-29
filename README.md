@@ -84,6 +84,10 @@ If you want to use your own computer to run calculations, then you will need to 
 
 [Instructions on opening labbox-ephys in a development environment](doc/development-environment.md)
 
+## Importing a recording and sorting
+
+[See this example for franklab](https://gist.github.com/magland/e01d114cd8e54029dfc7402cf50ce0cf)
+
 ## Primary developers
 
 Jeremy Magland and Jeff Soules

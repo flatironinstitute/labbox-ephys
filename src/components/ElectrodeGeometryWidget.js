@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { CanvasWidgetLayer } from './jscommon/CanvasWidget/CanvasWidgetLayer'
-import CanvasWidget from './jscommon/CanvasWidget';
-import { getTransformationMatrix, pointSpanToRegion, rectangularRegionsIntersect } from './jscommon/CanvasWidget/Geometry';
 // import AutoDetermineWidth from './jscommon/AutoDetermineWidth';
 import { SizeMe } from 'react-sizeme';
+import CanvasWidget from './jscommon/CanvasWidget';
+import { CanvasWidgetLayer } from './jscommon/CanvasWidget/CanvasWidgetLayer';
+import { getTransformationMatrix, pointSpanToRegion, rectangularRegionsIntersect } from './jscommon/CanvasWidget/Geometry';
 const stable_stringify = require('json-stable-stringify');
 
 export default class ElectrodeGeometryWidget extends Component {

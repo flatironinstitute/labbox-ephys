@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import CanvasWidget, { CanvasWidgetLayer } from '../jscommon/CanvasWidget';
-import TimeWidgetBottomBar from './TimeWidgetBottomBar';
-import TimeWidgetToolBar from './TimeWidgetToolBar';
 import SpanWidget from './SpanWidget';
 import Splitter from './Splitter';
+import TimeWidgetBottomBar from './TimeWidgetBottomBar';
+import TimeWidgetToolBar from './TimeWidgetToolBar';
 export { PainterPath } from '../jscommon/CanvasWidget';
 
 // function g_elapsed() {

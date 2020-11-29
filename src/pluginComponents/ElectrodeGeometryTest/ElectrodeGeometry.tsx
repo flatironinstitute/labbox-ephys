@@ -1,6 +1,6 @@
 import { norm } from 'mathjs'
-import React, { useRef } from 'react'
-import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
+import React from 'react'
+import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew'
 import { getHeight, getWidth, RectangularRegion } from '../../components/jscommon/CanvasWidget/Geometry'
 import { AnimatedLayerState, handleAnimatedClick, paintAnimationLayer } from './AnimatedLayer'
@@ -84,7 +84,57 @@ const computeRadius = (electrodes: Electrode[], scaledCoordinates: RectangularRe
 }
 
 export const setCanvasFromProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, any>, layerProps: ElectrodeLayerProps) => {
-    layer.setBasePixelTransformationMatrix(layerProps.scaledCoordinates)
+    // layer.setBasePixelTransformationMatrix(layerProps.scaledCoordinates)
+}
+
+const createTestLayer = () => {
+    return new CanvasWidgetLayer<ElectrodeLayerProps, object>(paintTestLayer, setCanvasFromProps,
+        {},
+        {   // note, temporarily not importing the reporting functions since we aren't using them right now
+            discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // these get REAL chatty
+            dragHandlers: []//reportMouseDrag],
+        }
+    )
+}
+
+const createDragLayer = () => {
+    return new CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>(paintDragLayer, setDragLayerStateFromProps,
+        {
+            dragRegion: null,
+            electrodeBoundingBoxes: [],
+            selectedElectrodes: [],
+            draggedElectrodes: []
+        },
+        {
+            discreteMouseEventHandlers: [],
+            dragHandlers: [updateDragRegion]
+        }
+    )
+}
+
+const createClickLayer = () => {
+    return new CanvasWidgetLayer<ElectrodeLayerProps, ClickHistoryState>(paintClickLayer, setCanvasFromProps,
+        {
+            clickHistory: []
+        },
+        {
+            discreteMouseEventHandlers: [handleClickTrail],
+            dragHandlers: []
+        }
+    )
+}
+
+const createAnimatedLayer = () => {
+    return new CanvasWidgetLayer<ElectrodeLayerProps, AnimatedLayerState>(paintAnimationLayer, setCanvasFromProps,
+        {
+            points: [],
+            newQueue: []
+        },
+        {  
+            discreteMouseEventHandlers: [handleAnimatedClick],
+            dragHandlers: []
+        }
+    )
 }
 
 const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
@@ -102,34 +152,17 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
         electrodeRadius: radius,
     }
 
-    const testLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, object>(paintTestLayer, setCanvasFromProps,
-        {   // note, temporarily not importing the reporting functions since we aren't using them right now
-            discreteMouseEventHandlers: [], //[reportMouseMove, reportMouseClick], // these get REAL chatty
-            dragHandlers: []//reportMouseDrag],
-        })).current
-    const dragLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>(paintDragLayer, setDragLayerStateFromProps,
-        {
-            discreteMouseEventHandlers: [],
-            dragHandlers: [updateDragRegion]
-        })).current
-    const clickLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, ClickHistoryState>(paintClickLayer, setCanvasFromProps,
-        {
-            discreteMouseEventHandlers: [handleClickTrail],
-            dragHandlers: []
-        })).current
-    const animatedLayer = useRef(new CanvasWidgetLayer<ElectrodeLayerProps, AnimatedLayerState>(paintAnimationLayer, setCanvasFromProps,
-        {  
-            discreteMouseEventHandlers: [handleAnimatedClick],
-            dragHandlers: []
-        })).current
-    const layers = [testLayer, dragLayer, clickLayer, animatedLayer]
-    layers.forEach((l) => l.updateProps(layerProps))
+    const testLayer = useCanvasWidgetLayer(createTestLayer)
+    const dragLayer = useCanvasWidgetLayer(createDragLayer)
+    const clickLayer = useCanvasWidgetLayer(createClickLayer)
+    const animatedLayer = useCanvasWidgetLayer(createAnimatedLayer)
+    const layers = useCanvasWidgetLayers([testLayer, dragLayer, clickLayer, animatedLayer])
 
     return (
         <CanvasWidget<ElectrodeLayerProps>
             key='canvas'
-            layers={layers}
-            widgetProps={layerProps}
+            layers={layers || []}
+            layerProps={layerProps}
         />
     )
 }

@@ -1,8 +1,9 @@
 import React from 'react';
 import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-// import { CanvasWidgetLayer } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
+import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
-// import { getUpdatedTransformationMatrix } from '../../components/jscommon/CanvasWidget/Geometry';
+import { Vec2 } from '../../components/jscommon/CanvasWidget/Geometry';
+import { funcToTransform } from '../../components/TimeWidgetNew/mainLayer';
 
 interface PlotData {
     average_waveform: number[]
@@ -37,21 +38,21 @@ const AverageWaveformPlotNew = (props: Props) => {
 
     const xAxisLabel = 'dt (msec)'
 
-    // TODO: The 'Average Waveform' label is rendering next to the canvas and displacing it to the right,
-    // which isn't what we want. I've compensated below by narrowing the drawing window, but it'd be better
-    // to just do it right.
-    // I figure this is out of scope for what I'm currently rewriting though.
+    // Note: resorted to a grid layout, which Works. Have to trim the height of the drawing area to match since we're giving it
+    // 5 of the 7 available rows; this seems to look good on my monitor, but if we wanted a different ratio we'd just need
+    // to make sure to edit the grid template and the height adjustment in concert.
     return (
-        <div className="App" style={{width: props.boxSize.width, height: props.boxSize.height, display: "flex", padding: 10}}
+        <div className="App" style={{width: props.boxSize.width, height: props.boxSize.height, padding: 10, clear: 'both',
+                                    display: "grid", gridTemplateRows: "repeat(7, 1fr)", gridTemplateColumns: "repeat(1, 1fr)"}}
             key={"plot-"+props.argsObject.id}
         >
-            <div style={{textAlign: 'center', fontSize: '12px'}}>{props.title || "Average waveform"}</div>
+            <div style={{textAlign: 'center', fontSize: '12px', gridArea: "1 / 1 / 2 / 2"}}>{props.title || "Average waveform"}</div>
             <HelperPlot
                 width={props.boxSize.width}
-                height={props.boxSize.height}
+                height={props.boxSize.height * 5 / 7}
                 data={data}
             />
-            <div style={{textAlign: 'center', fontSize: '12px'}}>{xAxisLabel}</div>
+            <div style={{textAlign: 'center', fontSize: '12px',  gridArea: "7 / 1 / 8 / 2"}}>{xAxisLabel}</div>
         </div>
     );
 }
@@ -62,44 +63,75 @@ interface HelperPlotProps {
     data: {x: number, y: number}[]
 }
 
-const paintCanvasWidgetLayer = (painter: CanvasPainter, props: HelperPlotProps) => {
-    const brush = {color: 'green'}
-    const { data } = props    
+interface HelperPlotState {
+    
+}
 
-    const path = new PainterPath()
-    data.forEach(a => {
-        path.lineTo(a.x, a.y)
-    })
-    painter.drawPath(path, painter.getDefaultPen())
+const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, layerProps: HelperPlotProps) => {
+    
+    // layer.setBasePixelTransformationMatrix(optimalBoundingRectangle)
+    // Optional: If you want to set a margin, just bump up the coordinate range of the drawing area by some small amount,
+    // e.g. 5% on each side or something.
+
+    // This is what you would do if for some reason you had to set it to a default coordinate system first:
+    // const newTransform = getUpdatedTransformationMatrix(optimalBoundingRectangle, layer.getCoordRange(), layer.getTransformMatrix())
+    // layer.setTransformMatrix(newTransform)
+    // layer.setCoordRange(optimalBoundingRectangle)
+    // (Note that that could certainly be simplified. But it's even simpler to do it right the first time...)
+}
+
+const createPlotWaveformLayer = () => {
+
+    const onPaint = (painter: CanvasPainter, layerProps: HelperPlotProps, state: HelperPlotState) => {
+        // const brush = {color: 'green'}
+        const { data } = layerProps    
+
+        const path = new PainterPath()
+        data.forEach(a => {
+            path.lineTo(a.x, a.y)
+        })
+        painter.drawPath(path, painter.getDefaultPen())
+    }
+
+    const onPropsChange = (layer: CanvasWidgetLayer<HelperPlotProps, HelperPlotState>, layerProps: HelperPlotProps) => {
+        const { data, width, height } = layerProps
+        const boundingRectangle = {
+            xmin: Math.min(...data.map(a => (a.x))),
+            xmax: Math.max(...data.map(a => (a.x))),
+            ymin: Math.min(...data.map(a => (a.y))),
+            ymax: Math.max(...data.map(a => (a.y)))    
+        }
+        const margins = {
+            left: 20, right: 20,
+            top: 20, bottom: 20
+        }
+        const transform = funcToTransform((p: Vec2) => {
+            const x1 = p[0]
+            const y1 = p[1]
+            const xfrac = (x1 - boundingRectangle.xmin) / (boundingRectangle.xmax - boundingRectangle.xmin)
+            const yfrac = (y1 - boundingRectangle.ymin) / (boundingRectangle.ymax - boundingRectangle.ymin)
+            const W = width - margins.left - margins.right
+            const H = height - margins.top - margins.bottom
+            const x2 = margins.left + xfrac * W
+            const y2 = height - margins.bottom - yfrac * H
+            return [x2, y2]
+        })
+        layer.setTransformMatrix(transform)
+    }
+
+    return new CanvasWidgetLayer<HelperPlotProps, HelperPlotState>(onPaint, onPropsChange, {})
 }
 
 const HelperPlot = (props: HelperPlotProps) => {
-    const { data } = props
-    const optimalBoundingRectangle = {
-        xmin: Math.min(...data.map(a => (a.x))),
-        xmax: Math.max(...data.map(a => (a.x))),
-        ymin: Math.min(...data.map(a => (a.y))),
-        ymax: Math.max(...data.map(a => (a.y)))    
-    }
-    const targetInCurrentCoordinateSystem = {
-        xmin: 0,
-        xmax: 0.8,
-        ymin: 0,
-        ymax: 0.75
-    }
-    // const plotWaveformLayer = useRef(new CanvasWidgetLayer<HelperPlotProps>(paintCanvasWidgetLayer, props)).current
-    // const T = getUpdatedTransformationMatrix(optimalBoundingRectangle, targetInCurrentCoordinateSystem, plotWaveformLayer.getTransformMatrix())
-    // // In general would be better to set it right the first time--I don't see a way to trigger it here, but I am
-    // // concerned that with this pattern, we could wind up progressively shrinking or monkeying with our drawing area
-    // // by re-applying this set of coordinate system transforms when it was already set up correctly the first time.
-    // plotWaveformLayer.updateTransformAndCoordinateSystem(T, optimalBoundingRectangle)
-
-    // const layers = [plotWaveformLayer]
+    const plotWaveformLayer = useCanvasWidgetLayer(createPlotWaveformLayer)
+    const layers = useCanvasWidgetLayers([plotWaveformLayer])
     return (
-        <CanvasWidget<HelperPlotProps>
-            layers={[]}//{layers}
-            widgetProps={props}
-        />
+        <div style={{gridArea: "2 / 1 / 7 / 2"}}>
+            <CanvasWidget<HelperPlotProps>
+                layers={layers || []}
+                layerProps={props}
+            />
+        </div>
     )
 }
 
