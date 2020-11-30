@@ -1,24 +1,43 @@
-import React, { useState, useCallback, useEffect, useReducer } from 'react';
-import sampleSortingViewProps from '../common/sampleSortingViewProps';
-import { Button, Paper, CircularProgress } from '@material-ui/core';
-import { createHitherJob } from '../../hither';
+import { Button, CircularProgress, Paper } from '@material-ui/core';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import MultiComboBox from '../../components/MultiComboBox';
-import UnitsTable from './UnitsTable';
+import { createHitherJob } from '../../hither';
+import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import * as pluginComponents from './metricPlugins';
+import { MetricPlugin } from './metricPlugins/common';
+import UnitsTable from './UnitsTable';
 
 const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
 
-const metricPlugins = Object.values(pluginComponents)
-                            .filter(plugin => (plugin.metricPlugin))
+const metricPlugins: MetricPlugin[] = Object.values(pluginComponents)
+                            .filter(plugin => {
+                                const p = plugin as any
+                                return (p.type === 'metricPlugin')
+                            })
+                            .map(plugin => {
+                                return plugin as MetricPlugin
+                            })
 
-const STATES = {
-    completed: 'completed',
-    executing: 'executing',
-    error: 'error'
+type Status = 'waiting' | 'completed' | 'executing' | 'error'
+
+type MetricDataState = {[key: string]: {
+    status: Status
+    data: any | null
+    error: string | null
+}}
+
+const initialMetricDataState: MetricDataState = {}
+
+interface MetricDataAction {
+    metricName: string
+    status: Status
+    data?: any
+    error?: string
 }
 
-const updateMetricData = (state, [metricName, status, dataObject]) => {
-    if (state[metricName] && state[metricName]['status'] === 'completed') {
+const updateMetricData = (state: MetricDataState, action: MetricDataAction): MetricDataState => {
+    const { metricName, status, data, error } = action
+    if (state[metricName] && state[metricName].status === 'completed') {
         console.warn(`Updating status of completed metric ${metricName}??`);
         return state;
     }
@@ -26,28 +45,55 @@ const updateMetricData = (state, [metricName, status, dataObject]) => {
         ...state,
         [metricName]: {
             'status': status,
-            'data': status === STATES.completed ? dataObject : '',
-            'error': status === STATES.error ? dataObject : ''
+            'data': status === 'completed' ? data || null : null,
+            'error': status === 'error' ? error || null : null
         }
     }
 }
 
+type Label = string
 
-const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
-                onAddUnitLabel, onRemoveUnitLabel,
-                onSelectedUnitIdsChanged, readOnly }) => {
+interface SortingInfo {
+    unit_ids: number[]
+}
+
+export interface Sorting {
+    sortingId: string
+    sortingObject: any
+    sortingInfo: SortingInfo
+    unitCuration: {[key: string]: {labels: Label[]}}
+}
+
+interface Recording {
+    recordingObject: any
+}
+
+interface Props {
+    sorting: Sorting
+    recording: Recording
+    selectedUnitIds: {[key: string]: boolean}
+    extensionsConfig: {enabled: {[key: string]: boolean}}
+    onAddUnitLabel: (a: {sortingId: string, unitId: number, label: Label}) => void
+    onRemoveUnitLabel: (a: {sortingId: string, unitId: number, label: Label}) => void
+    onSelectedUnitIdsChanged: () => void
+    readOnly: boolean
+}
+
+const Units: React.FunctionComponent<Props> = (props) => {
+    const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
-    const [metrics, updateMetrics] = useReducer(updateMetricData, {});
+    const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
     const activeMetricPlugins = metricPlugins.filter(
-        p => (!p.metricPlugin.development || (extensionsConfig.enabled.development)));
+        p => (!p.development || (extensionsConfig.enabled.development)));
 
     const labelOptions = [...new Set(
         defaultLabelOptions.concat(
             Object.keys(sorting.unitCuration || {})
                 .reduce(
-                    (allLabels, unitId) => {
-                        return allLabels.concat((sorting.unitCuration)[unitId].labels || [])
+                    (allLabels: Label[], unitId: string) => {
+                        const u = (sorting.unitCuration)[unitId]
+                        return allLabels.concat(u.labels || [])
                     }, [])
         )
     )].sort((a, b) => {
@@ -72,7 +118,7 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
         // TODO: FIXME! THIS STATE IS NOT PRESERVED BETWEEN UNFOLDINGS!!!
         // TODO: May need to bump this up to the parent!!!
         // new request. Add state to cache, dispatch job, then update state as results come back.
-        updateMetrics([metric.metricName, STATES.executing, '']);
+        updateMetrics({metricName: metric.metricName, status: 'executing'})
         try {
             const data = await createHitherJob(metric.hitherFnName,
                 {
@@ -84,10 +130,10 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                     ...metric.hitherConfig,
                     required_files: sorting.sortingObject
                 });
-            updateMetrics([metric.metricName, STATES.completed, data]);
+            updateMetrics({metricName: metric.metricName, status: 'completed', data})
         } catch (err) {
             console.error(err);
-            updateMetrics([metric.metricName, STATES.error, err]);
+            updateMetrics({metricName: metric.metricName, status: 'error', error: err.message})
         }
     }, [metrics, sorting.sortingObject, recording.recordingObject]);
 
@@ -99,20 +145,20 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
     const selectedRowKeys = sorting.sortingInfo.unit_ids
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
 
-    const handleAddLabel = (unitId, label) => {
-        onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
+    const handleAddLabel = (unitId: number, label: Label) => {
+        onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label})
     }
-    const handleRemoveLabel = (unitId, label) => {
-        onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label});
+    const handleRemoveLabel = (unitId: number, label: Label) => {
+        onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label})
     }
-    const handleApplyLabels = (selectedRowKeys, labels) => {
+    const handleApplyLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
         Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
-            ? labels.forEach((label) => handleAddLabel(key, label))
+            ? labels.forEach((label) => handleAddLabel(Number(key), label))
             : {});
     };
-    const handlePurgeLabels = (selectedRowKeys, labels) => {
+    const handlePurgeLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
         Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
-            ? labels.forEach((label) => handleRemoveLabel(key, label))
+            ? labels.forEach((label) => handleRemoveLabel(Number(key), label))
             : {});
     };
 
@@ -155,7 +201,7 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
                             id="label-selection"
                             label='Choose labels'
                             placeholder='Add label'
-                            onSelectionsChanged={(event, value) => setActiveOptions(value)}
+                            onSelectionsChanged={(event: any, value: any) => setActiveOptions(value)}
                             options={labelOptions}
                         />
                         <Button onClick={() => handleApplyLabels(selectedRowKeys, activeOptions)}>Apply selected labels</Button>
@@ -169,13 +215,15 @@ const Units = ({ sorting, recording, selectedUnitIds, extensionsConfig,
 
 const label = 'Units Table'
 
-Units.sortingViewPlugin = {
+const U = Units as any as (React.Component & {sortingViewPlugin: any, prototypeViewPlugin: any})
+
+U.sortingViewPlugin = {
     label: label
 }
 
-Units.prototypeViewPlugin = {
+U.prototypeViewPlugin = {
     label: label,
     props: sampleSortingViewProps()
 }
 
-export default Units;
+export default U

@@ -1,13 +1,14 @@
-import React from 'react';
+import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import React, { FunctionComponent } from 'react';
+import { MetricPlugin } from './metricPlugins/common';
+import { Sorting } from './Units';
 
-import { Table, TableHead, TableBody, TableRow, TableCell, Checkbox, LinearProgress } from '@material-ui/core';
-
-const getLabelsForUnitId = (unitId, sorting) => {
+const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo(({plugins}) => {
+const HeaderRow = React.memo((a: {plugins: MetricPlugin[]}) => {
     return (
         <TableHead>
             <TableRow>
@@ -15,7 +16,7 @@ const HeaderRow = React.memo(({plugins}) => {
                 <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
-                    plugins.map(plugin => {
+                    a.plugins.map(plugin => {
                         return (
                             <TableCell key={plugin.columnLabel + '_header'}>
                                 <span title={plugin.tooltip}>{plugin.columnLabel}</span>
@@ -28,26 +29,27 @@ const HeaderRow = React.memo(({plugins}) => {
     );
 });
 
-const UnitCheckbox = React.memo(({unitKey, selected, handleClicked}) => {
+const UnitCheckbox = React.memo((a: {unitKey: string, selected: boolean, handleClicked: (unitId: number) => void}) => {
     return (
         <TableCell>
             <Checkbox
-                checked={selected}
-                onClick={() => handleClicked(unitKey)}
+                checked={a.selected}
+                onClick={() => a.handleClicked(Number(a.unitKey))}
             />
         </TableCell>
     );
 });
 
-const UnitIdCell = React.memo(({id}) => (
-    <TableCell><span>{id}</span></TableCell>
+const UnitIdCell = React.memo((a: {id: string}) => (
+    <TableCell><span>{a.id}</span></TableCell>
 ));
 
-const UnitLabelCell = React.memo(({labels}) => (
-    <TableCell><span>{labels}</span></TableCell>
+const UnitLabelCell = React.memo((a: {labels: string}) => (
+    <TableCell><span>{a.labels}</span></TableCell>
 ));
 
-const MetricCell = React.memo(({error = '', data, PayloadComponent}) => {
+const MetricCell = React.memo((a: {title?: string, error: string, data: any, PayloadComponent: React.ComponentType<{record: any}>}) => {
+    const { error, data, PayloadComponent } = a
     if (error !== '') {
         return (<TableCell><span>{`Error: ${error}`}</span></TableCell>);
     }
@@ -56,14 +58,26 @@ const MetricCell = React.memo(({error = '', data, PayloadComponent}) => {
     } else {
         return (
             <TableCell>
-                <PayloadComponent record = {data} />
+                <span title={a.title}>
+                    <PayloadComponent record = {data} />
+                </span>
             </TableCell>
         );
     }
 });
 
-const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = {}, sorting,
-                    onSelectedUnitIdsChanged = () => ''}) => {
+
+interface Props {
+    metricPlugins: MetricPlugin[]
+    units: number[]
+    metrics: {[key: string]: {data: {[key: string]: number}, error: string | null}}
+    selectedUnitIds: {[key: string]: boolean}
+    sorting: Sorting
+    onSelectedUnitIdsChanged: () => void
+}
+
+const UnitsTable: FunctionComponent<Props> = (props) => {
+    const { metricPlugins, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged } = props
     return (
         <Table className="NiceTable">
             <HeaderRow 
@@ -74,26 +88,28 @@ const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = 
                     units.map((unitId) => (
                         <TableRow key={unitId + '_row'}>
                             <UnitCheckbox
-                                unitKey = {unitId}
+                                unitKey = {unitId + ''}
                                 selected = {selectedUnitIds[unitId] || false}
                                 handleClicked = {onSelectedUnitIdsChanged}
                             />
-                            <UnitIdCell id = {unitId} />
+                            <UnitIdCell id = {unitId + ''} />
                             <UnitLabelCell
                                 labels = {getLabelsForUnitId(unitId, sorting).join(', ')}
                             />
                             {
                                 metricPlugins.map(mp => {
-                                    const metricName = mp['metricName'];
-                                    const metric = metrics[metricName] || {'data': NaN, error: ''};
+                                    const metricName = mp.metricName
+                                    const metric = metrics[metricName] || null
+                                    const d = (metric && metric.data) ? (
+                                        (unitId + '' in metric.data) ? metric.data[unitId + ''] : NaN
+                                    ) : NaN
                                     return (
                                         <MetricCell
+                                            title={mp.tooltip}
                                             key = {metricName + '_' + unitId}
-                                            data = {((metric['data']) === '' || 
-                                                    !(unitId in metric['data']))
-                                                ? null : metric['data'][unitId]}
-                                            error = {metric['error']}
-                                            PayloadComponent = {mp}
+                                            data = {d}
+                                            error = {metric['error'] || ''}
+                                            PayloadComponent = {mp.component}
                                         />
                                     );
                                 })
@@ -106,6 +122,4 @@ const UnitsTable = ({metricPlugins = [], units = [], metrics, selectedUnitIds = 
     );
 }
 
-export default UnitsTable;
-
-
+export default UnitsTable
