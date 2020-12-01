@@ -1,19 +1,16 @@
-import React from 'react'
-import { Switch, Route, Redirect } from "react-router-dom";
-import ImportSortings from "./containers/ImportSortings";
-import RecordingView from "./containers/RecordingView";
-import SortingJobView from "./containers/SortingJobView";
-import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
-import ImportRecordings from "./containers/ImportRecordings";
-import RunSpikeSortingForRecording from './containers/RunSpikeSortingForRecording';
-import Home from "./components/Home";
+import React from 'react';
+import { Redirect, Route, Switch } from "react-router-dom";
 import About from "./components/About";
+import Home from "./components/Home";
 import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
-import SortingView from './containers/SortingView';
-import SortingUnitView from './containers/SortingUnitView';
 import HitherJobMonitor from './containers/HitherJobMonitor';
-import HomeDBC from './components/HomeDBC';
+import ImportRecordings from "./containers/ImportRecordings";
+import ImportSortings from "./containers/ImportSortings";
+import RecordingView from "./containers/RecordingView";
+import SortingUnitView from './containers/SortingUnitView';
+import SortingView from './containers/SortingView';
+import TimeseriesForRecordingView from "./containers/TimeseriesForRecordingView";
 
 const TestPage = () => {
     return <div>{`Test page`}</div>;
@@ -71,24 +68,6 @@ const Routes = () => {
                 path="/:documentId/timeseriesForRecording/:recordingId*"
                 render={({ match }) => (
                     <TimeseriesForRecordingView recordingId={match.params.recordingId} />
-                )}
-            />
-            <Route
-                path="/:documentId/runSpikeSortingForRecording/:recordingId*"
-                render={({ match }) => (
-                    <RunSpikeSortingForRecording recordingId={match.params.recordingId} />
-                )}
-            />
-            <Route
-                path="/:documentId/sortingJob/:sortingJobId*"
-                render={({ match }) => (
-                    <SortingJobView sortingJobId={match.params.sortingJobId} />
-                )}
-            />
-            <Route
-                path="/:documentId/HomeDBC"
-                render={({ match }) => (
-                    <HomeDBC documentId={match.params.sortingJobId} />
                 )}
             />
             <Route

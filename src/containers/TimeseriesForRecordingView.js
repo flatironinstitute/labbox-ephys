@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { SizeMe } from 'react-sizeme';
 import TimeseriesViewNew from '../components/TimeseriesViewNew/TimeseriesViewNew';
 
-const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => {
+const TimeseriesForRecordingView = ({ recordingId, recording }) => {
   if (!recording) {
     return <h3>{`Recording not found: ${recordingId}`}</h3>
   }
@@ -38,8 +38,7 @@ const TimeseriesForRecordingView = ({ recordingId, recording, jobHandlers }) => 
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
-  jobHandlers: state.jobHandlers
+  recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0]
 })
 
 const mapDispatchToProps = dispatch => ({

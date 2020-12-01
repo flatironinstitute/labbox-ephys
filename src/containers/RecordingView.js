@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
-import RecordingInfoView from '../components/RecordingInfoView';
 import { Grid } from '@material-ui/core';
-import { withRouter, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
+import { setRecordingInfo } from '../actions';
+import { getRecordingInfo } from '../actions/getRecordingInfo';
+import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
 import { getPathQuery } from '../kachery';
-import { getRecordingInfo } from '../actions/getRecordingInfo';
-import { setRecordingInfo } from '../actions';
 
-const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history, documentInfo, onSetRecordingInfo }) => {
+const RecordingView = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const effect = async () => {
@@ -47,7 +47,7 @@ const RecordingView = ({ recordingId, recording, sortings, sortingJobs, history,
 
         <Grid item xs={12} lg={6}>
           {/* <Link to={`/${documentId}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
-          <SortingsView sortings={sortings} sortingJobs={sortingJobs} onImportSortings={readOnly ? null : handleImportSortings} />
+          <SortingsView sortings={sortings} onImportSortings={readOnly ? null : handleImportSortings} />
         </Grid>
       </Grid>
     </div>
@@ -58,7 +58,6 @@ const mapStateToProps = (state, ownProps) => ({
   // todo: use selector
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
-  sortingJobs: state.sortingJobs.filter(s => (s.recordingId === ownProps.recordingId)),
   documentInfo: state.documentInfo
 })
 

@@ -1,9 +1,9 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { setDatabaseConfig } from '../actions'
-
+import { Button, FormControl, FormGroup, Input, InputLabel } from '@material-ui/core';
+import React from 'react';
 import { useForm } from "react-hook-form";
-import { FormGroup, FormControl, InputLabel, Input, Button } from '@material-ui/core';
+import { connect } from 'react-redux';
+import { setDatabaseConfig } from '../actions';
+
 
 
 // Messages
