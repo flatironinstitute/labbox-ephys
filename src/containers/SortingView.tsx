@@ -4,6 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { addUnitLabel, removeUnitLabel, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
+import { SortingViewPlugin } from '../extension';
 import { createHitherJob } from '../hither';
 import { getPathQuery } from '../kachery';
 import * as pluginComponents from '../pluginComponents';
@@ -33,6 +34,7 @@ const intrange = (a: number, b: number) => {
 }
 
 interface StateProps {
+  sortingViews: SortingViewPlugin[]
   sorting: Sorting | undefined
   recording: Recording | undefined
   extensionsConfig: any
@@ -56,7 +58,7 @@ type SortingInfoStatus = 'waiting' | 'computing' | 'finished'
 type SelectedUnitIds = {[key: string]: boolean}
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { documentInfo, sorting, sortingId, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig } = props
+  const { sortingViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<SortingInfoStatus>('waiting');
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
@@ -162,19 +164,14 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       }
       <div style={contentWrapperStyle}>
         {
-          pluginComponentsList.filter(
-            c => (
-              (!c.sortingViewPlugin.development) || (extensionsConfig.enabled.development)
-            )
-          ).map(PluginComponent => {
-            const config = PluginComponent.sortingViewPlugin;
+          sortingViews.map(sv => {
             return (
               <Expandable
-                key={config.label}
-                label={config.label}
+                key={sv.name}
+                label={sv.label}
               >
-                <PluginComponent
-                  {...config.props || {}}
+                <sv.component
+                  {...sv.props || {}}
                   sorting={sorting}
                   recording={recording}
                   selectedUnitIds={selectedUnitIds}
@@ -220,6 +217,7 @@ function findRecordingForId(state: any, id: string): Recording | undefined {
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
+  sortingViews: state.extensionContext.sortingViews,
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),

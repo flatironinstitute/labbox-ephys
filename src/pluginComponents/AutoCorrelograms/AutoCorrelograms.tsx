@@ -1,13 +1,12 @@
-import React from 'react'
-import Correlogram_rv from '../CrossCorrelograms/Correlogram_ReactVis';
+import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
-import sampleSortingViewProps from '../common/sampleSortingViewProps'
-import CalculationPool from '../common/CalculationPool'
+import { ExtensionContext, SortingViewProps } from '../../extension';
+import CalculationPool from '../common/CalculationPool';
+import Correlogram_rv from '../CrossCorrelograms/Correlogram_ReactVis';
 
 const autocorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
-    onUnitClicked }) => {
+const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selectedUnitIds, focusedUnitId, onUnitClicked }) => {
     return (
         <PlotGrid
             sorting={sorting}
@@ -15,13 +14,13 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
             focus={focusedUnitId}
             onUnitClicked={onUnitClicked}
             dataFunctionName={'createjob_fetch_correlogram_plot_data'}
-            dataFunctionArgsCallback={(unitId) => ({
+            dataFunctionArgsCallback={(unitId: number) => ({
                 sorting_object: sorting.sortingObject,
                 unit_x: unitId
             })}
             // use default boxSize
             plotComponent={Correlogram_rv}
-            plotComponentArgsCallback={(unitId) => ({
+            plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
             })}
             newHitherJobMethod={true}
@@ -30,15 +29,12 @@ const AutoCorrelograms = ({ sorting, selectedUnitIds, focusedUnitId,
     );
 }
 
-const label = 'Autocorrelograms'
-
-AutoCorrelograms.sortingViewPlugin = {
-    label: label
-}
-
-AutoCorrelograms.prototypeViewPlugin = {
-    label: label,
-    props: sampleSortingViewProps()
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'Autocorrelograms',
+        label: 'Autocorrelograms',
+        component: AutoCorrelograms
+    })
 }
 
 export default AutoCorrelograms

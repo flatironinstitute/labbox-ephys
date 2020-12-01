@@ -1,40 +1,41 @@
 // react
+import { ThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-// redux
-import { createStore, applyMiddleware } from 'redux'
-import { Provider } from 'react-redux'
-import thunk from 'redux-thunk';
-
+import { Provider } from 'react-redux';
 // router
 import { BrowserRouter as Router } from 'react-router-dom';
-
-// styling
-import theme from './theme';
-import './index.css';
-import './styles.css';
-import './localStyles.css';
-import { ThemeProvider } from '@material-ui/core/styles';
+// redux
+import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
 import "../node_modules/react-vis/dist/style.css";
-
-// service worker (see unregister() below)
-import * as serviceWorker from './serviceWorker';
-
-// reducer
-import rootReducer from './reducers';
-
+import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 // The main app container, including the app bar
 import AppContainer from './AppContainer';
-
+import { ExtensionContext } from './extension';
+import { handleHitherJobCreated, handleHitherJobCreationError, handleHitherJobError, handleHitherJobFinished, setApiConnection, sleepMsec } from './hither/createHitherJob';
+import './index.css';
+import './localStyles.css';
+// reducer
+import rootReducer from './reducers';
+import registerExtensions from './registerExtensions';
 // Custom routes
 import Routes from './Routes';
+// service worker (see unregister() below)
+import * as serviceWorker from './serviceWorker';
+import './styles.css';
+// styling
+import theme from './theme';
 
-import { sleepMsec, handleHitherJobFinished, handleHitherJobError, setApiConnection, handleHitherJobCreated, handleHitherJobCreationError } from './hither/createHitherJob';
 
-import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 
-import { watchForNewMessages, getMessages } from './kachery';
+
+
+
+
+
+
+
 
 
 /*
@@ -75,6 +76,8 @@ const persistStateMiddleware = store => next => action => {
 // persistStateMiddleware is described above
 // thunk allows asynchronous actions
 const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
+const extensionContext = new ExtensionContext(store.dispatch)
+registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)
 class ApiConnection {
