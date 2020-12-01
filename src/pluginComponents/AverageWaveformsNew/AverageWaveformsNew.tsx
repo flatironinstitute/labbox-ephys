@@ -1,26 +1,12 @@
 import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
+import { Recording } from '../../reducers/recordings';
+import { Sorting } from '../../reducers/sortings';
 import CalculationPool from '../common/CalculationPool';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 
 const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});
-
-interface SortingObject {
-
-}
-
-interface RecordingObject {
-    
-}
-
-interface Sorting {
-    sortingObject: SortingObject
-}
-
-interface Recording {
-    recordingObject: RecordingObject
-}
 
 interface Props {
     sorting: Sorting

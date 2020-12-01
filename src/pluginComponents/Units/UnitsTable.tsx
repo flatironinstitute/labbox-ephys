@@ -1,7 +1,7 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
+import { Sorting } from '../../reducers/sortings';
 import { MetricPlugin } from './metricPlugins/common';
-import { Sorting } from './Units';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
@@ -73,7 +73,14 @@ interface Props {
     metrics: {[key: string]: {data: {[key: string]: number}, error: string | null}}
     selectedUnitIds: {[key: string]: boolean}
     sorting: Sorting
-    onSelectedUnitIdsChanged: () => void
+    onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
+}
+
+const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId: number): {[key: string]: boolean} => {
+    return {
+        ...selectedUnitIds,
+        [unitId + '']: !(selectedUnitIds[unitId + ''] || false)
+    }
 }
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
@@ -90,7 +97,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                             <UnitCheckbox
                                 unitKey = {unitId + ''}
                                 selected = {selectedUnitIds[unitId] || false}
-                                handleClicked = {onSelectedUnitIdsChanged}
+                                handleClicked = {() => onSelectedUnitIdsChanged(toggleSelectedUnitId(selectedUnitIds, unitId))}
                             />
                             <UnitIdCell id = {unitId + ''} />
                             <UnitLabelCell

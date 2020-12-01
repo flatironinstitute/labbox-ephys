@@ -2,6 +2,8 @@ import { Button, CircularProgress, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import MultiComboBox from '../../components/MultiComboBox';
 import { createHitherJob } from '../../hither';
+import { Recording } from '../../reducers/recordings';
+import { Sorting } from '../../reducers/sortings';
 import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import * as pluginComponents from './metricPlugins';
 import { MetricPlugin } from './metricPlugins/common';
@@ -53,21 +55,6 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction): Met
 
 type Label = string
 
-interface SortingInfo {
-    unit_ids: number[]
-}
-
-export interface Sorting {
-    sortingId: string
-    sortingObject: any
-    sortingInfo: SortingInfo
-    unitCuration: {[key: string]: {labels: Label[]}}
-}
-
-interface Recording {
-    recordingObject: any
-}
-
 interface Props {
     sorting: Sorting
     recording: Recording
@@ -75,7 +62,7 @@ interface Props {
     extensionsConfig: {enabled: {[key: string]: boolean}}
     onAddUnitLabel: (a: {sortingId: string, unitId: number, label: Label}) => void
     onRemoveUnitLabel: (a: {sortingId: string, unitId: number, label: Label}) => void
-    onSelectedUnitIdsChanged: () => void
+    onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
     readOnly: boolean
 }
 
