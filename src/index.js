@@ -27,17 +27,6 @@ import './styles.css';
 // styling
 import theme from './theme';
 
-
-
-
-
-
-
-
-
-
-
-
 /*
 What does this middleware do?
 
