@@ -1,4 +1,7 @@
+// LABBOX-EXTENSION: ElectrodeGeometryTest2
+
 import React from 'react';
+import { ExtensionContext } from '../../extension';
 import ElectrodeGeometry from './ElectrodeGeometry2';
 
 interface Props {
@@ -17,10 +20,10 @@ const ElectrodeGeometryTest2 = (props: Props) => {
     )
 }
 
-const label = 'Electrode geometry test 2'
-
-ElectrodeGeometryTest2.sortingViewPlugin = {
-    label: label
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'ElectrodeGeometryTest2',
+        label: 'Electrode geometry test 2',
+        component: ElectrodeGeometryTest2
+    })
 }
-
-export default ElectrodeGeometryTest2

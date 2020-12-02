@@ -1,22 +1,14 @@
+// LABBOX-EXTENSION: AverageWaveformsNew
+
 import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
-import { Recording } from '../../reducers/recordings';
-import { Sorting } from '../../reducers/sortings';
+import { ExtensionContext, SortingViewProps } from '../../extension';
 import CalculationPool from '../common/CalculationPool';
-import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 
 const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-interface Props {
-    sorting: Sorting
-    recording: Recording
-    selectedUnitIds: {[key: number]: true} // string or number keys?
-    focusedUnitId: number
-    onUnitClicked: (unitId: number, event: any) => void
-}
-
-const AverageWaveformsNew = (props: Props) => {
+const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) => {
     return (
         <PlotGrid
             sorting={props.sorting}
@@ -40,15 +32,10 @@ const AverageWaveformsNew = (props: Props) => {
     );
 }
 
-const label = 'Average waveforms new'
-
-AverageWaveformsNew.sortingViewPlugin = {
-    label: label
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'AverageWaveformsNew',
+        label: 'Average waveforms new',
+        component: AverageWaveformsNew
+    })
 }
-
-AverageWaveformsNew.prototypeViewPlugin = {
-    label: label,
-    props: sampleSortingViewProps()
-}
-
-export default AverageWaveformsNew

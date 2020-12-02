@@ -9,6 +9,7 @@ import { Sorting } from "./reducers/sortings"
 interface ViewPlugin {
     name: string
     label: string
+    priority?: number
     props?: {[key: string]: any}
 }
 

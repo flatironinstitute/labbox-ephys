@@ -1,3 +1,5 @@
+// LABBOX-EXTENSION: Autocorrelograms
+
 import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
 import { ExtensionContext, SortingViewProps } from '../../extension';
@@ -33,8 +35,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'Autocorrelograms',
         label: 'Autocorrelograms',
+        priority: 100,
         component: AutoCorrelograms
     })
 }
-
-export default AutoCorrelograms

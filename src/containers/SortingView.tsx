@@ -7,21 +7,10 @@ import SortingInfoView from '../components/SortingInfoView';
 import { SortingViewPlugin } from '../extension';
 import { createHitherJob } from '../hither';
 import { getPathQuery } from '../kachery';
-import * as pluginComponents from '../pluginComponents';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
-
-type PluginComponent = React.ComponentType & {
-  sortingViewPlugin: {
-    label: string
-    props: any
-    development?: boolean
-  }
-}
-
-const pluginComponentsList: PluginComponent[] = Object.values(pluginComponents).filter(pc => ((pc as any).sortingViewPlugin)) as any as PluginComponent[]
 
 const intrange = (a: number, b: number) => {
   const lower = a < b ? a : b;

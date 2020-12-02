@@ -1,13 +1,14 @@
-import React from 'react'
+// LABBOX-EXTENSION: AverageWaveforms
+
+import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
-import AverageWaveform_rv from './AverageWaveform_ReactVis';
-import sampleSortingViewProps from '../common/sampleSortingViewProps'
+import { ExtensionContext, SortingViewProps } from '../../extension';
 import CalculationPool from '../common/CalculationPool';
+import AverageWaveform_rv from './AverageWaveform_ReactVis';
 
 const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
-    onUnitClicked }) => {
+const AverageWaveforms: React.FunctionComponent<SortingViewProps> = ({ sorting, recording, selectedUnitIds, focusedUnitId, onUnitClicked }) => {
     return (
         <PlotGrid
             sorting={sorting}
@@ -15,14 +16,14 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
             focus={focusedUnitId}
             onUnitClicked={onUnitClicked}
             dataFunctionName={'createjob_fetch_average_waveform_plot_data'}
-            dataFunctionArgsCallback={(unitId) => ({
+            dataFunctionArgsCallback={(unitId: number) => ({
                 sorting_object: sorting.sortingObject,
                 recording_object: recording.recordingObject,
                 unit_id: unitId
             })}
             // use default boxSize
             plotComponent={AverageWaveform_rv}
-            plotComponentArgsCallback={(unitId) => ({
+            plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
             })}
             newHitherJobMethod={true}
@@ -31,15 +32,11 @@ const AverageWaveforms = ({ sorting, recording, selectedUnitIds, focusedUnitId,
     );
 }
 
-const label = 'Average waveforms'
-
-AverageWaveforms.sortingViewPlugin = {
-    label: label
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'AverageWaveforms',
+        label: 'Average waveforms',
+        priority: 90,
+        component: AverageWaveforms
+    })
 }
-
-AverageWaveforms.prototypeViewPlugin = {
-    label: label,
-    props: sampleSortingViewProps()
-}
-
-export default AverageWaveforms

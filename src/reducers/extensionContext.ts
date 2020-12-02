@@ -18,15 +18,19 @@ const isRegisterSortingViewAction = (x: any): x is RegisterSortingViewAction => 
 
 export type Action = RegisterSortingViewAction
 
+const sortByPriority = <T extends {priority?: number}>(x: T[]) => {
+    return x.sort((a, b) => ((b.priority || 0) - (a.priority || 0)))
+}
+
 // the reducer
 const extensionContext: Reducer<State, Action> = (state: State = initialState, action: Action): State => {
     if (isRegisterSortingViewAction(action)) {
         return {
             ...state,
-            sortingViews: [
+            sortingViews: sortByPriority([
                 ...state.sortingViews,
                 action.sortingView
-            ]
+            ])
         }
     }
     else {

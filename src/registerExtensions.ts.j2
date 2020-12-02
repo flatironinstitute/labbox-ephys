@@ -1,0 +1,21 @@
+// *******************************************************************************
+// This file was automatically generated from registerExtensions.j2, do not edit
+// Extensions are identified by the following criteria:
+//    - File name ends with .tsx
+//    - Contains a line of the form ... LABBOX-EXTENSIONS <extension-name>
+// *******************************************************************************
+
+import { ExtensionContext } from "./extension"
+
+{% for extension in extensions -%}
+import { activate as activate{{ extension.name }} } from '{{ extension.relPath }}'
+{% endfor %}
+
+const registerExtensions = (context: ExtensionContext) => {
+    
+    {% for extension in extensions -%}
+    activate{{ extension.name }}(context)
+    {% endfor %}
+}
+
+export default registerExtensions

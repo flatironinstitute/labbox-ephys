@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { createHitherJob } from '../hither';
 import { Box, CircularProgress } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
+import { createHitherJob } from '../hither';
 
-const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, jobHandlerName, requiredFiles,
+const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, requiredFiles,
     calculationPool,
     boxSize = { width: 200, height: 200 },
     plotComponent, plotComponentArgs, title }) => {
@@ -30,7 +30,7 @@ const ClientSidePlot = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHi
                             use_job_cache: useJobCache ? true : false
                         },
                         newHitherJobMethod: newHitherJobMethod ? true : false,
-                        job_handler_name: jobHandlerName || 'default',
+                        job_handler_name: 'default',
                         required_files: requiredFiles || {}
                     }
                 )
