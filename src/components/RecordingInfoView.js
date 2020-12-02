@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
-import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { string } from 'mathjs';
+import React, { useState } from 'react';
+import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
 
 const zipElectrodes = (locations, ids) => {
@@ -12,7 +12,7 @@ const zipElectrodes = (locations, ids) => {
     })
 }
 
-const RecordingInfoView = ({ recordingInfo  }) => {
+const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
     const ri = recordingInfo;
     const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
     const [selectedElectrodeIds, setSelectedElectrodeIds] = useState([]);
@@ -32,12 +32,17 @@ const RecordingInfoView = ({ recordingInfo  }) => {
                     is_local={ri.is_local}
                 />
             </div>
-            <ElectrodeGeometryWidget
-                electrodes={electrodes}
-                selectedElectrodeIds={selectedElectrodeIds}
-                onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
-                width={350}
-            />
+            {
+                !hideElectrodeGeometry && (
+                    <ElectrodeGeometryWidget
+                        electrodes={electrodes}
+                        selectedElectrodeIds={selectedElectrodeIds}
+                        onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
+                        width={350}
+                        height={150}
+                    />
+                )
+            }
         </React.Fragment>
     );
 }
@@ -71,10 +76,6 @@ const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, n
                 <TableRow>
                     <TableCell>Channel groups</TableCell>
                     <TableCell>{channel_groups.length < 20 ? commasep(channel_groups) : commasep(channel_groups.slice(0, 20)) + ' ...'}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Downloaded</TableCell>
-                    <TableCell>{is_local ? "Yes" : "No"}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>

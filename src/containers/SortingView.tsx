@@ -9,6 +9,7 @@ import { createHitherJob } from '../hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
+import { sortByPriority } from '../reducers/extensionContext';
 import { Recording } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
 
@@ -23,8 +24,8 @@ const intrange = (a: number, b: number) => {
 }
 
 interface StateProps {
-  sortingViews: SortingViewPlugin[]
-  sortingUnitViews: SortingUnitViewPlugin[]
+  sortingViews: {[key: string]: SortingViewPlugin}
+  sortingUnitViews: {[key: string]: SortingUnitViewPlugin}
   sorting: Sorting | undefined
   recording: Recording | undefined
   extensionsConfig: any
@@ -154,7 +155,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       }
       <div style={contentWrapperStyle}>
         {
-          sortingViews.map(sv => {
+          sortByPriority(sortingViews).map(sv => {
             return (
               <Expandable
                 key={sv.name}
@@ -186,14 +187,16 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   );
 }
 
-const Expandable = (props: { label: string, children: React.ReactNode[] | React.ReactNode }) => {
+export const Expandable = (props: { label: string, children: React.ReactNode[] | React.ReactNode, defaultExpanded?: boolean }) => {
   return (
-    <Accordion TransitionProps={{ unmountOnExit: true }}>
+    <Accordion TransitionProps={{ unmountOnExit: true }} defaultExpanded={props.defaultExpanded}>
       <AccordionSummary>
         {props.label}
       </AccordionSummary>
       <AccordionDetails>
-        {props.children}
+        <div style={{width: "100%"}}>
+          {props.children}
+        </div>
       </AccordionDetails>
     </Accordion>
   )

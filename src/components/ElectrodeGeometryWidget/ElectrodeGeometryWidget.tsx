@@ -1,6 +1,5 @@
 import { norm } from 'mathjs'
 import React from "react"
-import { SizeMe } from "react-sizeme"
 import { CanvasPainter } from '../../components/jscommon/CanvasWidget/CanvasPainter'
 import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, useCanvasWidgetLayer, useCanvasWidgetLayers } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
 import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
@@ -41,6 +40,7 @@ interface WidgetProps {
     selectedElectrodeIds: number[]
     onSelectedElectrodeIdsChanged: (x: number[]) => void
     width: number
+    height: number
 }
 
 interface ElectrodeBoundingBox extends Electrode {
@@ -263,19 +263,9 @@ const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
 // Widget proper: just a Sizeme wrapper.
 const ElectrodeGeometryWidget = (props: WidgetProps) => {
     return (
-        <SizeMe monitorHeight>
-            {({ size }) =>
-                <React.Fragment>
-                <div>LOOK HERE</div>
-                <ElectrodeGeometryCanvas 
-                    {...props}
-                    width={size.width || 5}
-                    height={500} // maxHeight hard-coded to 1800
-                />
-                <div>BELOW CANVAS</div>
-                </React.Fragment>
-            }
-        </SizeMe>
+        <ElectrodeGeometryCanvas 
+            {...props}
+        />
     )
 }
 

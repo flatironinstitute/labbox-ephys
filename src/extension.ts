@@ -3,7 +3,7 @@ import { ExtensionsConfig } from './extensions/reducers'
 import CalculationPool from "./pluginComponents/common/CalculationPool"
 import { RootAction } from "./reducers"
 import { DocumentInfo } from './reducers/documentInfo'
-import { RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
+import { RegisterRecordingViewAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
 import { Recording } from "./reducers/recordings"
 import { Sorting } from "./reducers/sortings"
 
@@ -12,6 +12,8 @@ interface ViewPlugin {
     label: string
     priority?: number
     props?: {[key: string]: any}
+    fullWidth?: boolean
+    defaultExpanded?: boolean
 }
 
 export interface SortingViewProps {
@@ -34,7 +36,7 @@ export interface SortingViewProps {
     }) => void
     onSelectedUnitIdsChanged: (selectedUnitIds: {[key: string]: boolean}) => void
     readOnly: boolean | null
-    sortingUnitViews: SortingUnitViewPlugin[] // maybe this doesn't belong here
+    sortingUnitViews: {[key: string]: SortingUnitViewPlugin} // maybe this doesn't belong here
 }
 
 export interface SortingViewPlugin extends ViewPlugin {
@@ -52,6 +54,14 @@ export interface SortingUnitViewProps {
 
 export interface SortingUnitViewPlugin extends ViewPlugin {
     component: React.ComponentType<SortingUnitViewProps>
+}
+
+export interface RecordingViewProps {
+    recording: Recording
+}
+
+export interface RecordingViewPlugin extends ViewPlugin {
+    component: React.ComponentType<RecordingViewProps>
 }
 
 export class ExtensionContext {
@@ -75,6 +85,16 @@ export class ExtensionContext {
         this.dispatch(a)
     }
     unregisterSortingUnitView(name: string) {
+        // todo
+    }
+    registerRecordingView(V: RecordingViewPlugin) {
+        const a: RegisterRecordingViewAction = {
+            type: 'REGISTER_RECORDING_VIEW',
+            recordingView: V
+        }
+        this.dispatch(a)
+    }
+    unregisterRecordingView(name: string) {
         // todo
     }
 }
