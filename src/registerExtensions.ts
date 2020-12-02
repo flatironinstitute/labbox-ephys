@@ -3,13 +3,13 @@ import { ExtensionContext } from "./extension"
 // !begin-code-generation!
 import { activate as activateLoadSortingPythonSnippet } from './pluginComponents/LoadSortingPythonSnippet/LoadSortingPythonSnippet'
 import { activate as activateUnits } from './pluginComponents/Units/Units'
-import { activate as activateCrossCorrelograms } from './pluginComponents/CrossCorrelograms/CrossCorrelograms'
 import { activate as activateAverageWaveformsNew } from './pluginComponents/AverageWaveformsNew/AverageWaveformsNew'
 import { activate as activateAverageWaveforms } from './pluginComponents/AverageWaveforms/AverageWaveforms'
-import { activate as activateAutocorrelograms } from './pluginComponents/AutoCorrelograms/AutoCorrelograms'
 import { activate as activateIndividualUnits } from './pluginComponents/IndividualUnits/IndividualUnits'
 import { activate as activateElectrodeGeometryTest2 } from './pluginComponents/ElectrodeGeometryTest2/ElectrodeGeometryTest2'
 import { activate as activateElectrodeGeometryTest } from './pluginComponents/ElectrodeGeometryTest/ElectrodeGeometryTest'
+import { activate as activatecorrelogram } from './extensions/correlograms/correlograms'
+import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
 // !end-code-generation!
 
 /*
@@ -23,13 +23,13 @@ const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
     activateLoadSortingPythonSnippet(context)
     activateUnits(context)
-    activateCrossCorrelograms(context)
     activateAverageWaveformsNew(context)
     activateAverageWaveforms(context)
-    activateAutocorrelograms(context)
     activateIndividualUnits(context)
     activateElectrodeGeometryTest2(context)
     activateElectrodeGeometryTest(context)
+    activatecorrelogram(context)
+    activateaveragewaveforms(context)
     // !end-code-generation!
     ///////////////////////////////////////////////
 }

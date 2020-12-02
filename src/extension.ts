@@ -1,8 +1,9 @@
 import { Dispatch } from "react"
 import { ExtensionsConfig } from './extensions/reducers'
+import CalculationPool from "./pluginComponents/common/CalculationPool"
 import { RootAction } from "./reducers"
 import { DocumentInfo } from './reducers/documentInfo'
-import { RegisterSortingViewAction } from './reducers/extensionContext'
+import { RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
 import { Recording } from "./reducers/recordings"
 import { Sorting } from "./reducers/sortings"
 
@@ -33,14 +34,27 @@ export interface SortingViewProps {
     }) => void
     onSelectedUnitIdsChanged: (selectedUnitIds: {[key: string]: boolean}) => void
     readOnly: boolean | null
+    sortingUnitViews: SortingUnitViewPlugin[] // maybe this doesn't belong here
 }
 
 export interface SortingViewPlugin extends ViewPlugin {
     component: React.ComponentType<SortingViewProps>
 }
 
+export interface SortingUnitViewProps {
+    sorting: Sorting
+    recording: Recording
+    unitId: number
+    calculationPool: CalculationPool
+    selectedSpikeIndex: number | null
+    onSelectedSpikeIndexChanged: (index: number | null) => void
+}
+
+export interface SortingUnitViewPlugin extends ViewPlugin {
+    component: React.ComponentType<SortingUnitViewProps>
+}
+
 export class ExtensionContext {
-    #sortingViews = new Map<string, SortingViewPlugin>()
     constructor(private dispatch: Dispatch<RootAction>) {
     }
     registerSortingView(V: SortingViewPlugin) {
@@ -51,9 +65,16 @@ export class ExtensionContext {
         this.dispatch(a)
     }
     unregisterSortingView(name: string) {
-        this.#sortingViews.delete(name)
+        // todo
     }
-    sortingViews() {
-        return [...this.#sortingViews]
+    registerSortingUnitView(V: SortingUnitViewPlugin) {
+        const a: RegisterSortingUnitViewAction = {
+            type: 'REGISTER_SORTING_UNIT_VIEW',
+            sortingUnitView: V
+        }
+        this.dispatch(a)
+    }
+    unregisterSortingUnitView(name: string) {
+        // todo
     }
 }

@@ -1,21 +1,25 @@
-import time
+import asyncio
 import json
 import os
 import sys
+import time
 import traceback
+
 import hither as hi
 import kachery_p2p as kp
-import asyncio
+# this is how the hither functions get registered
+import labbox_ephys as le
 import websockets
 from labbox_ephys.api._session import Session
 
-
-# this is how the hither functions get registered
-import labbox_ephys as le
 thisdir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(f'{thisdir}/../../src')
 import pluginComponents
+
 pluginComponents # just keep the linter happy - we only need to import pluginComponents to register the hither functions
+import extensions
+
+extensions # just keep the linter happy - we only need to import extensions to register the hither functions
 
 print(f"LABBOX_EPHYS_DEPLOY: {os.environ.get('LABBOX_EPHYS_DEPLOY')}")
 

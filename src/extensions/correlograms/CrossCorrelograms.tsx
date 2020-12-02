@@ -1,11 +1,9 @@
-// LABBOX-EXTENSION: CrossCorrelograms
-
 import { Button, Grid } from '@material-ui/core';
 import React, { useState } from 'react';
 import { withSize } from 'react-sizeme';
 import ClientSidePlot from '../../components/ClientSidePlot';
-import { ExtensionContext, SortingViewProps } from '../../extension';
-import CalculationPool from '../common/CalculationPool';
+import { SortingViewProps } from '../../extension';
+import CalculationPool from '../../pluginComponents/common/CalculationPool';
 import Correlogram_rv from './Correlogram_ReactVis';
 
 const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
@@ -105,10 +103,4 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & {size: {widt
     );
 }
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
-        name: 'CrossCorrelograms',
-        label: 'Cross-Correlograms',
-        component: withSize()(CrossCorrelograms)
-    })
-}
+export default withSize()(CrossCorrelograms)
