@@ -2,6 +2,7 @@ import { Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import ClientSidePlot from '../../components/ClientSidePlot';
 import { SortingUnitViewPlugin } from '../../extension';
+import { sortByPriority } from '../../reducers/extensionContext';
 import { Recording } from '../../reducers/recordings';
 import { Sorting, SortingInfo } from '../../reducers/sortings';
 import CalculationPool from '../common/CalculationPool';
@@ -16,7 +17,7 @@ interface Props {
     width: number
     calculationPool: CalculationPool
     sortingInfo: SortingInfo
-    sortingUnitViews: SortingUnitViewPlugin[]
+    sortingUnitViews: {[key: string]: SortingUnitViewPlugin}
 }
 
 const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
@@ -118,7 +119,7 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
             <div>
                 <Grid container direction="row">
                     {
-                        sortingUnitViews.map(suv => (
+                        sortByPriority(sortingUnitViews).map(suv => (
                             <Grid item key={suv.name}>
                                 <suv.component
                                     sorting={sorting}

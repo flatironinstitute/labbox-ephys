@@ -11,3 +11,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.MuiTableCell {
+  font-size: 12px;
+  padding: 10px;
+  line-height: 1;
+}
