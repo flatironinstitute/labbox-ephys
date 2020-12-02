@@ -1,52 +1,48 @@
+// LABBOX-EXTENSION: CrossCorrelograms
+
+import { Button, Grid } from '@material-ui/core';
 import React, { useState } from 'react';
 import { withSize } from 'react-sizeme';
 import ClientSidePlot from '../../components/ClientSidePlot';
-import { Grid } from '@material-ui/core';
-import { Button } from '@material-ui/core';
-import Correlogram_rv from './Correlogram_ReactVis';
-import sampleSortingViewProps from '../common/sampleSortingViewProps';
+import { ExtensionContext, SortingViewProps } from '../../extension';
 import CalculationPool from '../common/CalculationPool';
+import Correlogram_rv from './Correlogram_ReactVis';
 
 const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
-    const filteredIds = Object.fromEntries(
-        Object.keys(selectedUnitIds).filter(k => selectedUnitIds[k])
-        .filter(id => sorting.sortingInfo.unit_ids.includes(parseInt(id)))
-        .map(id => [id, true]));
-
+const CrossCorrelograms: React.FunctionComponent<SortingViewProps & {size: {width: number}}> = ({ size, sorting, recording, selectedUnitIds }) => {
     const plotMargin = 2; // in pixels
-    const [chosenPlots, setChosenPlots] = useState([]);
+    const [chosenPlots, setChosenPlots] = useState<number[]>([]);
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const handleUpdateChosenPlots = () => {
-        setChosenPlots(Object.keys(filteredIds)
+        setChosenPlots(Object.keys(selectedUnitIds)
             .map((x) => parseInt(x))
             .filter(x => !isNaN(x)));
     };
 
-    const n = chosenPlots.length || 0;
+    const n = chosenPlots.length
 
-    const computeLayout = (marginInPx, maxSize = 800) => {
-        // we need to fit a square of side length n elements into the wrapper's width.
-        if (n < 1) return;
+    const computeLayout = (marginInPx: number, maxSize: number = 400) => {
+        const N = n || 1 // don't want to divide by zero
         // note adjacent margins will collapse, and we don't care about vertical length
         // (the user can scroll). So: horizontal space taken is:
         // width = n*plotWidth + 2*margin (2 outer margins) + (n-1)*margin (gutters between plots)
         // width = margin*(n+1) + plotWidth * n
         // Solve for plotWidth = (width - margin*(n+1))/n.
         // And we can't have fractional pixels, so round down.
-        const plotWidth = Math.min(maxSize, Math.floor((size.width - marginInPx*(n + 1))/n));
+        const plotWidth = Math.min(maxSize, Math.floor((size.width - marginInPx*(N + 1))/N));
         return plotWidth;
     }
 
     // pairs are objects of the form '{ xkey: unitId, ykey: unitId }'
     // This function should return a list of the pairs, in row-major order.
     const makePairs = () => {
-        return chosenPlots.reduce((list, yItem) => {
-            return list.concat(chosenPlots.map((xItem) => {
+        return chosenPlots.reduce((list: {xkey: number, ykey: number}[], yItem) => {
+            const a = chosenPlots.map((xItem) => {
                 return {xkey: xItem, ykey: yItem}
-            }))
+            })
+            return list.concat(a)
         }, []);
     }
 
@@ -54,7 +50,9 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
     const plotWidth = computeLayout(plotMargin);
     const rowBounds = [...Array(pairs.length).keys()].filter(i => i % n === 0);
 
-    const renderRow = ( pairs, plotWidth ) => {
+    if (!plotWidth) return <div>No plot width</div>
+
+    const renderRow = ( pairs: {xkey: number, ykey: number}[], plotWidth: number ) => {
         return (
             <Grid key={'range-'+pairs[0].ykey+'-to-'+pairs[pairs.length -1].ykey}>
                 {
@@ -81,6 +79,7 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
                                     useJobCache={true}
                                     requiredFiles={sorting.sortingObject}
                                     calculationPool={crossCorrelogramsCalculationPool}
+                                    newHitherJobMethod={false}
                                 />
                             </div>
                         </Grid>
@@ -88,6 +87,10 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
                 }
             </Grid>
         );
+    }
+
+    if (Object.keys(selectedUnitIds).length === 0) {
+        return <div style={{'width': '100%'}} >First select one or more units</div>
     }
 
     return (
@@ -102,25 +105,10 @@ const CrossCorrelograms = ({ size, sorting, recording, selectedUnitIds }) => {
     );
 }
 
-const label = 'Cross-Correlograms'
-
-CrossCorrelograms.sortingViewPlugin = {
-    label: label
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'CrossCorrelograms',
+        label: 'Cross-Correlograms',
+        component: withSize()(CrossCorrelograms)
+    })
 }
-
-CrossCorrelograms.prototypeViewPlugin = {
-    label: label,
-    props: sampleSortingViewProps()
-}
-
-// export default CrossCorrelograms;
-const exportedComponent = withSize()(CrossCorrelograms);
-exportedComponent.sortingViewPlugin = {
-    label: label
-}
-exportedComponent.prototypeViewPlugin = {
-    label: label,
-    props: sampleSortingViewProps()
-}
-
-export default exportedComponent;

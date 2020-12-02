@@ -78,6 +78,11 @@
             "label": "start jupyter lab",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/start_jupyter_lab.sh"
+        },
+        {
+            "label": "code generation",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/code_generation.sh"
         }
     ]
 }

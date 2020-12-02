@@ -10,6 +10,7 @@ type Label = string
 export interface Sorting {
     sortingId: string
     sortingLabel: string
+    sortingPath: string
     sortingObject: any
     sortingInfo: SortingInfo
     recordingId: string

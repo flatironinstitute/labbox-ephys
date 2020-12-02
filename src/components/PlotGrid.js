@@ -10,7 +10,6 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
     plotComponent, plotComponentArgsCallback, // fix this
     newHitherJobMethod = false,
     useJobCache = false,
-    jobHandlerName = null,
     calculationPool = null
 }) => {
         const maxUnitsVisibleIncrement = 60;
@@ -49,7 +48,7 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
                                         useJobCache={useJobCache}
                                         newHitherJobMethod={newHitherJobMethod}
-                                        jobHandlerName={jobHandlerName}
+                                        jobHandlerName={"default"}
                                         calculationPool={calculationPool}
                                     />
                                 </div>
