@@ -1,5 +1,3 @@
-from .AverageWaveforms.genplot_average_waveform import \
-    fetch_average_waveform_plot_data
 from .BokehTest2.bokeh_test_2 import bokeh_test_2
 from .BokehTest.bokeh_test import bokeh_test
 from .IndividualUnits.fetch_pca_features import createjob_fetch_pca_features

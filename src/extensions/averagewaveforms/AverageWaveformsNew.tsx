@@ -1,9 +1,7 @@
-// LABBOX-EXTENSION: AverageWaveformsNew
-
 import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
-import { ExtensionContext, SortingViewProps } from '../../extension';
-import CalculationPool from '../common/CalculationPool';
+import { SortingViewProps } from '../../extension';
+import CalculationPool from '../../pluginComponents/common/CalculationPool';
 import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 
 const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});
@@ -32,10 +30,4 @@ const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) =
     );
 }
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
-        name: 'AverageWaveformsNew',
-        label: 'Average waveforms new',
-        component: AverageWaveformsNew
-    })
-}
+export default AverageWaveformsNew

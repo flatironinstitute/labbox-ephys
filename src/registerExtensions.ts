@@ -3,8 +3,6 @@ import { ExtensionContext } from "./extension"
 // !begin-code-generation!
 import { activate as activateLoadSortingPythonSnippet } from './pluginComponents/LoadSortingPythonSnippet/LoadSortingPythonSnippet'
 import { activate as activateUnits } from './pluginComponents/Units/Units'
-import { activate as activateAverageWaveformsNew } from './pluginComponents/AverageWaveformsNew/AverageWaveformsNew'
-import { activate as activateAverageWaveforms } from './pluginComponents/AverageWaveforms/AverageWaveforms'
 import { activate as activateIndividualUnits } from './pluginComponents/IndividualUnits/IndividualUnits'
 import { activate as activateElectrodeGeometryTest2 } from './pluginComponents/ElectrodeGeometryTest2/ElectrodeGeometryTest2'
 import { activate as activateElectrodeGeometryTest } from './pluginComponents/ElectrodeGeometryTest/ElectrodeGeometryTest'
@@ -23,8 +21,6 @@ const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
     activateLoadSortingPythonSnippet(context)
     activateUnits(context)
-    activateAverageWaveformsNew(context)
-    activateAverageWaveforms(context)
     activateIndividualUnits(context)
     activateElectrodeGeometryTest2(context)
     activateElectrodeGeometryTest(context)

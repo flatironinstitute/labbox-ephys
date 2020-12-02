@@ -1,9 +1,9 @@
 import React, { FunctionComponent } from 'react'
 import ClientSidePlot from '../../components/ClientSidePlot'
-import AverageWaveform_rv from '../../pluginComponents/AverageWaveforms/AverageWaveform_ReactVis'
 import CalculationPool from "../../pluginComponents/common/CalculationPool"
 import { Recording } from "../../reducers/recordings"
 import { Sorting } from "../../reducers/sortings"
+import AverageWaveform_rv from './AverageWaveform_ReactVis'
 
 
 const AverageWaveformSortingUnitView: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool}> = ({ sorting, recording, unitId, calculationPool }) => {
