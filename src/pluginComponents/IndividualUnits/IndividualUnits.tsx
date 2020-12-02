@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import { withSize } from 'react-sizeme';
-import CalculationPool from '../common/CalculationPool';
-import { Grid, Button } from '@material-ui/core';
-import IndividualUnit from './IndividualUnit';
+// LABBOX-EXTENSION: IndividualUnits
+
+import { Button, Grid } from '@material-ui/core';
+import React, { FunctionComponent, useState } from 'react';
 import { Link } from 'react-router-dom';
+import sizeMe from 'react-sizeme';
+import { ExtensionContext, SortingViewProps } from '../../extension';
 import { getPathQuery } from '../../kachery';
+import CalculationPool from '../common/CalculationPool';
+import IndividualUnit from './IndividualUnit';
 
 const individualUnitsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits = ({ size, sorting, recording, selectedUnitIds, documentInfo }) => {
+const IndividualUnits: FunctionComponent<SortingViewProps & {size: {width: number}}> = ({ size, sorting, recording, selectedUnitIds, documentInfo }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     const { documentId, feedUri, readOnly } = documentInfo || {};
@@ -71,12 +74,11 @@ const IndividualUnits = ({ size, sorting, recording, selectedUnitIds, documentIn
     );
 }
 
-const label = 'Individual units'
-
-// export default CrossCorrelograms;
-const exportedComponent = withSize()(IndividualUnits);
-exportedComponent.sortingViewPlugin = {
-    label: label
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'IndividualUnits',
+        label: 'Individual Units',
+        priority: 70,
+        component: sizeMe()(IndividualUnits)
+    })
 }
-
-export default exportedComponent;

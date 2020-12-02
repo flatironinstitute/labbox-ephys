@@ -2,8 +2,6 @@ export { default as AmplitudeHistograms } from './AmplitudeHistograms/AmplitudeH
 export { default as BokehTest } from './BokehTest/BokehTest'
 export { default as BokehTest2 } from './BokehTest2/BokehTest2'
 export { default as ExampleSortingView } from './ExampleSortingView/ExampleSortingView'
-export { default as IndividualUnits } from './IndividualUnits/IndividualUnits'
-export { default as LoadSortingPythonSnippet } from './LoadSortingPythonSnippet/LoadSortingPythonSnippet'
 export { default as MatplotlibTest } from './MatplotlibTest/MatplotlibTest'
 export { default as RawSortingView } from './RawView/RawSortingView'
 export { default as Snippets } from './Snippets/Snippets'

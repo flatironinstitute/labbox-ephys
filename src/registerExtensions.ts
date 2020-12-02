@@ -1,10 +1,12 @@
 
 import { ExtensionContext } from "./extension"
 // !begin-code-generation!
+import { activate as activateLoadSortingPythonSnippet } from './pluginComponents/LoadSortingPythonSnippet/LoadSortingPythonSnippet'
 import { activate as activateCrossCorrelograms } from './pluginComponents/CrossCorrelograms/CrossCorrelograms'
 import { activate as activateAverageWaveformsNew } from './pluginComponents/AverageWaveformsNew/AverageWaveformsNew'
 import { activate as activateAverageWaveforms } from './pluginComponents/AverageWaveforms/AverageWaveforms'
 import { activate as activateAutocorrelograms } from './pluginComponents/AutoCorrelograms/AutoCorrelograms'
+import { activate as activateIndividualUnits } from './pluginComponents/IndividualUnits/IndividualUnits'
 import { activate as activateElectrodeGeometryTest2 } from './pluginComponents/ElectrodeGeometryTest2/ElectrodeGeometryTest2'
 import { activate as activateElectrodeGeometryTest } from './pluginComponents/ElectrodeGeometryTest/ElectrodeGeometryTest'
 // !end-code-generation!
@@ -18,10 +20,12 @@ And they must include an activate() function
 
 const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
+    activateLoadSortingPythonSnippet(context)
     activateCrossCorrelograms(context)
     activateAverageWaveformsNew(context)
     activateAverageWaveforms(context)
     activateAutocorrelograms(context)
+    activateIndividualUnits(context)
     activateElectrodeGeometryTest2(context)
     activateElectrodeGeometryTest(context)
     // !end-code-generation!

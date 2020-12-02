@@ -21,7 +21,7 @@ def find_files_with_templates(folder: str) -> List[str]:
     for a in os.listdir(folder):
         fname = folder + '/' + a
         template_fname = fname + '.j2'
-        if a.endswith('.ts') and os.path.exists(template_fname):
+        if (a.endswith('.ts') or a.endswith('.tsx')) and os.path.exists(template_fname):
             with open(template_fname, 'r') as f:
                 template_code = f.read()
             if '!begin-code-generation!' in template_code:
