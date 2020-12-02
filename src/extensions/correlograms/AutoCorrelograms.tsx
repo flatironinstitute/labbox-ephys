@@ -1,10 +1,8 @@
-// LABBOX-EXTENSION: Autocorrelograms
-
 import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
-import { ExtensionContext, SortingViewProps } from '../../extension';
-import CalculationPool from '../common/CalculationPool';
-import Correlogram_rv from '../CrossCorrelograms/Correlogram_ReactVis';
+import { SortingViewProps } from '../../extension';
+import CalculationPool from '../../pluginComponents/common/CalculationPool';
+import Correlogram_rv from './Correlogram_ReactVis';
 
 const autocorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
@@ -31,11 +29,4 @@ const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, 
     );
 }
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
-        name: 'Autocorrelograms',
-        label: 'Autocorrelograms',
-        priority: 100,
-        component: AutoCorrelograms
-    })
-}
+export default AutoCorrelograms

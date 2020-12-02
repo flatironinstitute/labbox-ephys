@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { withRouter, Link } from 'react-router-dom'
-import { Grid, Accordion, AccordionSummary, AccordionDetails, Button } from '@material-ui/core'
-import IndividualUnit from '../pluginComponents/IndividualUnits/IndividualUnit'
-import CalculationPool from '../pluginComponents/common/CalculationPool'
-import { withSize } from 'react-sizeme';
+import { Link, withRouter } from 'react-router-dom'
+import { withSize } from 'react-sizeme'
 import { createHitherJob } from '../hither'
-import SimilarUnit from './SimilarUnit'
 import { getPathQuery } from '../kachery'
+import CalculationPool from '../pluginComponents/common/CalculationPool'
+import IndividualUnit from '../pluginComponents/IndividualUnits/IndividualUnit'
+import SimilarUnit from './SimilarUnit'
 
 const calculationPool = new CalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size }) => {
+const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size, sortingUnitViews }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
@@ -49,6 +49,7 @@ const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConf
             calculationPool={calculationPool}
             width={size.width}
             sortingInfo={sortingInfo}
+            sortingUnitViews={sortingUnitViews}
           />
         </Grid>
         <Grid item key={2}>
@@ -174,13 +175,16 @@ function findRecordingForId(state, id) {
   return state.recordings.filter(s => (s.recordingId === id))[0];
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  // todo: use selector
-  sorting: findSortingForId(state, ownProps.sortingId),
-  recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
-  extensionsConfig: state.extensionsConfig,
-  documentInfo: state.documentInfo
-})
+const mapStateToProps = (state, ownProps) => {
+  return {
+    sortingUnitViews: state.extensionContext.sortingUnitViews,
+    // todo: use selector
+    sorting: findSortingForId(state, ownProps.sortingId),
+    recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
+    extensionsConfig: state.extensionsConfig,
+    documentInfo: state.documentInfo
+  }
+}
 
 const mapDispatchToProps = dispatch => ({
 })

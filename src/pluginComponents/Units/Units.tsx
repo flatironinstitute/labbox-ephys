@@ -57,7 +57,7 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction): Met
 type Label = string
 
 const Units: React.FunctionComponent<SortingViewProps> = (props) => {
-    const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly } = props
+    const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly, documentInfo } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
@@ -164,6 +164,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
                     selectedUnitIds={selectedUnitIds}
                     sorting={sorting}
                     onSelectedUnitIdsChanged={onSelectedUnitIdsChanged}
+                    documentInfo={documentInfo}
                 />
                 {
                     showExpandButton && (
