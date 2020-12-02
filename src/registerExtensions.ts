@@ -2,6 +2,7 @@
 import { ExtensionContext } from "./extension"
 // !begin-code-generation!
 import { activate as activateLoadSortingPythonSnippet } from './pluginComponents/LoadSortingPythonSnippet/LoadSortingPythonSnippet'
+import { activate as activateUnits } from './pluginComponents/Units/Units'
 import { activate as activateCrossCorrelograms } from './pluginComponents/CrossCorrelograms/CrossCorrelograms'
 import { activate as activateAverageWaveformsNew } from './pluginComponents/AverageWaveformsNew/AverageWaveformsNew'
 import { activate as activateAverageWaveforms } from './pluginComponents/AverageWaveforms/AverageWaveforms'
@@ -21,6 +22,7 @@ And they must include an activate() function
 const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
     activateLoadSortingPythonSnippet(context)
+    activateUnits(context)
     activateCrossCorrelograms(context)
     activateAverageWaveformsNew(context)
     activateAverageWaveforms(context)

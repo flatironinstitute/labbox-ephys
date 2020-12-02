@@ -1,10 +1,11 @@
+
+// LABBOX-EXTENSION: Units
+
 import { Button, CircularProgress, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import MultiComboBox from '../../components/MultiComboBox';
+import { ExtensionContext, SortingViewProps } from '../../extension';
 import { createHitherJob } from '../../hither';
-import { Recording } from '../../reducers/recordings';
-import { Sorting } from '../../reducers/sortings';
-import sampleSortingViewProps from '../common/sampleSortingViewProps';
 import * as pluginComponents from './metricPlugins';
 import { MetricPlugin } from './metricPlugins/common';
 import UnitsTable from './UnitsTable';
@@ -55,18 +56,7 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction): Met
 
 type Label = string
 
-interface Props {
-    sorting: Sorting
-    recording: Recording
-    selectedUnitIds: {[key: string]: boolean}
-    extensionsConfig: {enabled: {[key: string]: boolean}}
-    onAddUnitLabel: (a: {sortingId: string, unitId: number, label: Label}) => void
-    onRemoveUnitLabel: (a: {sortingId: string, unitId: number, label: Label}) => void
-    onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
-    readOnly: boolean
-}
-
-const Units: React.FunctionComponent<Props> = (props) => {
+const Units: React.FunctionComponent<SortingViewProps> = (props) => {
     const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
@@ -200,17 +190,11 @@ const Units: React.FunctionComponent<Props> = (props) => {
     );
 }
 
-const label = 'Units Table'
-
-const U = Units as any as (React.Component & {sortingViewPlugin: any, prototypeViewPlugin: any})
-
-U.sortingViewPlugin = {
-    label: label
+export function activate(context: ExtensionContext) {
+    context.registerSortingView({
+        name: 'Units',
+        label: 'Units Table',
+        priority: 1000,
+        component: Units
+    })
 }
-
-U.prototypeViewPlugin = {
-    label: label,
-    props: sampleSortingViewProps()
-}
-
-export default U

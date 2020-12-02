@@ -9,5 +9,4 @@ export { default as SpikeAmplitudes } from './SpikeAmplitudes/SpikeAmplitudes'
 export { default as SpikeSprays } from './SpikeSprays/SpikeSprays'
 export { default as TestKacheryP2P } from './TestKacheryP2P/TestKacheryP2P'
 // Sorting views (this order determines the order in which they are shows)
-export { default as Units } from './Units/Units'
 
