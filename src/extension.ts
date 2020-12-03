@@ -1,20 +1,27 @@
 import { Dispatch } from "react"
-import { ExtensionsConfig } from './extensions/reducers'
 import CalculationPool from "./extensions/common/CalculationPool"
+import { ExtensionsConfig } from './extensions/reducers'
 import { RootAction } from "./reducers"
 import { DocumentInfo } from './reducers/documentInfo'
-import { RegisterRecordingViewAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
+import { RegisterRecordingViewAction, RegisterSortingUnitMetricAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
 import { Recording } from "./reducers/recordings"
 import { Sorting } from "./reducers/sortings"
 
-interface ViewPlugin {
+interface Plugin {
     name: string
     label: string
     priority?: number
+    disabled?: boolean
+}
+
+interface ViewPlugin extends Plugin {
     props?: {[key: string]: any}
     fullWidth?: boolean
     defaultExpanded?: boolean
-    disabled?: boolean
+}
+
+interface MetricPlugin extends Plugin {
+    
 }
 
 export interface SortingViewProps {
@@ -38,6 +45,7 @@ export interface SortingViewProps {
     onSelectedUnitIdsChanged: (selectedUnitIds: {[key: string]: boolean}) => void
     readOnly: boolean | null
     sortingUnitViews: {[key: string]: SortingUnitViewPlugin} // maybe this doesn't belong here
+    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
 }
 
 export interface SortingViewPlugin extends ViewPlugin {
@@ -63,6 +71,24 @@ export interface RecordingViewProps {
 
 export interface RecordingViewPlugin extends ViewPlugin {
     component: React.ComponentType<RecordingViewProps>
+}
+
+export interface SortingUnitMetricPlugin extends MetricPlugin {
+    columnLabel: string,
+    tooltip: string,
+    hitherFnName: string,
+    metricFnParams: {[key: string]: any},
+    hitherConfig: {
+        auto_substitute_file_objects?: boolean,
+        hither_config?: {
+            use_job_cache: boolean
+        },
+        job_handler_name?: string
+        wait?: boolean,
+        useClientCache?: boolean,
+        newHitherJobMethod?: boolean
+    },
+    component: React.FunctionComponent<{record: any}>
 }
 
 export class ExtensionContext {
@@ -96,6 +122,16 @@ export class ExtensionContext {
         this.dispatch(a)
     }
     unregisterRecordingView(name: string) {
+        // todo
+    }
+    registerSortingUnitMetric(M: SortingUnitMetricPlugin) {
+        const a: RegisterSortingUnitMetricAction = {
+            type: 'REGISTER_SORTING_UNIT_METRIC',
+            sortingUnitMetric: M
+        }
+        this.dispatch(a)
+    }
+    unregisterSortingUnitMetric(name: string) {
         // todo
     }
 }

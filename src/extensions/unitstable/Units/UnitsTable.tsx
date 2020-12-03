@@ -1,17 +1,18 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
 import { Link } from 'react-router-dom';
+import { SortingUnitMetricPlugin } from '../../../extension';
 import { getPathQuery } from '../../../kachery';
 import { DocumentInfo } from '../../../reducers/documentInfo';
+import { sortByPriority } from '../../../reducers/extensionContext';
 import { Sorting } from '../../../reducers/sortings';
-import { MetricPlugin } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo((a: {plugins: MetricPlugin[]}) => {
+const HeaderRow = React.memo((a: {sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}}) => {
     return (
         <TableHead>
             <TableRow>
@@ -19,7 +20,7 @@ const HeaderRow = React.memo((a: {plugins: MetricPlugin[]}) => {
                 <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
-                    a.plugins.map(plugin => {
+                    sortByPriority(Object.values(a.sortingUnitMetrics)).filter(p => (!p.disabled)).map(plugin => {
                         return (
                             <TableCell key={plugin.columnLabel + '_header'}>
                                 <span title={plugin.tooltip}>{plugin.columnLabel}</span>
@@ -76,7 +77,7 @@ const MetricCell = React.memo((a: {title?: string, error: string, data: any, Pay
 
 
 interface Props {
-    metricPlugins: MetricPlugin[]
+    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
     units: number[]
     metrics: {[key: string]: {data: {[key: string]: number}, error: string | null}}
     selectedUnitIds: {[key: string]: boolean}
@@ -93,11 +94,11 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
 }
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { metricPlugins, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo } = props
+    const { units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo, sortingUnitMetrics } = props
     return (
         <Table className="NiceTable">
             <HeaderRow 
-                plugins={metricPlugins}
+                sortingUnitMetrics={sortingUnitMetrics}
             />
             <TableBody>
                 {
@@ -118,8 +119,8 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                                 labels = {getLabelsForUnitId(unitId, sorting).join(', ')}
                             />
                             {
-                                metricPlugins.map(mp => {
-                                    const metricName = mp.metricName
+                                sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled)).map(mp => {
+                                    const metricName = mp.name
                                     const metric = metrics[metricName] || null
                                     const d = (metric && metric.data) ? (
                                         (unitId + '' in metric.data) ? metric.data[unitId + ''] : NaN

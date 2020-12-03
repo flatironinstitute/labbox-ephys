@@ -4,7 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { addUnitLabel, removeUnitLabel, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { SortingUnitViewPlugin, SortingViewPlugin } from '../extension';
+import { SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extension';
 import { createHitherJob } from '../hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -26,6 +26,7 @@ const intrange = (a: number, b: number) => {
 interface StateProps {
   sortingViews: {[key: string]: SortingViewPlugin}
   sortingUnitViews: {[key: string]: SortingUnitViewPlugin}
+  sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
   sorting: Sorting | undefined
   recording: Recording | undefined
   extensionsConfig: any
@@ -49,7 +50,7 @@ type SortingInfoStatus = 'waiting' | 'computing' | 'finished'
 type SelectedUnitIds = {[key: string]: boolean}
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig } = props
+  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, sortingUnitMetrics } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<SortingInfoStatus>('waiting');
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
@@ -177,6 +178,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   }}
                   readOnly={readOnly}
                   sortingUnitViews={sortingUnitViews}
+                  sortingUnitMetrics={sortingUnitMetrics}
                 />
               </Expandable>
             )
@@ -213,6 +215,7 @@ function findRecordingForId(state: any, id: string): Recording | undefined {
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
   sortingViews: state.extensionContext.sortingViews,
   sortingUnitViews: state.extensionContext.sortingUnitViews,
+  sortingUnitMetrics: state.extensionContext.sortingUnitMetrics,
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),

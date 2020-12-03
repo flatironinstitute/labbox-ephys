@@ -1,15 +1,17 @@
 import { Reducer } from 'react'
-import { RecordingViewPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extension'
+import { RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extension'
 
 export interface State {
     sortingViews: {[key: string]: SortingViewPlugin},
     sortingUnitViews: {[key: string]: SortingUnitViewPlugin},
-    recordingViews: {[key: string]: RecordingViewPlugin}
+    recordingViews: {[key: string]: RecordingViewPlugin},
+    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
 }
 const initialState: State = {
     sortingViews: {},
     sortingUnitViews: {},
-    recordingViews: {}
+    recordingViews: {},
+    sortingUnitMetrics: {}
 }
 
 export interface RegisterSortingViewAction {
@@ -36,7 +38,15 @@ const isRegisterRecordingViewAction = (x: any): x is RegisterRecordingViewAction
     x.type === 'REGISTER_RECORDING_VIEW'
 )
 
-export type Action = RegisterSortingViewAction | RegisterSortingUnitViewAction | RegisterRecordingViewAction
+export interface RegisterSortingUnitMetricAction {
+    type: 'REGISTER_SORTING_UNIT_METRIC'
+    sortingUnitMetric: SortingUnitMetricPlugin
+}
+const isRegisterSortingUnitMetricAction = (x: any): x is RegisterSortingUnitMetricAction => (
+    x.type === 'REGISTER_SORTING_UNIT_METRIC'
+)
+
+export type Action = RegisterSortingViewAction | RegisterSortingUnitViewAction | RegisterRecordingViewAction | RegisterSortingUnitMetricAction
 
 const isArray = <T>(x: any): x is T[] => {
     return (Array.isArray(x))
@@ -77,6 +87,15 @@ const extensionContext: Reducer<State, Action> = (state: State = initialState, a
             recordingViews: {
                 ...state.recordingViews,
                 [action.recordingView.name]: action.recordingView
+            }
+        }
+    }
+    else if (isRegisterSortingUnitMetricAction(action)) {
+        return {
+            ...state,
+            sortingUnitMetrics: {
+                ...state.sortingUnitMetrics,
+                [action.sortingUnitMetric.name]: action.sortingUnitMetric
             }
         }
     }

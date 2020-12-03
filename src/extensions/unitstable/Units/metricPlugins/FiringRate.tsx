@@ -1,5 +1,5 @@
 import React from 'react';
-import { MetricPlugin } from './common';
+import { SortingUnitMetricPlugin } from '../../../../extension';
 
 const FiringRate = React.memo((a: {record: {rate: number}}) => {
     return (
@@ -7,9 +7,9 @@ const FiringRate = React.memo((a: {record: {rate: number}}) => {
     );
 })
 
-const plugin: MetricPlugin = {
-    type: 'metricPlugin',
-    metricName: 'FiringRate',
+const plugin: SortingUnitMetricPlugin = {
+    name: 'FiringRate',
+    label: 'Firing rate (Hz)',
     columnLabel: 'Firing rate (Hz)',
     tooltip: 'Average events per second',
     hitherFnName: 'get_firing_data',
@@ -23,8 +23,7 @@ const plugin: MetricPlugin = {
         },
         job_handler_name: 'partition3'
     },
-    component: FiringRate,
-    development: false
+    component: FiringRate
 }
 
 export default plugin
