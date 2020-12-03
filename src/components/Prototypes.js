@@ -1,13 +1,10 @@
-import React from 'react'
-import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
-import * as pluginComponents from '../pluginComponents';
-
-const pluginComponentsList = Object.values(pluginComponents);
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import React from 'react';
 
 const Prototypes = () => {
   return (
     <div>
-      <h3>{`Prototype views`}</h3>
+      {/* <h3>{`Prototype views`}</h3>
       <div>
         {
           pluginComponentsList.filter(PluginComponent => (PluginComponent.prototypeViewPlugin)).map(PluginComponent => {
@@ -24,7 +21,7 @@ const Prototypes = () => {
             )
           })
         }
-      </div>
+      </div> */}
     </div>
   );
 }

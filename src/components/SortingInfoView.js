@@ -1,5 +1,5 @@
 import React from 'react';
-import SortingInfoUnitEntry from '../pluginComponents/SortingInfoUnitEntry';
+import SortingInfoUnitEntry from '../extensions/common/SortingInfoUnitEntry';
 
 const SortingViewDiv = React.memo(({ unit_ids, onUnitClicked, curation, focus = null, styling, selections }) => {
     const unitTuples = unit_ids.reduce((priors, unitId) => {

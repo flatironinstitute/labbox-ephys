@@ -1,7 +1,7 @@
 import React from 'react';
 import PlotGrid from '../../components/PlotGrid';
 import { SortingViewProps } from '../../extension';
-import CalculationPool from '../../pluginComponents/common/CalculationPool';
+import CalculationPool from '../common/CalculationPool';
 import AverageWaveform_rv from './AverageWaveform_ReactVis';
 
 const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});

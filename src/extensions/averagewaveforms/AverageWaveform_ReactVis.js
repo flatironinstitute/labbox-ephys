@@ -1,5 +1,5 @@
 import React from 'react';
-import { XYPlot, XAxis, YAxis, LineSeries } from 'react-vis';
+import { LineSeries, XAxis, XYPlot, YAxis } from 'react-vis';
 
 const AverageWaveform_rv = ({boxSize, plotData, argsObject = {id: 0}, title}) => {
     // plotData will be an array of [x-vals], [y-vals], and x-stepsize.

@@ -3,8 +3,8 @@ import React from 'react';
 import ClientSidePlot from '../components/ClientSidePlot';
 import AverageWaveform_rv from '../extensions/averagewaveforms/AverageWaveform_ReactVis';
 import Correlogram_rv from '../extensions/correlograms/Correlogram_ReactVis';
-import DriftFeatures_rv from '../pluginComponents/IndividualUnits/DriftFeatures_rv';
-import PCAFeatures_rv from '../pluginComponents/IndividualUnits/PCAFeatures_rv';
+import DriftFeatures_rv from '../extensions/devel/IndividualUnits/DriftFeatures_rv';
+import PCAFeatures_rv from '../extensions/devel/IndividualUnits/PCAFeatures_rv';
 
 const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
     return (

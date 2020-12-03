@@ -5,8 +5,8 @@ import { Link, withRouter } from 'react-router-dom'
 import { withSize } from 'react-sizeme'
 import { createHitherJob } from '../hither'
 import { getPathQuery } from '../kachery'
-import CalculationPool from '../pluginComponents/common/CalculationPool'
-import IndividualUnit from '../pluginComponents/IndividualUnits/IndividualUnit'
+import CalculationPool from '../extensions/common/CalculationPool'
+import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit'
 import SimilarUnit from './SimilarUnit'
 
 const calculationPool = new CalculationPool({ maxSimultaneous: 6 });

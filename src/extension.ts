@@ -1,6 +1,6 @@
 import { Dispatch } from "react"
 import { ExtensionsConfig } from './extensions/reducers'
-import CalculationPool from "./pluginComponents/common/CalculationPool"
+import CalculationPool from "./extensions/common/CalculationPool"
 import { RootAction } from "./reducers"
 import { DocumentInfo } from './reducers/documentInfo'
 import { RegisterRecordingViewAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
