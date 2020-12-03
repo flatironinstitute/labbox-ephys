@@ -95,24 +95,12 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
 
 type sortFieldEntry = {metricName: string, keyOrder: number, sortAscending: boolean}
 const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
-    const parities: {[key: string]: sortFieldEntry} = {}
-    let lastKey = 1
-    for (const f of fields) {
-        if (!(f in parities)) {
-            parities[f] = {metricName: f, keyOrder: lastKey, sortAscending: true}
-            lastKey += 1
-        } else {
-            // we don't actually care how many times something appears, just treat it as a parity bit.
-            parities[f].sortAscending = !parities[f].sortAscending
-        }
-    }
-
     const result: sortFieldEntry[] = []
-    for (const f in parities) {
-        result.push(parities[f])
+    for (let i = 0; i < fields.length; i ++) {
+        // We are ascending unless two fields in a row are the same
+        const sortAscending = (fields[i - 1] !== fields[i])
+        result.push({metricName: fields[i], keyOrder: i, sortAscending})
     }
-    result.sort((a, b) => b.keyOrder - a.keyOrder)
-    // note: opportunity to trim sort field order here if desired
     return result
 }
 
@@ -144,8 +132,23 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
             <HeaderRow 
                 plugins={metricPlugins}
                 handleClick={(metricName: string) => {
-                    console.log(`Got click on field with metric ${metricName}, pushing ${JSON.stringify([...sortFieldOrder, metricName])}`)
-                    setSortFieldOrder([...sortFieldOrder, metricName])
+                    let newSortFieldOrder = [...sortFieldOrder]
+                    if (sortFieldOrder[sortFieldOrder.length - 1] === metricName) {
+                        if (sortFieldOrder[sortFieldOrder.length - 2] === metricName) {
+                            // the last two match this metric, let's just remove the last one
+                            newSortFieldOrder = newSortFieldOrder.slice(0, newSortFieldOrder.length - 1)
+                        }
+                        else {
+                            // the last one matches this metric, let's add another one
+                            newSortFieldOrder = [...newSortFieldOrder, metricName]
+                        }
+                    }
+                    else {
+                        // the last one does not match this metric, let's clear out all previous instances and add one
+                        newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== metricName)), metricName]
+                    }
+                    console.log(`Got click on field with metric ${metricName}, new order ${JSON.stringify(newSortFieldOrder)}`)
+                    setSortFieldOrder(newSortFieldOrder)
                 }}
                 clearSorts={() => {
                     console.log('Clearing sorting')
