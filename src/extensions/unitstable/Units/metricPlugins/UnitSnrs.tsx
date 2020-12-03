@@ -1,5 +1,5 @@
 import React from 'react';
-import { MetricPlugin } from './common';
+import { SortingUnitMetricPlugin } from '../../../../extension';
 
 const UnitSnrs = React.memo((a: {record: number}) => {
     return (
@@ -7,9 +7,17 @@ const UnitSnrs = React.memo((a: {record: number}) => {
     );
 })
 
-const plugin: MetricPlugin = {
-    type: 'metricPlugin',
-    metricName: 'UnitSnrs',
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
+const plugin: SortingUnitMetricPlugin = {
+    name: 'UnitSnrs',
+    label: 'SNR',
     columnLabel: 'SNR',
     tooltip: 'Unit SNR (peak-to-peak amp of mean waveform / est. std. dev on peak chan)',
     hitherFnName: 'createjob_get_unit_snrs',
@@ -20,7 +28,7 @@ const plugin: MetricPlugin = {
         useClientCache: true
     },
     component: UnitSnrs,
-    development: false
+    getRecordValue: getRecordValue
 }
 
 export default plugin

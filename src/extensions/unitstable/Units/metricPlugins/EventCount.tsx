@@ -1,15 +1,23 @@
-import React from 'react';
-import { MetricPlugin } from './common';
+import React, { FunctionComponent } from 'react';
+import { SortingUnitMetricPlugin } from '../../../../extension';
 
-const EventCount = React.memo((a: {record: {count: number}}) => {
+const EventCount: FunctionComponent<{record: any}> = ({record}) => {
     return (
-        <span>{a.record.count}</span>
+        <span>{record.count}</span>
     );
-});
+}
 
-const plugin: MetricPlugin = {
-    type: 'metricPlugin',
-    metricName: 'EventCount',
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: Number(record?.count ?? NaN), 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
+const plugin: SortingUnitMetricPlugin = {
+    name: 'EventCount',
+    label: 'Num. events',
     columnLabel: 'Num. events',
     tooltip: 'Number of firing events',
     hitherFnName: 'createjob_get_firing_data',
@@ -20,7 +28,7 @@ const plugin: MetricPlugin = {
         newHitherJobMethod: true
     },
     component: EventCount,
-    development: false
+    getRecordValue: getRecordValue,
 }
 
 export default plugin

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MetricPlugin } from './common';
+import { SortingUnitMetricPlugin } from '../../../../extension';
 
 const IsiViolations = React.memo((a: {record: number}) => {
     return (
@@ -7,9 +7,17 @@ const IsiViolations = React.memo((a: {record: number}) => {
     );
 })
 
-const plugin: MetricPlugin = {
-    type: 'metricPlugin',
-    metricName: 'IsiViolations',
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
+const plugin: SortingUnitMetricPlugin = {
+    name: 'IsiViolations',
+    label: 'ISI viol.',
     columnLabel: 'ISI viol.',
     tooltip: 'ISI violation rate',
     hitherFnName: 'createjob_get_isi_violation_rates',
@@ -24,7 +32,7 @@ const plugin: MetricPlugin = {
         useClientCache: true
     },
     component: IsiViolations,
-    development: false
+    getRecordValue: getRecordValue
 }
 
 export default plugin

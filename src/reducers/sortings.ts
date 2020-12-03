@@ -1,5 +1,5 @@
 import { Reducer } from 'react'
-import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, REMOVE_UNIT_LABEL, SET_SORTING_INFO } from '../actions'
+import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, REMOVE_UNIT_LABEL, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO } from '../actions'
 
 export interface SortingInfo {
     unit_ids: number[]
@@ -7,15 +7,21 @@ export interface SortingInfo {
 
 type Label = string
 
+export type ExternalSortingUnitMetric = {name: string, label: string, tooltip?: string, data: {[key: string]: number}}
+
 export interface Sorting {
     sortingId: string
     sortingLabel: string
     sortingPath: string
     sortingObject: any
-    sortingInfo: SortingInfo
     recordingId: string
-    unitCuration: {[key: string]: {labels: Label[]}}
-    unitMetrics: {[key: string]: {[key: string]: number}}
+    recordingPath: string
+    recordingObject: any
+    externalUnitMetricsUri?: string
+
+    sortingInfo?: SortingInfo
+    externalUnitMetrics?: ExternalSortingUnitMetric[]
+    unitCuration?: {[key: string]: {labels: Label[]}}
 }
 
 export interface AddSortingAction {
@@ -51,6 +57,15 @@ const isSetSortingInfoAction = (x: any): x is SetSortingInfoAction => (
     x.type === SET_SORTING_INFO
 )
 
+export interface SetExternalSortingUnitMetricsAction {
+    type: 'SET_EXTERNAL_SORTING_UNIT_METRICS'
+    sortingId: string
+    externalUnitMetrics: ExternalSortingUnitMetric[]
+}
+const isSetExternalSortingUnitMetricsAction = (x: any): x is SetExternalSortingUnitMetricsAction => (
+    x.type === SET_EXTERNAL_SORTING_UNIT_METRICS
+)
+
 export interface AddUnitLabelAction {
     type: 'ADD_UNIT_LABEL'
     sortingId: string
@@ -72,7 +87,7 @@ const isRemoveUnitLabelAction = (x: any): x is RemoveUnitLabelAction => (
 )
 
 export type State = Sorting[]
-export type Action = AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | AddUnitLabelAction | RemoveUnitLabelAction
+export type Action = AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | AddUnitLabelAction | RemoveUnitLabelAction | SetExternalSortingUnitMetricsAction
 const initialState: State = []
 
 // the reducer
@@ -111,6 +126,16 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
                 {
                     ...s,
                     unitCuration: unitCurationReducer(s.unitCuration, action)
+                }
+            ): s
+        ))
+    }
+    else if (isSetExternalSortingUnitMetricsAction(action)) {
+        return state.map(s => (
+            s.sortingId === action.sortingId ? (
+                {
+                    ...s,
+                    externalUnitMetrics: action.externalUnitMetrics
                 }
             ): s
         ))

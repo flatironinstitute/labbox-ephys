@@ -2,22 +2,21 @@
 import { Button, CircularProgress, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import MultiComboBox from '../../../components/MultiComboBox';
-import { SortingViewProps } from '../../../extension';
+import { SortingUnitMetricPlugin, SortingViewProps } from '../../../extension';
 import { createHitherJob } from '../../../hither';
-import * as pluginComponents from './metricPlugins';
-import { MetricPlugin } from './metricPlugins/common';
+import { sortByPriority } from '../../../reducers/extensionContext';
 import UnitsTable from './UnitsTable';
 
 const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
 
-const metricPlugins: MetricPlugin[] = Object.values(pluginComponents)
-                            .filter(plugin => {
-                                const p = plugin as any
-                                return (p.type === 'metricPlugin')
-                            })
-                            .map(plugin => {
-                                return plugin as MetricPlugin
-                            })
+// const metricPlugins: MetricPlugin[] = Object.values(pluginComponents)
+//                             .filter(plugin => {
+//                                 const p = plugin as any
+//                                 return (p.type === 'metricPlugin')
+//                             })
+//                             .map(plugin => {
+//                                 return plugin as MetricPlugin
+//                             })
 
 type Status = 'waiting' | 'completed' | 'executing' | 'error'
 
@@ -55,19 +54,19 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction): Met
 type Label = string
 
 const Units: React.FunctionComponent<SortingViewProps> = (props) => {
-    const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly, documentInfo } = props
+    const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly, documentInfo, sortingUnitMetrics } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
-    const activeMetricPlugins = metricPlugins.filter(
-        p => (!p.development || (extensionsConfig.enabled.development)));
+    // const activeMetricPlugins = metricPlugins.filter(
+    //     p => (!p.development || (extensionsConfig.enabled.development)));
 
     const labelOptions = [...new Set(
         defaultLabelOptions.concat(
             Object.keys(sorting.unitCuration || {})
                 .reduce(
                     (allLabels: Label[], unitId: string) => {
-                        const u = (sorting.unitCuration)[unitId]
+                        const u = (sorting.unitCuration || {})[unitId]
                         return allLabels.concat(u.labels || [])
                     }, [])
         )
@@ -83,9 +82,8 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         return 0;
     });
 
-    const fetchMetric = useCallback(async (metric = {metricName: '', hitherFnName: '',
-                                                    metricFnParams: {}, hitherConfig: {}}) => {
-        const name = metric.metricName;
+    const fetchMetric = useCallback(async (metric: SortingUnitMetricPlugin) => {
+        const name = metric.name;
 
         if (name in metrics) {
             return metrics[name];
@@ -93,7 +91,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         // TODO: FIXME! THIS STATE IS NOT PRESERVED BETWEEN UNFOLDINGS!!!
         // TODO: May need to bump this up to the parent!!!
         // new request. Add state to cache, dispatch job, then update state as results come back.
-        updateMetrics({metricName: metric.metricName, status: 'executing'})
+        updateMetrics({metricName: metric.name, status: 'executing'})
         try {
             const data = await createHitherJob(metric.hitherFnName,
                 {
@@ -105,19 +103,21 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
                     ...metric.hitherConfig,
                     required_files: sorting.sortingObject
                 });
-            updateMetrics({metricName: metric.metricName, status: 'completed', data})
+            updateMetrics({metricName: metric.name, status: 'completed', data})
         } catch (err) {
             console.error(err);
-            updateMetrics({metricName: metric.metricName, status: 'error', error: err.message})
+            updateMetrics({metricName: metric.name, status: 'error', error: err.message})
         }
     }, [metrics, sorting.sortingObject, recording.recordingObject]);
 
     useEffect(() => { 
-        activeMetricPlugins.forEach(async mp => await fetchMetric(mp));
-    }, [activeMetricPlugins, metrics, fetchMetric]);
+        sortByPriority(sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
+    }, [sortingUnitMetrics, metrics, fetchMetric]);
 
+    const { sortingInfo } = sorting
+    if (!sortingInfo) return <div>No sorting info</div>
 
-    const selectedRowKeys = sorting.sortingInfo.unit_ids
+    const selectedRowKeys = sortingInfo.unit_ids
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
 
     const handleAddLabel = (unitId: number, label: Label) => {
@@ -137,7 +137,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
             : {});
     };
 
-    let units = sorting.sortingInfo.unit_ids;
+    let units = sortingInfo.unit_ids;
     let showExpandButton = false;
     if ((!expandedTable) && (units.length > 30)) {
         units = units.slice(0, 30);
@@ -156,7 +156,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         <div style={{'width': '100%'}}>
             <Paper style={{maxHeight: 350, overflow: 'auto'}}>
                 <UnitsTable 
-                    metricPlugins={activeMetricPlugins}
+                    sortingUnitMetrics={sortingUnitMetrics}
                     units={units}
                     metrics={metrics}
                     selectedUnitIds={selectedUnitIds}

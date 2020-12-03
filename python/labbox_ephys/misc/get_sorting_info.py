@@ -1,6 +1,8 @@
 import hither as hi
-import numpy as np
+import kachery_p2p as kp
 import labbox_ephys as le
+import numpy as np
+
 
 @hi.function('createjob_get_sorting_info', '0.1.0')
 def createjob_get_sorting_info(labbox, sorting_object, recording_object):
@@ -18,6 +20,14 @@ def get_sorting_info(sorting_object, recording_object):
         unit_ids=_to_int_list(sorting.get_unit_ids()),
         samplerate=recording.get_sampling_frequency()
     )
+
+@hi.function('fetch_external_sorting_unit_metrics', '0.1.0')
+def fetch_external_sorting_unit_metrics(labbox, uri):
+    return load_object.run(uri=uri)
+
+@hi.function('load_object', '0.1.0')
+def load_object(uri):
+    return kp.load_object(uri)
 
 def _to_int_list(x):
     return np.array(x).astype(int).tolist()

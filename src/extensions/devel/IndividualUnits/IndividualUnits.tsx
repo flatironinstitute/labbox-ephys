@@ -13,10 +13,12 @@ const IndividualUnits: FunctionComponent<SortingViewProps & {size: {width: numbe
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     const { documentId, feedUri, readOnly } = documentInfo || {};
+    const { sortingInfo } = sorting
+    if (!sortingInfo) return <div>No sorting info</div>
 
     let selectedUnitIdsArray =
         Object.keys(selectedUnitIds).filter(k => selectedUnitIds[k])
-        .filter(id => sorting.sortingInfo.unit_ids.includes(parseInt(id)))
+        .filter(id => sortingInfo.unit_ids.includes(parseInt(id)))
         .map(id => parseInt(id));
     
     let showExpandButton = false;
@@ -50,7 +52,7 @@ const IndividualUnits: FunctionComponent<SortingViewProps & {size: {width: numbe
                             unitId={id}
                             calculationPool={individualUnitsCalculationPool}
                             width={size.width}
-                            sortingInfo={sorting.sortingInfo}
+                            sortingInfo={sortingInfo}
                             sortingUnitViews={sortingUnitViews}
                         />
                         <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>

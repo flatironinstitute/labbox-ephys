@@ -1,28 +1,37 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { SortingUnitMetricPlugin } from '../../../extension';
 import { getPathQuery } from '../../../kachery';
 import { DocumentInfo } from '../../../reducers/documentInfo';
-import { Sorting } from '../../../reducers/sortings';
-import { MetricPlugin } from './metricPlugins/common';
+import { sortByPriority } from '../../../reducers/extensionContext';
+import { ExternalSortingUnitMetric, Sorting } from '../../../reducers/sortings';
+import { sortMetricValues } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo((a: {plugins: MetricPlugin[]}) => {
+const HeaderRow = React.memo((a: {sortingUnitMetricsList: SortingUnitMetricPlugin[], externalUnitMetrics: ExternalSortingUnitMetric[], clearSorts: () => void, handleClick: (metricName: string) => void}) => {
     return (
         <TableHead>
             <TableRow>
                 <TableCell key="_first" style={{ width: 0}} />
-                <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
+                <TableCell key="_unitIds" onClick={() => a.clearSorts()}><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
-                    a.plugins.map(plugin => {
+                    a.externalUnitMetrics.map(m => (
+                        <TableCell key={m.name + '_external_header'}>
+                            <span title={m.label}>{m.label}</span>
+                        </TableCell>
+                    ))
+                }
+                {
+                    a.sortingUnitMetricsList.map(m => {
                         return (
-                            <TableCell key={plugin.columnLabel + '_header'}>
-                                <span title={plugin.tooltip}>{plugin.columnLabel}</span>
+                            <TableCell key={m.name + '_header'} onClick={() => a.handleClick(m.name)}>
+                                <span title={m.tooltip}>{m.columnLabel}</span>
                             </TableCell>
                         );
                     })
@@ -76,9 +85,9 @@ const MetricCell = React.memo((a: {title?: string, error: string, data: any, Pay
 
 
 interface Props {
-    metricPlugins: MetricPlugin[]
+    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
     units: number[]
-    metrics: {[key: string]: {data: {[key: string]: number}, error: string | null}}
+    metrics: {[key: string]: {data: {[key: string]: any}, error: string | null}}
     selectedUnitIds: {[key: string]: boolean}
     sorting: Sorting
     onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
@@ -92,12 +101,64 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
     }
 }
 
+type sortFieldEntry = {metricName: string, keyOrder: number, sortAscending: boolean}
+const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
+    const result: sortFieldEntry[] = []
+    for (let i = 0; i < fields.length; i ++) {
+        // We are ascending unless two fields in a row are the same
+        const sortAscending = (fields[i - 1] !== fields[i])
+        result.push({metricName: fields[i], keyOrder: i, sortAscending})
+    }
+    return result
+}
+
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { metricPlugins, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo } = props
+    const { sortingUnitMetrics, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo } = props
+    const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
+    const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
+    units.sort((a, b) => a - b) // first sort by actual unit number
+    // Now sort the list iteratively by each of the sorters in the sortFieldOrder state.
+
+    const sortingRules = interpretSortFields(sortFieldOrder)
+    for (const r of sortingRules) {
+        const metricName = r.metricName
+        const metric = metrics[metricName]
+        if (!metric || !metric.data || metric['error']) continue // no data, nothing to do
+        const getRecordForMetric = sortingUnitMetricsList.filter(mp => mp.name === metricName)[0].getRecordValue
+        units.sort((a, b) => {
+            const recordA = getRecordForMetric(metric.data[a + ''])
+            const recordB = getRecordForMetric(metric.data[b + ''])
+            return sortMetricValues(recordA, recordB, r.sortAscending)
+        })
+    }
     return (
         <Table className="NiceTable">
             <HeaderRow 
-                plugins={metricPlugins}
+                externalUnitMetrics={sorting.externalUnitMetrics || []}
+                sortingUnitMetricsList={sortingUnitMetricsList}
+                handleClick={(metricName: string) => {
+                    let newSortFieldOrder = [...sortFieldOrder]
+                    if (sortFieldOrder[sortFieldOrder.length - 1] === metricName) {
+                        if (sortFieldOrder[sortFieldOrder.length - 2] === metricName) {
+                            // the last two match this metric, let's just remove the last one
+                            newSortFieldOrder = newSortFieldOrder.slice(0, newSortFieldOrder.length - 1)
+                        }
+                        else {
+                            // the last one matches this metric, let's add another one
+                            newSortFieldOrder = [...newSortFieldOrder, metricName]
+                        }
+                    }
+                    else {
+                        // the last one does not match this metric, let's clear out all previous instances and add one
+                        newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== metricName)), metricName]
+                    }
+                    console.log(`Got click on field with metric ${metricName}, new order ${JSON.stringify(newSortFieldOrder)}`)
+                    setSortFieldOrder(newSortFieldOrder)
+                }}
+                clearSorts={() => {
+                    console.log('Clearing sorting')
+                    setSortFieldOrder([])
+                }}
             />
             <TableBody>
                 {
@@ -118,8 +179,25 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                                 labels = {getLabelsForUnitId(unitId, sorting).join(', ')}
                             />
                             {
-                                metricPlugins.map(mp => {
-                                    const metricName = mp.metricName
+                                (sorting.externalUnitMetrics || []).map(m => {
+                                    return (
+                                        <MetricCell
+                                            title={m.tooltip || ''}
+                                            key = {m.name + '_' + unitId}
+                                            data = {m.data[unitId + ''] || NaN}
+                                            error = {''}
+                                            PayloadComponent = {(a: {record: number}) => {
+                                                return (
+                                                    <span>{a.record}</span>
+                                                );
+                                            }}
+                                        />
+                                    );
+                                })
+                            }
+                            {
+                                sortingUnitMetricsList.map(mp => {
+                                    const metricName = mp.name
                                     const metric = metrics[metricName] || null
                                     const d = (metric && metric.data) ? (
                                         (unitId + '' in metric.data) ? metric.data[unitId + ''] : NaN
