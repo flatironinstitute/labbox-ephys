@@ -7,6 +7,14 @@ const PeakChannels = React.memo((a: {record: number}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: MetricPlugin = {
     type: 'metricPlugin',
     metricName: 'PeakChannels',
@@ -20,6 +28,7 @@ const plugin: MetricPlugin = {
         useClientCache: true
     },
     component: PeakChannels,
+    getRecordValue: getRecordValue,
     development: false
 }
 

@@ -7,6 +7,15 @@ const EventCount = React.memo((a: {record: {count: number}}) => {
     );
 });
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record?.count ?? NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
+
 const plugin: MetricPlugin = {
     type: 'metricPlugin',
     metricName: 'EventCount',
@@ -20,6 +29,7 @@ const plugin: MetricPlugin = {
         newHitherJobMethod: true
     },
     component: EventCount,
+    getRecordValue: getRecordValue,
     development: false
 }
 

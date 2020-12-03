@@ -7,6 +7,14 @@ const FiringRate = React.memo((a: {record: {rate: number}}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record?.rate ?? NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: MetricPlugin = {
     type: 'metricPlugin',
     metricName: 'FiringRate',
@@ -24,6 +32,7 @@ const plugin: MetricPlugin = {
         job_handler_name: 'partition3'
     },
     component: FiringRate,
+    getRecordValue: getRecordValue,
     development: false
 }
 

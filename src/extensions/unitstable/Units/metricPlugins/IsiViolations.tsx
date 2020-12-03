@@ -7,6 +7,14 @@ const IsiViolations = React.memo((a: {record: number}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: MetricPlugin = {
     type: 'metricPlugin',
     metricName: 'IsiViolations',
@@ -24,6 +32,7 @@ const plugin: MetricPlugin = {
         useClientCache: true
     },
     component: IsiViolations,
+    getRecordValue: getRecordValue,
     development: false
 }
 

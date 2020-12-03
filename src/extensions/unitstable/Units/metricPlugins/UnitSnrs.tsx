@@ -7,6 +7,14 @@ const UnitSnrs = React.memo((a: {record: number}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: MetricPlugin = {
     type: 'metricPlugin',
     metricName: 'UnitSnrs',
@@ -20,6 +28,7 @@ const plugin: MetricPlugin = {
         useClientCache: true
     },
     component: UnitSnrs,
+    getRecordValue: getRecordValue,
     development: false
 }
 

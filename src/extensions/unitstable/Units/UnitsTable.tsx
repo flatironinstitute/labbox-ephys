@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../../kachery';
 import { DocumentInfo } from '../../../reducers/documentInfo';
 import { Sorting } from '../../../reducers/sortings';
-import { MetricPlugin } from './metricPlugins/common';
+import { MetricPlugin, sortMetricValues } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
@@ -79,7 +79,7 @@ const MetricCell = React.memo((a: {title?: string, error: string, data: any, Pay
 interface Props {
     metricPlugins: MetricPlugin[]
     units: number[]
-    metrics: {[key: string]: {data: {[key: string]: number}, error: string | null}}
+    metrics: {[key: string]: {data: {[key: string]: any}, error: string | null}}
     selectedUnitIds: {[key: string]: boolean}
     sorting: Sorting
     onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
@@ -93,13 +93,13 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
     }
 }
 
-type sortFieldEntry = {fieldName: string, keyOrder: number, sortAscending: boolean}
+type sortFieldEntry = {metricName: string, keyOrder: number, sortAscending: boolean}
 const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
     const parities: {[key: string]: sortFieldEntry} = {}
     let lastKey = 1
     for (const f of fields) {
         if (!(f in parities)) {
-            parities[f] = {fieldName: f, keyOrder: lastKey, sortAscending: true}
+            parities[f] = {metricName: f, keyOrder: lastKey, sortAscending: true}
             lastKey += 1
         } else {
             // we don't actually care how many times something appears, just treat it as a parity bit.
@@ -124,20 +124,17 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
 
     const sortingRules = interpretSortFields(sortFieldOrder)
     for (const r of sortingRules) {
-        const metricName = r.fieldName
+        const metricName = r.metricName
         const metric = metrics[metricName]
         console.log(`Now sorting by ${metricName}`)
-        if (!metric || metric['error'] || !metric.data) continue // no data, nothing to do
+        if (!metric || !metric.data || metric['error']) continue // no data, nothing to do
+//        const comparer = metricPlugins.filter(mp => mp.metricName === metricName)[0].comparer(metric.data)
+//        if (!comparer) continue // should not happen
+        const getRecordForMetric = metricPlugins.filter(mp => mp.metricName === metricName)[0].getRecordValue
         units.sort((a, b) => {
-            console.log(`${a} and ${b}. For a: ${metric.data[a + '']}`)
-            const aval = (a + '' in metric.data) ? metric.data[a + ''] : NaN
-            const bval = (b + '' in metric.data) ? metric.data[b + ''] : NaN
-            console.log(`Comparing ${aval} to ${bval}`)
-            // stable to cases when both values are non-numeric; otherwise always sort NaNs after numbers.
-            if (isNaN(aval) && isNaN(bval)) return 0
-            if (isNaN(aval)) return -1
-            if (isNaN(bval)) return 1
-            return r.sortAscending ? (aval - bval) : (bval - aval)
+            const recordA = getRecordForMetric(metric.data[a + ''])
+            const recordB = getRecordForMetric(metric.data[b + ''])
+            return sortMetricValues(recordA, recordB, r.sortAscending)
         })
         console.log(`Units now sorted to ${JSON.stringify(units)}`)
     }
@@ -176,10 +173,8 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                             {
                                 metricPlugins.map(mp => {
                                     const metricName = mp.metricName
-                                    const metric = metrics[metricName] || null
-                                    const d = (metric && metric.data) ? (
-                                        (unitId + '' in metric.data) ? metric.data[unitId + ''] : NaN
-                                    ) : NaN
+                                    const metric = metrics?.[metricName]
+                                    const d = metric?.data?.[unitId + ''] ?? NaN
                                     return (
                                         <MetricCell
                                             title={mp.tooltip}
