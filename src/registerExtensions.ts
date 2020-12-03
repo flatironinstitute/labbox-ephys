@@ -8,7 +8,6 @@ import { activate as activateElectrodeGeometryTest2 } from './pluginComponents/E
 import { activate as activateElectrodeGeometryTest } from './pluginComponents/ElectrodeGeometryTest/ElectrodeGeometryTest'
 import { activate as activatecorrelogram } from './extensions/correlograms/correlograms'
 import { activate as activateexample } from './extensions/example/example'
-import { activate as activatetest } from './extensions/test/test'
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry'
 import { activate as activatetimeseries } from './extensions/timeseries/timeseries'
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
@@ -30,7 +29,6 @@ const registerExtensions = (context: ExtensionContext) => {
     activateElectrodeGeometryTest(context)
     activatecorrelogram(context)
     activateexample(context)
-    activatetest(context)
     activateelectrodegeometry(context)
     activatetimeseries(context)
     activateaveragewaveforms(context)
