@@ -119,7 +119,7 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
             <div>
                 <Grid container direction="row">
                     {
-                        sortByPriority(sortingUnitViews).map(suv => (
+                        sortByPriority(sortingUnitViews).filter(v => (!v.disabled)).map(suv => (
                             <Grid item key={suv.name}>
                                 <suv.component
                                     sorting={sorting}
