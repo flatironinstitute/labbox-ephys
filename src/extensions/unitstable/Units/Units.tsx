@@ -66,7 +66,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
             Object.keys(sorting.unitCuration || {})
                 .reduce(
                     (allLabels: Label[], unitId: string) => {
-                        const u = (sorting.unitCuration)[unitId]
+                        const u = (sorting.unitCuration || {})[unitId]
                         return allLabels.concat(u.labels || [])
                     }, [])
         )
@@ -114,8 +114,10 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         sortByPriority(sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
     }, [sortingUnitMetrics, metrics, fetchMetric]);
 
+    const { sortingInfo } = sorting
+    if (!sortingInfo) return <div>No sorting info</div>
 
-    const selectedRowKeys = sorting.sortingInfo.unit_ids
+    const selectedRowKeys = sortingInfo.unit_ids
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
 
     const handleAddLabel = (unitId: number, label: Label) => {
@@ -135,7 +137,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
             : {});
     };
 
-    let units = sorting.sortingInfo.unit_ids;
+    let units = sortingInfo.unit_ids;
     let showExpandButton = false;
     if ((!expandedTable) && (units.length > 30)) {
         units = units.slice(0, 30);

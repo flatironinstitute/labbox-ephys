@@ -5,7 +5,7 @@ import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseCon
 import { DocumentInfo, SetDocumentInfoAction } from '../reducers/documentInfo'
 import { SetPersistStatusAction } from '../reducers/persisting'
 import { AddRecordingAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
-import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, RemoveUnitLabelAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
+import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
 
 export const REPORT_INITIAL_LOAD_COMPLETE = 'REPORT_INITIAL_LOAD_COMPLETE'
 export const SET_WEBSOCKET_STATUS = 'SET_WEBSOCKET_STATUS'
@@ -23,6 +23,7 @@ export const ADD_SORTING = 'ADD_SORTING'
 export const DELETE_SORTINGS = 'DELETE_SORTINGS'
 export const DELETE_ALL_SORTINGS_FOR_RECORDINGS = 'DELETE_ALL_SORTINGS_FOR_RECORDINGS'
 export const SET_SORTING_INFO = 'SET_SORTING_INFO'
+export const SET_EXTERNAL_SORTING_UNIT_METRICS = 'SET_EXTERNAL_SORTING_UNIT_METRICS'
 
 export const INIT_FETCH_SORTING_INFO = 'INIT_FETCH_SORTING_INFO'
 export const RECEIVE_SORTING_INFO = 'RECEIVE_SORTING_INFO'
@@ -56,6 +57,12 @@ export const setSortingInfo = (a: { sortingId: string, sortingInfo: SortingInfo 
     type: SET_SORTING_INFO,
     sortingId: a.sortingId,
     sortingInfo: a.sortingInfo
+})
+
+export const setExternalSortingUnitMetrics = (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }): SetExternalSortingUnitMetricsAction => ({
+  type: SET_EXTERNAL_SORTING_UNIT_METRICS,
+  sortingId: a.sortingId,
+  externalUnitMetrics: a.externalUnitMetrics
 })
 
 interface PersistAction {

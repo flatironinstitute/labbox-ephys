@@ -5,14 +5,14 @@ import { SortingUnitMetricPlugin } from '../../../extension';
 import { getPathQuery } from '../../../kachery';
 import { DocumentInfo } from '../../../reducers/documentInfo';
 import { sortByPriority } from '../../../reducers/extensionContext';
-import { Sorting } from '../../../reducers/sortings';
+import { ExternalSortingUnitMetric, Sorting } from '../../../reducers/sortings';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo((a: {columnLabels: string[]}) => {
+const HeaderRow = React.memo((a: {columnLabels: string[], externalUnitMetrics: ExternalSortingUnitMetric[]}) => {
     return (
         <TableHead>
             <TableRow>
@@ -20,10 +20,17 @@ const HeaderRow = React.memo((a: {columnLabels: string[]}) => {
                 <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
+                    a.externalUnitMetrics.map(m => (
+                        <TableCell key={m.name + '_external_header'}>
+                            <span title={m.label}>{m.label}</span>
+                        </TableCell>
+                    ))
+                }
+                {
                     a.columnLabels.map(columnLabel => {
                         return (
                             <TableCell key={columnLabel + '_header'}>
-                                <span title={columnLabel} />
+                                <span title={columnLabel}>{columnLabel}</span>
                             </TableCell>
                         );
                     })
@@ -98,7 +105,8 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
     return (
         <Table className="NiceTable">
-            <HeaderRow 
+            <HeaderRow
+                externalUnitMetrics={sorting.externalUnitMetrics || []}
                 columnLabels={sortingUnitMetricsList.map(m => (m.columnLabel))}
             />
             <TableBody>
@@ -119,6 +127,23 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                             <UnitLabelCell
                                 labels = {getLabelsForUnitId(unitId, sorting).join(', ')}
                             />
+                            {
+                                (sorting.externalUnitMetrics || []).map(m => {
+                                    return (
+                                        <MetricCell
+                                            title={m.tooltip || ''}
+                                            key = {m.name + '_' + unitId}
+                                            data = {m.data[unitId + ''] || NaN}
+                                            error = {''}
+                                            PayloadComponent = {(a: {record: number}) => {
+                                                return (
+                                                    <span>{a.record}</span>
+                                                );
+                                            }}
+                                        />
+                                    );
+                                })
+                            }
                             {
                                 sortingUnitMetricsList.map(mp => {
                                     const metricName = mp.name

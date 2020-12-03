@@ -2,7 +2,7 @@ import { Accordion, AccordionDetails, AccordionSummary, CircularProgress } from 
 import React, { Dispatch, useCallback, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { addUnitLabel, removeUnitLabel, setSortingInfo } from '../actions';
+import { addUnitLabel, removeUnitLabel, setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
 import { SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extension';
 import { createHitherJob } from '../hither';
@@ -11,7 +11,7 @@ import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
 import { sortByPriority } from '../reducers/extensionContext';
 import { Recording } from '../reducers/recordings';
-import { Sorting, SortingInfo } from '../reducers/sortings';
+import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
 
 const intrange = (a: number, b: number) => {
   const lower = a < b ? a : b;
@@ -35,6 +35,7 @@ interface StateProps {
 
 interface DispatchProps {
   onSetSortingInfo: (a: {sortingId: string, sortingInfo: SortingInfo}) => void
+  onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
   onAddUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => void
   onRemoveUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => void
 }
@@ -45,31 +46,60 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-type SortingInfoStatus = 'waiting' | 'computing' | 'finished'
+type CalcStatus = 'waiting' | 'computing' | 'finished'
 
 type SelectedUnitIds = {[key: string]: boolean}
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, sortingUnitMetrics } = props
+  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onSetExternalUnitMetrics, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, sortingUnitMetrics } = props
   const { documentId, feedUri, readOnly } = documentInfo;
-  const [sortingInfoStatus, setSortingInfoStatus] = useState<SortingInfoStatus>('waiting');
+  const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
+  const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
   const [selectedUnitIds, setSelectedUnitIds] = useState<SelectedUnitIds>({})
   const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
-  const effect = async () => {
+  // const effect = async () => {
+  //   if ((sorting) && (recording) && (!sorting.sortingInfo) && (sortingInfoStatus === 'waiting')) {
+  //     setSortingInfoStatus('computing');
+  //     const sortingInfo = await createHitherJob(
+  //       'createjob_get_sorting_info',
+  //       { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
+  //       { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
+  //     );
+  //     onSetSortingInfo({ sortingId, sortingInfo });
+  //     setSortingInfoStatus('finished');
+  //   }
+  // }
+  // useEffect(() => {effect()});
+
+  useEffect(() => {
     if ((sorting) && (recording) && (!sorting.sortingInfo) && (sortingInfoStatus === 'waiting')) {
       setSortingInfoStatus('computing');
-      const sortingInfo = await createHitherJob(
+      createHitherJob(
         'createjob_get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
         { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
-      );
-      onSetSortingInfo({ sortingId, sortingInfo });
-      setSortingInfoStatus('finished');
+      ).then((sortingInfo: SortingInfo) => {
+        onSetSortingInfo({ sortingId, sortingInfo });
+        setSortingInfoStatus('finished');
+      })
     }
-  }
-  useEffect(() => {effect()});
+  }, [onSetSortingInfo, setSortingInfoStatus, sortingInfoStatus, recording, sorting, sortingId])
+
+  useEffect(() => {
+    if ((sorting) && (sorting.externalUnitMetricsUri) && (!sorting.externalUnitMetrics) && (externalUnitMetricsStatus === 'waiting')) {
+      setExternalUnitMetricsStatus('computing');
+      createHitherJob(
+        'fetch_external_sorting_unit_metrics',
+        { uri: sorting.externalUnitMetricsUri },
+        { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
+      ).then((externalUnitMetrics: ExternalSortingUnitMetric[]) => {
+        onSetExternalUnitMetrics({ sortingId, externalUnitMetrics });
+        setExternalUnitMetricsStatus('finished');
+      })
+    }
+  }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId])
 
   const handleUnitClicked = useCallback((unitId, event) => {
     if (event.ctrlKey) {
@@ -145,7 +175,8 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
         (sortingInfoStatus === 'computing') ? (
           <div><CircularProgress /></div>
         ) : (
-          <SortingInfoView sortingInfo={sorting.sortingInfo}
+          <SortingInfoView
+            sortingInfo={sorting.sortingInfo}
             selections={selectedUnitIds}
             focus={focusedUnitId !== null ? focusedUnitId : undefined}
             onUnitClicked={handleUnitClicked}
@@ -225,6 +256,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
   onSetSortingInfo: (a: { sortingId: string, sortingInfo: SortingInfo }) => dispatch(setSortingInfo(a)),
+  onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => dispatch(setExternalSortingUnitMetrics(a)),
   onAddUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => dispatch(addUnitLabel(a)),
   onRemoveUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => dispatch(removeUnitLabel(a)),
 })
