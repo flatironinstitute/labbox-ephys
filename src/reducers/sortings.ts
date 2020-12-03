@@ -19,7 +19,6 @@ export interface Sorting {
     recordingObject: any
     externalUnitMetricsUri?: string
 
-    // the following are not imported
     sortingInfo?: SortingInfo
     externalUnitMetrics?: ExternalSortingUnitMetric[]
     unitCuration?: {[key: string]: {labels: Label[]}}

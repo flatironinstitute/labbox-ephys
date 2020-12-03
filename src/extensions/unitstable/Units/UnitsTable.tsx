@@ -123,17 +123,13 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     for (const r of sortingRules) {
         const metricName = r.metricName
         const metric = metrics[metricName]
-        console.log(`Now sorting by ${metricName}`)
         if (!metric || !metric.data || metric['error']) continue // no data, nothing to do
-//        const comparer = metricPlugins.filter(mp => mp.metricName === metricName)[0].comparer(metric.data)
-//        if (!comparer) continue // should not happen
         const getRecordForMetric = sortingUnitMetricsList.filter(mp => mp.name === metricName)[0].getRecordValue
         units.sort((a, b) => {
             const recordA = getRecordForMetric(metric.data[a + ''])
             const recordB = getRecordForMetric(metric.data[b + ''])
             return sortMetricValues(recordA, recordB, r.sortAscending)
         })
-        console.log(`Units now sorted to ${JSON.stringify(units)}`)
     }
     return (
         <Table className="NiceTable">

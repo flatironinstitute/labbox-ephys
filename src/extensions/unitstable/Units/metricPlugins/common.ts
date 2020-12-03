@@ -21,7 +21,6 @@ export interface MetricPlugin {
         job_handler_name?: string
     }
     component: React.ComponentType<{record: any}>
-    // comparer: (data: {[key: string]: any}) => (aval: number, bval: number, sortAscending: boolean) => number
     getRecordValue: (r: any) => MetricValue
     development?: boolean
 }
@@ -34,7 +33,7 @@ const baseNumericComparer = (a: number, b: number, sortAscending: boolean): numb
     // Don't mess with the ordering of two infinities; otherwise sort infinity as greater than finite values
     if (a === Infinity && b === Infinity) return 0
     if (a === Infinity) return sortAscending ? 1 : -1
-    if (b === Infinity) return sortAscending ? 1 : -1
+    if (b === Infinity) return sortAscending ? -1 : 1
     return sortAscending ? (a - b) : (b - a)
 }
 
