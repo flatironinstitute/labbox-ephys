@@ -1,23 +1,24 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SortingUnitMetricPlugin } from '../../../extension';
 import { getPathQuery } from '../../../kachery';
 import { DocumentInfo } from '../../../reducers/documentInfo';
 import { sortByPriority } from '../../../reducers/extensionContext';
 import { ExternalSortingUnitMetric, Sorting } from '../../../reducers/sortings';
+import { sortMetricValues } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const unitCuration = sorting.unitCuration || {};
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo((a: {columnLabels: string[], externalUnitMetrics: ExternalSortingUnitMetric[]}) => {
+const HeaderRow = React.memo((a: {sortingUnitMetricsList: SortingUnitMetricPlugin[], externalUnitMetrics: ExternalSortingUnitMetric[], clearSorts: () => void, handleClick: (metricName: string) => void}) => {
     return (
         <TableHead>
             <TableRow>
                 <TableCell key="_first" style={{ width: 0}} />
-                <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
+                <TableCell key="_unitIds" onClick={() => a.clearSorts()}><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
                     a.externalUnitMetrics.map(m => (
@@ -27,10 +28,10 @@ const HeaderRow = React.memo((a: {columnLabels: string[], externalUnitMetrics: E
                     ))
                 }
                 {
-                    a.columnLabels.map(columnLabel => {
+                    a.sortingUnitMetricsList.map(m => {
                         return (
-                            <TableCell key={columnLabel + '_header'}>
-                                <span title={columnLabel}>{columnLabel}</span>
+                            <TableCell key={m.name + '_header'} onClick={() => a.handleClick(m.name)}>
+                                <span title={m.tooltip}>{m.columnLabel}</span>
                             </TableCell>
                         );
                     })
@@ -86,7 +87,7 @@ const MetricCell = React.memo((a: {title?: string, error: string, data: any, Pay
 interface Props {
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
     units: number[]
-    metrics: {[key: string]: {data: {[key: string]: number}, error: string | null}}
+    metrics: {[key: string]: {data: {[key: string]: any}, error: string | null}}
     selectedUnitIds: {[key: string]: boolean}
     sorting: Sorting
     onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
@@ -100,14 +101,68 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
     }
 }
 
+type sortFieldEntry = {metricName: string, keyOrder: number, sortAscending: boolean}
+const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
+    const result: sortFieldEntry[] = []
+    for (let i = 0; i < fields.length; i ++) {
+        // We are ascending unless two fields in a row are the same
+        const sortAscending = (fields[i - 1] !== fields[i])
+        result.push({metricName: fields[i], keyOrder: i, sortAscending})
+    }
+    return result
+}
+
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo, sortingUnitMetrics } = props
+    const { sortingUnitMetrics, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo } = props
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
+    const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
+    units.sort((a, b) => a - b) // first sort by actual unit number
+    // Now sort the list iteratively by each of the sorters in the sortFieldOrder state.
+
+    const sortingRules = interpretSortFields(sortFieldOrder)
+    for (const r of sortingRules) {
+        const metricName = r.metricName
+        const metric = metrics[metricName]
+        console.log(`Now sorting by ${metricName}`)
+        if (!metric || !metric.data || metric['error']) continue // no data, nothing to do
+//        const comparer = metricPlugins.filter(mp => mp.metricName === metricName)[0].comparer(metric.data)
+//        if (!comparer) continue // should not happen
+        const getRecordForMetric = sortingUnitMetricsList.filter(mp => mp.name === metricName)[0].getRecordValue
+        units.sort((a, b) => {
+            const recordA = getRecordForMetric(metric.data[a + ''])
+            const recordB = getRecordForMetric(metric.data[b + ''])
+            return sortMetricValues(recordA, recordB, r.sortAscending)
+        })
+        console.log(`Units now sorted to ${JSON.stringify(units)}`)
+    }
     return (
         <Table className="NiceTable">
-            <HeaderRow
+            <HeaderRow 
                 externalUnitMetrics={sorting.externalUnitMetrics || []}
-                columnLabels={sortingUnitMetricsList.map(m => (m.columnLabel))}
+                sortingUnitMetricsList={sortingUnitMetricsList}
+                handleClick={(metricName: string) => {
+                    let newSortFieldOrder = [...sortFieldOrder]
+                    if (sortFieldOrder[sortFieldOrder.length - 1] === metricName) {
+                        if (sortFieldOrder[sortFieldOrder.length - 2] === metricName) {
+                            // the last two match this metric, let's just remove the last one
+                            newSortFieldOrder = newSortFieldOrder.slice(0, newSortFieldOrder.length - 1)
+                        }
+                        else {
+                            // the last one matches this metric, let's add another one
+                            newSortFieldOrder = [...newSortFieldOrder, metricName]
+                        }
+                    }
+                    else {
+                        // the last one does not match this metric, let's clear out all previous instances and add one
+                        newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== metricName)), metricName]
+                    }
+                    console.log(`Got click on field with metric ${metricName}, new order ${JSON.stringify(newSortFieldOrder)}`)
+                    setSortFieldOrder(newSortFieldOrder)
+                }}
+                clearSorts={() => {
+                    console.log('Clearing sorting')
+                    setSortFieldOrder([])
+                }}
             />
             <TableBody>
                 {

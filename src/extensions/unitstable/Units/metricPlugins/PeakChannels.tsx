@@ -7,6 +7,14 @@ const PeakChannels = React.memo((a: {record: number}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: ((record) || (record === 0)) ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: SortingUnitMetricPlugin = {
     name: 'PeakChannels',
     label: 'Peak chan.',
@@ -19,7 +27,8 @@ const plugin: SortingUnitMetricPlugin = {
         newHitherJobMethod: true,
         useClientCache: true
     },
-    component: PeakChannels
+    component: PeakChannels,
+    getRecordValue: getRecordValue
 }
 
 export default plugin

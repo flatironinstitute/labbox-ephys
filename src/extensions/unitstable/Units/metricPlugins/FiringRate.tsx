@@ -7,6 +7,14 @@ const FiringRate = React.memo((a: {record: {rate: number}}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record?.rate ?? NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: SortingUnitMetricPlugin = {
     name: 'FiringRate',
     label: 'Firing rate (Hz)',
@@ -23,7 +31,8 @@ const plugin: SortingUnitMetricPlugin = {
         },
         job_handler_name: 'partition3'
     },
-    component: FiringRate
+    component: FiringRate,
+    getRecordValue: getRecordValue
 }
 
 export default plugin

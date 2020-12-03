@@ -7,6 +7,14 @@ const EventCount: FunctionComponent<{record: any}> = ({record}) => {
     );
 }
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: Number(record?.count ?? NaN), 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: SortingUnitMetricPlugin = {
     name: 'EventCount',
     label: 'Num. events',
@@ -19,7 +27,8 @@ const plugin: SortingUnitMetricPlugin = {
         useClientCache: true,
         newHitherJobMethod: true
     },
-    component: EventCount
+    component: EventCount,
+    getRecordValue: getRecordValue,
 }
 
 export default plugin

@@ -7,6 +7,14 @@ const UnitSnrs = React.memo((a: {record: number}) => {
     );
 })
 
+const getRecordValue = (record: any) => {
+    return { 
+        numericValue: record ? record as number : NaN, 
+        stringValue: '',
+        isNumeric: true
+    }
+}
+
 const plugin: SortingUnitMetricPlugin = {
     name: 'UnitSnrs',
     label: 'SNR',
@@ -19,7 +27,8 @@ const plugin: SortingUnitMetricPlugin = {
         newHitherJobMethod: true,
         useClientCache: true
     },
-    component: UnitSnrs
+    component: UnitSnrs,
+    getRecordValue: getRecordValue
 }
 
 export default plugin

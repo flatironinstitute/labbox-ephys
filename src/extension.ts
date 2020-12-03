@@ -89,6 +89,11 @@ export interface SortingUnitMetricPlugin extends MetricPlugin {
         newHitherJobMethod?: boolean
     },
     component: React.FunctionComponent<{record: any}>
+    getRecordValue: (record: any) => { 
+        numericValue: number, 
+        stringValue: string,
+        isNumeric: boolean
+    }
 }
 
 export class ExtensionContext {
