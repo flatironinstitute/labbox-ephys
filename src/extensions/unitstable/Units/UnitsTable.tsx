@@ -1,5 +1,5 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../../kachery';
 import { DocumentInfo } from '../../../reducers/documentInfo';
@@ -11,17 +11,18 @@ const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo((a: {plugins: MetricPlugin[]}) => {
+const HeaderRow = React.memo((a: {plugins: MetricPlugin[], clearSorts: () => void, handleClick: (metricName: string) => void}) => {
     return (
         <TableHead>
             <TableRow>
                 <TableCell key="_first" style={{ width: 0}} />
-                <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
+                <TableCell key="_unitIds" onClick={() => a.clearSorts()}><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
                     a.plugins.map(plugin => {
                         return (
-                            <TableCell key={plugin.columnLabel + '_header'}>
+                            <TableCell key={plugin.columnLabel + '_header'}
+                                        onClick={() => a.handleClick(plugin.metricName)}>
                                 <span title={plugin.tooltip}>{plugin.columnLabel}</span>
                             </TableCell>
                         );
@@ -92,12 +93,67 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
     }
 }
 
+type sortFieldEntry = {fieldName: string, keyOrder: number, sortAscending: boolean}
+const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
+    const parities: {[key: string]: sortFieldEntry} = {}
+    let lastKey = 1
+    for (const f of fields) {
+        if (!(f in parities)) {
+            parities[f] = {fieldName: f, keyOrder: lastKey, sortAscending: true}
+            lastKey += 1
+        } else {
+            // we don't actually care how many times something appears, just treat it as a parity bit.
+            parities[f].sortAscending = !parities[f].sortAscending
+        }
+    }
+
+    const result: sortFieldEntry[] = []
+    for (const f in parities) {
+        result.push(parities[f])
+    }
+    result.sort((a, b) => b.keyOrder - a.keyOrder)
+    // note: opportunity to trim sort field order here if desired
+    return result
+}
+
 const UnitsTable: FunctionComponent<Props> = (props) => {
     const { metricPlugins, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo } = props
+    const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
+    units.sort((a, b) => a - b) // first sort by actual unit number
+    // Now sort the list iteratively by each of the sorters in the sortFieldOrder state.
+
+    const sortingRules = interpretSortFields(sortFieldOrder)
+    for (const r of sortingRules) {
+        const metricName = r.fieldName
+        const metric = metrics[metricName]
+        console.log(`Now sorting by ${metricName}`)
+        if (!metric || metric['error'] || !metric.data) continue // no data, nothing to do
+        units.sort((a, b) => {
+            console.log(`${a} and ${b}. For a: ${metric.data[a + '']}`)
+            const aval = (a + '' in metric.data) ? metric.data[a + ''] : NaN
+            const bval = (b + '' in metric.data) ? metric.data[b + ''] : NaN
+            console.log(`Comparing ${aval} to ${bval}`)
+            // stable to cases when both values are non-numeric; otherwise always sort NaNs after numbers.
+            if (isNaN(aval) && isNaN(bval)) return 0
+            if (isNaN(aval)) return -1
+            if (isNaN(bval)) return 1
+            return r.sortAscending ? (aval - bval) : (bval - aval)
+        })
+        console.log(`Units now sorted to ${JSON.stringify(units)}`)
+    }
+
     return (
         <Table className="NiceTable">
             <HeaderRow 
                 plugins={metricPlugins}
+                handleClick={(metricName: string) => {
+                    console.log(`Got click on field with metric ${metricName}, pushing ${JSON.stringify([...sortFieldOrder, metricName])}`)
+                    setSortFieldOrder([...sortFieldOrder, metricName])
+                }}
+                clearSorts={() => {
+                    console.log('Clearing sorting')
+                    setSortFieldOrder([])
+                }}
             />
             <TableBody>
                 {
