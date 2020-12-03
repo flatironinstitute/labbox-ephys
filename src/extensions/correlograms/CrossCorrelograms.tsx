@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { withSize } from 'react-sizeme';
 import ClientSidePlot from '../../components/ClientSidePlot';
 import { SortingViewProps } from '../../extension';
-import CalculationPool from '../../pluginComponents/common/CalculationPool';
+import CalculationPool from '../common/CalculationPool';
 import Correlogram_rv from './Correlogram_ReactVis';
 
 const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});

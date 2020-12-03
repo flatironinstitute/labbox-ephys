@@ -1,16 +1,14 @@
 
 import { ExtensionContext } from "./extension"
 // !begin-code-generation!
-import { activate as activateLoadSortingPythonSnippet } from './pluginComponents/LoadSortingPythonSnippet/LoadSortingPythonSnippet'
-import { activate as activateUnits } from './pluginComponents/Units/Units'
-import { activate as activateIndividualUnits } from './pluginComponents/IndividualUnits/IndividualUnits'
-import { activate as activateElectrodeGeometryTest2 } from './pluginComponents/ElectrodeGeometryTest2/ElectrodeGeometryTest2'
-import { activate as activateElectrodeGeometryTest } from './pluginComponents/ElectrodeGeometryTest/ElectrodeGeometryTest'
 import { activate as activatecorrelogram } from './extensions/correlograms/correlograms'
 import { activate as activateexample } from './extensions/example/example'
+import { activate as activatedevel } from './extensions/devel/devel'
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry'
 import { activate as activatetimeseries } from './extensions/timeseries/timeseries'
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
+import { activate as activatepythonsnippets } from './extensions/pythonsnippets/pythonsnippets'
+import { activate as activateunitstable } from './extensions/unitstable/unitstable'
 // !end-code-generation!
 
 /*
@@ -22,16 +20,14 @@ And they must include an activate() function
 
 const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
-    activateLoadSortingPythonSnippet(context)
-    activateUnits(context)
-    activateIndividualUnits(context)
-    activateElectrodeGeometryTest2(context)
-    activateElectrodeGeometryTest(context)
     activatecorrelogram(context)
     activateexample(context)
+    activatedevel(context)
     activateelectrodegeometry(context)
     activatetimeseries(context)
     activateaveragewaveforms(context)
+    activatepythonsnippets(context)
+    activateunitstable(context)
     // !end-code-generation!
     ///////////////////////////////////////////////
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createHitherJob } from '../../hither';
-import CalculationPool from '../../pluginComponents/common/CalculationPool';
+import CalculationPool from '../../extensions/common/CalculationPool';
 import Mda from '../TimeseriesView/Mda';
 import TimeseriesModelNew from './TimeseriesModelNew';
 import TimeseriesWidgetNew from './TimeseriesWidgetNew';

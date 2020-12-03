@@ -3,7 +3,7 @@ import Mda from './Mda';
 import TimeseriesWidget from "./TimeseriesWidget";
 import TimeseriesModel from "./TimeseriesModel";
 import { createHitherJob } from '../../hither';
-import CalculationPool from '../../pluginComponents/common/CalculationPool';
+import CalculationPool from '../../extensions/common/CalculationPool';
 import { sleepMsec } from '../../hither/createHitherJob';
 const TimeseriesView = ({
     width, height, maxWidth, maxHeight,
