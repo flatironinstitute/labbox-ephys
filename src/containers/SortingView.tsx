@@ -155,7 +155,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       }
       <div style={contentWrapperStyle}>
         {
-          sortByPriority(sortingViews).map(sv => {
+          sortByPriority(sortingViews).filter(v => (!v.disabled)).map(sv => {
             return (
               <Expandable
                 key={sv.name}

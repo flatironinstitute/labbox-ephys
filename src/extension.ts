@@ -14,6 +14,7 @@ interface ViewPlugin {
     props?: {[key: string]: any}
     fullWidth?: boolean
     defaultExpanded?: boolean
+    disabled?: boolean
 }
 
 export interface SortingViewProps {

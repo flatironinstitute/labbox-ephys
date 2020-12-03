@@ -52,7 +52,7 @@ const RecordingView = ({ recordingId, recording, sortings, history, documentInfo
         </Grid>
       </Grid>
       {
-          sortByPriority(recordingViews).map(rv => (
+          sortByPriority(recordingViews).filter(rv => (!rv.disabled)).map(rv => (
             <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false}>
               <rv.component
                 recording={recording}

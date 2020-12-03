@@ -1,6 +1,6 @@
+import { Typography } from '@material-ui/core';
 import React from 'react';
 import './About.css';
-import { Typography } from '@material-ui/core';
 
 function Home() {
     return (
