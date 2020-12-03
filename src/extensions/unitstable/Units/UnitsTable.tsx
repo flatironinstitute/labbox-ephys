@@ -12,7 +12,7 @@ const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     return (unitCuration[unitId] || {}).labels || [];
 }
 
-const HeaderRow = React.memo((a: {sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}}) => {
+const HeaderRow = React.memo((a: {columnLabels: string[]}) => {
     return (
         <TableHead>
             <TableRow>
@@ -20,10 +20,10 @@ const HeaderRow = React.memo((a: {sortingUnitMetrics: {[key: string]: SortingUni
                 <TableCell key="_unitIds"><span>Unit ID</span></TableCell>
                 <TableCell key="_labels"><span>Labels</span></TableCell>
                 {
-                    sortByPriority(Object.values(a.sortingUnitMetrics)).filter(p => (!p.disabled)).map(plugin => {
+                    a.columnLabels.map(columnLabel => {
                         return (
-                            <TableCell key={plugin.columnLabel + '_header'}>
-                                <span title={plugin.tooltip}>{plugin.columnLabel}</span>
+                            <TableCell key={columnLabel + '_header'}>
+                                <span title={columnLabel} />
                             </TableCell>
                         );
                     })
@@ -95,10 +95,11 @@ const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId:
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
     const { units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo, sortingUnitMetrics } = props
+    const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
     return (
         <Table className="NiceTable">
             <HeaderRow 
-                sortingUnitMetrics={sortingUnitMetrics}
+                columnLabels={sortingUnitMetricsList.map(m => (m.columnLabel))}
             />
             <TableBody>
                 {
@@ -119,7 +120,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                                 labels = {getLabelsForUnitId(unitId, sorting).join(', ')}
                             />
                             {
-                                sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled)).map(mp => {
+                                sortingUnitMetricsList.map(mp => {
                                     const metricName = mp.name
                                     const metric = metrics[metricName] || null
                                     const d = (metric && metric.data) ? (
