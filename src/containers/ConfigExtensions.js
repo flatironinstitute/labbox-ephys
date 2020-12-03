@@ -1,30 +1,32 @@
-import React, { Fragment } from 'react'
-import { connect } from 'react-redux';
-import { setExtensionEnabled } from '../actions';
 import { Checkbox } from '@material-ui/core';
+import React, { Fragment } from 'react';
+import { connect } from 'react-redux';
 
 const ConfigExtensions = ({
     extensionsConfig,
-    onSetExtensionEnabled
+    extensionContext
 }) => {
-    const extensions = [];
-    extensions.push({
-        label: 'Development',
-        enabled: extensionsConfig.enabled.development === true,
-        onClick: () => onSetExtensionEnabled('development', !extensionsConfig.enabled.development)
-    });
-    extensions.push({
-        label: 'FrankLab DataJoint',
-        enabled: extensionsConfig.enabled.frankLabDataJoint === true,
-        onClick: () => onSetExtensionEnabled('frankLabDataJoint', !extensionsConfig.enabled.frankLabDataJoint)
-    });
+    const plugins = [];
+    Object.values(extensionContext.recordingViews).forEach(sv => {
+        plugins.push(sv)
+    })
+    Object.values(extensionContext.sortingViews).forEach(sv => {
+        plugins.push(sv)
+    })
+    Object.values(extensionContext.sortingUnitViews).forEach(sv => {
+        plugins.push(sv)
+    })
+    Object.values(extensionContext.sortingUnitMetrics).forEach(sv => {
+        plugins.push(sv)
+    })
 
     return (
         <div>
+            <h3>Plugins:</h3>
             {
-                extensions.map(e => (
-                    <Fragment key={e.label}>
-                        <Checkbox checked={e.enabled} onClick={e.onClick} />
+                plugins.map(e => (
+                    <Fragment key={e.name}>
+                        <Checkbox checked={true} onClick={e.onClick} readOnly={true} />
                         {e.label}
                     </Fragment>
                 ))
@@ -34,11 +36,11 @@ const ConfigExtensions = ({
 }
 
 const mapStateToProps = state => ({
-    extensionsConfig: state.extensionsConfig
+    extensionsConfig: state.extensionsConfig,
+    extensionContext: state.extensionContext
 })
 
 const mapDispatchToProps = dispatch => ({
-    onSetExtensionEnabled: (extensionName, value) => dispatch(setExtensionEnabled(extensionName, value))
 })
 
 export default connect(
