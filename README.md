@@ -37,7 +37,7 @@ export KACHERY_P2P_CONFIG_DIR="<Config directory for kachery-p2p>"
 # KACHERY_P2P_API_PORT
 # This should correspond to the port being used by the kachery-p2p daemon
 # By default it is 20431
-export KACHERY_P2P_CONFIG_DIR="<Port number used by kachery-p2p daemon>"
+export KACHERY_P2P_API_PORT="<Port number used by kachery-p2p daemon>"
 ```
 
 Ensure that these environment variables are set with each new terminal session by adding those lines to your ~/.bashrc file.
@@ -64,10 +64,10 @@ Then:
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.4.1 --docker_run_opts "--net host" --kachery $KACHERY_STORAGE_DIR
+labbox-launcher run magland/labbox-ephys:0.4.3 --docker_run_opts "--net host" --kachery $KACHERY_STORAGE_DIR
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.4.1 --docker_run_opts "-p 15310:15310 -p 15308:15308" --kachery $KACHERY_STORAGE_DIR
+labbox-launcher run magland/labbox-ephys:0.4.3 --docker_run_opts "-p 15310:15310 -p 15308:15308" --kachery $KACHERY_STORAGE_DIR
 ```
 
 ### View in browser

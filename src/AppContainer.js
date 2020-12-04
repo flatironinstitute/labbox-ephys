@@ -1,19 +1,18 @@
-import React, { Fragment, useEffect } from 'react';
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
-import { withRouter, Switch, Route, Redirect } from 'react-router-dom';
-import { setDocumentInfo } from './actions';
-import * as QueryString from "query-string";
-
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
 import { Home } from '@material-ui/icons';
-import PersistStateControl from './containers/PersistStateControl';
-import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
+import * as QueryString from "query-string";
+import React, { Fragment, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Link, Redirect, Route, Switch, withRouter } from 'react-router-dom';
+import { setDocumentInfo } from './actions';
+import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
+import PersistStateControl from './containers/PersistStateControl';
 import { getPathQuery } from './kachery';
+
 
 const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
@@ -26,7 +25,8 @@ const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
                 </Typography>
             </Button>
             <span style={{marginLeft: 'auto'}} />
-            <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} style={{marginLeft: 'auto'}}>Config</Button>
+            <Button color="inherit" component={Link} to="/docs" style={{marginLeft: 'auto'}}>Docs</Button>
+            <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} >Config</Button>
             {
                 extensionsConfig.enabled.development && <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
             }
