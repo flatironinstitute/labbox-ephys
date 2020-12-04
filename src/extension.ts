@@ -7,20 +7,20 @@ import { RegisterRecordingViewAction, RegisterSortingUnitMetricAction, RegisterS
 import { Recording } from "./reducers/recordings"
 import { Sorting } from "./reducers/sortings"
 
-interface Plugin {
+export interface LabboxPlugin {
     name: string
     label: string
     priority?: number
     disabled?: boolean
 }
 
-interface ViewPlugin extends Plugin {
+export interface ViewPlugin extends LabboxPlugin {
     props?: {[key: string]: any}
     fullWidth?: boolean
     defaultExpanded?: boolean
 }
 
-interface MetricPlugin extends Plugin {
+export interface MetricPlugin extends LabboxPlugin {
     
 }
 

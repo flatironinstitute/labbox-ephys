@@ -3,6 +3,16 @@ import { ADD_HITHER_JOB, UPDATE_HITHER_JOB } from '../actions/hitherJobs'
 
 export interface HitherJob {
     jobId: string
+    functionName: string
+    kwargs: {[key: string]: any}
+    opts: {[key: string]: any}
+    clientJobId: string
+    result: any
+    runtime_info: {[key: string]: any}
+    error_message: string | null
+    status: string
+    timestampStarted: number
+    timestampFinished: number
 }
 
 export interface HitherJobUpdate {

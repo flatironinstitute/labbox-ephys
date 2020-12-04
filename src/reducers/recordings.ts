@@ -13,7 +13,9 @@ export interface Recording {
     recordingId: string
     recordingLabel: string
     recordingObject: any
+    recordingPath: string
     recordingInfo: RecordingInfo
+    fetchingRecordingInfo?: boolean // internal
 }
 
 export interface AddRecordingAction {

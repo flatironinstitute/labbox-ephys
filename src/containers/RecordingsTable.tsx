@@ -1,17 +1,34 @@
-import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
-import NiceTable from '../components/NiceTable'
-import { deleteRecordings, setRecordingInfo, sleep } from '../actions';
-import { createHitherJob } from '../hither';
-import { Link } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
-import { getPathQuery } from '../kachery';
+import React, { Dispatch, FunctionComponent, useEffect } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { deleteRecordings, setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
+import NiceTable from '../components/NiceTable';
+import { getPathQuery } from '../kachery';
+import { RootAction, RootState } from '../reducers';
+import { DocumentInfo } from '../reducers/documentInfo';
+import { Recording, RecordingInfo } from '../reducers/recordings';
 
-const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
+interface StateProps {
+    recordings: Recording[],
+    documentInfo: DocumentInfo
+}
+
+interface DispatchProps {
+    onDeleteRecordings: (recordingIds: string[]) => void
+    onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
+}
+
+interface OwnProps {
+}
+
+type Props = StateProps & DispatchProps & OwnProps
+
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
 
-    function sortByKey(array, key) {
+    function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
         return array.sort(function (a, b) {
             var x = a[key]; var y = b[key];
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
@@ -77,23 +94,23 @@ const RecordingsTable = ({ recordings, onDeleteRecordings, onSetRecordingInfo, d
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this recording"}
-                onDeleteRow={readOnly ? null : (row) => onDeleteRecordings([row.recording.recordingId])}
+                onDeleteRow={readOnly ? null : (row: {recording: {recordingId: string}}) => onDeleteRecordings([row.recording.recordingId])}
             />
         </div>
     );
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     recordings: state.recordings,
     documentInfo: state.documentInfo
 })
-
-const mapDispatchToProps = dispatch => ({
-    onDeleteRecordings: recordingIds => dispatch(deleteRecordings(recordingIds)),
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+    onDeleteRecordings: (recordingIds: string[]) => deleteRecordings(dispatch, recordingIds),
     onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
 })
 
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
 )(RecordingsTable)

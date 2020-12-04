@@ -1,13 +1,33 @@
-import React, { useState, Fragment, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { Input, FormGroup, FormControl, InputLabel, Button, CircularProgress, FormLabel, RadioGroup, FormControlLabel, Radio, Select, MenuItem, makeStyles } from '@material-ui/core'
+import { Button, CircularProgress, FormControl, FormControlLabel, FormGroup, FormLabel, Input, InputLabel, makeStyles, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
+import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { addSorting, sleep } from '../actions';
-import { createHitherJob } from '../hither';
-import { withRouter } from 'react-router-dom';
 import SortingInfoView from '../components/SortingInfoView';
+import { createHitherJob } from '../hither';
 import { getPathQuery } from '../kachery';
+import { RootAction, RootState } from '../reducers';
+import { DocumentInfo } from '../reducers/documentInfo';
+import { Recording } from '../reducers/recordings';
+import { Sorting, SortingInfo } from '../reducers/sortings';
 
-const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting, history, documentInfo }) => {
+interface StateProps {
+    recordings: Recording[],
+    documentInfo: DocumentInfo
+}
+
+interface DispatchProps {
+    onAddSorting: (sorting: Sorting) => void
+}
+
+interface OwnProps {
+    recordingId: string
+    recordingLabel: string
+}
+
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
+
+const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordingLabel, recordings, documentInfo, onAddSorting }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
     const [method, setMethod] = useState('examples');
 
@@ -91,7 +111,7 @@ const ImportSortings = ({ recordingId, recordingLabel, recordings, onAddSorting,
     )
 }
 
-const RadioChoices = ({ label, value, onSetValue, options }) => {
+const RadioChoices: FunctionComponent<{ label: string, value: any, onSetValue: (value: any) => void, options: {label: string, value: any, disabled?: boolean}[] }> = ({ label, value, onSetValue, options }) => {
     return (
         <FormControl component="fieldset">
             <FormLabel component="legend">{label}</FormLabel>
@@ -112,13 +132,13 @@ const RadioChoices = ({ label, value, onSetValue, options }) => {
     );
 }
 
-const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
+const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAddSorting: (sorting: Sorting) => void, examplesMode: boolean, recordingId: string, recordingPath: string, recordingObject: any }> = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
     const [sortingPath, setSortingPath] = useState('');
-    const [sortingObject, setSortingObject] = useState(null);
+    const [sortingObject, setSortingObject] = useState<any | null>(null);
     const [sortingLabel, setSortingLabel] = useState('');
     const [errors, setErrors] = useState({});
-    const [sortingInfo, setSortingInfo] = useState(null);
-    const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
+    const [sortingInfo, setSortingInfo] = useState<SortingInfo | null>(null);
+    const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
 
     const effect = async () => {
         if ((sortingPath) && (!sortingObject) && (!sortingInfo)) {
@@ -173,7 +193,7 @@ const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, reco
     }
 
     const handleImport = () => {
-        let newErrors = {};
+        let newErrors: {sortingLabel?: any, sortingPath?: any} = {};
         if (!sortingLabel) {
             newErrors.sortingLabel = {type: 'required'};
         }
@@ -205,7 +225,7 @@ const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, reco
                 <SortingPathControl
                     examplesMode={examplesMode}
                     value={sortingPath}
-                    onChange={value => setSortingPath(value)}
+                    onChange={(value: string) => setSortingPath(value)}
                     errors={errors}
                     recordingPath={recordingPath}
                 />
@@ -214,7 +234,7 @@ const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, reco
                     <Fragment>
                         <SortingLabelControl
                             value={sortingLabel}
-                            onChange={(val) => setSortingLabel(val)}
+                            onChange={(val: string) => setSortingLabel(val)}
                             errors={errors}
                         />
                         <FormGroup row={true} style={formGroupStyle}>
@@ -245,7 +265,7 @@ const ImportSortingFromSpikeForest = ({ onDone, onAddSorting, examplesMode, reco
     )
 }
 
-function randomString(num_chars) {
+function randomString(num_chars: number) {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (var i = 0; i < num_chars; i++)
@@ -253,7 +273,7 @@ function randomString(num_chars) {
     return text;
 }
 
-function autoDetermineSortingLabelFromPath(path) {
+function autoDetermineSortingLabelFromPath(path: string) {
     if (path.startsWith('sha1://') || (path.startsWith('sha1dir://'))) {
         let x = path.split('/').slice(2);
         let y = x[0].split('.');
@@ -277,7 +297,7 @@ const formGroupStyle = {
 const required = "This field is required";
 const maxLength = "Your input exceeds maximum length";
 
-const errorMessage = error => {
+const errorMessage = (error: string) => {
     return <div className="invalid-feedback">{error}</div>;
 };
 
@@ -291,7 +311,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SelectExampleSortingPath = ({ value, onChange, recordingPath }) => {
+const SelectExampleSortingPath: FunctionComponent<{ value: string, onChange: (val: string) => void, recordingPath: string }> = ({value, onChange, recordingPath}) => {
     const examplePaths = [
         {
             recordingPath: "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
@@ -320,7 +340,7 @@ const SelectExampleSortingPath = ({ value, onChange, recordingPath }) => {
                 labelId="select-example-label"
                 id="select-example"
                 value={value}
-                onChange={evt => { onChange(evt.target.value) }}
+                onChange={evt => { onChange(evt.target.value as string) }}
             >
                 {
                     examplePaths.map((ep, ii) => (
@@ -332,7 +352,7 @@ const SelectExampleSortingPath = ({ value, onChange, recordingPath }) => {
     )
 }
 
-const SortingPathControl = ({ value, onChange, errors, examplesMode, recordingPath }) => {
+const SortingPathControl: FunctionComponent<{ value: string, onChange: (v: string) => void, errors: {[key: string]: any}, examplesMode: boolean, recordingPath: string }> = ({ value, onChange, errors, examplesMode, recordingPath }) => {
     const [internalValue, setInternalValue] = useState(value);
 
     const e = errors.sortingPath || {};
@@ -377,7 +397,7 @@ const SortingPathControl = ({ value, onChange, errors, examplesMode, recordingPa
     );
 }
 
-const SortingLabelControl = ({ value, onChange, errors }) => {
+const SortingLabelControl: FunctionComponent<{ value: string, onChange: (v: string) => void, errors: {[key: string]: any} }> = ({ value, onChange, errors }) => {
     const e = errors.sortingLabel || {};
     return (
         <FormGroup style={formGroupStyle}>
@@ -397,21 +417,20 @@ const SortingLabelControl = ({ value, onChange, errors }) => {
     );
 }
 
-function isEmptyObject(x) {
+function isEmptyObject(x: {[key: string]: any}) {
     return Object.keys(x).length === 0;
 }
 
-
-const mapStateToProps = state => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     recordings: state.recordings,
     documentInfo: state.documentInfo
 })
-
-const mapDispatchToProps = dispatch => ({
-    onAddSorting: (sorting) => dispatch(addSorting(sorting))
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+    onAddSorting: (sorting: Sorting) => dispatch(addSorting(sorting))
 })
 
-export default withRouter(connect(
+export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
 )(ImportSortings))

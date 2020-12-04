@@ -1,16 +1,24 @@
-import React, { useEffect } from 'react'
 import { IconButton } from '@material-ui/core';
-import { Sync, CheckCircleOutline, SyncProblem } from '@material-ui/icons';
-import { connect } from 'react-redux';
+import { CheckCircleOutline, Sync, SyncProblem } from '@material-ui/icons';
+import React, { Dispatch, FunctionComponent, useEffect } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { setPersistStatus, sleep } from '../actions';
-import { createHitherJob } from '../hither';
+import { RootAction, RootState } from '../reducers';
 
-const lastSavedState = {
-};
+interface StateProps {
+    persistStatus: string
+}
 
-const PersistStateControl = ({
-    persistStatus, onSetPersistStatus
-}) => {
+interface DispatchProps {
+    onSetPersistStatus: (status: string) => void
+}
+
+interface OwnProps {
+}
+
+type Props = StateProps & DispatchProps & OwnProps
+
+const PersistStateControl: FunctionComponent<Props> = ({ persistStatus, onSetPersistStatus }) => {
     let icon;
     let title;
     if (persistStatus === 'initial') {
@@ -80,15 +88,15 @@ const PersistStateControl = ({
     );
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     persistStatus: state.persisting.status,
 })
-
-const mapDispatchToProps = dispatch => ({
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
     onSetPersistStatus: (status) => dispatch(setPersistStatus(status))
 })
 
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
-)(PersistStateControl);
+)(PersistStateControl)

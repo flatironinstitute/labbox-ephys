@@ -1,5 +1,4 @@
-import File from './File'
-import { addHitherJob, updateHitherJob } from '../actions/hitherJobs'
+import { addHitherJob, updateHitherJob } from '../actions/hitherJobs';
 
 const objectHash = require('object-hash');
 
@@ -99,17 +98,22 @@ class ClientHitherJob {
     this._status = 'pending';
     this._onFinishedCallbacks = [];
     this._onErrorCallbacks = [];
+    this._timestampStarted = Number(new Date())
+    this._timestampFinished = null
   }
   object() {
     return {
       jobId: this._jobId,
+      functionName: this._functionName,
       kwargs: this._kwargs,
       opts: this._opts,
       clientJobId: this._clientJobId,
       result: this._result,
       runtime_info: this._runtime_info,
       error_message: this._error_message,
-      status: this._status
+      status: this._status,
+      timestampStarted: this._timestampStarted,
+      timestampFinished: this._timestampFinished
     };
   }
   async wait() {
@@ -133,12 +137,14 @@ class ClientHitherJob {
     });
   }
   onFinished(cb) {
+    this._timestampFinished = Number(new Date())
     this._onFinishedCallbacks.push(cb);
     if (this._status === 'finished') {
       cb(this._result);
     }
   }
   onError(cb) {
+    this._timestampFinished = Number(new Date())
     this._onErrorCallbacks.push(cb);
     if (this._status === 'error') {
       cb(new Error(this._error_message));

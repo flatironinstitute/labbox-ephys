@@ -6,8 +6,8 @@ import './NiceTable.css';
 const NiceTable = ({
     rows,
     columns,
-    onDeleteRow,
-    deleteRowLabel,
+    onDeleteRow=undefined,
+    deleteRowLabel=undefined,
     onEditRow=undefined,
     editRowLabel=undefined,
     selectionMode='none', // none, single, multiple

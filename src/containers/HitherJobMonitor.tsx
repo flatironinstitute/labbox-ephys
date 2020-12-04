@@ -1,16 +1,32 @@
-import React, { useState } from 'react'
-import { connect } from 'react-redux'
+import { Button, IconButton, Link as LinkMui, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { Delete } from '@material-ui/icons';
+import React, { Dispatch, FunctionComponent, useState } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import NiceTable from '../components/NiceTable';
-import { Link as LinkMui, Button, Table, TableHead, TableBody, TableRow, TableCell, IconButton } from '@material-ui/core';
-import { Delete } from "@material-ui/icons"
+import { RootAction, RootState } from '../reducers';
+import { HitherJob } from '../reducers/hitherJobs';
 
-const HitherJobMonitor = ({
-    allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs
-}) => {
-    const [currentJob, setCurrentJob] = useState(null);
+interface StateProps {
+    allJobs: HitherJob[],
+    pendingJobs: HitherJob[],
+    runningJobs: HitherJob[],
+    finishedJobs: HitherJob[],
+    erroredJobs: HitherJob[]
+}
 
-    const handleCancelJob = (j) => {
-        j.cancel();
+interface DispatchProps {
+}
+
+interface OwnProps {
+}
+
+type Props = StateProps & DispatchProps & OwnProps
+
+const HitherJobMonitor: FunctionComponent<Props> = ({ allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs }) => {
+    const [currentJob, setCurrentJob] = useState<HitherJob | null>(null);
+
+    const handleCancelJob = (j: HitherJob) => {
+        console.warn('Cancel job not implemented')
     }
 
     if (currentJob) {
@@ -32,10 +48,10 @@ const HitherJobMonitor = ({
     }
 }
 
-const HitherJobInfoView = ({ job }) => {
+const HitherJobInfoView: FunctionComponent<{job: HitherJob}> = ({ job }) => {
     const argumentsCollapsable = (job.kwargs && niceStringify(job.kwargs).length > 50);
     const logArgumentsToConsole = (job.kwargs && niceStringify(job.kwargs).length > 1000);
-    const [argumentsExpanded, setArgumentsExpanded] = useState(!argumentsCollapsable);
+    const [argumentsExpanded, setArgumentsExpanded] = useState<boolean>(!argumentsCollapsable);
 
     const resultCollapsable = (job.result && niceStringify(job.result).length > 50);
     const logResultToConsole = (job.result && niceStringify(job.result).length > 1000);
@@ -46,7 +62,7 @@ const HitherJobInfoView = ({ job }) => {
             {
                 argumentsCollapsable && <Button onClick={() => setArgumentsExpanded(false)}>Collapse</Button>
             }
-            <pre>{job.kwargs ? niceStringify(job.kwargs, null, 4): ''}</pre>
+            <pre>{job.kwargs ? niceStringify(job.kwargs): ''}</pre>
         </div>
     ) : (
         logArgumentsToConsole ? (
@@ -61,7 +77,7 @@ const HitherJobInfoView = ({ job }) => {
             {
                 resultCollapsable && <Button onClick={() => setResultExpanded(false)}>Collapse</Button>
             }
-            <pre>{job.result ? niceStringify(job.result, null, 4): ''}</pre>
+            <pre>{job.result ? niceStringify(job.result): ''}</pre>
         </div>
     ) : (
         logResultToConsole ? (
@@ -120,12 +136,16 @@ const HitherJobInfoView = ({ job }) => {
                     }
                 </TableBody>
             </Table>
-            <ConsoleOutView consoleOut={(job.runtime_info || {}).console_out} />
+            <ConsoleOutView consoleOut={(job.runtime_info || {}).console_out} includeTimestamps={true} />
         </div>
     )
 }
 
-const HitherJobMonitorTable = ({
+const HitherJobMonitorTable: FunctionComponent<{
+    jobs: HitherJob[],
+    onViewJob: (job: HitherJob) => void,
+    onCancelJob: (job: HitherJob) => void
+}> = ({
     jobs,
     onViewJob,
     onCancelJob
@@ -157,7 +177,7 @@ const HitherJobMonitorTable = ({
         }
     ];
     const sortedJobs = jobs;
-    sortedJobs.sort((j1, j2) => {
+    sortedJobs.sort((j1: HitherJob, j2: HitherJob) => {
         if ((j1.status === 'running') && (j2.status !== 'running'))
             return -1;
         else if ((j2.status === 'running') && (j1.status !== 'running'))
@@ -167,6 +187,7 @@ const HitherJobMonitorTable = ({
             else if (j2.timestampStarted < j1.timestampStarted) return -1;
             else return 0;
         }
+        else return 0
     })
     const rows = sortedJobs.map((j) => ({
         key: j.jobId,
@@ -177,7 +198,7 @@ const HitherJobMonitorTable = ({
         status: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status,
         started: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : '',
         finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : '',
-        message: j.errorMessage || ''
+        message: j.error_message || ''
     }));
     return (
         <NiceTable
@@ -187,13 +208,13 @@ const HitherJobMonitorTable = ({
     )
 }
 
-const CancelJobButton = ({ onClick }) => {
+const CancelJobButton: FunctionComponent<{onClick: () => void}> = ({ onClick }) => {
     return (
         <IconButton title={"Cancel job"} onClick={onClick}><Delete /></IconButton>
     )
 }
 
-const ConsoleOutView = ({ consoleOut, includeTimestamps=true }) => {
+const ConsoleOutView: FunctionComponent<{consoleOut: {lines: {timestamp: string, text: string}[]}, includeTimestamps: boolean}> = ({ consoleOut, includeTimestamps=true }) => {
     if (!consoleOut) return <div></div>;
     if (!consoleOut.lines) return <div></div>;
     let txt;
@@ -212,13 +233,13 @@ const ConsoleOutView = ({ consoleOut, includeTimestamps=true }) => {
     )
 }
 
-function niceStringify(x) {
+function niceStringify(x: any) {
     // TODO: figure out how to keep numeric arrays on one line in this expansion
     return JSON.stringify(x, null, 4);
 }
 
-function formatTime(d) {
-    const datesAreOnSameDay = (first, second) =>
+function formatTime(d: Date) {
+    const datesAreOnSameDay = (first: Date, second: Date) =>
         first.getFullYear() === second.getFullYear() &&
         first.getMonth() === second.getMonth() &&
         first.getDate() === second.getDate();
@@ -230,18 +251,18 @@ function formatTime(d) {
     return ret;
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     allJobs: state.hitherJobs,
     pendingJobs: state.hitherJobs.filter(j => (j.status === 'pending')),
     runningJobs: state.hitherJobs.filter(j => (j.status === 'running')),
     finishedJobs: state.hitherJobs.filter(j => (j.status === 'finished')),
-    erroredJobs: state.hitherJobs.filter(j => (j.status === 'error')),
+    erroredJobs: state.hitherJobs.filter(j => (j.status === 'error'))
+})
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
 })
 
-const mapDispatchToProps = dispatch => ({
-})
-
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
-)(HitherJobMonitor);
+)(HitherJobMonitor)

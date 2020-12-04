@@ -1,15 +1,29 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
+import { makeStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
-
+import Tabs from '@material-ui/core/Tabs';
+import { default as React, Dispatch, Fragment, FunctionComponent } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import ConfigFrankLabDataJoint from '../extensions/frankLabDataJoint/containers/ConfigFrankLabDataJoint';
+import { ExtensionsConfig } from '../extensions/reducers';
+import { RootAction, RootState } from '../reducers';
 import ConfigComputeResource from './ConfigComputeResource';
-import ConfigSharing from './ConfigSharing'
-import ConfigExtensions from './ConfigExtensions'
-import ConfigFrankLabDataJoint from '../extensions/frankLabDataJoint/containers/ConfigFrankLabDataJoint'
-import { connect } from 'react-redux';
-import { Fragment } from 'react';
+import ConfigExtensions from './ConfigExtensions';
+import ConfigSharing from './ConfigSharing';
+
+
+interface StateProps {
+  extensionsConfig: ExtensionsConfig
+}
+
+interface DispatchProps {
+}
+
+interface OwnProps {
+    exampleProp: number
+}
+
+type Props = StateProps & DispatchProps & OwnProps
 
 const useStyles = makeStyles({
   root: {
@@ -17,11 +31,11 @@ const useStyles = makeStyles({
   },
 });
 
-const Config = ({ extensionsConfig }) => {
-  const classes = useStyles();
-  const [currentTabLabel, setCurrentTabLabel] = React.useState(null);
+const Config: FunctionComponent<Props> = ({ extensionsConfig }) => {
+  const classes = useStyles()
+  const [currentTabLabel, setCurrentTabLabel] = React.useState<string | null>(null)
 
-  let tabs = [];
+  let tabs: {label: string, component: React.ComponentElement<any, any>}[] = []
   // tabs.push({
   //   label: 'Job handlers',
   //   component: <ConfigJobHandlers />
@@ -45,9 +59,9 @@ const Config = ({ extensionsConfig }) => {
     component: <ConfigExtensions />
   })
 
-  const handleChange = (event, newIndex) => {
+  const handleChange = (event: React.ChangeEvent<{}>, newIndex: number) => {
     setCurrentTabLabel(tabs[newIndex].label);
-  };
+  }
 
   let currentTabIndex = 0;
   tabs.forEach((t, ii) => {
@@ -83,14 +97,14 @@ const Config = ({ extensionsConfig }) => {
   );
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
   extensionsConfig: state.extensionsConfig
 })
-
-const mapDispatchToProps = dispatch => ({
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
 })
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+export default connect<StateProps, DispatchProps, OwnProps, RootState>(
+    mapStateToProps,
+    mapDispatchToProps
 )(Config)

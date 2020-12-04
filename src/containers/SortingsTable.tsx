@@ -106,14 +106,14 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
     documentInfo: state.documentInfo
-  })
+})
   
-  const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
     onDeleteSortings: sortingIds => dispatch(deleteSortings(sortingIds)),
     onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo }))
-  })
-  
-  export default connect<StateProps, DispatchProps, OwnProps, RootState>(
+})
+
+export default connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
-  )(SortingsTable)
+)(SortingsTable)

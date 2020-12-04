@@ -1,14 +1,31 @@
-import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { addRecording } from '../actions'
-import { withRouter } from 'react-router-dom';
-import RadioChoices from '../components/RadioChoices';
+import React, { Dispatch, FunctionComponent, useState } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { addRecording } from '../actions';
 import ImportRecordingFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
-import ImportRecordingFromFrankLabDataJoint from '../extensions/frankLabDataJoint/components/ImportRecordingFromFrankLabDataJoint';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
+import RadioChoices from '../components/RadioChoices';
+import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
+import { RootAction, RootState } from '../reducers';
+import { DocumentInfo } from '../reducers/documentInfo';
+import { Recording } from '../reducers/recordings';
 
-const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
+interface StateProps {
+    extensionsConfig: ExtensionsConfig
+    documentInfo: DocumentInfo
+}
+
+interface DispatchProps {
+    onAddRecording: (recording: Recording) => void
+}
+
+interface OwnProps {
+}
+
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
+
+const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
 
     const [method, setMethod] = useState('');
@@ -23,6 +40,7 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentI
             <ImportRecordingFromSpikeForest
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
+                examplesMode={false}
             />
         )
     }
@@ -38,15 +56,6 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentI
     else if (method === 'local') {
         form = (
             <ImportRecordingFromLocalDisk
-                onAddRecording={onAddRecording}
-                onDone={handleDone}
-            />
-        )
-    }
-    else if (method === 'frankLabDataJoint') {
-        form = (
-            <ImportRecordingFromFrankLabDataJoint
-                frankLabDataJointConfig={extensionsConfig.frankLabDataJoint}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
             />
@@ -69,12 +78,6 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentI
             label: 'From SpikeForest'
         }
     ];
-    if (extensionsConfig.enabled.frankLabDataJoint) {
-        options.push({
-            value: 'frankLabDataJoint',
-            label: 'From FrankLab DataJoint'
-        })
-    }
     return (
         <div>
             <div>
@@ -90,16 +93,16 @@ const ImportRecordings = ({ onAddRecording, history, extensionsConfig, documentI
     )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     extensionsConfig: state.extensionsConfig,
     documentInfo: state.documentInfo
 })
-
-const mapDispatchToProps = dispatch => ({
-    onAddRecording: (recording) => dispatch(addRecording(recording))
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+    onAddRecording: (recording: Recording) => dispatch(addRecording(recording))
 })
 
-export default withRouter(connect(
+export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
 )(ImportRecordings))
