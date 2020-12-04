@@ -1,18 +1,18 @@
+import { Checkbox, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { Delete, Edit } from "@material-ui/icons";
 import React from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, IconButton, Checkbox } from '@material-ui/core';
-import { Delete, Edit } from "@material-ui/icons"
-import './NiceTable.css'
+import './NiceTable.css';
 
 const NiceTable = ({
     rows,
     columns,
     onDeleteRow,
     deleteRowLabel,
-    onEditRow,
-    editRowLabel,
+    onEditRow=undefined,
+    editRowLabel=undefined,
     selectionMode='none', // none, single, multiple
     selectedRowKeys={},
-    onSelectedRowKeysChanged
+    onSelectedRowKeysChanged=undefined
 }) => {
     const selectedRowKeysObj = {};
     Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
