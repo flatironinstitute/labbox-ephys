@@ -30,7 +30,11 @@ setuptools.setup(
     scripts=[
     ],
     install_requires=[
-        # non-explicit dependencies: numpy
+        'numpy',
+        'scipy',
+        'h5py',
+        'spikeextractors>=0.8.4',
+        'hither>=0.4',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
