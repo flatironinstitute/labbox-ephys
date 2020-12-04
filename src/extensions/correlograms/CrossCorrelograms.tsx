@@ -1,6 +1,6 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { useState } from 'react';
-import { withSize } from 'react-sizeme';
+import { SizeMeProps, withSize } from 'react-sizeme';
 import ClientSidePlot from '../../components/ClientSidePlot';
 import { SortingViewProps } from '../../extension';
 import CalculationPool from '../common/CalculationPool';
@@ -8,7 +8,7 @@ import Correlogram_rv from './Correlogram_ReactVis';
 
 const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const CrossCorrelograms: React.FunctionComponent<SortingViewProps & {size: {width: number}}> = ({ size, sorting, recording, selectedUnitIds }) => {
+const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds }) => {
     const plotMargin = 2; // in pixels
     const [chosenPlots, setChosenPlots] = useState<number[]>([]);
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -21,6 +21,9 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & {size: {widt
 
     const n = chosenPlots.length
 
+    const width = size.width
+    if (!width) return <div>No width</div>
+
     const computeLayout = (marginInPx: number, maxSize: number = 400) => {
         const N = n || 1 // don't want to divide by zero
         // note adjacent margins will collapse, and we don't care about vertical length
@@ -29,7 +32,7 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & {size: {widt
         // width = margin*(n+1) + plotWidth * n
         // Solve for plotWidth = (width - margin*(n+1))/n.
         // And we can't have fractional pixels, so round down.
-        const plotWidth = Math.min(maxSize, Math.floor((size.width - marginInPx*(N + 1))/N));
+        const plotWidth = Math.min(maxSize, Math.floor((width - marginInPx*(N + 1))/N));
         return plotWidth;
     }
 

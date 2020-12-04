@@ -1,7 +1,7 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
 import { Link } from 'react-router-dom';
-import sizeMe from 'react-sizeme';
+import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { SortingViewProps } from '../../../extension';
 import { getPathQuery } from '../../../kachery';
 import CalculationPool from '../../common/CalculationPool';
@@ -9,7 +9,7 @@ import IndividualUnit from './IndividualUnit';
 
 const individualUnitsCalculationPool = new CalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits: FunctionComponent<SortingViewProps & {size: {width: number}}> = ({ size, sorting, recording, selectedUnitIds, documentInfo, sortingUnitViews }) => {
+const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds, documentInfo, sortingUnitViews }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     const { documentId, feedUri, readOnly } = documentInfo || {};
@@ -40,6 +40,9 @@ const IndividualUnits: FunctionComponent<SortingViewProps & {size: {width: numbe
     //     return plotWidth;
     // }
 
+    const width = size.width
+    if (!width) return <div>No width</div>
+
     return (
         <Grid container direction="column">
             {
@@ -51,7 +54,7 @@ const IndividualUnits: FunctionComponent<SortingViewProps & {size: {width: numbe
                             recording={recording}
                             unitId={id}
                             calculationPool={individualUnitsCalculationPool}
-                            width={size.width}
+                            width={width}
                             sortingInfo={sortingInfo}
                             sortingUnitViews={sortingUnitViews}
                         />

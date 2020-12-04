@@ -1,27 +1,27 @@
 // LABBOX-EXTENSION: timeseries
 
 import React, { FunctionComponent } from 'react';
-import sizeMe from "react-sizeme";
+import sizeMe, { SizeMeProps } from "react-sizeme";
 import TimeseriesViewNew from "../../components/TimeseriesViewNew/TimeseriesViewNew";
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../../extension";
 
-const TimeseriesSortingView: FunctionComponent<SortingViewProps & {size: {width: number}}> = ({recording, size}) => {
+const TimeseriesSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = ({recording, size}) => {
     const height = 650 // hard-coded for now
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
-            width={size.width}
+            width={size.width || 0}
             height={height}
         />
     )
 }
 
-const TimeseriesRecordingView: FunctionComponent<RecordingViewProps & {size: {width: number}}> = ({recording, size}) => {
+const TimeseriesRecordingView: FunctionComponent<RecordingViewProps & SizeMeProps> = ({recording, size}) => {
     const height = 650 // hard-coded for now
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
-            width={size.width}
+            width={size.width || 0}
             height={height}
         />
     )

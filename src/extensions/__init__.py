@@ -11,6 +11,7 @@ for a in os.listdir(thisdir):
     dirpath = thisdir + '/' + a
     if os.path.isdir(dirpath):
         if os.path.isfile(dirpath + '/__init__.py'):
+            print('--- importing', dirpath)
             importlib.import_module(a)
 
 # remove so as not to cause side effects

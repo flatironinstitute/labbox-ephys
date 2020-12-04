@@ -1,21 +1,46 @@
-import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core'
-import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { Link, withRouter } from 'react-router-dom'
-import { withSize } from 'react-sizeme'
-import { createHitherJob } from '../hither'
-import { getPathQuery } from '../kachery'
-import CalculationPool from '../extensions/common/CalculationPool'
-import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit'
-import SimilarUnit from './SimilarUnit'
+import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core';
+import React, { Dispatch, FunctionComponent, useEffect, useState } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import sizeMe, { SizeMeProps } from 'react-sizeme';
+import SimilarUnit from '../components/SimilarUnit';
+import { SortingUnitViewPlugin } from '../extension';
+import CalculationPool from '../extensions/common/CalculationPool';
+import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
+import { ExtensionsConfig } from '../extensions/reducers';
+import { createHitherJob } from '../hither';
+import { getPathQuery } from '../kachery';
+import { RootAction, RootState } from '../reducers';
+import { DocumentInfo } from '../reducers/documentInfo';
+import { Recording } from '../reducers/recordings';
+import { Sorting, SortingInfo } from '../reducers/sortings';
+
+interface StateProps {
+  sortingUnitViews: {[key: string]: SortingUnitViewPlugin},
+  sorting: Sorting,
+  recording: Recording,
+  extensionsConfig: ExtensionsConfig,
+  documentInfo: DocumentInfo
+}
+
+interface DispatchProps {
+}
+
+interface OwnProps {
+    sortingId: string
+    unitId: number
+}
+
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeMeProps
 
 const calculationPool = new CalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size, sortingUnitViews }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size, sortingUnitViews }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
-  const [sortingInfoStatus, setSortingInfoStatus] = useState(null);
-  const [sortingInfo, setSortingInfo] = useState(null);
+  const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
+  const [sortingInfo, setSortingInfo] = useState<SortingInfo | null>(null);
 
   const effect = async () => {
     if (sortingInfoStatus === null) {
@@ -30,6 +55,10 @@ const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConf
     }
   }
   useEffect(() => {effect()});
+  
+  const width = size.width
+  if (!width) return <div>No width</div>
+  if (!sortingInfo) return <div>No sorting info</div>
   
   return (
     <div>
@@ -47,7 +76,7 @@ const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConf
             recording={recording}
             unitId={unitId}
             calculationPool={calculationPool}
-            width={size.width}
+            width={width}
             sortingInfo={sortingInfo}
             sortingUnitViews={sortingUnitViews}
           />
@@ -58,20 +87,21 @@ const SortingUnitView = ({ sortingId, unitId, sorting, recording, extensionsConf
               sorting={sorting}
               recording={recording}
               unitId={unitId}
-              width={size.width}
+              width={width}
               calculationPool={calculationPool}
             />
           </Expandable>
         </Grid>
       </Grid>
     </div>
-
   )
 }
 
-const SimilarUnitsView = ({ sorting, recording, unitId, width, calculationPool }) => {
+const SimilarUnitsView: FunctionComponent<{
+  sorting: Sorting, recording: Recording, unitId: number, width: number, calculationPool: CalculationPool
+}> = ({ sorting, recording, unitId, width, calculationPool }) => {
   const [calculationStatus, setCalculationStatus] = useState('pending');
-  const [similarUnits, setSimilarUnits] = useState(null);
+  const [similarUnits, setSimilarUnits] = useState<{unit_id: number}[] | null>(null);
   const [calculationError, setCalculationError] = useState('');
 
   const maxUnitsVisibleIncrement = 4;
@@ -117,10 +147,15 @@ const SimilarUnitsView = ({ sorting, recording, unitId, width, calculationPool }
   }
 
   let showExpandButton = false;
-  let similarUnitsArray = similarUnits;
-  if (similarUnits.length > maxUnitsVisible) {
-      similarUnitsArray = similarUnitsArray.slice(0, maxUnitsVisible);
-      showExpandButton = true;
+  let similarUnitsArray: {unit_id: number}[] = []
+  if (similarUnits) {
+    if ((similarUnits) && (similarUnits.length > maxUnitsVisible)) {
+        similarUnitsArray = similarUnits.slice(0, maxUnitsVisible)
+        showExpandButton = true;
+    }
+    else {
+      similarUnitsArray = similarUnits
+    }
   }
 
   return (
@@ -154,7 +189,7 @@ const SimilarUnitsView = ({ sorting, recording, unitId, width, calculationPool }
   );
 }
 
-const Expandable = ({ label, children }) => {
+const Expandable: FunctionComponent<{label: string, children: React.ReactChild}> = ({ label, children }) => {
   return (
     <Accordion TransitionProps={{ timeout: -1, unmountOnExit: true }}>
       <AccordionSummary>
@@ -167,29 +202,27 @@ const Expandable = ({ label, children }) => {
   )
 }
 
-function findSortingForId(state, id) {
+function findSortingForId(state: RootState, id: string) {
   return state.sortings.filter(s => (s.sortingId === id))[0];
 }
 
-function findRecordingForId(state, id) {
+function findRecordingForId(state: RootState, id: string) {
   return state.recordings.filter(s => (s.recordingId === id))[0];
 }
 
-const mapStateToProps = (state, ownProps) => {
-  return {
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     sortingUnitViews: state.extensionContext.sortingUnitViews,
     // todo: use selector
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
     documentInfo: state.documentInfo
-  }
-}
-
-const mapDispatchToProps = dispatch => ({
+})
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
 })
 
-export default withSize()(withRouter(connect(
+export default sizeMe()(withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
   mapStateToProps,
   mapDispatchToProps
 )(SortingUnitView)))

@@ -1,12 +1,17 @@
 import { Grid } from '@material-ui/core';
-import React from 'react';
-import ClientSidePlot from '../components/ClientSidePlot';
+import React, { FunctionComponent } from 'react';
 import AverageWaveform_rv from '../extensions/averagewaveforms/AverageWaveform_ReactVis';
+import CalculationPool from '../extensions/common/CalculationPool';
 import Correlogram_rv from '../extensions/correlograms/Correlogram_ReactVis';
 import DriftFeatures_rv from '../extensions/devel/IndividualUnits/DriftFeatures_rv';
 import PCAFeatures_rv from '../extensions/devel/IndividualUnits/PCAFeatures_rv';
+import { Recording } from '../reducers/recordings';
+import { Sorting } from '../reducers/sortings';
+import ClientSidePlot from './ClientSidePlot';
 
-const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
+const SimilarUnit: FunctionComponent<{
+    sorting: Sorting, recording: Recording, unitId: number, compareUnitId: number, width: number, calculationPool: CalculationPool
+}> = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
     return (
         <div style={{width}}>
             <div>
@@ -73,6 +78,7 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             useJobCache={true}
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
+                            title=""
                         />
                     </Grid>
                     <Grid item>
@@ -94,6 +100,7 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             useJobCache={true}
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
+                            title=""
                         />
                     </Grid>
                     <Grid item>
@@ -115,6 +122,7 @@ const SimilarUnit = ({sorting, recording, unitId, compareUnitId, width, calculat
                             useJobCache={true}
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
+                            title=""
                         />
                     </Grid>
                 </Grid>

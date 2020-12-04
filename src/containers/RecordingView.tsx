@@ -1,16 +1,39 @@
 import { Grid } from '@material-ui/core';
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Link, withRouter } from 'react-router-dom';
+import React, { Dispatch, FunctionComponent, useEffect } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
+import { RecordingViewPlugin } from '../extension';
 import { getPathQuery } from '../kachery';
+import { RootAction, RootState } from '../reducers';
+import { DocumentInfo } from '../reducers/documentInfo';
 import { sortByPriority } from '../reducers/extensionContext';
+import { Recording, RecordingInfo } from '../reducers/recordings';
+import { Sorting } from '../reducers/sortings';
 import { Expandable } from './SortingView';
 
-const RecordingView = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, recordingViews }) => {
+interface StateProps {
+  recordingViews: {[key: string]: RecordingViewPlugin},
+  recording: Recording,
+  sortings: Sorting[],
+  documentInfo: DocumentInfo
+}
+
+interface DispatchProps {
+  onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
+}
+
+interface OwnProps {
+  recordingId: string
+}
+
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
+
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, recordingViews }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const effect = async () => {
@@ -67,19 +90,19 @@ const RecordingView = ({ recordingId, recording, sortings, history, documentInfo
   )
 }
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
   // todo: use selector
   recordingViews: state.extensionContext.recordingViews,
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
   documentInfo: state.documentInfo
 })
-
-const mapDispatchToProps = dispatch => ({
-  onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+  onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => dispatch(setRecordingInfo(a))
 })
 
-export default withRouter(connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(RecordingView))
+export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
+    mapStateToProps,
+    mapDispatchToProps
+)( RecordingView))
