@@ -80,7 +80,13 @@ const initialElectrodeLayerState: ElectrodeLayerState = {
     }
 }
 
+const computeRadiusCache = new Map<string, number>()
 const computeRadius = (electrodes: Electrode[]): number => {
+    const key = JSON.stringify(electrodes)
+    const val = computeRadiusCache.get(key)
+    if (val !== undefined) {
+        return val
+    }
     // how big should each electrode dot be? Really depends on how close
     // the dots are to each other. Let's find the closest pair of dots and
     // set the radius to 40% of the distance between them.
@@ -94,6 +100,7 @@ const computeRadius = (electrodes: Electrode[]): number => {
     })
     // (might set a hard cap, but remember these numbers are in electrode-space coordinates)
     const radius = 0.4 * leastNorm
+    computeRadiusCache.set(key, radius)
     return radius
 }
 
