@@ -1,5 +1,5 @@
-import React from 'react'
-import { FormControl, Select, MenuItem, makeStyles, FormHelperText } from '@material-ui/core'
+import { FormControl, FormHelperText, makeStyles, MenuItem, Select } from '@material-ui/core';
+import React from 'react';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -11,7 +11,15 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const DropdownControl = ({ label, value, onSetValue, options }) => {
+const DropdownControl: React.FunctionComponent<{
+    label: string,
+    value: any,
+    onSetValue: (v: any) => void,
+    options: {
+        value: any,
+        label: string,
+    }[]
+}> = ({ label, value, onSetValue, options }) => {
     const classes = useStyles();
     return (
         <FormControl className={classes.formControl}>

@@ -1,6 +1,6 @@
-import { CanvasPainter, Pen } from "../jscommon/CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { Vec2 } from "../jscommon/CanvasWidget/Geometry"
+import { CanvasPainter, Pen } from "../../CanvasWidget/CanvasPainter"
+import { CanvasWidgetLayer } from "../../CanvasWidget/CanvasWidgetLayer"
+import { Vec2 } from "../../CanvasWidget/Geometry"
 import { funcToTransform } from "./mainLayer"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 

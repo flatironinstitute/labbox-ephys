@@ -2,7 +2,6 @@ import React, { Dispatch, FunctionComponent, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { addRecording } from '../actions';
-import ImportRecordingFromLocalDisk from '../components/ImportRecordingFromLocalDisk';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 import RadioChoices from '../components/RadioChoices';
 import { ExtensionsConfig } from '../extensions/reducers';
@@ -53,22 +52,10 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
             />
         )
     }
-    else if (method === 'local') {
-        form = (
-            <ImportRecordingFromLocalDisk
-                onAddRecording={onAddRecording}
-                onDone={handleDone}
-            />
-        )
-    }
     else {
         form = <span>{`Select method.`}</span>
     }
     let options = [
-        {
-            value: 'local',
-            label: 'From local disk'
-        },
         {
             value: 'examples',
             label: 'Examples'

@@ -1,8 +1,8 @@
 /* eslint-disable no-use-before-define */
-import React from 'react';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import React, { FunctionComponent } from 'react';
 // TODO: Import own css styling?
 
 // May need to scrap the makestyles call
@@ -15,12 +15,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MultiComboBox = ({
+const MultiComboBox: FunctionComponent<{
+  id: string,
+  label: string,
+  placeholder: string,
+  onSelectionsChanged: (evt: React.ChangeEvent<{}>, value: any) => void,
+  getLabelFromOption?: (option: any) => string,
+  selectedOptionLabels?: string[],
+  options?: string[]
+}> = ({
     id,
     label,
     placeholder,
     onSelectionsChanged,
-    getLabelFromOption = (x) => x,
+    getLabelFromOption = (x: any) => x,
     selectedOptionLabels = [],
     options = []
 }) => {

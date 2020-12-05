@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
-import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../jscommon/CanvasWidget/CanvasWidgetLayer';
-import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew';
-import { Vec2 } from '../jscommon/CanvasWidget/Geometry';
+import { CanvasPainter } from '../../CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
+import CanvasWidget from '../../CanvasWidget/CanvasWidget';
+import { Vec2 } from '../../CanvasWidget/Geometry';
 import { funcToTransform } from './mainLayer';
 
 

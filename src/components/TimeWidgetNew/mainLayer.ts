@@ -1,7 +1,7 @@
 import { sleepMsec } from "../../hither/createHitherJob"
-import { CanvasPainter } from "../jscommon/CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../jscommon/CanvasWidget/Geometry"
+import { CanvasPainter } from "../../CanvasWidget/CanvasPainter"
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../../CanvasWidget/CanvasWidgetLayer"
+import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../../CanvasWidget/Geometry"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>

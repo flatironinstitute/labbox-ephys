@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Redirect, Route, Switch } from "react-router-dom";
 import About from "./components/About";
 import Docs from "./components/Docs";
-import Home from "./components/Home";
-import Prototypes from './components/Prototypes';
 import Config from './containers/Config';
 import HitherJobMonitor from './containers/HitherJobMonitor';
+import Home from "./containers/Home";
 import ImportRecordings from "./containers/ImportRecordings";
 import ImportSortings from "./containers/ImportSortings";
 import RecordingView from "./containers/RecordingView";
@@ -17,12 +16,11 @@ const TestPage = () => {
     return <div>{`Test page`}</div>;
 }
 
-const Routes = () => {
+const Routes: FunctionComponent<{}> = () => {
     return (
         <Switch>
             <Route path="/about"><About /></Route>
             <Route path="/docs"><Docs /></Route>
-            <Route path="/prototypes"><Prototypes /></Route>
             <Route path="/test"><TestPage /></Route>
             <Route
                 path="/:documentId/config"

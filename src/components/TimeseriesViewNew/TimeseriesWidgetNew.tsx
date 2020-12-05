@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
-import { PainterPath } from '../jscommon/CanvasWidget'
-import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
+import { PainterPath } from '../../CanvasWidget'
+import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
 import TimeWidgetNew, { TimeWidgetAction } from '../TimeWidgetNew/TimeWidgetNew'
 import TimeseriesModelNew from './TimeseriesModelNew'
 

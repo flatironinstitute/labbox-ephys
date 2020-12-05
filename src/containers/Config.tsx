@@ -20,7 +20,6 @@ interface DispatchProps {
 }
 
 interface OwnProps {
-    exampleProp: number
 }
 
 type Props = StateProps & DispatchProps & OwnProps

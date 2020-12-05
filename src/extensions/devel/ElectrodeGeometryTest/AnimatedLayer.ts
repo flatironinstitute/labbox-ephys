@@ -1,6 +1,6 @@
-import { CanvasPainter } from '../../../components/jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler } from '../../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
-import { Vec2 } from '../../../components/jscommon/CanvasWidget/Geometry'
+import { CanvasPainter } from '../../../CanvasWidget/CanvasPainter'
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler } from '../../../CanvasWidget/CanvasWidgetLayer'
+import { Vec2 } from '../../../CanvasWidget/Geometry'
 import { ElectrodeLayerProps } from './ElectrodeGeometry'
 
 interface AnimationPoint {

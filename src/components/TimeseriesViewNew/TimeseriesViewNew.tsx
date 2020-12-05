@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { createHitherJob } from '../../hither';
 import CalculationPool from '../../extensions/common/CalculationPool';
-import Mda from '../TimeseriesView/Mda';
+import { createHitherJob } from '../../hither';
+import Mda from './Mda';
 import TimeseriesModelNew from './TimeseriesModelNew';
 import TimeseriesWidgetNew from './TimeseriesWidgetNew';
 
@@ -93,7 +93,7 @@ const TimeseriesViewNew = (props: Props) => {
                     finally {
                         slot.complete();
                     }
-                    let X = new Mda();
+                    let X = new Mda()
                     X.setFromBase64(result.data_b64);
                     model.setDataSegment(ds_factor, segment_num, X);
                 })()

@@ -1,7 +1,7 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useReducer, useState } from 'react'
-import { CanvasPainter } from '../jscommon/CanvasWidget/CanvasPainter'
-import { useCanvasWidgetLayer, useCanvasWidgetLayers } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
+import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
+import { useCanvasWidgetLayer, useCanvasWidgetLayers } from "../../CanvasWidget/CanvasWidgetLayer"
+import CanvasWidget from '../../CanvasWidget/CanvasWidget'
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
 import { createPanelLabelLayer } from './panelLabelLayer'

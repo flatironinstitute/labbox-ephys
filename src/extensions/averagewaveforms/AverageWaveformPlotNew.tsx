@@ -1,8 +1,8 @@
 import React from 'react';
-import { CanvasPainter, PainterPath } from '../../components/jscommon/CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../components/jscommon/CanvasWidget/CanvasWidgetLayer';
-import CanvasWidget from '../../components/jscommon/CanvasWidget/CanvasWidgetNew';
-import { Vec2 } from '../../components/jscommon/CanvasWidget/Geometry';
+import { CanvasPainter, PainterPath } from '../../CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
+import CanvasWidget from '../../CanvasWidget/CanvasWidget';
+import { Vec2 } from '../../CanvasWidget/Geometry';
 import { funcToTransform } from '../../components/TimeWidgetNew/mainLayer';
 
 interface PlotData {

@@ -1,6 +1,6 @@
-import { CanvasPainter, Font, TextAlignment } from "../jscommon/CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import { RectangularRegion, Vec2 } from "../jscommon/CanvasWidget/Geometry"
+import { CanvasPainter, Font, TextAlignment } from "../../CanvasWidget/CanvasPainter"
+import { CanvasWidgetLayer } from "../../CanvasWidget/CanvasWidgetLayer"
+import { RectangularRegion, Vec2 } from "../../CanvasWidget/Geometry"
 import { funcToTransform } from "./mainLayer"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 

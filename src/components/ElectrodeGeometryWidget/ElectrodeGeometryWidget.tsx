@@ -1,9 +1,9 @@
 import { norm } from 'mathjs'
 import React from "react"
-import { CanvasPainter } from '../../components/jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, useCanvasWidgetLayer, useCanvasWidgetLayers } from "../jscommon/CanvasWidget/CanvasWidgetLayer"
-import CanvasWidget from '../jscommon/CanvasWidget/CanvasWidgetNew'
-import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../jscommon/CanvasWidget/Geometry'
+import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, useCanvasWidgetLayer, useCanvasWidgetLayers } from "../../CanvasWidget/CanvasWidgetLayer"
+import CanvasWidget from '../../CanvasWidget/CanvasWidget'
+import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../../CanvasWidget/Geometry'
 import { funcToTransform } from '../TimeWidgetNew/mainLayer'
 
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const feedIdFromUri = (uri) => {
+export const feedIdFromUri = (uri: string): string | null => {
     if (!uri.startsWith('feed://')) {
         return null;
     }
@@ -22,12 +22,14 @@ export const feedIdFromUri = (uri) => {
 //     }
 // }
 
-export const getPathQuery = ({feedUri}) => {
-    if (feedUri === 'default') return '';
+export const getPathQuery = ({feedUri}: {feedUri: string | null}) => {
+    if ((feedUri === 'default') || (feedUri === null)) return '';
     else return `?feed=${feedUri || ''}`;
 }
 
-export const getNumMessages = async ({feedId, subfeedName}) => {
+type SubfeedName = string | {[key: string]: any}
+
+export const getNumMessages = async ({feedId, subfeedName}: {feedId: string, subfeedName: SubfeedName}) => {
     const url = `/api/kachery/feed/getNumMessages`;
     const result = await axios.post(url, {feedId, subfeedName});
     if (result.data.success) {
@@ -38,7 +40,7 @@ export const getNumMessages = async ({feedId, subfeedName}) => {
     }
 }
 
-export const getMessages = async ({feedUri, subfeedName, position, maxNumMessages, waitMsec}) => {
+export const getMessages = async ({feedUri, subfeedName, position, maxNumMessages, waitMsec}: {feedUri: string, subfeedName: SubfeedName, position: number, maxNumMessages: number, waitMsec: number}) => {
     const url = `/api/kachery/feed/getMessages`;
     const result = await axios.post(url, {feedUri, subfeedName, position, maxNumMessages, waitMsec});
     if (result.data.success) {
@@ -49,25 +51,25 @@ export const getMessages = async ({feedUri, subfeedName, position, maxNumMessage
     }
 }
 
-export const watchForNewMessages = async ({subfeedWatches, waitMsec}) => {
-    const url = `/api/kachery/feed/watchForNewMessages`;
-    const result = await axios.post(url, {subfeedWatches, waitMsec});
-    if (result.data.success) {
-        return result.data.messages;
-    }
-    else {
-        throw Error(result.data.error);
-    }
-}
+// export const watchForNewMessages = async ({subfeedWatches, waitMsec}: {subfeedWatches: SubfeedWatch[], waitMsec: number}) => {
+//     const url = `/api/kachery/feed/watchForNewMessages`;
+//     const result = await axios.post(url, {subfeedWatches, waitMsec});
+//     if (result.data.success) {
+//         return result.data.messages;
+//     }
+//     else {
+//         throw Error(result.data.error);
+//     }
+// }
 
-export const appendMessage = async ({feedUri, subfeedName, message}) => {
+export const appendMessage = async ({feedUri, subfeedName, message}: {feedUri: string, subfeedName: SubfeedName, message: any}) => {
     await appendMessages({feedUri, subfeedName, messages: [message]});
 }
 
-export const appendMessages = async ({feedUri, subfeedName, messages}) => {
+export const appendMessages = async ({feedUri, subfeedName, messages}: {feedUri: string, subfeedName: SubfeedName, messages: any[]}) => {
     if (feedUri.startsWith('sha1://'))  {
         console.info(messages);
-        console.warn(`Unable to append messages to readOnly feed (subfeed=${subfeedName.key})`);
+        console.warn(`Unable to append messages to readOnly feed (subfeed=${subfeedName})`);
         return;
     }
     const feedId = (feedUri === 'default') ? 'default' : feedIdFromUri(feedUri);
@@ -84,7 +86,7 @@ export const appendMessages = async ({feedUri, subfeedName, messages}) => {
     }
 }
 
-export const loadText = async (uri) => {
+export const loadText = async (uri: string) => {
     const url = `/api/kachery/loadText`;
     const result = await axios.post(url, {uri});
     if (result.data.success) {
@@ -95,7 +97,7 @@ export const loadText = async (uri) => {
     }
 }
 
-export const loadObject = async (uri) => {
+export const loadObject = async (uri: string) => {
     const url = `/api/kachery/loadObject`;
     const result = await axios.post(url, {uri});
     if (result.data.success) {
@@ -106,7 +108,7 @@ export const loadObject = async (uri) => {
     }
 }
 
-export const loadBytes = async (uri, {start, end}) => {
+export const loadBytes = async (uri: string, {start, end}: {start: number, end: number}) => {
     const url = `/api/kachery/loadBytes`;
     const result = await axios.post(url, {uri, start, end});
     if (result.data.success) {

@@ -1,5 +1,5 @@
-import { CanvasPainter, Pen } from '../../../components/jscommon/CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler } from '../../../components/jscommon/CanvasWidget/CanvasWidgetLayer'
+import { CanvasPainter, Pen } from '../../../CanvasWidget/CanvasPainter'
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler } from '../../../CanvasWidget/CanvasWidgetLayer'
 import { ElectrodeLayerProps } from './ElectrodeGeometry'
 
 export const paintTestLayer = (painter: CanvasPainter, props: ElectrodeLayerProps) => {

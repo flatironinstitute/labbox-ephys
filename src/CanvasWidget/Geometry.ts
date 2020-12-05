@@ -1,5 +1,4 @@
 import { abs, inv, matrix, multiply } from 'mathjs'
-import { isNumber } from '../../../util/Utility'
 
 export type Vec2 = number[]
 export const isVec2 = (x: any): x is Vec2 => {
@@ -250,4 +249,12 @@ export const transformDistance = (tmatrix: TransformationMatrix, xyDist: Vec2): 
     const b = multiply(A, x)
     const scaled = abs(b).toArray() as number[] // take absolute value to ensure we don't get negative distances
     return [scaled[0], scaled[1]]
+}
+
+export const isNumber = (x: any): x is number => {
+    return ((x !== null) && (x !== undefined) && (typeof(x) === 'number'))
+}
+
+export const isString = (x: any): x is string => {
+    return ((x !== null) && (x !== undefined) && (typeof(x) === 'string'))
 }

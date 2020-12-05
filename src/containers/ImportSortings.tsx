@@ -22,12 +22,11 @@ interface DispatchProps {
 
 interface OwnProps {
     recordingId: string
-    recordingLabel: string
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordingLabel, recordings, documentInfo, onAddSorting }) => {
+const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
     const [method, setMethod] = useState('examples');
 
@@ -80,7 +79,7 @@ const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, record
     return (
         <div>
             <div>
-                <h1>{`Import sorting for ${recordingLabel}`}</h1>
+                <h1>{`Import sorting for ${recording.recordingLabel}`}</h1>
                 <RadioChoices
                     label="Sorting import method"
                     value={method}
