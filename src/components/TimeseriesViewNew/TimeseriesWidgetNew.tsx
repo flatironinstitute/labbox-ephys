@@ -26,34 +26,34 @@ const channelColors = [
 
 
 class Panel {
-    #updateHandler: (() => void) | null = null
-    #timeRange: {min: number, max: number} | null = null
-    #yScale: number = 1
-    #pixelWidth: number | null = null // for determining the downsampling factor
+    _updateHandler: (() => void) | null = null
+    _timeRange: {min: number, max: number} | null = null
+    _yScale: number = 1
+    _pixelWidth: number | null = null // for determining the downsampling factor
     constructor(private channelIndex: number, private channelId: number, private timeseriesModel: TimeseriesModelNew, private y_offset: number, private y_scale_factor: number) {
         timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
-            const timeRange = this.#timeRange
+            const timeRange = this._timeRange
             if (!timeRange) return
             if ((t1 <= timeRange.max) && (t2 >= timeRange.min)) {
-                this.#updateHandler && this.#updateHandler()
+                this._updateHandler && this._updateHandler()
             }
         })
     }
     setTimeRange(timeRange: {min: number, max: number}) {
-        this.#timeRange = timeRange
+        this._timeRange = timeRange
     }
     setYScale(s: number) {
-        if (this.#yScale === s) return
-        this.#yScale = s
-        this.#updateHandler && this.#updateHandler()
+        if (this._yScale === s) return
+        this._yScale = s
+        this._updateHandler && this._updateHandler()
     }
     setPixelWidth(w: number) {
-        if (this.#pixelWidth === w) return
-        this.#pixelWidth = w
-        this.#updateHandler && this.#updateHandler()
+        if (this._pixelWidth === w) return
+        this._pixelWidth = w
+        this._updateHandler && this._updateHandler()
     }
     paint(painter: CanvasPainter, completenessFactor: number) {
-        const timeRange = this.#timeRange
+        const timeRange = this._timeRange
         if (!timeRange) return
 
         let downsample_factor = this._determineDownsampleFactor(completenessFactor)
@@ -86,7 +86,7 @@ class Panel {
             for (let tt = t1; tt < t2; tt++) {
                 let val = data[tt - t1];
                 if (!isNaN(val)) {
-                    let val2 = ((val + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
+                    let val2 = ((val + this.y_offset) * this.y_scale_factor * this._yScale) / 2 + 0.5
                     if (penDown) {
                         pp.lineTo(tt, val2);    
                     }
@@ -106,8 +106,8 @@ class Panel {
                 let val_min = data[(tt - t1b) * 2];
                 let val_max = data[(tt - t1b) * 2 + 1];
                 if ((!isNaN(val_min)) && (!isNaN(val_max))) {
-                    let val2_min = ((val_min + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
-                    let val2_max = ((val_max + this.y_offset) * this.y_scale_factor * this.#yScale) / 2 + 0.5
+                    let val2_min = ((val_min + this.y_offset) * this.y_scale_factor * this._yScale) / 2 + 0.5
+                    let val2_max = ((val_max + this.y_offset) * this.y_scale_factor * this._yScale) / 2 + 0.5
                     if (penDown) {
                         pp.lineTo((tt - 1/3) * downsample_factor, val2_min);
                         pp.lineTo((tt + 1/3) * downsample_factor, val2_max);
@@ -129,9 +129,9 @@ class Panel {
         painter.drawPath(pp, pen)
     }
     _determineDownsampleFactor(completenessFactor: number) {
-        let timeRange = this.#timeRange
+        let timeRange = this._timeRange
         if (!timeRange) return null
-        if (this.#pixelWidth === null) return null
+        if (this._pixelWidth === null) return null
         const numChannels = this.timeseriesModel.numChannels()
         let factor0 = 1.3; // this is a tradeoff between rendering speed and appearance
         if (numChannels > 32) {
@@ -141,7 +141,7 @@ class Panel {
         // determine what the downsample factor should be based on the number
         // of timepoints in the view range
         // we also need to consider the number of pixels it corresponds to
-        const targetNumPix = Math.max(500, this.#pixelWidth * factor0) * completenessFactor
+        const targetNumPix = Math.max(500, this._pixelWidth * factor0) * completenessFactor
         const numPoints = timeRange.max - timeRange.min
         let ds_factor = 1;
         let factor = 3;
@@ -154,7 +154,7 @@ class Panel {
         return this.channelId + ''
     }
     register(onUpdate: () => void) {
-        this.#updateHandler = onUpdate
+        this._updateHandler = onUpdate
     }
 }
 

@@ -21,7 +21,7 @@ const isSetExtensionEnabledAction = (x: any): x is SetExtensionEnabledAction => 
 
 export type State = ExtensionsConfig
 export type Action = SetExtensionEnabledAction
-const initialState: State = {enabled: {}, extensions: {}}
+export const initialState: State = {enabled: {}, extensions: {}}
 
 // the reducer
 const extensionsConfig: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

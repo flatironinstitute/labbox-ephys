@@ -45,7 +45,7 @@ const isSetRecordingInfoAction = (x: any): x is SetRecordingInfoAction => (
 
 export type State = Recording[]
 export type Action = AddRecordingAction | DeleteRecordingsAction | SetRecordingInfoAction
-const initialState: State = []
+export const initialState: State = []
 
 // the reducer
 const recordings: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

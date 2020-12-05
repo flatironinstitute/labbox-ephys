@@ -88,7 +88,7 @@ const isRemoveUnitLabelAction = (x: any): x is RemoveUnitLabelAction => (
 
 export type State = Sorting[]
 export type Action = AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | AddUnitLabelAction | RemoveUnitLabelAction | SetExternalSortingUnitMetricsAction
-const initialState: State = []
+export const initialState: State = []
 
 // the reducer
 const sortings: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

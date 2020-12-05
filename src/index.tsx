@@ -1,25 +1,23 @@
 // react
-import { ThemeProvider } from '@material-ui/core/styles';
-import React from 'react';
+import { MuiThemeProvider } from '@material-ui/core';
+import React, { Dispatch } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 // router
 import { BrowserRouter as Router } from 'react-router-dom';
 // redux
-import { applyMiddleware, createStore } from 'redux';
+import { AnyAction, applyMiddleware, createStore, Middleware, MiddlewareAPI } from 'redux';
 import thunk from 'redux-thunk';
 import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
-// The main app container, including the app bar
 import AppContainer from './AppContainer';
-import { ExtensionContext } from './extension';
+import { extensionContextDispatch } from './extensionContextDispatch';
 import { handleHitherJobCreated, handleHitherJobCreationError, handleHitherJobError, handleHitherJobFinished, setApiConnection, sleepMsec } from './hither/createHitherJob';
 import './index.css';
 import './localStyles.css';
 // reducer
-import rootReducer from './reducers';
+import rootReducer, { RootState } from './reducers';
 import registerExtensions from './registerExtensions';
-// Custom routes
 import Routes from './Routes';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -39,11 +37,11 @@ client side (there is a feed listener) and at that time the action
 will actually be played out on the redux state (because the
 persistKey will have been stripped).
 */
-const persistStateMiddleware = store => next => action => {
+const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: any) => {
   // this middleware is applied to the redux store
   // it inserts itself as part
   // of the action-processesing pipeline
-  const sendAction = async (key, theAction) => {
+  const sendAction = async (key: any, theAction: any) => {
     delete theAction['persistKey'];
     apiConnection.sendMessage({
       type: 'appendDocumentAction',
@@ -64,12 +62,19 @@ const persistStateMiddleware = store => next => action => {
 // Create the store and apply middleware
 // persistStateMiddleware is described above
 // thunk allows asynchronous actions
-const store = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
-const extensionContext = new ExtensionContext(store.dispatch)
+const theStore = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
+const extensionContext = extensionContextDispatch(theStore.dispatch)
 registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)
 class ApiConnection {
+  _ws: WebSocket
+  _connected: boolean = false
+  _onMessageCallbacks: ((m: any) => void)[] = []
+  _onConnectCallbacks: (() => void)[] = []
+  _isDisconnected = false
+  _queuedMessages: any[] = []
+
   constructor() {
     const url = `ws://${window.location.hostname}:15308`;
 
@@ -83,7 +88,7 @@ class ApiConnection {
         this.sendMessage(m);
       }
       this._onConnectCallbacks.forEach(cb => cb());
-      store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'connected'});
+      theStore.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'connected'});
     });
     this._ws.addEventListener('message', evt => {
       const x = JSON.parse(evt.data);
@@ -94,20 +99,16 @@ class ApiConnection {
       console.warn('Websocket disconnected.');
       this._connected = false;
       this._isDisconnected = true;
-      store.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
+      theStore.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
     })
 
-    this._onMessageCallbacks = [];
-    this._onConnectCallbacks = [];
-    this._connected = false;
-    this._isDisconnected = false;
-    this._queuedMessages = [];
+    
     this._start();
   }
-  onMessage(cb) {
+  onMessage(cb: (m: any) => void) {
     this._onMessageCallbacks.push(cb);
   }
-  onConnect(cb) {
+  onConnect(cb: () => void) {
     this._onConnectCallbacks.push(cb);
     if (this._connected) {
       cb();
@@ -116,7 +117,7 @@ class ApiConnection {
   isDisconnected() {
     return this._isDisconnected;
   }
-  sendMessage(msg) {
+  sendMessage(msg: any) {
     if (!this._connected) {
       this._queuedMessages.push(msg);
       return;
@@ -139,7 +140,7 @@ apiConnection.onMessage(msg => {
   const type0 = msg.type;
   if (type0 === 'reportServerInfo') {
     const { nodeId, defaultFeedId } = msg.serverInfo;
-    store.dispatch({
+    theStore.dispatch({
       type: SET_SERVER_INFO,
       nodeId,
       defaultFeedId
@@ -151,10 +152,10 @@ apiConnection.onMessage(msg => {
       // just to be safe
       delete action['persistKey'];
     }
-    store.dispatch(action);
+    theStore.dispatch(action);
   }
   else if (type0 === 'reportInitialLoadComplete') {
-    store.dispatch({
+    theStore.dispatch({
       type: REPORT_INITIAL_LOAD_COMPLETE
     });
   }
@@ -177,8 +178,9 @@ apiConnection.onMessage(msg => {
 setApiConnection(apiConnection);
 const waitForDocumentInfo = async () => {
   while (true) {
-    const documentInfo = store.getState().documentInfo;
-    if (documentInfo.documentId) {
+    const state = theStore.getState() as RootState
+    const documentInfo = state.documentInfo
+    if ((documentInfo) && (documentInfo.documentId)) {
       apiConnection.sendMessage({
         type: 'reportClientInfo',
         clientInfo: {
@@ -196,15 +198,15 @@ waitForDocumentInfo();
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
-  <ThemeProvider theme={theme}>
-    <Provider store={store}>
+  <MuiThemeProvider theme={theme}>
+    <Provider store={theStore}>
       <Router>
         <AppContainer>
           <Routes />
         </AppContainer>
       </Router>
     </Provider>
-  </ThemeProvider>
+  </MuiThemeProvider>
   // </React.StrictMode>
 );
 

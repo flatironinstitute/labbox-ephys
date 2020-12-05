@@ -17,7 +17,7 @@ const isSetServerInfoAction = (x: any): x is SetServerInfoAction => (
 
 export type State = ServerInfo
 export type Action = SetServerInfoAction
-const initialState: State = {nodeId: null, defaultFeedId: null}
+export const initialState: State = {nodeId: null, defaultFeedId: null}
 
 // the reducer
 const serverInfo: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

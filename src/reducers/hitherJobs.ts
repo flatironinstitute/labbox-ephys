@@ -38,7 +38,7 @@ const isUpdateHitherJobAction = (x: any): x is UpdateHitherJobAction => (
 
 export type State = HitherJob[]
 export type Action = AddHitherJobAction | UpdateHitherJobAction
-const initialState: State = []
+export const initialState: State = []
 
 // the reducer
 const hitherJobs: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

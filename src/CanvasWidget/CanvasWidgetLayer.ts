@@ -100,99 +100,99 @@ export const formKeyboardEvent = (type: KeyEventType, e: React.KeyboardEvent<HTM
 }
 
 export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends object> {
-    #onPaint: OnPaint<LayerProps, State>
-    #onPropsChange: OnPropsChange<LayerProps>
+    _onPaint: OnPaint<LayerProps, State>
+    _onPropsChange: OnPropsChange<LayerProps>
 
-    #props: LayerProps | null = null // this will be null until props are passed in from the CanvasWidget
-    #state: State
+    _props: LayerProps | null = null // this will be null until props are passed in from the CanvasWidget
+    _state: State
 
     // these will be null until they are set by the CanvasWidget
-    #pixelWidth: number | null = null
-    #pixelHeight: number | null = null
-    #canvasElement: HTMLCanvasElement | null = null
+    _pixelWidth: number | null = null
+    _pixelHeight: number | null = null
+    _canvasElement: HTMLCanvasElement | null = null
 
-    #transformMatrix: TransformationMatrix // coords to pixels
-    #inverseMatrix: TransformationMatrix // pixels to coords
+    _transformMatrix: TransformationMatrix // coords to pixels
+    _inverseMatrix: TransformationMatrix // pixels to coords
 
-    #repaintScheduled = false
-    #lastRepaintTimestamp = Number(new Date())
+    _repaintScheduled = false
+    _lastRepaintTimestamp = Number(new Date())
 
-    #discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
-    #dragHandlers: DragHandler[] = []
-    #wheelEventHandlers: WheelEventHandler[] = []
-    #keyboardEventHandlers: KeyboardEventHandler[] = []
+    _discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
+    _dragHandlers: DragHandler[] = []
+    _wheelEventHandlers: WheelEventHandler[] = []
+    _keyboardEventHandlers: KeyboardEventHandler[] = []
 
-    #refreshRate = 120 // Hz
+    _refreshRate = 120 // Hz
 
     constructor(onPaint: OnPaint<LayerProps, State>, onPropsChange: OnPropsChange<LayerProps>, initialState: State, handlers?: EventHandlerSet) {
-        this.#state = initialState
-        this.#onPaint = onPaint
-        this.#onPropsChange = onPropsChange
-        this.#discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
-        this.#dragHandlers = handlers?.dragHandlers || []
-        this.#wheelEventHandlers = handlers?.wheelEventHandlers || []
-        this.#keyboardEventHandlers = handlers?.keyboardEventHandlers || []
-        this.#transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
-        this.#inverseMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
+        this._state = initialState
+        this._onPaint = onPaint
+        this._onPropsChange = onPropsChange
+        this._discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
+        this._dragHandlers = handlers?.dragHandlers || []
+        this._wheelEventHandlers = handlers?.wheelEventHandlers || []
+        this._keyboardEventHandlers = handlers?.keyboardEventHandlers || []
+        this._transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
+        this._inverseMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
     }
     getProps() {
-        if (!this.#props) throw Error('getProps must not be called before initial props are set')
-        return this.#props
+        if (!this._props) throw Error('getProps must not be called before initial props are set')
+        return this._props
     }
     updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
-        this.#props = p
-        this.#pixelWidth = p.width
-        this.#pixelHeight = p.height
-        this.#onPropsChange(this, p)
+        this._props = p
+        this._pixelWidth = p.width
+        this._pixelHeight = p.height
+        this._onPropsChange(this, p)
     }
     getState() {
-        return this.#state
+        return this._state
     }
     setState(s: State) {
-        this.#state = s
+        this._state = s
     }
     getTransformMatrix() {
-        return this.#transformMatrix
+        return this._transformMatrix
     }
     setTransformMatrix(t: TransformationMatrix) {
-        this.#transformMatrix = t
-        this.#inverseMatrix = getInverseTransformationMatrix(t)
+        this._transformMatrix = t
+        this._inverseMatrix = getInverseTransformationMatrix(t)
     }
     pixelWidth() {
-        if (this.#pixelWidth === null) throw Error('Cannot get pixelWidth before it is set')
-        return this.#pixelWidth
+        if (this._pixelWidth === null) throw Error('Cannot get pixelWidth before it is set')
+        return this._pixelWidth
     }
     pixelHeight() {
-        if (this.#pixelHeight === null) throw Error('Cannot get pixelHeight before it is set')
-        return this.#pixelHeight
+        if (this._pixelHeight === null) throw Error('Cannot get pixelHeight before it is set')
+        return this._pixelHeight
     }
     resetCanvasElement(canvasElement: any) {
-        this.#canvasElement = canvasElement
+        this._canvasElement = canvasElement
     }
     canvasElement() {
-        return this.#canvasElement
+        return this._canvasElement
     }
     refreshRate() {
-        return this.#refreshRate
+        return this._refreshRate
     }
     setRefreshRate(hz: number) {
-        this.#refreshRate = hz
+        this._refreshRate = hz
     }
     scheduleRepaint() {
-        if (this.#repaintScheduled) {
+        if (this._repaintScheduled) {
             return;
         }
-        const elapsedSinceLastRepaint =  Number(new Date()) - this.#lastRepaintTimestamp
-        const refreshDelay = 1000 / this.#refreshRate
+        const elapsedSinceLastRepaint =  Number(new Date()) - this._lastRepaintTimestamp
+        const refreshDelay = 1000 / this._refreshRate
         if (elapsedSinceLastRepaint > refreshDelay * 2) {
             // do it right away
             this._doRepaint();
             return;
         }
-        this.#repaintScheduled = true;
+        this._repaintScheduled = true;
         setTimeout(() => {
             // let elapsed = (new Date()) - timer;
-            this.#repaintScheduled = false;
+            this._repaintScheduled = false;
             this._doRepaint();
         }, refreshDelay) // this timeout controls the refresh rate
     }
@@ -200,59 +200,59 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._doRepaint()
     }
     async _doRepaint() {
-        const context: Context2D | null = this.#canvasElement?.getContext('2d') ?? null
+        const context: Context2D | null = this._canvasElement?.getContext('2d') ?? null
         if (!context) return
-        if ((this.#pixelWidth === null) || (this.#pixelHeight === null)) return
-        let painter = new CanvasPainter(context, this.#pixelWidth, this.#pixelHeight, this.#transformMatrix)
+        if ((this._pixelWidth === null) || (this._pixelHeight === null)) return
+        let painter = new CanvasPainter(context, this._pixelWidth, this._pixelHeight, this._transformMatrix)
         // painter.clear()
-        // #onPaint may or may not be async
-        const promise = this.#onPaint(painter, this.#props as LayerProps, this.#state as State)
+        // _onPaint may or may not be async
+        const promise = this._onPaint(painter, this._props as LayerProps, this._state as State)
         if (promise) {
             // if returned a promise, it was async, and let's await
             // in this case we should update the lastRepaintTimestamp both before and after the paint
-            this.#lastRepaintTimestamp = Number(new Date())
+            this._lastRepaintTimestamp = Number(new Date())
             await promise
         }
         // this.unclipToSelf(ctx)
-        this.#lastRepaintTimestamp = Number(new Date())
+        this._lastRepaintTimestamp = Number(new Date())
     }
 
     handleDiscreteEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) {
-        if (this.#discreteMouseEventHandlers.length === 0) return
-        const click = formClickEventFromMouseEvent(e, type, this.#inverseMatrix)
+        if (this._discreteMouseEventHandlers.length === 0) return
+        const click = formClickEventFromMouseEvent(e, type, this._inverseMatrix)
         // Don't respond to events outside the layer
         // NB possible minor efficiency gain if we cache our bounding coordinates in pixelspace.
         // if (!pointInRect(click.point, this.getCoordRange())) return
-        for (let fn of this.#discreteMouseEventHandlers) {
+        for (let fn of this._discreteMouseEventHandlers) {
             fn(click, this)
         }
     }
 
     handleDrag(pixelDragRect: RectangularRegion, released: boolean, shift?: boolean, pixelAnchor?: Vec2, pixelPosition?: Vec2) {
-        if (this.#dragHandlers.length === 0) return
-        const coordDragRect = transformRect(this.#inverseMatrix, pixelDragRect)
+        if (this._dragHandlers.length === 0) return
+        const coordDragRect = transformRect(this._inverseMatrix, pixelDragRect)
         // if (!rectangularRegionsIntersect(coordDragRect, this.getCoordRange())) return // short-circuit if event is nothing to do with us
         // Note: append a 1 to make the Vec2s into Vec2Hs
-        const coordAnchor = pixelAnchor ? transformPoint(this.#inverseMatrix, [...pixelAnchor, 1]) : undefined
-        const coordPosition = pixelPosition ? transformPoint(this.#inverseMatrix, [...pixelPosition, 1]) : undefined
-        for (let fn of this.#dragHandlers) {
+        const coordAnchor = pixelAnchor ? transformPoint(this._inverseMatrix, [...pixelAnchor, 1]) : undefined
+        const coordPosition = pixelPosition ? transformPoint(this._inverseMatrix, [...pixelPosition, 1]) : undefined
+        for (let fn of this._dragHandlers) {
             fn(this, {dragRect: coordDragRect, released: released, shift: shift || false, anchor: coordAnchor, position: coordPosition})
         }
     }
 
     handleWheelEvent(e: React.WheelEvent<HTMLCanvasElement>) {
-        if (this.#wheelEventHandlers.length === 0) return
+        if (this._wheelEventHandlers.length === 0) return
         const wheelEvent = formWheelEvent(e)
-        for (let fn of this.#wheelEventHandlers) {
+        for (let fn of this._wheelEventHandlers) {
             fn(wheelEvent, this)
         }
     }
 
     handleKeyboardEvent(type: KeyEventType, e: React.KeyboardEvent<HTMLDivElement>): boolean {
-        if (this.#keyboardEventHandlers.length === 0) return true
+        if (this._keyboardEventHandlers.length === 0) return true
         const keyboardEvent = formKeyboardEvent(type, e)
         let passEventBackToUi = true
-        for (let fn of this.#keyboardEventHandlers) {
+        for (let fn of this._keyboardEventHandlers) {
             if (fn(keyboardEvent, this) === false)
                 passEventBackToUi = false
         }

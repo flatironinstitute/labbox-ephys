@@ -1,93 +1,93 @@
 class Mda {
-	#N1: number = 1
-	#N2: number = 1
-	#N3: number = 1
-	#N4: number = 1
-	#N5: number = 1
-	#totalSize: number = 1
-	#data: Float32Array | Float64Array | Int16Array = new Float32Array(1)
+	_N1: number = 1
+	_N2: number = 1
+	_N3: number = 1
+	_N4: number = 1
+	_N5: number = 1
+	_totalSize: number = 1
+	_data: Float32Array | Float64Array | Int16Array = new Float32Array(1)
 	constructor(n1?: number, n2?: number, n3?: number, n4?: number, n5?: number) {
 		this.allocate(n1 || 1, n2 || 1, n3, n4, n5)
 	}
 	allocate(n1: number, n2: number, n3?: number, n4?: number, n5?: number): void {
-		this.#N1 = n1 || 1
-		this.#N2 = n2 || 1
-		this.#N3 = n3 || 1
-		this.#N4 = n4 || 1
-		this.#N5 = n5 || 1
-		this.#totalSize = this.#N1 * this.#N2 * this.#N3 * this.#N4 * this.#N5
-		this.#data = new Float32Array(this.#totalSize)
-		this.#data.fill(0)
+		this._N1 = n1 || 1
+		this._N2 = n2 || 1
+		this._N3 = n3 || 1
+		this._N4 = n4 || 1
+		this._N5 = n5 || 1
+		this._totalSize = this._N1 * this._N2 * this._N3 * this._N4 * this._N5
+		this._data = new Float32Array(this._totalSize)
+		this._data.fill(0)
 	}
-	N1(): number {return this.#N1}
-	N2(): number {return this.#N2}
-	N3(): number {return this.#N3}
-	N4(): number {return this.#N4}
-	N5(): number {return this.#N5}
-	totalSize(): number {return this.#totalSize}
+	N1(): number {return this._N1}
+	N2(): number {return this._N2}
+	N3(): number {return this._N3}
+	N4(): number {return this._N4}
+	N5(): number {return this._N5}
+	totalSize(): number {return this._totalSize}
 	value(i1: number, i2?: number, i3?: number, i4?: number, i5?: number): number {
 		if (i2 === undefined) {
-			return this.#data[i1]
+			return this._data[i1]
 		}
 		else if (i3 === undefined) {
-			return this.#data[i1 + this.#N1 * i2]
+			return this._data[i1 + this._N1 * i2]
 		}
 		else if (i4 === undefined) {
-			return this.#data[i1 + this.#N1 * i2 + this.#N1 * this.#N2 * i3]
+			return this._data[i1 + this._N1 * i2 + this._N1 * this._N2 * i3]
 		}
 		else if (i5 === undefined) {
-			return this.#data[i1 + this.#N1 * i2 + this.#N1 * this.#N2 * i3 + this.#N1 * this.#N2 * this.#N3 * i4]
+			return this._data[i1 + this._N1 * i2 + this._N1 * this._N2 * i3 + this._N1 * this._N2 * this._N3 * i4]
 		}
 		else {
-			return this.#data[i1 + this.#N1 * i2 + this.#N1 * this.#N2 * i3 + this.#N1 * this.#N2 * this.#N3 * i4 + this.#N1 * this.#N2 * this.#N3 * this.#N4 * i5]
+			return this._data[i1 + this._N1 * i2 + this._N1 * this._N2 * i3 + this._N1 * this._N2 * this._N3 * i4 + this._N1 * this._N2 * this._N3 * this._N4 * i5]
 		}
 	}
 	setValue(val: number, i1: number, i2: number, i3?: number, i4?: number, i5?: number): void {
 		if (i2 === undefined) {
-			this.#data[i1] = val
+			this._data[i1] = val
 		}
 		else if (i3 === undefined) {
-			this.#data[i1 + this.#N1 * i2] = val
+			this._data[i1 + this._N1 * i2] = val
 		}
 		else if (i4 === undefined) {
-			this.#data[i1 + this.#N1 * i2 + this.#N1 * this.#N2 * i3] = val
+			this._data[i1 + this._N1 * i2 + this._N1 * this._N2 * i3] = val
 		}
 		else if (i5 === undefined) {
-			this.#data[i1 + this.#N1 * i2 + this.#N1 * this.#N2 * i3 + this.#N1 * this.#N2 * this.#N3 * i4] = val
+			this._data[i1 + this._N1 * i2 + this._N1 * this._N2 * i3 + this._N1 * this._N2 * this._N3 * i4] = val
 		}
 		else {
-			this.#data[i1 + this.#N1 * i2 + this.#N1 * this.#N2 * i3 + this.#N1 * this.#N2 * this.#N3 * i4 + this.#N1 * this.#N2 * this.#N3 * this.#N4 * i5] = val
+			this._data[i1 + this._N1 * i2 + this._N1 * this._N2 * i3 + this._N1 * this._N2 * this._N3 * i4 + this._N1 * this._N2 * this._N3 * this._N4 * i5] = val
 		}
 	}
 	data(): Float32Array | Float64Array | Int16Array {
-		return this.#data
+		return this._data
 	}
 	dataCopy(): Float32Array | Float64Array | Int16Array {
-		return this.#data.slice()
+		return this._data.slice()
 	}
 	setData(d: Float32Array | Float64Array | Int16Array): void {
-		this.#data = d
+		this._data = d
 	}
 	clone(): Mda {
-		var ret = new Mda(this.#N1, this.#N2, this.#N3, this.#N4, this.#N5)
+		var ret = new Mda(this._N1, this._N2, this._N3, this._N4, this._N5)
 		ret.setData(this.dataCopy())
 		return ret
 	}
 	reshape(n1: number, n2: number, n3?: number, n4?: number, n5?: number): void {
 		n2 = n2 || 1; n3 = n3 || 1; n4 = n4 || 1; n5 = n5 || 1
 		var tot = n1 * n2 * n3 * n4 * n5
-		if (tot !== this.#totalSize) {
+		if (tot !== this._totalSize) {
 			throw Error('Unable to reshape... incompatible size: ' + n1 + 'x' + n2 + 'x' + n3 + 'x' + n4 + 'x' + n5 + '    ' + this.N1() + 'x' + this.N2() + 'x' + this.N3() + 'x' + this.N4() + 'x' + this.N5())
 		}
-		this.#N1 = n1
-		this.#N2 = n2
-		this.#N3 = n3
-		this.#N4 = n4
-		this.#N5 = n5
+		this._N1 = n1
+		this._N2 = n2
+		this._N3 = n3
+		this._N4 = n4
+		this._N5 = n5
 	}
 	getChunk(i: number, size: number): Mda {
 		var ret = new Mda(size, 1)
-		ret.setData(this.#data.subarray(i, i + size))
+		ret.setData(this._data.subarray(i, i + size))
 		return ret
 	}
 	subArray(arg1: number, arg2: number, arg3?: number, arg4?: number, arg5?: number, arg6?: number): Mda {
@@ -160,24 +160,24 @@ class Mda {
 		this.setFromArrayBuffer(_base64ToArrayBuffer(x));
 	}
 	minimum(): number {
-		if (this.#data.length === 0) return 0
-		var ret = this.#data[0]
-		for (let i = 0; i < this.#data.length; i++) {
-			if (this.#data[i] < ret) ret = this.#data[i]
+		if (this._data.length === 0) return 0
+		var ret = this._data[0]
+		for (let i = 0; i < this._data.length; i++) {
+			if (this._data[i] < ret) ret = this._data[i]
 		}
 		return ret
 	}
 	maximum(): number {
-		if (this.#data.length === 0) return 0
-		var ret = this.#data[0]
-		for (let i = 0; i < this.#data.length; i++) {
-			if (this.#data[i] > ret) ret = this.#data[i]
+		if (this._data.length === 0) return 0
+		var ret = this._data[0]
+		for (let i = 0; i < this._data.length; i++) {
+			if (this._data[i] > ret) ret = this._data[i]
 		}
 		return ret
 	}
 	toList(): number[] {
 		let A: number[] = []
-		for (let a of this.#data) A.push(a);
+		for (let a of this._data) A.push(a);
 		return A
 	}
 }

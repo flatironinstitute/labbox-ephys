@@ -7,7 +7,7 @@ export interface State {
     recordingViews: {[key: string]: RecordingViewPlugin},
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
 }
-const initialState: State = {
+export const initialState: State = {
     sortingViews: {},
     sortingUnitViews: {},
     recordingViews: {},

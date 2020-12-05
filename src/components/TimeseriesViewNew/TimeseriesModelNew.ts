@@ -3,28 +3,28 @@ interface MdaInterface {
 }
 
 class TimeseriesModelNew {
-  #dataSegments = new Map<string, MdaInterface>()
-  #requestDataSegmentHandlers: ((ds_factor: number, segment_num: number) => void)[] = []
-  #dataSegmentSetHandlers: ((ds_factor: number, t1: number, t2: number) => void)[] = []
-  #dataSegmentsRequested = new Map<string, boolean>()
+  _dataSegments = new Map<string, MdaInterface>()
+  _requestDataSegmentHandlers: ((ds_factor: number, segment_num: number) => void)[] = []
+  _dataSegmentSetHandlers: ((ds_factor: number, t1: number, t2: number) => void)[] = []
+  _dataSegmentsRequested = new Map<string, boolean>()
   constructor(private args: { samplerate: number, num_channels: number, num_timepoints: number, segment_size: number }) {
   }
   clear() {
-    this.#dataSegments.clear()
-    this.#dataSegmentsRequested.clear()
+    this._dataSegments.clear()
+    this._dataSegmentsRequested.clear()
   }
   setDataSegment(ds_factor: number, segment_num: number, X: MdaInterface) {
     const code = `${ds_factor}:${segment_num}`
-    this.#dataSegments.set(code, X)
-    this.#dataSegmentSetHandlers.forEach(handler => {
+    this._dataSegments.set(code, X)
+    this._dataSegmentSetHandlers.forEach(handler => {
       handler(ds_factor, this.args.segment_size * ds_factor * segment_num, this.args.segment_size * ds_factor * (segment_num + 1))
     })
   }
   onRequestDataSegment(handler: (ds_factor: number, segment_num: number) => void) {
-    this.#requestDataSegmentHandlers.push(handler)
+    this._requestDataSegmentHandlers.push(handler)
   }
   onDataSegmentSet(handler: (ds_factor: number, t1: number, t2: number) => void) {
-    this.#dataSegmentSetHandlers.push(handler)
+    this._dataSegmentSetHandlers.push(handler)
   }
   getChannelData(ch: number, t1: number, t2: number, ds_factor: number): number[] {
     const segment_size = this.args.segment_size
@@ -46,7 +46,7 @@ class TimeseriesModelNew {
     }
 
     if (s1 === s2) {
-      const X = this.#dataSegments.get(ds_factor + ':' + s1) || null
+      const X = this._dataSegments.get(ds_factor + ':' + s1) || null
       const t1_rel = (t1 - s1 * segment_size);
       if (X) {
         if (ds_factor === 1) {
@@ -65,7 +65,7 @@ class TimeseriesModelNew {
     else {
       let ii_0 = 0;
       for (let ss = s1; ss <= s2; ss++) {
-        const X = this.#dataSegments.get(ds_factor + ':' + ss) || null
+        const X = this._dataSegments.get(ds_factor + ':' + ss) || null
         if (ss === s1) {
           const t1_rel = (t1 - ss * segment_size);
           if (X) {
@@ -128,12 +128,12 @@ class TimeseriesModelNew {
     //for (let ss=s1; ss<=s2; ss++) {
     for (let ss = s1 - 1; ss <= s2 + 1; ss++) {
       if ((ss >= 0) && (ss < Math.ceil(num_timepoints / segment_size))) {
-        if (!(this.#dataSegments.has(ds_factor + ':' + ss))) {
-          if (!(this.#dataSegmentsRequested.has(ds_factor + ':' + ss))) {
-            this.#requestDataSegmentHandlers.forEach(handler => {
+        if (!(this._dataSegments.has(ds_factor + ':' + ss))) {
+          if (!(this._dataSegmentsRequested.has(ds_factor + ':' + ss))) {
+            this._requestDataSegmentHandlers.forEach(handler => {
               handler(ds_factor, ss)
             })
-            this.#dataSegmentsRequested.set(ds_factor + ':' + ss, true)
+            this._dataSegmentsRequested.set(ds_factor + ':' + ss, true)
           }
         }
       }

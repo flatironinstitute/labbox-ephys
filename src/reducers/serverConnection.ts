@@ -23,7 +23,7 @@ const isSetWebsocketStatusAction = (x: any): x is SetWebsocketStatusAction => (
 
 export type State = ServerConnectionState
 export type Action = SetWebsocketStatusAction | ReportInitialLoadCompleteAction
-const initialState = {
+export const initialState = {
     initialLoadComplete: false,
     websocketStatus: 'pending'
 }

@@ -102,26 +102,26 @@ export const isBrush = (x: any): x is Brush => {
 
 
 export class CanvasPainter {
-    #exportingFigure: boolean = false
-    #context2D: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
-    #pixelWidth: number
-    #pixelHeight: number
-    #primaryContext2D: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
-    #offscreenCanvas: OffscreenCanvas | null = null
-    #transformMatrix: TransformationMatrix
+    _exportingFigure: boolean = false
+    _context2D: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+    _pixelWidth: number
+    _pixelHeight: number
+    _primaryContext2D: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+    _offscreenCanvas: OffscreenCanvas | null = null
+    _transformMatrix: TransformationMatrix
     constructor(context2d: Context2D, pixelWidth: number, pixelHeight: number, transformMatrix: TransformationMatrix ) {
-        this.#context2D = context2d
-        this.#primaryContext2D = context2d
-        this.#pixelWidth = pixelWidth
-        this.#pixelHeight = pixelHeight
-        this.#transformMatrix = transformMatrix
+        this._context2D = context2d
+        this._primaryContext2D = context2d
+        this._pixelWidth = pixelWidth
+        this._pixelHeight = pixelHeight
+        this._transformMatrix = transformMatrix
     }
     // Return a new, transformed painter
     transform(m: TransformationMatrix): CanvasPainter {
         // todo: figure out whether this should be left or right-multiplication
         try {
-            const m2 = toTransformationMatrix(multiply(matrix(this.#transformMatrix), matrix(m)))
-            return new CanvasPainter(this.#context2D, this.#pixelWidth, this.#pixelHeight, m2)
+            const m2 = toTransformationMatrix(multiply(matrix(this._transformMatrix), matrix(m)))
+            return new CanvasPainter(this._context2D, this._pixelWidth, this._pixelHeight, m2)
         }
         catch(err) {
             console.warn('Problem transforming painter:', err)
@@ -130,18 +130,18 @@ export class CanvasPainter {
     }
     useOffscreenCanvas(W: number, H: number) {
         const c = new OffscreenCanvas(W, H)
-        this.#offscreenCanvas = c
+        this._offscreenCanvas = c
         const cc = c.getContext('2d')
         if (!cc) throw Error('Unexpected')
-        this.#context2D = cc
+        this._context2D = cc
     }
     transferOffscreenToPrimary() {
-        const c = this.#offscreenCanvas
+        const c = this._offscreenCanvas
         if (!c) throw Error('No offscreen canvas')
         const image = c.transferToImageBitmap()
-        this.#context2D = this.#primaryContext2D
-        this.#context2D.clearRect(0, 0, image.width, image.height)
-        this.#context2D.drawImage(image, 0, 0)
+        this._context2D = this._primaryContext2D
+        this._context2D.clearRect(0, 0, image.width, image.height)
+        this._context2D.drawImage(image, 0, 0)
     }
     // TODO: Delete these default methods?
     getDefaultPen() {
@@ -157,27 +157,27 @@ export class CanvasPainter {
         return new PainterPath()
     }
     setExportingFigure(val: boolean) {
-        this.#exportingFigure = val
+        this._exportingFigure = val
     }
     exportingFigure() {
-        return this.#exportingFigure
+        return this._exportingFigure
     }
     clear(): void {
-        this.clearRect({xmin: 0, xmax: this.#pixelWidth, ymin: 0, ymax: this.#pixelHeight});
+        this.clearRect({xmin: 0, xmax: this._pixelWidth, ymin: 0, ymax: this._pixelHeight});
     }
     clearRect(rect: RectangularRegion) {
         this.fillRect(rect, {color: 'transparent'})
     }
     ctxSave() {
-        this.#context2D.save();
+        this._context2D.save();
     }
     ctxRestore() {
-        this.#context2D.restore();
+        this._context2D.restore();
     }
     wipe(): void {
-        // const pr = transformRect(this.#transformMatrix, this.#fullDimensions)
-        // this.#context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
-        this.#context2D.clearRect(0, 0, this.#pixelWidth, this.#pixelHeight)
+        // const pr = transformRect(this._transformMatrix, this._fullDimensions)
+        // this._context2D.clearRect(pr.xmin, pr.ymin, getWidth(pr), getHeight(pr));
+        this._context2D.clearRect(0, 0, this._pixelWidth, this._pixelHeight)
     }
     // TODO: REWRITE THIS ctxTranslate
     ctxTranslate(dx: number | Vec2, dy: number | undefined = undefined) {
@@ -189,36 +189,36 @@ export class CanvasPainter {
         //     let tmp = dx;
         //     dx = tmp[0];
         //     dy = tmp[1];
-        //     this.#context2D.translate(dx, dy);
+        //     this._context2D.translate(dx, dy);
         // }
         // if (typeof dx === 'object') {
         //     throw Error('Bad signature: dx object and dy not undef: ctxTranslate')
         // }
-        // this.#context2D.translate(dx, dy);
+        // this._context2D.translate(dx, dy);
     }
     ctxRotate(theta: number) {
-        this.#context2D.rotate(theta)
+        this._context2D.rotate(theta)
     }
     fillRect(rect: RectangularRegion, brush: Brush) {
-        const pr = transformRect(this.#transformMatrix, rect) // covert rect to pixelspace
+        const pr = transformRect(this._transformMatrix, rect) // covert rect to pixelspace
         // console.log(`Transformed ${JSON.stringify(rect)} to ${JSON.stringify(pr)}`)
         // console.log(`Measure (pixelspace) width: ${getWidth(pr)}, height: ${getHeight(pr)}`)
-        this.#context2D.save()
-        applyBrush(this.#context2D, brush)
+        this._context2D.save()
+        applyBrush(this._context2D, brush)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
-        this.#context2D.fillRect(Math.min(pr.xmin, pr.xmax), Math.min(pr.ymin, pr.ymax), getWidth(pr), getHeight(pr))
-        this.#context2D.restore()
+        this._context2D.fillRect(Math.min(pr.xmin, pr.xmax), Math.min(pr.ymin, pr.ymax), getWidth(pr), getHeight(pr))
+        this._context2D.restore()
     }
     drawRect(rect: RectangularRegion, pen: Pen) {
-        const pr = transformRect(this.#transformMatrix, rect) // convert rect to pixelspace
-        this.#context2D.save()
-        applyPen(this.#context2D, pen)
+        const pr = transformRect(this._transformMatrix, rect) // convert rect to pixelspace
+        this._context2D.save()
+        applyPen(this._context2D, pen)
         // NOTE: Due to the pixelspace-conversion axis flip, the height should be negative.
-        this.#context2D.strokeRect(Math.min(pr.xmin, pr.xmax), Math.min(pr.ymin, pr.ymax), getWidth(pr), getHeight(pr))
-        this.#context2D.restore()
+        this._context2D.strokeRect(Math.min(pr.xmin, pr.xmax), Math.min(pr.ymin, pr.ymax), getWidth(pr), getHeight(pr))
+        this._context2D.restore()
     }
     getEllipseFromBoundingRect(boundingRect: RectangularRegion) {
-        const r = transformRect(this.#transformMatrix, boundingRect)
+        const r = transformRect(this._transformMatrix, boundingRect)
         const center = getCenter(r)
         const W = Math.abs(getWidth(r))
         const H = Math.abs(getHeight(r))
@@ -226,28 +226,28 @@ export class CanvasPainter {
     }
     fillEllipse(boundingRect: RectangularRegion, brush: Brush) {
         const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}
-        // this.#context2D.save()
-        this.#context2D.fillStyle = toColorStr(brush.color)
-        this.#context2D.beginPath()
-        this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
-        this.#context2D.fill()
-        // this.#context2D.restore()
+        // this._context2D.save()
+        this._context2D.fillStyle = toColorStr(brush.color)
+        this._context2D.beginPath()
+        this._context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
+        this._context2D.fill()
+        // this._context2D.restore()
     }
     drawEllipse(boundingRect: RectangularRegion, pen: Pen) {
         const {center, W, H} = {...this.getEllipseFromBoundingRect(boundingRect)}
-        this.#context2D.save()
-        applyPen(this.#context2D, pen)
+        this._context2D.save()
+        applyPen(this._context2D, pen)
         // console.log(`Attempting to draw ellipse: ${center[0]} ${center[1]} ${W/2} ${H/2}`)
-        this.#context2D.beginPath()
-        this.#context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
-        this.#context2D.stroke()
-        this.#context2D.restore()
+        this._context2D.beginPath()
+        this._context2D.ellipse(center[0], center[1], W/2, H/2, 0, 0, 2 * Math.PI)
+        this._context2D.stroke()
+        this._context2D.restore()
     }
     drawPath(painterPath: PainterPath, pen: Pen) {
-        this.#context2D.save()
-        applyPen(this.#context2D, pen)
-        painterPath._draw(this.#context2D, this.#transformMatrix)
-        this.#context2D.restore()
+        this._context2D.save()
+        applyPen(this._context2D, pen)
+        painterPath._draw(this._context2D, this._transformMatrix)
+        this._context2D.restore()
     }
     drawLine(x1: number, y1: number, x2: number, y2: number, pen: Pen) {
         const pPath = new PainterPath();
@@ -256,14 +256,14 @@ export class CanvasPainter {
         this.drawPath(pPath, pen);
     }
     drawText(rect: RectangularRegion, alignment: TextAlignment, font: Font, pen: Pen, brush: Brush, txt: string) {
-        const config = getTextAlignmentConfig(rect, alignment, this.#transformMatrix)
-        this.#context2D.save()
-        applyFont(this.#context2D, font)
-        applyTextAlignment(this.#context2D, config)
-        applyPen(this.#context2D, pen);
-        applyBrush(this.#context2D, brush)
-        this.#context2D.fillText(txt, config.x, config.y);
-        this.#context2D.restore()
+        const config = getTextAlignmentConfig(rect, alignment, this._transformMatrix)
+        this._context2D.save()
+        applyFont(this._context2D, font)
+        applyTextAlignment(this._context2D, config)
+        applyPen(this._context2D, pen);
+        applyBrush(this._context2D, brush)
+        this._context2D.fillText(txt, config.x, config.y);
+        this._context2D.restore()
     }
     // in future we may want to implement this:
     // this.createImageData = function(W, H) {
@@ -311,13 +311,13 @@ interface PainterPathAction {
 }
 
 export class PainterPath {
-    #actions: PainterPathAction[] = []
+    _actions: PainterPathAction[] = []
     moveTo(x: number | Vec2, y: number | undefined = undefined): void {
         if (isVec2(x)) {
             return this.moveTo(x[0], x[1])
         }
         if (!isNumber(y)) throw Error('unexpected')
-        this.#actions.push({
+        this._actions.push({
             name: 'moveTo',
             x,
             y
@@ -328,7 +328,7 @@ export class PainterPath {
             return this.lineTo(x[0], x[1])
         }
         if (!isNumber(y)) throw Error('unexpected')
-        this.#actions.push({
+        this._actions.push({
             name: 'lineTo',
             x,
             y
@@ -354,7 +354,7 @@ export class PainterPath {
         const A = matrix(tmatrix)
         // if the paths were long it might be more efficient to make the vectors a wide matrix
         // ...but honestly it's probably so small a thing for what we do that it matters not
-        return this.#actions.map((a) => {
+        return this._actions.map((a) => {
             const x = matrix([a.x, a.y, 1])
             const b = multiply(A, x).toArray() as number[]
             return {...a, x: b[0], y: b[1] }

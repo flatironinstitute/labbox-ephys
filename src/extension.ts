@@ -1,9 +1,6 @@
-import { Dispatch } from "react"
 import CalculationPool from "./extensions/common/CalculationPool"
 import { ExtensionsConfig } from './extensions/reducers'
-import { RootAction } from "./reducers"
 import { DocumentInfo } from './reducers/documentInfo'
-import { RegisterRecordingViewAction, RegisterSortingUnitMetricAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from './reducers/extensionContext'
 import { Recording } from "./reducers/recordings"
 import { Sorting } from "./reducers/sortings"
 
@@ -96,47 +93,13 @@ export interface SortingUnitMetricPlugin extends MetricPlugin {
     }
 }
 
-export class ExtensionContext {
-    constructor(private dispatch: Dispatch<RootAction>) {
-    }
-    registerSortingView(V: SortingViewPlugin) {
-        const a: RegisterSortingViewAction = {
-            type: 'REGISTER_SORTING_VIEW',
-            sortingView: V
-        }
-        this.dispatch(a)
-    }
-    unregisterSortingView(name: string) {
-        // todo
-    }
-    registerSortingUnitView(V: SortingUnitViewPlugin) {
-        const a: RegisterSortingUnitViewAction = {
-            type: 'REGISTER_SORTING_UNIT_VIEW',
-            sortingUnitView: V
-        }
-        this.dispatch(a)
-    }
-    unregisterSortingUnitView(name: string) {
-        // todo
-    }
-    registerRecordingView(V: RecordingViewPlugin) {
-        const a: RegisterRecordingViewAction = {
-            type: 'REGISTER_RECORDING_VIEW',
-            recordingView: V
-        }
-        this.dispatch(a)
-    }
-    unregisterRecordingView(name: string) {
-        // todo
-    }
-    registerSortingUnitMetric(M: SortingUnitMetricPlugin) {
-        const a: RegisterSortingUnitMetricAction = {
-            type: 'REGISTER_SORTING_UNIT_METRIC',
-            sortingUnitMetric: M
-        }
-        this.dispatch(a)
-    }
-    unregisterSortingUnitMetric(name: string) {
-        // todo
-    }
+export interface ExtensionContext {
+    registerSortingView: (V: SortingViewPlugin) => void
+    unregisterSortingView: (name: string) => void
+    registerSortingUnitView: (V: SortingUnitViewPlugin) => void
+    unregisterSortingUnitView: (name: string) => void
+    registerRecordingView: (V: RecordingViewPlugin) => void
+    unregisterRecordingView: (name: string) => void
+    registerSortingUnitMetric: (M: SortingUnitMetricPlugin) => void
+    unregisterSortingUnitMetric: (name: string) => void
 }
