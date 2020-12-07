@@ -1,17 +1,17 @@
 import { Grid } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
 import AverageWaveform_rv from '../extensions/averagewaveforms/AverageWaveform_ReactVis';
-import CalculationPool from '../extensions/common/CalculationPool';
+import ClientSidePlot from '../extensions/common/ClientSidePlot';
 import Correlogram_rv from '../extensions/correlograms/Correlogram_ReactVis';
 import DriftFeatures_rv from '../extensions/devel/IndividualUnits/DriftFeatures_rv';
 import PCAFeatures_rv from '../extensions/devel/IndividualUnits/PCAFeatures_rv';
+import { CalculationPool, HitherContext } from '../extensions/extensionInterface';
 import { Recording } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
-import ClientSidePlot from './ClientSidePlot';
 
 const SimilarUnit: FunctionComponent<{
-    sorting: Sorting, recording: Recording, unitId: number, compareUnitId: number, width: number, calculationPool: CalculationPool
-}> = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
+    sorting: Sorting, recording: Recording, unitId: number, compareUnitId: number, width: number, calculationPool: CalculationPool, hither: HitherContext
+}> = ({sorting, recording, unitId, compareUnitId, width, calculationPool, hither}) => {
     return (
         <div style={{width}}>
             <div>
@@ -35,6 +35,7 @@ const SimilarUnit: FunctionComponent<{
                             useJobCache={true}
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
+                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -57,6 +58,7 @@ const SimilarUnit: FunctionComponent<{
                             useJobCache={true}
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
+                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -79,6 +81,7 @@ const SimilarUnit: FunctionComponent<{
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             title=""
+                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -101,6 +104,7 @@ const SimilarUnit: FunctionComponent<{
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             title=""
+                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -123,6 +127,7 @@ const SimilarUnit: FunctionComponent<{
                             requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             title=""
+                            hither={hither}
                         />
                     </Grid>
                 </Grid>

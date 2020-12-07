@@ -1,5 +1,5 @@
 import React from 'react';
-import { SortingUnitMetricPlugin } from '../../../../extension';
+import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
 const UnitSnrs = React.memo((a: {record: number}) => {
     return (

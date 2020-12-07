@@ -11,7 +11,6 @@ export interface MetricPlugin {
     hitherFnName: string
     metricFnParams: {[key: string]: any}
     hitherConfig: {
-        wait: boolean,
         useClientCache: boolean,
         newHitherJobMethod?: boolean,
         auto_substitute_file_objects?: boolean,

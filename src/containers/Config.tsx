@@ -4,7 +4,6 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { default as React, Dispatch, Fragment, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import ConfigFrankLabDataJoint from '../extensions/frankLabDataJoint/containers/ConfigFrankLabDataJoint';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { RootAction, RootState } from '../reducers';
 import ConfigComputeResource from './ConfigComputeResource';
@@ -47,12 +46,6 @@ const Config: FunctionComponent<Props> = ({ extensionsConfig }) => {
     label: 'Compute Resource',
     component: <ConfigComputeResource />
   })
-  if (extensionsConfig.enabled.frankLabDataJoint) {
-    tabs.push({
-      label: 'FrankLab DataJoint',
-      component: <ConfigFrankLabDataJoint />
-    })
-  }
   tabs.push({
     label: 'Extensions',
     component: <ConfigExtensions />

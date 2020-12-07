@@ -1,4 +1,4 @@
-import { ExtensionContext } from "../../../../extension"
+import { ExtensionContext } from "../../../extensionInterface"
 import { default as EventCountPlugin } from './EventCount'
 import { default as FiringRatePlugin } from './FiringRate'
 import { default as IsiViolationsPlugin } from './IsiViolations'

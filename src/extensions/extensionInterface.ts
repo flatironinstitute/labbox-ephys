@@ -1,8 +1,42 @@
-import CalculationPool from "./extensions/common/CalculationPool"
-import { ExtensionsConfig } from './extensions/reducers'
-import { DocumentInfo } from './reducers/documentInfo'
-import { Recording } from "./reducers/recordings"
-import { Sorting } from "./reducers/sortings"
+export interface Sorting {
+    sortingId: string
+    sortingLabel: string
+    sortingPath: string
+    sortingObject: any
+    recordingId: string
+    recordingPath: string
+    recordingObject: any
+    externalUnitMetricsUri?: string
+
+    sortingInfo?: SortingInfo
+    externalUnitMetrics?: ExternalSortingUnitMetric[]
+    unitCuration?: {[key: string]: {labels: Label[]}}
+}
+
+export type Label = string
+
+export type ExternalSortingUnitMetric = {name: string, label: string, tooltip?: string, data: {[key: string]: number}}
+
+export interface SortingInfo {
+    unit_ids: number[]
+}
+
+export interface RecordingInfo {
+    sampling_frequency: number
+    channel_ids: number[]
+    channel_groups: number[]
+    geom: (number[])[]
+    num_frames: number
+}
+
+export interface Recording {
+    recordingId: string
+    recordingLabel: string
+    recordingObject: any
+    recordingPath: string
+    recordingInfo: RecordingInfo
+    fetchingRecordingInfo?: boolean // internal
+}
 
 export interface LabboxPlugin {
     name: string
@@ -21,13 +55,39 @@ export interface MetricPlugin extends LabboxPlugin {
     
 }
 
+interface HitherJobOpts {
+    useClientCache?: boolean,
+    auto_substitute_file_objects?: boolean,
+    hither_config?: any,
+    newHitherJobMethod?: boolean,
+    job_handler_name?: string,
+    required_files?: any
+}
+
+export interface HitherJob {
+    jobId: string | null
+    functionName: string
+    kwargs: {[key: string]: any}
+    opts: HitherJobOpts
+    clientJobId: string
+    result: any
+    runtime_info: {[key: string]: any}
+    error_message: string | null
+    status: string
+    timestampStarted: number
+    timestampFinished: number | null
+    wait: () => Promise<any>
+}
+
+export interface HitherContext {
+    createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => HitherJob
+}
+
 export interface SortingViewProps {
     sorting: Sorting
     recording: Recording
     selectedUnitIds: {[key: string]: boolean}
-    extensionsConfig: ExtensionsConfig
     focusedUnitId: number | null
-    documentInfo: DocumentInfo
     onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
     onAddUnitLabel: (a: {
         sortingId: string;
@@ -43,10 +103,15 @@ export interface SortingViewProps {
     readOnly: boolean | null
     sortingUnitViews: {[key: string]: SortingUnitViewPlugin} // maybe this doesn't belong here
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
+    hither: HitherContext
 }
 
 export interface SortingViewPlugin extends ViewPlugin {
     component: React.ComponentType<SortingViewProps>
+}
+
+export interface CalculationPool {
+    requestSlot: () => Promise<{complete: () => void}>
 }
 
 export interface SortingUnitViewProps {
@@ -56,6 +121,7 @@ export interface SortingUnitViewProps {
     calculationPool: CalculationPool
     selectedSpikeIndex: number | null
     onSelectedSpikeIndexChanged: (index: number | null) => void
+    hither: HitherContext
 }
 
 export interface SortingUnitViewPlugin extends ViewPlugin {
@@ -64,6 +130,7 @@ export interface SortingUnitViewPlugin extends ViewPlugin {
 
 export interface RecordingViewProps {
     recording: Recording
+    hither: HitherContext
 }
 
 export interface RecordingViewPlugin extends ViewPlugin {

@@ -1,5 +1,5 @@
 import { Dispatch } from "react"
-import { ExtensionContext, RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from "./extension"
+import { ExtensionContext, RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from "./extensions/extensionInterface"
 import { RootAction } from "./reducers"
 import { RegisterRecordingViewAction, RegisterSortingUnitMetricAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from "./reducers/extensionContext"
 

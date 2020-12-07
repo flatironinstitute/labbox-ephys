@@ -1,5 +1,5 @@
 import { Reducer } from 'react'
-import { RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extension'
+import { RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface'
 
 export interface State {
     sortingViews: {[key: string]: SortingViewPlugin},
@@ -47,19 +47,6 @@ const isRegisterSortingUnitMetricAction = (x: any): x is RegisterSortingUnitMetr
 )
 
 export type Action = RegisterSortingViewAction | RegisterSortingUnitViewAction | RegisterRecordingViewAction | RegisterSortingUnitMetricAction
-
-const isArray = <T>(x: any): x is T[] => {
-    return (Array.isArray(x))
-}
-
-export const sortByPriority = <T extends {priority?: number}>(x: T[] | {[key: string]: T}): T[] => {
-    if (isArray<T>(x)) {
-        return x.sort((a, b) => ((b.priority || 0) - (a.priority || 0)))
-    }
-    else {
-        return sortByPriority(Object.values(x))
-    }
-}
 
 // the reducer
 const extensionContext: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

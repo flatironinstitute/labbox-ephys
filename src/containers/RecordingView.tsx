@@ -7,11 +7,11 @@ import { setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
-import { RecordingViewPlugin } from '../extension';
+import { HitherContext, RecordingViewPlugin } from '../extensions/extensionInterface';
+import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
-import { sortByPriority } from '../reducers/extensionContext';
 import { Recording, RecordingInfo } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
 import { Expandable } from './SortingView';
@@ -20,7 +20,8 @@ interface StateProps {
   recordingViews: {[key: string]: RecordingViewPlugin},
   recording: Recording,
   sortings: Sorting[],
-  documentInfo: DocumentInfo
+  documentInfo: DocumentInfo,
+  hither: HitherContext
 }
 
 interface DispatchProps {
@@ -33,7 +34,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, recordingViews }) => {
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, recordingViews, hither }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const effect = async () => {
@@ -41,7 +42,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
     const rec = recording;
     if (!rec.recordingInfo) {
       try {
-        const info = await getRecordingInfo({ recordingObject: rec.recordingObject });
+        const info = await getRecordingInfo({ recordingObject: rec.recordingObject, hither });
         onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
       }
       catch (err) {
@@ -79,6 +80,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
             <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false}>
               <rv.component
                 recording={recording}
+                hither={hither}
               />
             </Expandable>
           ))
@@ -95,7 +97,8 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   recordingViews: state.extensionContext.recordingViews,
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
-  documentInfo: state.documentInfo
+  documentInfo: state.documentInfo,
+  hither: state.hitherContext
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

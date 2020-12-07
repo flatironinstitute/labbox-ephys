@@ -1,7 +1,7 @@
 // LABBOX-EXTENSION: example
 
 import React, { FunctionComponent } from 'react';
-import { ExtensionContext, RecordingViewProps } from "../../extension";
+import { ExtensionContext, RecordingViewProps } from "../extensionInterface";
 
 // Use recordingview snippet to insert a recording view
 const ExampleRecordingView: FunctionComponent<RecordingViewProps> = ({recording}) => {

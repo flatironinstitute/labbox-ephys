@@ -1,19 +1,5 @@
 import { Reducer } from 'react'
-import { ADD_HITHER_JOB, UPDATE_HITHER_JOB } from '../actions/hitherJobs'
-
-export interface HitherJob {
-    jobId: string
-    functionName: string
-    kwargs: {[key: string]: any}
-    opts: {[key: string]: any}
-    clientJobId: string
-    result: any
-    runtime_info: {[key: string]: any}
-    error_message: string | null
-    status: string
-    timestampStarted: number
-    timestampFinished: number
-}
+import { HitherJob } from '../extensions/extensionInterface'
 
 export interface HitherJobUpdate {
 
@@ -24,7 +10,7 @@ interface AddHitherJobAction {
     job: HitherJob
 }
 const isAddHitherJobAction = (x: any): x is AddHitherJobAction => (
-    x.type === ADD_HITHER_JOB
+    x.type === 'ADD_HITHER_JOB'
 )
 
 interface UpdateHitherJobAction {
@@ -33,7 +19,7 @@ interface UpdateHitherJobAction {
     update: HitherJobUpdate
 }
 const isUpdateHitherJobAction = (x: any): x is UpdateHitherJobAction => (
-    x.type === UPDATE_HITHER_JOB
+    x.type === 'UPDATE_HITHER_JOB'
 )
 
 export type State = HitherJob[]

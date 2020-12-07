@@ -1,5 +1,4 @@
 import { Reducer } from 'react'
-import { SET_EXTENSION_ENABLED } from '../actions'
 
 export interface ExtensionsConfig {
     enabled: {
@@ -16,7 +15,7 @@ export interface SetExtensionEnabledAction {
     value: boolean
 }
 const isSetExtensionEnabledAction = (x: any): x is SetExtensionEnabledAction => (
-    x.type === SET_EXTENSION_ENABLED
+    x.type === 'SET_EXTENSION_ENABLED'
 )
 
 export type State = ExtensionsConfig

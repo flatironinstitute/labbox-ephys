@@ -1,3 +1,7 @@
+const createCalculationPool = ({maxSimultaneous, method='queue'}) => {
+    return new CalculationPool({maxSimultaneous, method})
+}
+
 class CalculationPool {
     constructor({maxSimultaneous, method='queue'}) {
         this._maxSimultaneous = maxSimultaneous;
@@ -50,4 +54,4 @@ class CalculationPool {
     }
 }
 
-export default CalculationPool
+export default createCalculationPool

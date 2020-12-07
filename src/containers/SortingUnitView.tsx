@@ -5,11 +5,10 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SimilarUnit from '../components/SimilarUnit';
-import { SortingUnitViewPlugin } from '../extension';
-import CalculationPool from '../extensions/common/CalculationPool';
+import createCalculationPool from '../extensions/common/createCalculationPool';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
+import { CalculationPool, HitherContext, SortingUnitViewPlugin } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
-import { createHitherJob } from '../hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -22,6 +21,7 @@ interface StateProps {
   recording: Recording,
   extensionsConfig: ExtensionsConfig,
   documentInfo: DocumentInfo
+  hither: HitherContext
 }
 
 interface DispatchProps {
@@ -34,9 +34,9 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeMeProps
 
-const calculationPool = new CalculationPool({ maxSimultaneous: 6 });
+const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size, sortingUnitViews }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size, sortingUnitViews, hither }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
@@ -45,11 +45,11 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
   const effect = async () => {
     if (sortingInfoStatus === null) {
       setSortingInfoStatus('computing');
-      const sortingInfo = await createHitherJob(
+      const sortingInfo = await hither.createHitherJob(
         'createjob_get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
-      );
+        { useClientCache: true, newHitherJobMethod: true}
+      ).wait() as SortingInfo;
       setSortingInfo(sortingInfo);
       setSortingInfoStatus('finished');
     }
@@ -79,6 +79,7 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
             width={width}
             sortingInfo={sortingInfo}
             sortingUnitViews={sortingUnitViews}
+            hither={hither}
           />
         </Grid>
         <Grid item key={2}>
@@ -89,6 +90,7 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
               unitId={unitId}
               width={width}
               calculationPool={calculationPool}
+              hither={hither}
             />
           </Expandable>
         </Grid>
@@ -98,8 +100,8 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
 }
 
 const SimilarUnitsView: FunctionComponent<{
-  sorting: Sorting, recording: Recording, unitId: number, width: number, calculationPool: CalculationPool
-}> = ({ sorting, recording, unitId, width, calculationPool }) => {
+  sorting: Sorting, recording: Recording, unitId: number, width: number, calculationPool: CalculationPool, hither: HitherContext
+}> = ({ sorting, recording, unitId, width, calculationPool, hither }) => {
   const [calculationStatus, setCalculationStatus] = useState('pending');
   const [similarUnits, setSimilarUnits] = useState<{unit_id: number}[] | null>(null);
   const [calculationError, setCalculationError] = useState('');
@@ -111,18 +113,17 @@ const SimilarUnitsView: FunctionComponent<{
     if (calculationStatus === 'pending') {
       setCalculationStatus('calculating');
       try {
-        const x = await createHitherJob(
+        const x = await hither.createHitherJob(
           'createjob_get_similar_units',
           {
             sorting_object: sorting.sortingObject,
             recording_object: recording.recordingObject
           },
           {
-            wait: true,
             useClientCache: true,
             newHitherJobMethod: true
           }
-        )
+        ).wait()
         setSimilarUnits(x[unitId]);
         setCalculationStatus('finished');
       }
@@ -171,6 +172,7 @@ const SimilarUnitsView: FunctionComponent<{
               compareUnitId={unitId}
               calculationPool={calculationPool}
               width={width}
+              hither={hither}
             />
           </Grid>
         ))
@@ -216,7 +218,8 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
-    documentInfo: state.documentInfo
+    documentInfo: state.documentInfo,
+    hither: state.hitherContext
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

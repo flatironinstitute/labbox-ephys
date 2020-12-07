@@ -1,5 +1,5 @@
 import React from 'react';
-import { SortingUnitMetricPlugin } from '../../../../extension';
+import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
 const FiringRate = React.memo((a: {record: {rate: number}}) => {
     return (

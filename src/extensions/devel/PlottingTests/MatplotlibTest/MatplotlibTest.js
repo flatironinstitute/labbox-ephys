@@ -1,5 +1,5 @@
-import React from 'react'
-import MatplotlibPlot from '../../components/MatplotlibPlot';
+import React from 'react';
+import MatplotlibPlot from '../MatplotlibPlot';
 
 const MatplotlibTest = () => {
     return (

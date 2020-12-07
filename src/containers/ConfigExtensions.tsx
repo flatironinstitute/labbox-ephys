@@ -1,7 +1,7 @@
 import { Checkbox } from '@material-ui/core';
 import React, { Dispatch, Fragment, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { LabboxPlugin } from '../extension';
+import { LabboxPlugin } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { RootAction, RootState } from '../reducers';
 import { State as ExtensionContext } from '../reducers/extensionContext';

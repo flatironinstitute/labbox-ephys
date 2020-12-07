@@ -1,21 +1,39 @@
 import { Button, Grid } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { FunctionComponent, useState } from 'react';
+import { CalculationPool, HitherContext, Sorting } from '../extensionInterface';
 import ClientSidePlot from './ClientSidePlot';
 
-const isSelected = (query, selections = {}) => (selections[query]);
+const isSelected = (query: string, selections: {[key: string]: boolean} = {}) => (selections[query] ? true : false);
 
-const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
+interface Props {
+    sorting: Sorting
+    onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
+    selections: {[key: string]: boolean}
+    focus: number | null
+    dataFunctionName: string
+    dataFunctionArgsCallback: any
+    boxSize?: { width: number, height: number}
+    plotComponent: React.FunctionComponent<any>
+    plotComponentArgsCallback: any
+    newHitherJobMethod: boolean
+    useJobCache?: boolean
+    calculationPool: CalculationPool | undefined
+    hither: HitherContext
+}
+
+const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections, focus,
     dataFunctionName, dataFunctionArgsCallback, // fix this
     boxSize = { width: 200, height: 200},
     plotComponent, plotComponentArgsCallback, // fix this
     newHitherJobMethod = false,
     useJobCache = false,
-    calculationPool = null
+    calculationPool = undefined,
+    hither
 }) => {
         const maxUnitsVisibleIncrement = 60;
         const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
 
-        let unit_ids = sorting.sortingInfo.unit_ids;
+        let unit_ids: number[] = sorting.sortingInfo ? sorting.sortingInfo.unit_ids : [];
         let showExpandButton = false;
         if (unit_ids.length > maxUnitsVisible) {
             unit_ids = unit_ids.slice(0, maxUnitsVisible);
@@ -30,7 +48,7 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                             <div className='plotWrapperStyle'
                             >
                                 <div
-                                    className={isSelected(unitId, selections)
+                                    className={isSelected(unitId + '', selections)
                                         ? (unitId === focus)
                                             ? 'plotFocusedStyle'
                                             : 'plotSelectedStyle'
@@ -48,8 +66,9 @@ const PlotGrid = ({ sorting, onUnitClicked, selections, focus,
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
                                         useJobCache={useJobCache}
                                         newHitherJobMethod={newHitherJobMethod}
-                                        jobHandlerName={"default"}
                                         calculationPool={calculationPool}
+                                        title=""
+                                        hither={hither}
                                     />
                                 </div>
                             </div>

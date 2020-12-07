@@ -1,8 +1,8 @@
 // LABBOX-EXTENSION: electrodegeometry
 
 import React, { FunctionComponent, useState } from 'react';
-import ElectrodeGeometryWidget from '../../components/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
-import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../../extension";
+import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
+import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
 const zipElectrodes = (locations: number[][], ids: number[]) => {
     if (locations && ids && ids.length !== locations.length) throw Error('Electrode ID count does not match location count.')
@@ -32,10 +32,11 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     );
 }
 
-const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording}) => {
+const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, hither}) => {
     return (
         <ElectrodeGeometryRecordingView
             recording={recording}
+            hither={hither}
         />
     )
 }

@@ -1,7 +1,8 @@
-import { sleepMsec } from "../../hither/createHitherJob"
+import { funcToTransform } from "../../CanvasWidget"
 import { CanvasPainter } from "../../CanvasWidget/CanvasPainter"
 import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../../CanvasWidget/CanvasWidgetLayer"
 import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../../CanvasWidget/Geometry"
+import { sleepMsec } from "../../common/misc"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
@@ -69,19 +70,6 @@ const onPaint = async (painter: CanvasPainter, layerProps: TimeWidgetLayerProps,
         painter.transferOffscreenToPrimary()
         if (completenessFactor === 1) break
     }
-}
-
-export const funcToTransform = (transformation: (p: Vec2) => Vec2): TransformationMatrix => {
-    const p00 = transformation([0, 0])
-    const p10 = transformation([1, 0])
-    const p01 = transformation([0, 1])
-
-    const M: TransformationMatrix = [
-        [p10[0] - p00[0], p01[0] - p00[0], p00[0]],
-        [p10[1] - p00[1], p01[1] - p00[1], p00[1]],
-        [0, 0, 1]
-    ]
-    return M
 }
 
 const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {

@@ -1,11 +1,7 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { SortingUnitMetricPlugin } from '../../../extension';
-import { getPathQuery } from '../../../kachery';
-import { DocumentInfo } from '../../../reducers/documentInfo';
-import { sortByPriority } from '../../../reducers/extensionContext';
-import { ExternalSortingUnitMetric, Sorting } from '../../../reducers/sortings';
+import { ExternalSortingUnitMetric, Sorting, SortingUnitMetricPlugin } from '../../extensionInterface';
+import sortByPriority from '../../sortByPriority';
 import { sortMetricValues } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
@@ -52,12 +48,13 @@ const UnitCheckbox = React.memo((a: {unitKey: string, selected: boolean, handleC
     );
 });
 
-const UnitIdCell = React.memo((a: {id: string, documentId: string, sortingId: string, feedUri: string}) => {
-    const elmt = (
-        <Link to={`/${a.documentId}/sortingUnit/${a.sortingId}/${a.id}/${getPathQuery({feedUri: a.feedUri})}`}>
-            {a.id}
-        </Link>
-    )
+const UnitIdCell = React.memo((a: {id: string, sortingId: string}) => {
+    // const elmt = (
+    //     <Link to={`/${a.documentId}/sortingUnit/${a.sortingId}/${a.id}/${getPathQuery({feedUri: a.feedUri})}`}>
+    //         {a.id}
+    //     </Link>
+    // )
+    const elmt = a.id
     return <TableCell><span>{elmt}</span></TableCell>
 })
 
@@ -91,7 +88,6 @@ interface Props {
     selectedUnitIds: {[key: string]: boolean}
     sorting: Sorting
     onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
-    documentInfo: DocumentInfo
 }
 
 const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId: number): {[key: string]: boolean} => {
@@ -113,7 +109,7 @@ const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
 }
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { sortingUnitMetrics, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged, documentInfo } = props
+    const { sortingUnitMetrics, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged } = props
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
     const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
     units.sort((a, b) => a - b) // first sort by actual unit number
@@ -171,9 +167,9 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                             />
                             <UnitIdCell
                                 id = {unitId + ''}
-                                documentId = {documentInfo.documentId || 'default'}
+                                // documentId = {documentInfo.documentId || 'default'}
                                 sortingId = {sorting.sortingId}
-                                feedUri = {documentInfo.feedUri || ''}
+                                // feedUri = {documentInfo.feedUri || ''}
                             />
                             <UnitLabelCell
                                 labels = {getLabelsForUnitId(unitId, sorting).join(', ')}

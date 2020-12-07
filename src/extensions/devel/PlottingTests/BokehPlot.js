@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { createHitherJob } from '../hither'
-import { sleep } from '../actions';
 import { CircularProgress } from '@material-ui/core';
+import React, { useEffect, useRef, useState } from 'react';
+import { sleepMsec } from '../../common/misc';
 
-const BokehPlot = ({ functionName, functionArgs }) => {
+const BokehPlot = ({ functionName, functionArgs, hither }) => {
 
     const [status, setStatus] = useState('')
     const [plotData, setPlotData] = useState(null);
@@ -16,12 +15,12 @@ const BokehPlot = ({ functionName, functionArgs }) => {
             let plot_data;
             try {
                 setStatus('calculating');
-                await sleep(50);
-                plot_data = await createHitherJob(
+                await sleepMsec(50);
+                plot_data = await hither.createHitherJob(
                     functionName,
                     functionArgs,
-                    { wait: true, useClientCache: true }
-                )
+                    { useClientCache: true }
+                ).wait()
             }
             catch (err) {
                 console.error(err);

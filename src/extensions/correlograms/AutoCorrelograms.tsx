@@ -1,12 +1,12 @@
 import React from 'react';
-import PlotGrid from '../../components/PlotGrid';
-import { SortingViewProps } from '../../extension';
-import CalculationPool from '../common/CalculationPool';
+import createCalculationPool from '../common/createCalculationPool';
+import PlotGrid from '../common/PlotGrid';
+import { SortingViewProps } from '../extensionInterface';
 import Correlogram_rv from './Correlogram_ReactVis';
 
-const autocorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
+const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selectedUnitIds, focusedUnitId, onUnitClicked }) => {
+const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selectedUnitIds, focusedUnitId, onUnitClicked, hither }) => {
     return (
         <PlotGrid
             sorting={sorting}
@@ -25,6 +25,8 @@ const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, 
             })}
             newHitherJobMethod={true}
             calculationPool={autocorrelogramsCalculationPool}
+            useJobCache={true}
+            hither={hither}
         />
     );
 }

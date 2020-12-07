@@ -1,11 +1,10 @@
 import React, { FunctionComponent } from 'react'
-import ClientSidePlot from "../../components/ClientSidePlot"
-import CalculationPool from "../common/CalculationPool"
-import { Sorting } from "../../reducers/sortings"
+import ClientSidePlot from '../common/ClientSidePlot'
+import { CalculationPool, HitherContext, Sorting } from '../extensionInterface'
 import Correlogram_rv from './Correlogram_ReactVis'
 
 
-const AutocorrelogramSortingUnitView: FunctionComponent<{sorting: Sorting, unitId: number, calculationPool: CalculationPool}> = ({ sorting, unitId, calculationPool }) => {
+const AutocorrelogramSortingUnitView: FunctionComponent<{sorting: Sorting, unitId: number, calculationPool: CalculationPool, hither: HitherContext}> = ({ sorting, unitId, calculationPool, hither }) => {
     return (
         <ClientSidePlot
             dataFunctionName="createjob_fetch_correlogram_plot_data"
@@ -24,6 +23,7 @@ const AutocorrelogramSortingUnitView: FunctionComponent<{sorting: Sorting, unitI
             useJobCache={true}
             requiredFiles={sorting.sortingObject}
             calculationPool={calculationPool}
+            hither={hither}
         />
     )
 }

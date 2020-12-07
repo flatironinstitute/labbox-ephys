@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import CalculationPool from '../../extensions/common/CalculationPool';
-import { createHitherJob } from '../../hither';
+import createCalculationPool from '../../common/createCalculationPool';
+import { HitherContext } from '../../extensionInterface';
 import Mda from './Mda';
 import TimeseriesModelNew from './TimeseriesModelNew';
 import TimeseriesWidgetNew from './TimeseriesWidgetNew';
 
-const timeseriesCalculationPool = new CalculationPool({maxSimultaneous: 4, method: 'stack'})
+const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 4, method: 'stack'})
 
 interface RecordingObject {
 
@@ -15,6 +15,7 @@ interface Props {
     recordingObject: RecordingObject
     width: number
     height: number
+    hither: HitherContext
 }
 
 interface TimeseriesInfo {
@@ -38,6 +39,7 @@ const TimeseriesViewNew = (props: Props) => {
     const [timeseriesInfo, setTimeseriesInfo] = useState<TimeseriesInfo | null>(null)
     const [timeseriesModel, setTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [widgetKey, setWidgetKey] = useState<number>(0)
+    const hither = props.hither
 
     const effect = async () => {
         if (status === 'waiting') {
@@ -45,7 +47,7 @@ const TimeseriesViewNew = (props: Props) => {
             setStatusMessage('Calculating timeseries info');
             let info: TimeseriesInfo
             try {
-                info = await calculateTimeseriesInfo(props.recordingObject)
+                info = await calculateTimeseriesInfo(props.recordingObject, hither)
             }
             catch(err) {
                 setStatusMessage(err.message)
@@ -68,7 +70,7 @@ const TimeseriesViewNew = (props: Props) => {
                     }
                     const slot = await timeseriesCalculationPool.requestSlot();
                     try {
-                        const resultJob = await createHitherJob(
+                        result = await hither.createHitherJob(
                             'get_timeseries_segment',
                             {
                                 recording_object: props.recordingObject,
@@ -77,14 +79,11 @@ const TimeseriesViewNew = (props: Props) => {
                                 segment_size: info.segment_size
                             },
                             {
-                                hither_config: {
-                                },
                                 job_handler_name: 'timeseries',
                                 useClientCache: true,
                                 auto_substitute_file_objects: false
                             }
-                        );
-                        result = await resultJob.wait();
+                        ).wait() as {data_b64: string}
                     }
                     catch(err) {
                         console.error(`Error getting timeseries segment: ds=${ds_factor} num=${segment_num}`);
@@ -136,10 +135,10 @@ const TimeseriesViewNew = (props: Props) => {
     }
 }
 
-const calculateTimeseriesInfo = async (recordingObject: RecordingObject): Promise<TimeseriesInfo> => {
+const calculateTimeseriesInfo = async (recordingObject: RecordingObject, hither: HitherContext): Promise<TimeseriesInfo> => {
     let info: TimeseriesInfo
     try {
-        const infoJob = await createHitherJob(
+        info = await hither.createHitherJob(
             'calculate_timeseries_info',
             { recording_object: recordingObject },
             {
@@ -150,15 +149,14 @@ const calculateTimeseriesInfo = async (recordingObject: RecordingObject): Promis
                 useClientCache: true,
                 auto_substitute_file_objects: false
             }
-        );
-        info = await infoJob.wait();
+        ).wait() as TimeseriesInfo
     }
     catch (err) {
         console.error(err);
         throw Error('Problem calculating timeseries info.')
     }
     if (!info) {
-        throw Error('Unepected problem calculating timeseries info: info is null.')
+        throw Error('Unexpected problem calculating timeseries info: info is null.')
     }
     return info
 }

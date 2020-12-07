@@ -12,11 +12,12 @@ import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
-import { handleHitherJobCreated, handleHitherJobCreationError, handleHitherJobError, handleHitherJobFinished, setApiConnection, sleepMsec } from './hither/createHitherJob';
+import { sleepMsec } from './extensions/common/misc';
 import './index.css';
 import './localStyles.css';
 // reducer
 import rootReducer, { RootState } from './reducers';
+import { handleHitherJobCreated, handleHitherJobCreationError, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
 import registerExtensions from './registerExtensions';
 import Routes from './Routes';
 // service worker (see unregister() below)
@@ -64,6 +65,7 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
 // thunk allows asynchronous actions
 const theStore = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 const extensionContext = extensionContextDispatch(theStore.dispatch)
+setDispatch(theStore.dispatch)
 registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)

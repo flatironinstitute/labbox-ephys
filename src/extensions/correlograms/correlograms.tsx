@@ -1,6 +1,6 @@
 // LABBOX-EXTENSION: correlogram
 
-import { ExtensionContext } from "../../extension";
+import { ExtensionContext } from "../extensionInterface";
 import AutoCorrelograms from "./AutoCorrelograms";
 import AutocorrelogramSortingUnitView from "./AutocorrelogramSortingUnitView";
 import CrossCorrelograms from "./CrossCorrelograms";

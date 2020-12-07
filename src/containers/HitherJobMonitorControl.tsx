@@ -1,11 +1,10 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { setDispatch } from '../hither/createHitherJob';
+import { HitherJob } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
-import { HitherJob } from '../reducers/hitherJobs';
 
 interface StateProps {
     allJobs: HitherJob[],
@@ -18,7 +17,6 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    dispatch: Dispatch<RootAction>
 }
 
 interface OwnProps {
@@ -26,9 +24,8 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const HitherJobMonitorControl: FunctionComponent<Props> = ({ allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, dispatch, documentInfo, websocketStatus }) => {
+const HitherJobMonitorControl: FunctionComponent<Props> = ({ allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, documentInfo, websocketStatus }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
-    setDispatch(dispatch);
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;
     const numErrored = erroredJobs.length;
@@ -51,7 +48,6 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    dispatch
 })
 
 export default connect<StateProps, DispatchProps, OwnProps, RootState>(

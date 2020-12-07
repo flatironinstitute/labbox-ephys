@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { createHitherJob } from '../hither'
-import { sleep } from '../actions';
-import { CircularProgress } from '@material-ui/core';
-import { Box } from '@material-ui/core';
+import { Box, CircularProgress } from '@material-ui/core';
+import React, { useEffect, useRef, useState } from 'react';
+import { sleepMsec } from '../../common/misc';
+import { createHitherJob } from '../hither';
 const mpld3 = require('./mpld3.v0.3.js');
 
 const MatplotlibPlot = ({ functionName, functionArgs }) => {
@@ -18,16 +17,15 @@ const MatplotlibPlot = ({ functionName, functionArgs }) => {
             let plot_data;
             try {
                 setStatus('calculating');
-                await sleep(50)
+                await sleepMsec(50)
                 plot_data = await createHitherJob(
                     functionName,
                     functionArgs,
                     {
                         auto_substitute_file_objects: true,
-                        wait: true,
                         useClientCache: true
                     }
-                )
+                ).wait()
             }
             catch (err) {
                 console.error(err);

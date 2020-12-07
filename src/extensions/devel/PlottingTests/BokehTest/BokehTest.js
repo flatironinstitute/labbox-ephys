@@ -1,13 +1,13 @@
-import React from 'react'
-import BokehPlot from '../../../../components/BokehPlot';
+import React from 'react';
 
 const BokehTest = () => {
     return (
-        <BokehPlot
-            functionName="bokeh_test"
-            functionArgs={{
-            }}
-        />
+        <div>Need hither context to restore this functionality</div>
+        // <BokehPlot
+        //     functionName="bokeh_test"
+        //     functionArgs={{
+        //     }}
+        // />
     );
 }
 

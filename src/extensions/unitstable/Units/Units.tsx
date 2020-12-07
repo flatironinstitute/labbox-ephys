@@ -1,10 +1,9 @@
 
 import { Button, CircularProgress, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import MultiComboBox from '../../../components/MultiComboBox';
-import { SortingUnitMetricPlugin, SortingViewProps } from '../../../extension';
-import { createHitherJob } from '../../../hither';
-import { sortByPriority } from '../../../reducers/extensionContext';
+import MultiComboBox from '../../common/MultiComboBox';
+import { SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
+import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
 
 const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
@@ -54,7 +53,7 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction): Met
 type Label = string
 
 const Units: React.FunctionComponent<SortingViewProps> = (props) => {
-    const { extensionsConfig, sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly, documentInfo, sortingUnitMetrics } = props
+    const { sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly, sortingUnitMetrics, hither } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
@@ -93,7 +92,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         // new request. Add state to cache, dispatch job, then update state as results come back.
         updateMetrics({metricName: metric.name, status: 'executing'})
         try {
-            const data = await createHitherJob(metric.hitherFnName,
+            const data = await hither.createHitherJob(metric.hitherFnName,
                 {
                     sorting_object: sorting.sortingObject,
                     recording_object: recording.recordingObject,
@@ -102,13 +101,14 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
                 {
                     ...metric.hitherConfig,
                     required_files: sorting.sortingObject
-                });
+                }
+            ).wait();
             updateMetrics({metricName: metric.name, status: 'completed', data})
         } catch (err) {
             console.error(err);
             updateMetrics({metricName: metric.name, status: 'error', error: err.message})
         }
-    }, [metrics, sorting.sortingObject, recording.recordingObject]);
+    }, [metrics, sorting.sortingObject, recording.recordingObject, hither]);
 
     useEffect(() => { 
         sortByPriority(sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
@@ -162,7 +162,6 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
                     selectedUnitIds={selectedUnitIds}
                     sorting={sorting}
                     onSelectedUnitIdsChanged={onSelectedUnitIdsChanged}
-                    documentInfo={documentInfo}
                 />
                 {
                     showExpandButton && (

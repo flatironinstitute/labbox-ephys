@@ -1,7 +1,7 @@
 
 // LABBOX-EXTENSION: devel
 
-import { ExtensionContext } from "../../extension";
+import { ExtensionContext } from "../extensionInterface";
 import ElectrodeGeometryTest from './ElectrodeGeometryTest/ElectrodeGeometryTest';
 import IndividualUnits from "./IndividualUnits/IndividualUnits";
 import RawSortingView from "./RawViews/RawSortingView";

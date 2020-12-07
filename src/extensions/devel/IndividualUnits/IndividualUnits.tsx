@@ -1,18 +1,16 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
-import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { SortingViewProps } from '../../../extension';
-import { getPathQuery } from '../../../kachery';
-import CalculationPool from '../../common/CalculationPool';
+import createCalculationPool from '../../common/createCalculationPool';
+import { SortingViewProps } from '../../extensionInterface';
 import IndividualUnit from './IndividualUnit';
 
-const individualUnitsCalculationPool = new CalculationPool({maxSimultaneous: 6});
+const individualUnitsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds, documentInfo, sortingUnitViews }) => {
+const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds, sortingUnitViews, hither }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
-    const { documentId, feedUri, readOnly } = documentInfo || {};
+    // const { documentId, feedUri, readOnly } = documentInfo || {};
     const { sortingInfo } = sorting
     if (!sortingInfo) return <div>No sorting info</div>
 
@@ -57,10 +55,11 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
                             width={width}
                             sortingInfo={sortingInfo}
                             sortingUnitViews={sortingUnitViews}
+                            hither={hither}
                         />
-                        <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
+                        {/* <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
                             More details for unit {id}
-                        </Link>
+                        </Link> */}
                     </Grid>
                 ))
             }

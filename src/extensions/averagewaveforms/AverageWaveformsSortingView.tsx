@@ -1,12 +1,12 @@
 import React from 'react';
-import PlotGrid from '../../components/PlotGrid';
-import { SortingViewProps } from '../../extension';
-import CalculationPool from '../common/CalculationPool';
+import createCalculationPool from '../common/createCalculationPool';
+import PlotGrid from '../common/PlotGrid';
+import { SortingViewProps } from '../extensionInterface';
 import AverageWaveform_rv from './AverageWaveform_ReactVis';
 
-const averageWaveformsCalculationPool = new CalculationPool({maxSimultaneous: 6});
+const averageWaveformsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = ({ sorting, recording, selectedUnitIds, focusedUnitId, onUnitClicked }) => {
+const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = ({ sorting, recording, selectedUnitIds, focusedUnitId, onUnitClicked, hither }) => {
     return (
         <PlotGrid
             sorting={sorting}
@@ -26,6 +26,7 @@ const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = (
             })}
             newHitherJobMethod={true}
             calculationPool={averageWaveformsCalculationPool}
+            hither={hither}
         />
     );
 }

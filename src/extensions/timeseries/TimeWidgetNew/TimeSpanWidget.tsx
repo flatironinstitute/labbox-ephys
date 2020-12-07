@@ -1,9 +1,9 @@
 import React, { FunctionComponent } from 'react';
+import { funcToTransform } from '../../CanvasWidget';
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
 import CanvasWidget from '../../CanvasWidget/CanvasWidget';
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../../CanvasWidget/Geometry';
-import { funcToTransform } from './mainLayer';
 
 
 export interface SpanWidgetInfo {

@@ -1,28 +1,9 @@
 import { Reducer } from 'react'
 import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, REMOVE_UNIT_LABEL, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO } from '../actions'
-
-export interface SortingInfo {
-    unit_ids: number[]
-}
+import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../extensions/extensionInterface'
+export type { ExternalSortingUnitMetric, Label, Sorting, SortingInfo } from '../extensions/extensionInterface'
 
 type Label = string
-
-export type ExternalSortingUnitMetric = {name: string, label: string, tooltip?: string, data: {[key: string]: number}}
-
-export interface Sorting {
-    sortingId: string
-    sortingLabel: string
-    sortingPath: string
-    sortingObject: any
-    recordingId: string
-    recordingPath: string
-    recordingObject: any
-    externalUnitMetricsUri?: string
-
-    sortingInfo?: SortingInfo
-    externalUnitMetrics?: ExternalSortingUnitMetric[]
-    unitCuration?: {[key: string]: {labels: Label[]}}
-}
 
 export interface AddSortingAction {
     type: 'ADD_SORTING'

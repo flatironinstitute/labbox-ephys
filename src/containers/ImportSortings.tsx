@@ -4,7 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { addSorting, sleep } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { createHitherJob } from '../hither';
+import { HitherContext } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -13,7 +13,8 @@ import { Sorting, SortingInfo } from '../reducers/sortings';
 
 interface StateProps {
     recordings: Recording[],
-    documentInfo: DocumentInfo
+    documentInfo: DocumentInfo,
+    hither: HitherContext
 }
 
 interface DispatchProps {
@@ -26,7 +27,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting }) => {
+const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting, hither }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
     const [method, setMethod] = useState('examples');
 
@@ -51,6 +52,7 @@ const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, record
                 recordingObject={recordingObject}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
+                hither={hither}
             />
         )
     }
@@ -63,6 +65,7 @@ const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, record
                 recordingObject={recordingObject}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
+                hither={hither}
             />
         )
     }
@@ -131,7 +134,7 @@ const RadioChoices: FunctionComponent<{ label: string, value: any, onSetValue: (
     );
 }
 
-const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAddSorting: (sorting: Sorting) => void, examplesMode: boolean, recordingId: string, recordingPath: string, recordingObject: any }> = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
+const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAddSorting: (sorting: Sorting) => void, examplesMode: boolean, recordingId: string, recordingPath: string, recordingObject: any, hither: HitherContext }> = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject, hither }) => {
     const [sortingPath, setSortingPath] = useState('');
     const [sortingObject, setSortingObject] = useState<any | null>(null);
     const [sortingLabel, setSortingLabel] = useState('');
@@ -142,34 +145,28 @@ const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAd
     const effect = async () => {
         if ((sortingPath) && (!sortingObject) && (!sortingInfo)) {
             setSortingInfoStatus('calculating');
-            let info;
             try {
                 await sleep(500);
-                const obj = await createHitherJob(
+                const obj = await hither.createHitherJob(
                     'get_sorting_object',
                     {
                         sorting_path: sortingPath,
                         recording_object: recordingObject
                     },
                     {
-                        wait: true,
                         useClientCache: false
                     }
-                )
+                ).wait()
                 setSortingObject(obj);
-                const info = await createHitherJob(
+                const info = await hither.createHitherJob(
                     'get_sorting_info',
                     { sorting_object: obj, recording_object: recordingObject },
                     {
-                        kachery_config: {},
-                        hither_config: {
-                        },
                         job_handler_name: 'default',
-                        wait: true,
                         auto_substitute_file_objects: true,
                         useClientCache: false
                     }
-                )
+                ).wait() as SortingInfo
                 setSortingInfo(info);
                 setSortingInfoStatus('finished');
             }
@@ -422,7 +419,8 @@ function isEmptyObject(x: {[key: string]: any}) {
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     recordings: state.recordings,
-    documentInfo: state.documentInfo
+    documentInfo: state.documentInfo,
+    hither: state.hitherContext
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

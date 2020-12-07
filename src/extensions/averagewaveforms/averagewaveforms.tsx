@@ -1,6 +1,6 @@
 // LABBOX-EXTENSION: averagewaveforms
 
-import { ExtensionContext } from "../../extension";
+import { ExtensionContext } from "../extensionInterface";
 import AverageWaveformsNew from "./AverageWaveformsNew";
 import AverageWaveformSortingUnitView from "./AverageWaveformSortingUnitView";
 import { default as AverageWaveforms } from "./AverageWaveformsSortingView";

@@ -3,8 +3,8 @@ import { Delete } from '@material-ui/icons';
 import React, { Dispatch, FunctionComponent, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import NiceTable from '../components/NiceTable';
+import { HitherJob } from '../extensions/extensionInterface';
 import { RootAction, RootState } from '../reducers';
-import { HitherJob } from '../reducers/hitherJobs';
 
 interface StateProps {
     allJobs: HitherJob[],

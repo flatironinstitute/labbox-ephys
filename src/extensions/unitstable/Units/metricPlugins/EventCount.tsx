@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { SortingUnitMetricPlugin } from '../../../../extension';
+import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
 const EventCount: FunctionComponent<{record: any}> = ({record}) => {
     return (
@@ -28,7 +28,7 @@ const plugin: SortingUnitMetricPlugin = {
         newHitherJobMethod: true
     },
     component: EventCount,
-    getRecordValue: getRecordValue,
+    getRecordValue: getRecordValue
 }
 
 export default plugin

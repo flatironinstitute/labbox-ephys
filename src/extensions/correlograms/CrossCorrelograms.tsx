@@ -1,14 +1,14 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { useState } from 'react';
 import { SizeMeProps, withSize } from 'react-sizeme';
-import ClientSidePlot from '../../components/ClientSidePlot';
-import { SortingViewProps } from '../../extension';
-import CalculationPool from '../common/CalculationPool';
+import ClientSidePlot from '../common/ClientSidePlot';
+import createCalculationPool from '../common/createCalculationPool';
+import { SortingViewProps } from '../extensionInterface';
 import Correlogram_rv from './Correlogram_ReactVis';
 
-const crossCorrelogramsCalculationPool = new CalculationPool({maxSimultaneous: 6});
+const crossCorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds }) => {
+const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds, hither }) => {
     const plotMargin = 2; // in pixels
     const [chosenPlots, setChosenPlots] = useState<number[]>([]);
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -81,6 +81,7 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps>
                                     requiredFiles={sorting.sortingObject}
                                     calculationPool={crossCorrelogramsCalculationPool}
                                     newHitherJobMethod={false}
+                                    hither={hither}
                                 />
                             </div>
                         </Grid>

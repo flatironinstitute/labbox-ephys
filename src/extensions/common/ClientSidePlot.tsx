@@ -1,8 +1,7 @@
 import { Box, CircularProgress } from '@material-ui/core';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
-import CalculationPool from '../extensions/common/CalculationPool';
-import { createHitherJob } from '../hither';
+import { CalculationPool, HitherContext } from '../extensionInterface';
 
 const ClientSidePlot: FunctionComponent<{
     dataFunctionName: string,
@@ -14,11 +13,12 @@ const ClientSidePlot: FunctionComponent<{
     boxSize: {width: number, height: number},
     plotComponent: React.FunctionComponent<any>,
     plotComponentArgs: {[key: string]: any},
-    title: string
+    title: string,
+    hither: HitherContext
 }> = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, requiredFiles,
     calculationPool,
     boxSize = { width: 200, height: 200 },
-    plotComponent, plotComponentArgs, title }) => {
+    plotComponent, plotComponentArgs, title, hither }) => {
     const [calculationStatus, setCalculationStatus] = useState('waitingForVisible');
     const [calculationError, setCalculationError] = useState(null);
     const [plotData, setPlotData] = useState(null);
@@ -31,12 +31,11 @@ const ClientSidePlot: FunctionComponent<{
             setCalculationStatus('calculating');
             let plot_data;
             try {
-                plot_data = await createHitherJob(
+                plot_data = await hither.createHitherJob(
                     dataFunctionName,
                     dataFunctionArgs,
                     {
                         auto_substitute_file_objects: true,
-                        wait: true,
                         useClientCache: true,
                         hither_config: {
                             use_job_cache: useJobCache ? true : false
@@ -45,7 +44,7 @@ const ClientSidePlot: FunctionComponent<{
                         job_handler_name: 'default',
                         required_files: requiredFiles || {}
                     }
-                )
+                ).wait()
             }
             catch (err) {
                 console.error(err);

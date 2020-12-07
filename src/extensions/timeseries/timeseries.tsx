@@ -2,27 +2,29 @@
 
 import React, { FunctionComponent } from 'react';
 import sizeMe, { SizeMeProps } from "react-sizeme";
-import TimeseriesViewNew from "../../components/TimeseriesViewNew/TimeseriesViewNew";
-import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../../extension";
+import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
+import TimeseriesViewNew from './TimeseriesViewNew/TimeseriesViewNew';
 
-const TimeseriesSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = ({recording, size}) => {
+const TimeseriesSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = ({recording, size, hither}) => {
     const height = 650 // hard-coded for now
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
             width={size.width || 0}
             height={height}
+            hither={hither}
         />
     )
 }
 
-const TimeseriesRecordingView: FunctionComponent<RecordingViewProps & SizeMeProps> = ({recording, size}) => {
+const TimeseriesRecordingView: FunctionComponent<RecordingViewProps & SizeMeProps> = ({recording, size, hither}) => {
     const height = 650 // hard-coded for now
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
             width={size.width || 0}
             height={height}
+            hither={hither}
         />
     )
 }

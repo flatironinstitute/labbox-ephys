@@ -1,6 +1,6 @@
 // LABBOX-EXTENSION: unitstable
 
-import { ExtensionContext } from "../../extension";
+import { ExtensionContext } from "../extensionInterface";
 import registerMetricPlugins from "./Units/metricPlugins/registerMetricPlugins";
 import Units from './Units/Units';
 

@@ -26,6 +26,7 @@ import extensionsConfig, { Action as ExtensionsConfigAction, State as Extensions
 import databaseConfig, { Action as DatabaseConfigAction, State as DatabaseConfigState } from './databaseConfig'
 import documentInfo, { Action as DocumentInfoAction, State as DocumentInfoState } from './documentInfo'
 import extensionContext, { Action as ExtensionContextAction, State as ExtensionContextState } from './extensionContext'
+import hitherContext, { Action as HitherContextAction, State as HitherContextState } from './hitherContext'
 import hitherJobs, { Action as HitherJobsAction, State as HitherJobsState } from './hitherJobs'
 import persisting, { Action as PersistingAction, State as PersistingState } from './persisting'
 import recordings, { Action as RecordingsAction, State as RecordingsState } from './recordings'
@@ -36,6 +37,7 @@ import sortings, { Action as SortingsAction, State as SortingsState } from './so
 export interface RootState {
     databaseConfig: DatabaseConfigState
     documentInfo: DocumentInfoState
+    hitherContext: HitherContextState
     hitherJobs: HitherJobsState
     persisting: PersistingState
     recordings: RecordingsState
@@ -48,6 +50,7 @@ export interface RootState {
 const rootReducer = combineReducers({
     databaseConfig,
     documentInfo,
+    hitherContext,
     hitherJobs,
     persisting,
     recordings,
@@ -58,6 +61,6 @@ const rootReducer = combineReducers({
     extensionContext
 })
 
-export type RootAction =  DatabaseConfigAction | DocumentInfoAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | ExtensionContextAction
+export type RootAction =  DatabaseConfigAction | DocumentInfoAction | HitherContextAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | ExtensionContextAction
 
 export default rootReducer
