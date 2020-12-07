@@ -1,0 +1,5 @@
+{
+  "load_extensions": {
+    "labbox_ephys_widgets_jp/extension": true
+  }
+}
