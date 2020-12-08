@@ -19,7 +19,7 @@ const registerExtensions = (context: ExtensionContext) => {
   // activateexample(context)
   // activatedevel(context)
   activateelectrodegeometry(context)
-  // activatetimeseries(context)
+  activatetimeseries(context)
   activateaveragewaveforms(context)
   // // activatepythonsnippets(context)
   // activateunitstable(context)
