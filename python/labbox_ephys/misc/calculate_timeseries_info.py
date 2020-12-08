@@ -7,6 +7,17 @@ import numpy as np
 from .get_recording_info import geom_from_recording
 
 
+@hi.function('createjob_calculate_timeseries_info', '0.1.2')
+def createjob_calculate_timeseries_info(labbox, recording_object):
+    jh = labbox.get_job_handler('timeseries')
+    jc = labbox.get_default_job_cache()
+    with hi.Config(
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
+    ):
+        return calculate_timeseries_info.run(recording_object=recording_object)
+
 @hi.function('calculate_timeseries_info', '0.1.2')
 def calculate_timeseries_info(recording_object):
     recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)

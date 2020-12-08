@@ -3,5 +3,4 @@
 
 export * from './pluginWidgets';
 export * from './version';
-export * from './widget';
 
