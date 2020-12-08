@@ -41,7 +41,6 @@ def _listify_ndarray(x: np.ndarray) -> list:
         raise Exception('Cannot listify ndarray with {} dims.'.format(x.ndim))
 
 def _try_mda_create_object(arg: Union[str, dict]) -> Union[None, dict]:
-    print(f'Entered _try_mda_create_object() with arg {arg}')
     if isinstance(arg, str):
         path = arg
         if path.startswith('sha1dir') or path.startswith('/'):
@@ -54,9 +53,7 @@ def _try_mda_create_object(arg: Union[str, dict]) -> Union[None, dict]:
                     geom_path_resolved = kp.load_file(geom_path)
                     assert geom_path_resolved is not None, f'Unable to load geom.csv from: {geom_path}'
                     params = kp.load_object(params_path)
-                    print('A')
                     assert params is not None, f'Unable to load params.json from: {params_path}'
-                    print('B')
                     geom = _load_geom_from_csv(geom_path_resolved)
                     return dict(
                         recording_format='mda',
