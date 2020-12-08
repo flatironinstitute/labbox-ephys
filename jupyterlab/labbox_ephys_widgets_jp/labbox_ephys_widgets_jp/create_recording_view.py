@@ -24,19 +24,17 @@ class LabboxContext:
         return self._job_handler
 labbox_context = LabboxContext()
 
-def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtractor, recording: le.LabboxEphysRecordingExtractor):
-    class SortingView(DOMWidget):
-        _model_name = Unicode('SortingViewModel').tag(sync=True)
+def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordingExtractor):
+    class RecordingView(DOMWidget):
+        _model_name = Unicode('RecordingViewModel').tag(sync=True)
         _model_module = Unicode(module_name).tag(sync=True)
         _model_module_version = Unicode(module_version).tag(sync=True)
-        _view_name = Unicode('SortingView').tag(sync=True)
+        _view_name = Unicode('RecordingView').tag(sync=True)
         _view_module = Unicode(module_name).tag(sync=True)
         _view_module_version = Unicode(module_version).tag(sync=True)
         pluginName = Unicode(plugin_name).tag(sync=True)
-        sortingObject = DictTrait(sorting.object()).tag(sync=True)
         recordingObject = DictTrait(recording.object()).tag(sync=True)
         recordingInfo = DictTrait(le.get_recording_info(recording_object=recording.object())).tag(sync=True)
-        sortingInfo = DictTrait(le.get_sorting_info(sorting_object=sorting.object(), recording_object=recording.object())).tag(sync=True)
         def __init__(self) -> None:
             super().__init__()
             self._jobs_by_id: Dict[str, HitherJob] = {}
@@ -106,7 +104,7 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
                         'runtime_info': runtime_info
                     }
                     self.send(msg)
-    X = SortingView()
+    X = RecordingView()
     return X
 
 def _make_json_safe(x):

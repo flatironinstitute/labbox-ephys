@@ -7,7 +7,7 @@ import CrossCorrelograms from "./CrossCorrelograms";
 
 export function activate(context: ExtensionContext) {
     context.registerSortingView({
-        name: 'Autocorrelograms2',
+        name: 'Autocorrelograms',
         label: 'Autocorrelograms',
         priority: 100,
         component: AutoCorrelograms

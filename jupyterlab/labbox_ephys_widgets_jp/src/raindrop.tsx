@@ -34,7 +34,6 @@ const funcToTransform = (transformation: (p: Vec2) => Vec2): TransformationMatri
 const createLayer = () => {
   const radius = 0.1
   const onPaint = (painter: CanvasPainter, layerProps: LayerProps, state: LayerState) => {
-      console.log('---paint', layerProps)
       painter.fillRect({xmin: 0, xmax: 1, ymin: 0, ymax: 1}, {color: '#222222'})
       layerProps.raindrops.forEach(r => {
           painter.fillEllipse({

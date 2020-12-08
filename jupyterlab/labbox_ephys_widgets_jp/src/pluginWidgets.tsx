@@ -9,14 +9,13 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms';
 import { sleepMsec } from './extensions/common/misc';
+import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
 import { ExtensionContext, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
-console.log('--- testAB')
-
 const registerExtensions = (context: ExtensionContext) => {
-  // activatecorrelogram(context)
+  activatecorrelograms(context)
   // activateexample(context)
   // activatedevel(context)
   activateelectrodegeometry(context)
@@ -58,7 +57,6 @@ class LEJExtensionContext {
 const extensionContext = new LEJExtensionContext()
 registerExtensions(extensionContext)
 
-console.log('---- plugins')
 console.log(Object.keys(extensionContext._sortingViewPlugins))
 
 export class SortingViewModel extends DOMWidgetModel {
@@ -103,7 +101,6 @@ class HitherJobManager {
   _iterating: boolean = false
   constructor(private model: DOMWidgetModel) {
     model.on('msg:custom', (msg: any) => {
-      console.log('--- got message', msg)
       if (msg.type === 'hitherJobFinished') {
         const clientJobId = msg.client_job_id
         if (this._activeJobs[clientJobId]) {
@@ -207,8 +204,6 @@ export class SortingView extends DOMWidgetView {
     const plugin = extensionContext._sortingViewPlugins[pluginName]
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-    console.log('---- sortingObject', sortingObject)
-
     const example = exampleSorting()
 
     const hitherContext: HitherContext = {
@@ -272,7 +267,7 @@ export class SortingView extends DOMWidgetView {
     return x
   }
   render() {
-    this.el.classList.add('custom-widget');
+    // this.el.classList.add('custom-widget');
 
     const x = this.element()
     ReactDOM.render(x, this.el)

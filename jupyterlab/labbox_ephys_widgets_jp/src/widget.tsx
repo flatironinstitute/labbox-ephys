@@ -13,7 +13,6 @@ import '../css/widget.css';
 import ElectrodeGeometryWidget from './extensions/electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 import RaindropWidget from './raindrop';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-console.log('--- react', React)
 
 export class ExampleModel extends DOMWidgetModel {
   defaults() {

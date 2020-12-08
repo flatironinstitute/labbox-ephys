@@ -162,7 +162,6 @@ class ClientHitherJob {
   async wait(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.onFinished((result: any) => {
-        console.log('---- resolving', result)
         resolve(result);
       });
       this.onError((err: Error) => {
@@ -216,7 +215,6 @@ class ClientHitherJob {
     }
   }
   _handleHitherJobFinished(a: {result: any, runtime_info: any}) {
-    console.log('--- handle hither job finished', a.result)
     this._result = a.result;
     this._runtime_info = a.runtime_info;
     this._status = 'finished';
