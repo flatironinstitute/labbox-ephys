@@ -12,6 +12,7 @@
     "@types/react-redux": "^7.1.11",
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.6",
+    "@types/react-vis": "^1.11.5",
     "axios": "^0.19.2",
     "github-markdown-css": "^4.0.0",
     "global": "^4.4.0",

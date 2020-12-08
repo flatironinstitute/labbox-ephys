@@ -7,6 +7,16 @@ import spikeextractors as se
 import spiketoolkit as st
 
 
+@hi.function('createjob_test_func_1', '0.1.0')
+def createjob_test_func_1(labbox):
+    return test_func_1.run()
+
+@hi.function('test_func_1', '0.1.0')
+def test_func_1():
+    return 42
+
+
+
 @hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5

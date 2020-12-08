@@ -7,6 +7,19 @@ import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 const averageWaveformsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
 const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) => {
+    // const { hither } = props
+    // const [calcMode, setCalcMode] = useState('waiting')
+    // const [result, setResult] = useState<any>(null)
+    // useEffect(() => {
+    //     if (calcMode === 'waiting') {
+    //         setCalcMode('running')
+    //         hither.createHitherJob('createjob_test_func_1', {}, {}).wait().then(r => {
+    //             setResult(r)
+    //             setCalcMode('finished')
+    //         })
+    //     }
+    // }, [hither, setResult, calcMode, setCalcMode])
+    // return <div>AAAA: {calcMode} {result + ''}</div>
     return (
         <PlotGrid
             sorting={props.sorting}

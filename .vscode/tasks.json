@@ -83,6 +83,13 @@
             "label": "code generation",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/code_generation.sh"
+        },
+        {
+            "label": "start code sync",
+            "type": "shell",
+            // You must install unison and unison-fsmonitor
+            // curl -L -o unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor
+            "command": "unison src/extensions jupyterlab/labbox_ephys_widgets_jp/src/extensions -ignore \"Name __pycache__\" -repeat watch"
         }
     ]
 }

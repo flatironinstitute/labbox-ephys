@@ -1,10 +1,10 @@
 // Copyright (c) Jeremy Magland
 // Distributed under the terms of the Modified BSD License.
 
-import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
+import { ExportData, IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 import { Application, IPlugin } from '@phosphor/application';
 import { Widget } from '@phosphor/widgets';
-import * as widgetExports2 from './pluginWidgets';
+import { SortingView, SortingViewModel } from './pluginWidgets';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import * as widgetExports from './widget';
 
@@ -24,6 +24,8 @@ const examplePlugin: IPlugin<Application<Widget>, void> = ({
 
 export default examplePlugin;
 
+const exports: ExportData = {...widgetExports, SortingView, SortingViewModel}
+
 /**
  * Activate the widget extension.
  */
@@ -34,6 +36,6 @@ function activateWidgetExtension(
   registry.registerWidget({
     name: MODULE_NAME,
     version: MODULE_VERSION,
-    exports: {...widgetExports, ...widgetExports2}
+    exports
   });  
 }

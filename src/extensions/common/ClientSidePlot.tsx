@@ -26,8 +26,10 @@ const ClientSidePlot: FunctionComponent<{
 
     const effect = async () => {
         if ((calculationStatus === 'waitingForVisible') && (visible)) {
+            console.log('--- waiting')
             setCalculationStatus('waiting');
             const slot = calculationPool ? await calculationPool.requestSlot() : null;
+            console.log('--- calculating')
             setCalculationStatus('calculating');
             let plot_data;
             try {
@@ -114,6 +116,7 @@ const ClientSidePlot: FunctionComponent<{
             </Box>
         );
     } else if (calculationStatus === 'finished') {
+        console.log('---- plotComponent finished')
         // TODO: Follow-up on distinction b/w this and <PlotComponent arg1={} arg2={} ... />
         return plotComponent({boxSize, plotData, argsObject: plotComponentArgs, title});
     } else {

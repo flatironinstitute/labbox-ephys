@@ -19,6 +19,7 @@ export type ExternalSortingUnitMetric = {name: string, label: string, tooltip?: 
 
 export interface SortingInfo {
     unit_ids: number[]
+    samplerate: number
 }
 
 export interface RecordingInfo {
@@ -27,6 +28,7 @@ export interface RecordingInfo {
     channel_groups: number[]
     geom: (number[])[]
     num_frames: number
+    is_local?: boolean
 }
 
 export interface Recording {
@@ -55,7 +57,7 @@ export interface MetricPlugin extends LabboxPlugin {
     
 }
 
-interface HitherJobOpts {
+export interface HitherJobOpts {
     useClientCache?: boolean,
     auto_substitute_file_objects?: boolean,
     hither_config?: any,
