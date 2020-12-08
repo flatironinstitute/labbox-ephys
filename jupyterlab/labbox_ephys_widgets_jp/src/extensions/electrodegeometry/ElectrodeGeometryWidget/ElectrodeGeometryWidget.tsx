@@ -7,6 +7,9 @@ import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandle
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../../CanvasWidget/Geometry'
 
 
+// - allows drag and click selection of electrodes
+// - highlights mouseover of electrodes
+
 enum Color {
     BASE = 'rgb(0, 0, 255)',
     SELECTED = 'rgb(196, 196, 128)',

@@ -36,7 +36,7 @@ export type Electrode = {
 // - num_frames (number), - is_local (boolean).
 
 interface WidgetProps {
-    electrodes: Electrode[]
+    electrodes: Electrode[] // Note: these shouldn't be interacted with directly. Use the bounding boxes in the state, instead.
     selectedElectrodeIds: number[]
     onSelectedElectrodeIdsChanged: (x: number[]) => void
     width: number
@@ -114,6 +114,9 @@ const getElectrodesBoundingBox = (electrodes: Electrode[], radius: number): Rect
 }
 
 const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>, layerProps: ElectrodeLayerProps) => {
+    // NOTE: Reorienting the electrode field depends on the fact that we never interact with the electrodes directly,
+    // only their bounding boxes, which are computed here.
+    // If that changes, we'll have to make further adjustments.
     const state = layer.getState()
     const { width, height, electrodes } = layerProps
     const W = width - 10 * 2
@@ -121,8 +124,21 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     const canvasAspect = W / H
 
     const radius = computeRadius(electrodes)
-    const boundingBox = getElectrodesBoundingBox(electrodes, radius)
-    const boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+    let boundingBox = getElectrodesBoundingBox(electrodes, radius)
+    let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+
+    let realizedElectrodes = electrodes
+    if ((boxAspect > 1) !== (canvasAspect > 1)) {
+        // if the two aspect ratios' relationship to 1 is different, then one is portrait
+        // and the other landscape. We should then correct by rotating the electrode set 90 degrees.
+        // note: a 90-degree right rotation in 2d makes x' = y and y' = -x
+        realizedElectrodes = electrodes.map((electrode) => {
+            return {...electrode, x: electrode.y, y: -electrode.x }
+        })
+        // and of course that also means resetting the x- and y-ranges of the bounding box.
+        boundingBox = { xmin: boundingBox.ymin, xmax: boundingBox.ymax, ymin: -boundingBox.xmax, ymax: -boundingBox.xmin }
+        boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+    }
 
     let scaleFactor: number
     if (boxAspect > canvasAspect) {
@@ -143,7 +159,7 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
         return [x, y]
     })
 
-    const electrodeBoxes = electrodes.map((e) => { 
+    const electrodeBoxes = realizedElectrodes.map((e) => { 
         const x = e.x
         const y = e.y
         return { label: e.label, id: parseInt(e.label), x: x, y: y, br: getBoundingBoxForEllipse([x, y], radius, radius)}}
