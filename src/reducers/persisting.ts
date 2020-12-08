@@ -15,7 +15,7 @@ const isSetPersistStatusAction = (x: any): x is SetPersistStatusAction => (
 
 export type State = Persisting
 export type Action = SetPersistStatusAction
-const initialState: State = {status: 'initial'}
+export const initialState: State = {status: 'initial'}
 
 // the reducer
 const persisting: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

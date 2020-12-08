@@ -4,7 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { deleteSortings, setSortingInfo } from '../actions';
 import NiceTable from '../components/NiceTable';
-import { createHitherJob } from '../hither';
+import { HitherContext } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -14,6 +14,7 @@ import { Sorting, SortingInfo } from '../reducers/sortings';
 
 interface StateProps {
     documentInfo: DocumentInfo
+    hither: HitherContext
 }
 
 interface DispatchProps {
@@ -27,7 +28,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
+const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo, hither }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
@@ -48,18 +49,15 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
                     let info;
                     try {
                         // for a nice gui effect
-                        const sortingInfoJob = await createHitherJob(
+                        const sortingInfoJob = hither.createHitherJob(
                             'createjob_get_sorting_info',
                             { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
                             {
-                                kachery_config: {},
-                                hither_config: {
-                                },
                                 useClientCache: true,
                                 newHitherJobMethod: true
                             }
                         )
-                        info = await sortingInfoJob.wait();
+                        info = await sortingInfoJob.wait() as SortingInfo;
                         onSetSortingInfo({ sortingId: sor.sortingId, sortingInfo: info });
                     }
                     catch (err) {
@@ -69,7 +67,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
                 }
             }
         })()
-    }, [sortings, onSetSortingInfo])
+    }, [sortings, onSetSortingInfo, hither])
 
     const rows = sortings2.map(s => ({
         sorting: s,
@@ -105,15 +103,16 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-    documentInfo: state.documentInfo
-  })
+    documentInfo: state.documentInfo,
+    hither: state.hitherContext
+})
   
-  const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
     onDeleteSortings: sortingIds => dispatch(deleteSortings(sortingIds)),
     onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo }))
-  })
-  
-  export default connect<StateProps, DispatchProps, OwnProps, RootState>(
+})
+
+export default connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
-  )(SortingsTable)
+)(SortingsTable)

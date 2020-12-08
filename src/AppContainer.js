@@ -27,9 +27,6 @@ const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
             <span style={{marginLeft: 'auto'}} />
             <Button color="inherit" component={Link} to="/docs" style={{marginLeft: 'auto'}}>Docs</Button>
             <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} >Config</Button>
-            {
-                extensionsConfig.enabled.development && <Button color="inherit" component={Link} to="/prototypes">Prototypes</Button>
-            }
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
             <HitherJobMonitorControl />

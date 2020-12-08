@@ -15,7 +15,7 @@ const isSetDatabaseConfigAction = (x: any): x is SetDatabaseConfigAction => (
 
 export type State = DatabaseConfig
 export type Action = SetDatabaseConfigAction
-const initialState: State = {}
+export const initialState: State = {}
 
 // the reducer
 const databaseConfig: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

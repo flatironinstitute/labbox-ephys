@@ -2,9 +2,8 @@ import { Button, CircularProgress, FormControl, FormGroup, Input, InputLabel, ma
 import React, { useEffect, useState } from 'react';
 import { sleep } from '../actions';
 import RecordingInfoView from '../components/RecordingInfoView';
-import { createHitherJob } from '../hither';
 
-const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }) => {
+const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode, hither }) => {
     const [recordingPath, setRecordingPath] = useState('');
     const [recordingObject, setRecordingObject] = useState(null);
     const [recordingInfo, setRecordingInfo] = useState(null);
@@ -23,18 +22,17 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
             setRecordingInfoStatus('calculating');
             try {
                 await sleep(500);
-                const obj = await createHitherJob(
+                const obj = await hither.createHitherJob(
                     'get_recording_object',
                     {
                         recording_path: recordingPath
                     },
                     {
-                        wait: true,
                         useClientCache: false
                     }
-                )
+                ).wait()
                 setRecordingObject(obj);
-                const info = await createHitherJob(
+                const info = await hither.createHitherJob(
                     'get_recording_info',
                     { recording_object: obj },
                     {
@@ -44,10 +42,9 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
                         job_handler_name: 'default',
                         // if we do not substitute file objects, then it does not get downloaded
                         auto_substitute_file_objects: false,
-                        wait: true,
                         useClientCache: false
                     }
-                )
+                ).wait()
                 
                 setRecordingInfo(info);
                 setRecordingInfoStatus('calculated');
@@ -62,7 +59,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
             // we need to download the recording
             setDownloadStatus('downloading');
             try {
-                await createHitherJob(
+                await hither.createHitherJob(
                     'download_recording',
                     { recording_object: recordingObject },
                     {
@@ -72,7 +69,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
                         wait: true,
                         useClientCache: false
                     }
-                )
+                ).wait()
                 setDownloadStatus('downloaded');
                 // Let's now recompute the recording info
                 setRecordingInfoStatus('pending');

@@ -35,7 +35,7 @@ const SortingViewDiv = React.memo(({ unit_ids, onUnitClicked, curation, focus = 
     )
 })
 
-const SortingInfoView = ({ sortingInfo, selections = {}, focus = -999, onUnitClicked, curation={}, styling }) => {
+const SortingInfoView = ({ sortingInfo, selections = {}, focus = -999, onUnitClicked=undefined, curation={}, styling=undefined }) => {
     const si = sortingInfo;
     if (!si) return <div>No sorting info found</div>;
         

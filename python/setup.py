@@ -1,6 +1,8 @@
 import codecs
 import os.path
+
 import setuptools
+
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
@@ -33,8 +35,10 @@ setuptools.setup(
         'numpy',
         'scipy',
         'h5py',
-        'spikeextractors>=0.8.4',
-        'hither>=0.4',
+        'spikeextractors>=0.9.2',
+        'spiketoolkit>=0.7.1',
+        'hither>=0.4.1',
+        'kachery-p2p>=0.5.11'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

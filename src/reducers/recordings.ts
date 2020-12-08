@@ -1,20 +1,7 @@
 import { Reducer } from 'react'
 import { ADD_RECORDING, DELETE_RECORDINGS, SET_RECORDING_INFO } from '../actions'
-
-export interface RecordingInfo {
-    sampling_frequency: number
-    channel_ids: number[]
-    channel_groups: number[]
-    geom: (number[])[]
-    num_frames: number
-}
-
-export interface Recording {
-    recordingId: string
-    recordingLabel: string
-    recordingObject: any
-    recordingInfo: RecordingInfo
-}
+import { Recording, RecordingInfo } from '../extensions/extensionInterface'
+export type { Recording, RecordingInfo } from '../extensions/extensionInterface'
 
 export interface AddRecordingAction {
     type: 'ADD_RECORDING'
@@ -43,7 +30,7 @@ const isSetRecordingInfoAction = (x: any): x is SetRecordingInfoAction => (
 
 export type State = Recording[]
 export type Action = AddRecordingAction | DeleteRecordingsAction | SetRecordingInfoAction
-const initialState: State = []
+export const initialState: State = []
 
 // the reducer
 const recordings: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

@@ -75,19 +75,17 @@ export const addRecording = (recording: Recording): AddRecordingAction & Persist
   persistKey: 'recordings'
 })
 
-export const deleteRecordings = (recordingIds: string[]) => {
-  return function(dispatch: Dispatch<RootAction & PersistAction>) {
-    dispatch({
-      type: DELETE_ALL_SORTINGS_FOR_RECORDINGS,
-      recordingIds: recordingIds,
-      persistKey: 'sortings'
-    });
-    dispatch({
-      type: DELETE_RECORDINGS,
-      recordingIds: recordingIds,
-      persistKey: 'recordings'
-    });
-  }
+export const deleteRecordings = (dispatch: Dispatch<RootAction & PersistAction>, recordingIds: string[]) => {
+  dispatch({
+    type: DELETE_ALL_SORTINGS_FOR_RECORDINGS,
+    recordingIds: recordingIds,
+    persistKey: 'sortings'
+  });
+  dispatch({
+    type: DELETE_RECORDINGS,
+    recordingIds: recordingIds,
+    persistKey: 'recordings'
+  });
 }
 
 export const setRecordingInfo = (a: { recordingId: string, recordingInfo: RecordingInfo }): SetRecordingInfoAction => ({

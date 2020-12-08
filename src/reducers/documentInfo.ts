@@ -17,7 +17,7 @@ const isSetDocumentInfoAction = (x: any): x is SetDocumentInfoAction => (
 
 export type State = DocumentInfo
 export type Action = SetDocumentInfoAction
-const initialState: State = {documentId: null, feedUri: null, readOnly: null}
+export const initialState: State = {documentId: null, feedUri: null, readOnly: null}
 
 // the reducer
 const documentInfo: Reducer<State, Action> = (state: State = initialState, action: Action): State => {

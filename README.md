@@ -4,6 +4,8 @@
 
 Analysis and visualization of neurophysiology recordings and spike sorting results.
 
+Experimental jupyterlab extension: [labbox_ephys_widgets_jp](doc/labbox_ephys_widgets_jp.md)
+
 ## Installation and basic usage
 
 ### Prerequisites

@@ -12,14 +12,6 @@ import labbox_ephys as le
 import websockets
 from labbox_ephys.api._session import Session
 
-thisdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, f'{thisdir}/../../src')
-import extensions
-
-extensions # just keep the linter happy - we only need to import extensions to register the hither functions
-# remove the prepended path so we don't have side-effects
-sys.path.remove(f'{thisdir}/../../src')
-
 print(f"LABBOX_EPHYS_DEPLOY: {os.environ.get('LABBOX_EPHYS_DEPLOY')}")
 
 # todo: manage this with configuration feeds

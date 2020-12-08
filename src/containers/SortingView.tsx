@@ -4,12 +4,11 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { addUnitLabel, removeUnitLabel, setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extension';
-import { createHitherJob } from '../hither';
+import { HitherContext, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface';
+import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
-import { sortByPriority } from '../reducers/extensionContext';
 import { Recording } from '../reducers/recordings';
 import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
 
@@ -31,6 +30,7 @@ interface StateProps {
   recording: Recording | undefined
   extensionsConfig: any
   documentInfo: DocumentInfo
+  hither: HitherContext
 }
 
 interface DispatchProps {
@@ -51,7 +51,7 @@ type CalcStatus = 'waiting' | 'computing' | 'finished'
 type SelectedUnitIds = {[key: string]: boolean}
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onSetExternalUnitMetrics, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, sortingUnitMetrics } = props
+  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onSetExternalUnitMetrics, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, sortingUnitMetrics, hither } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
@@ -76,30 +76,30 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   useEffect(() => {
     if ((sorting) && (recording) && (!sorting.sortingInfo) && (sortingInfoStatus === 'waiting')) {
       setSortingInfoStatus('computing');
-      createHitherJob(
+      hither.createHitherJob(
         'createjob_get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
-      ).then((sortingInfo: SortingInfo) => {
-        onSetSortingInfo({ sortingId, sortingInfo });
+        { useClientCache: true, newHitherJobMethod: true}
+      ).wait().then((sortingInfo: any) => {
+        onSetSortingInfo({ sortingId, sortingInfo: sortingInfo as SortingInfo });
         setSortingInfoStatus('finished');
       })
     }
-  }, [onSetSortingInfo, setSortingInfoStatus, sortingInfoStatus, recording, sorting, sortingId])
+  }, [onSetSortingInfo, setSortingInfoStatus, sortingInfoStatus, recording, sorting, sortingId, hither])
 
   useEffect(() => {
     if ((sorting) && (sorting.externalUnitMetricsUri) && (!sorting.externalUnitMetrics) && (externalUnitMetricsStatus === 'waiting')) {
       setExternalUnitMetricsStatus('computing');
-      createHitherJob(
+      hither.createHitherJob(
         'fetch_external_sorting_unit_metrics',
         { uri: sorting.externalUnitMetricsUri },
-        { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
-      ).then((externalUnitMetrics: ExternalSortingUnitMetric[]) => {
-        onSetExternalUnitMetrics({ sortingId, externalUnitMetrics });
+        { useClientCache: true, newHitherJobMethod: true}
+      ).wait().then((externalUnitMetrics: any) => {
+        onSetExternalUnitMetrics({ sortingId, externalUnitMetrics: externalUnitMetrics as ExternalSortingUnitMetric[] });
         setExternalUnitMetricsStatus('finished');
       })
     }
-  }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId])
+  }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId, hither])
 
   const handleUnitClicked = useCallback((unitId, event) => {
     if (event.ctrlKey) {
@@ -198,9 +198,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   sorting={sorting}
                   recording={recording}
                   selectedUnitIds={selectedUnitIds}
-                  extensionsConfig={extensionsConfig}
                   focusedUnitId={focusedUnitId}
-                  documentInfo={documentInfo}
                   onUnitClicked={handleUnitClicked}
                   onAddUnitLabel={onAddUnitLabel}
                   onRemoveUnitLabel={onRemoveUnitLabel}
@@ -210,6 +208,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   readOnly={readOnly}
                   sortingUnitViews={sortingUnitViews}
                   sortingUnitMetrics={sortingUnitMetrics}
+                  hither={hither}
                 />
               </Expandable>
             )
@@ -251,7 +250,8 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
   extensionsConfig: state.extensionsConfig,
-  documentInfo: state.documentInfo
+  documentInfo: state.documentInfo,
+  hither: state.hitherContext
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
