@@ -77,8 +77,9 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
       </Grid>
       {
           sortByPriority(recordingViews).filter(rv => (!rv.disabled)).map(rv => (
-            <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false}>
+            <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false} key={'rv-' + rv.name}>
               <rv.component
+                key={'rvc-' + rv.name}
                 recording={recording}
                 hither={hither}
               />
