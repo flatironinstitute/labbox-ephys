@@ -1,5 +1,6 @@
 
 // LABBOX-EXTENSION: devel
+// LABBOX-EXTENSION-TAGS: jupyter
 
 import { ExtensionContext } from "../extensionInterface";
 import ElectrodeGeometryTest from './ElectrodeGeometryTest/ElectrodeGeometryTest';

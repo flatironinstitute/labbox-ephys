@@ -1,8 +1,6 @@
-import raw from "raw.macro";
 import React, { FunctionComponent } from 'react';
 import Markdown from '../extensions/common/Markdown';
-const aboutMd = raw("./about.md");
-const dummy = 'reload-1'
+import aboutMd from './about.md.gen';
 
 interface Props {
 

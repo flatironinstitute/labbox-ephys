@@ -190,15 +190,17 @@ const HitherJobMonitorTable: FunctionComponent<{
         else return 0
     })
     const rows = sortedJobs.map((j) => ({
-        key: j.jobId,
-        jobId: {
-            element: <LinkMui href="#" onClick={() => {onViewJob && onViewJob(j)}}>{j.jobId}</LinkMui>
-        },
-        functionName: j.functionName,
-        status: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status,
-        started: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : '',
-        finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : '',
-        message: j.error_message || ''
+        key: j.jobId || 'null',
+        columnValues: {
+            jobId: {
+                element: <LinkMui href="#" onClick={() => {onViewJob && onViewJob(j)}}>{j.jobId}</LinkMui>
+            },
+            functionName: j.functionName,
+            status: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status,
+            started: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : '',
+            finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : '',
+            message: j.error_message || ''
+        }
     }));
     return (
         <NiceTable

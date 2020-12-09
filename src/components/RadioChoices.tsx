@@ -1,7 +1,18 @@
-import React from 'react'
-import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@material-ui/core'
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
+import React, { FunctionComponent } from 'react';
 
-const RadioChoices = ({ label, value, onSetValue, options }) => {
+interface Props {
+    label: string
+    value: string
+    onSetValue: (v: string) => void
+    options: {
+        label: string
+        value: string
+        disabled?: boolean
+    }[]
+}
+
+const RadioChoices: FunctionComponent<Props> = ({ label, value, onSetValue, options }) => {
     return (
         <FormControl component="fieldset">
             <FormLabel component="legend">{label}</FormLabel>

@@ -1,14 +1,8 @@
-import raw from "raw.macro";
 import React, { FunctionComponent } from 'react';
 import Markdown from '../extensions/common/Markdown';
-const docsMd = raw("./docs.md");
-const dummy = 'reload-1'
+import docsMd from './docs.md.gen';
 
-interface Props {
-
-}
-
-const Docs: FunctionComponent<Props> = (props) => {
+const Docs: FunctionComponent<{}> = () => {
     return (
         <Markdown
             source={docsMd}

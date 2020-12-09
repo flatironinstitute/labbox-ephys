@@ -70,13 +70,15 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
     }, [sortings, onSetSortingInfo, hither])
 
     const rows = sortings2.map(s => ({
-        sorting: s,
         key: s.sortingId,
-        sortingLabel: {
-            text: s.sortingLabel,
-            element: <Link title={"View this sorting"} to={`/${documentId}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
-        },
-        numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
+        columnValues: {
+            sorting: s,
+            sortingLabel: {
+                text: s.sortingLabel,
+                element: <Link title={"View this sorting"} to={`/${documentId}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
+            },
+            numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
+        }
     }));
 
     const columns = [
@@ -96,7 +98,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this sorting"}
-                onDeleteRow={readOnly ? null : (row: any) => onDeleteSortings([row.sorting.sortingId])}
+                onDeleteRow={readOnly ? undefined : (key, columnValues) => onDeleteSortings([key])}
             />
         </div>
     );

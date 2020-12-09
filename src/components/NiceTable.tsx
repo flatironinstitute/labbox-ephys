@@ -1,9 +1,30 @@
 import { Checkbox, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Delete, Edit } from "@material-ui/icons";
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import './NiceTable.css';
 
-const NiceTable = ({
+interface Row {
+    key: string
+    columnValues: {[key: string]: any}
+}
+interface Col {
+    key: string
+    label: string
+}
+
+interface Props {
+    rows: Row[],
+    columns: Col[],
+    onDeleteRow?: ((key: string, columnValues: {[key: string]: any}) => void),
+    deleteRowLabel?: string,
+    onEditRow?: ((key: string, columnValues: {[key: string]: any}) => void),
+    editRowLabel?: string,
+    selectionMode?: 'none' | 'single' | 'multiple',
+    selectedRowKeys?: {[key: string]: boolean},
+    onSelectedRowKeysChanged?: ((keys: string[]) => void)
+}
+
+const NiceTable: FunctionComponent<Props> = ({
     rows,
     columns,
     onDeleteRow=undefined,
@@ -14,13 +35,13 @@ const NiceTable = ({
     selectedRowKeys={},
     onSelectedRowKeysChanged=undefined
 }) => {
-    const selectedRowKeysObj = {};
+    const selectedRowKeysObj: {[key: string]: boolean} = {};
     Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
-    const handleClickRow = (key) => {
+    const handleClickRow = (key: string) => {
         if (!onSelectedRowKeysChanged || false) return;
         if (selectionMode === 'single') {
             if (!(key in selectedRowKeysObj) || !selectedRowKeysObj[key]) {
-                onSelectedRowKeysChanged([key.toString()]);
+                onSelectedRowKeysChanged([key + '']);
             } else {
                 onSelectedRowKeysChanged([]);
             }
@@ -56,12 +77,12 @@ const NiceTable = ({
                             <TableCell>
                                 {
                                     onDeleteRow && (
-                                        <IconButton title={deleteRowLabel || ''} onClick={() => onDeleteRow && onDeleteRow(row)}><Delete /></IconButton>
+                                        <IconButton title={deleteRowLabel || ''} onClick={() => onDeleteRow && onDeleteRow(row.key, row.columnValues)}><Delete /></IconButton>
                                     )
                                 }
                                 {
                                     onEditRow && (
-                                        <IconButton title={editRowLabel || ''} onClick={() => onEditRow && onEditRow(row)}><Edit /></IconButton>
+                                        <IconButton title={editRowLabel || ''} onClick={() => onEditRow && onEditRow(row.key, row.columnValues)}><Edit /></IconButton>
                                     )
                                 }
                                 {
@@ -76,7 +97,7 @@ const NiceTable = ({
                             {
                                 columns.map(col => (
                                     <TableCell key={col.key}>
-                                        <span>{makeCell(row[col.key])}</span>
+                                        <span>{makeCell(row.columnValues[col.key])}</span>
                                     </TableCell>
                                 ))
                             }
@@ -88,7 +109,7 @@ const NiceTable = ({
     );
 };
 
-const makeCell = (x) => {
+const makeCell = (x: any) => {
     // eslint-disable-next-line eqeqeq
     if (x == 0) return x;  // !'0' is true, but we shouldn't null out actual 0s
     if (!x) return '';

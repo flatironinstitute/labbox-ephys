@@ -1,4 +1,5 @@
 // LABBOX-EXTENSION: pythonsnippets
+// LABBOX-EXTENSION-TAGS:
 
 import { ExtensionContext } from "../extensionInterface";
 import LoadSortingPythonSnippet from './LoadSortingPythonSnippet/LoadSortingPythonSnippet';

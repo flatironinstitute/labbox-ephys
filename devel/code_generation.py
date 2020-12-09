@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+import json
 import os
 from os.path import isdir
-from typing import List, NamedTuple, Union
+from typing import Dict, List, NamedTuple, Union
 
 from jinja2 import Template
 
@@ -13,8 +14,11 @@ def main():
 
     output_fnames = find_files_with_templates('.')
     print(f'Found {len(output_fnames)} files with templates')
+    print(dict(extensions=extensions))
     for output_fname in output_fnames:
         process_template(output_fname, template_kwargs=dict(extensions=extensions))
+    
+    create_md_ts_files('.')
 
 def find_files_with_templates(folder: str) -> List[str]:
     ret: List[str] = []
@@ -26,9 +30,10 @@ def find_files_with_templates(folder: str) -> List[str]:
                 template_code = f.read()
             if '!begin-code-generation!' in template_code:
                 ret.append(fname)
-        if os.path.isdir(a):
-            for b in find_files_with_templates(folder + '/' + a):
-                ret.append(b)
+        if os.path.isdir(fname):
+            if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
+                for b in find_files_with_templates(folder + '/' + a):
+                    ret.append(b)
     return ret
 
 def process_template(output_fname, template_kwargs):
@@ -71,7 +76,24 @@ def update_template(template_fname: str, output_fname: str) -> None:
         if not dry_run:
             with open(template_fname, 'w') as f:
                 f.write(new_template_code)
-    
+
+# For every .md file that also has a .md.gen.ts file, generate the .md.gen.ts file so that the markdown can be imported via `import x from './---.md.gen'`
+# The previous raw.macro solution did not work with jupyter extension
+def create_md_ts_files(folder: str) -> None:
+    ret: List[str] = []
+    for a in os.listdir(folder):
+        fname = folder + '/' + a
+        fname2 = fname + '.gen.ts'
+        if a.endswith('.md') and os.path.exists(fname2):
+            print(f'Writing {fname2}')
+            with open(fname, 'r') as f:
+                md_txt = f.read()
+            with open(fname2, 'w') as f:
+                f.write(f'const markdown: string = {json.dumps(md_txt)}\n\nexport default markdown')
+        if os.path.isdir(fname):
+            if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
+                create_md_ts_files(folder + '/' + a)
+
 class SectionInfo(NamedTuple):
     code: str
     generation: bool
@@ -126,21 +148,20 @@ def split_into_sections(code: str) -> List[SectionInfo]:
 def combine_sections(sections: List[SectionInfo]) -> str:
     return '\n'.join([s.code for s in sections])
 
-class ExtensionInfo(NamedTuple):
-    name: str
-    relPath: str
-
-def get_extensions(realpath: str, relpath: str) -> List[ExtensionInfo]:
+def get_extensions(realpath: str, relpath: str) -> List[Dict]:
     ret = []
     for x in os.listdir(realpath):
         path = realpath + '/' + x
         if x.endswith('.tsx'):
-            extension_name = get_extension_name(path)
-            if extension_name is not None:
+            extension_data = get_extension_data(path)
+            if extension_data is not None:
+                extension_name = extension_data['name']
+                extension_tags = extension_data['tags']
                 relpath = relpath + '/' + x[:len(x) - 4]
                 print(f'Found extension: {extension_name} at {relpath}')
-                ret.append(ExtensionInfo(
+                ret.append(dict(
                     name=extension_name,
+                    tags=extension_tags,
                     relPath=relpath
                 ))
         if os.path.isdir(path):
@@ -148,19 +169,35 @@ def get_extensions(realpath: str, relpath: str) -> List[ExtensionInfo]:
                 ret.append(a)
     return ret
 
-def get_extension_name(path: str) -> Union[str, None]:
+def get_extension_data(path: str) -> Union[dict, None]:
     with open(path, 'r') as f:
         code: str = f.read()
     lines = code.split('\n')
+    ret = {
+        'name': None,
+        'tags': []
+    }
+    found = False
     for line in lines:
         a = 'LABBOX-EXTENSION:'
         try:
             ind = line.index(a)
             name = line[ind + len(a):].strip()
-            return name
+            found = True
+            ret['name'] = name
         except:
             pass
-    return None
+        a = 'LABBOX-EXTENSION-TAGS:'
+        try:
+            ind = line.index(a)
+            tags_str = line[ind + len(a):].strip()
+            ret['tags'] = tags_str.split()
+        except:
+            pass
+    if found:
+        return ret
+    else:
+        return None
 
 
 

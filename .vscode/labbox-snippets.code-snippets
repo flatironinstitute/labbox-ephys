@@ -27,7 +27,8 @@
 	"extension": {
 		"prefix": "extension",
 		"body": [
-			"// LABBOX-EXTENSION: ${1: name}",
+            "// LABBOX-EXTENSION: ${1: name}",
+            "// LABBOX-EXTENSION-TAGS: jupyter",
 			"",
 			"import React from 'react';",
 			"import { ExtensionContext } from \"../../extension\";",

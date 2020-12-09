@@ -15,7 +15,7 @@ const externals = ['react', 'react-dom', '@jupyter-widgets/base']
 
 const resolve = {
   // Add '.ts' and '.tsx' as resolvable extensions.
-  extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+  extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".css"]
 };
 
 module.exports = [
@@ -38,6 +38,9 @@ module.exports = [
     devtool: 'source-map',
     externals,
     resolve,
+    node: {
+      fs: 'empty'
+    }
   },
 
   /**
@@ -65,6 +68,9 @@ module.exports = [
     },
     externals,
     resolve,
+    node: {
+      fs: 'empty'
+    }
   },
 
 
@@ -87,6 +93,9 @@ module.exports = [
     devtool: 'source-map',
     externals,
     resolve,
+    node: {
+      fs: 'empty'
+    }
   }
 
 ];

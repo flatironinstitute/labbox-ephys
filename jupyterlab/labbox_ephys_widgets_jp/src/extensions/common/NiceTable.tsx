@@ -1,9 +1,29 @@
 import { Checkbox, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Delete, Edit } from "@material-ui/icons";
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import './NiceTable.css';
 
-const NiceTable = ({
+type Row = {
+    key: string
+} & {[key: string]: any}
+interface Col {
+    key: string
+    label: string
+}
+
+interface Props {
+    rows: Row[],
+    columns: Col[],
+    onDeleteRow: ((row: Row) => void) | undefined,
+    deleteRowLabel: string | undefined,
+    onEditRow: ((row: Row) => void) | undefined,
+    editRowLabel: string | undefined,
+    selectionMode: 'none' | 'single' | 'multiple',
+    selectedRowKeys: {[key: string]: boolean},
+    onSelectedRowKeysChanged: ((keys: string[]) => void) | undefined
+}
+
+const NiceTable: FunctionComponent<Props> = ({
     rows,
     columns,
     onDeleteRow=undefined,
@@ -14,13 +34,13 @@ const NiceTable = ({
     selectedRowKeys={},
     onSelectedRowKeysChanged=undefined
 }) => {
-    const selectedRowKeysObj = {};
+    const selectedRowKeysObj: {[key: string]: boolean} = {};
     Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
-    const handleClickRow = (key) => {
+    const handleClickRow = (key: string) => {
         if (!onSelectedRowKeysChanged || false) return;
         if (selectionMode === 'single') {
             if (!(key in selectedRowKeysObj) || !selectedRowKeysObj[key]) {
-                onSelectedRowKeysChanged([key.toString()]);
+                onSelectedRowKeysChanged([key + '']);
             } else {
                 onSelectedRowKeysChanged([]);
             }
@@ -88,7 +108,7 @@ const NiceTable = ({
     );
 };
 
-const makeCell = (x) => {
+const makeCell = (x: any) => {
     // eslint-disable-next-line eqeqeq
     if (x == 0) return x;  // !'0' is true, but we shouldn't null out actual 0s
     if (!x) return '';

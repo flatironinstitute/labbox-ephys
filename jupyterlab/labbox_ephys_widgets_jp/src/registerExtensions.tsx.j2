@@ -1,0 +1,18 @@
+
+// !begin-code-generation!
+import { ExtensionContext } from './extensions/extensionInterface';
+
+{% for extension in extensions if ('jupyter' in extension.tags) -%}
+import { activate as activate{{ extension.name }} } from './extensions/{{ extension.name }}/{{ extension.name }}';
+{% endfor -%}
+// !end-code-generation!
+
+const registerExtensions = (context: ExtensionContext) => {
+    // !begin-code-generation!
+    {% for extension in extensions if ('jupyter' in extension.tags) -%}
+    activate{{ extension.name }}(context)
+    {% endfor -%}
+    // !end-code-generation!
+}
+
+export default registerExtensions

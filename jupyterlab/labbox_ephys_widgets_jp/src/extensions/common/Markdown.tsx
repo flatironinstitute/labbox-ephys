@@ -1,9 +1,13 @@
-import React from 'react'
+import 'github-markdown-css'
+import React, { FunctionComponent } from 'react'
 import ReactMarkdown from "react-markdown"
 import MarkdownCodeBlock from "./MarkdownCodeBlock"
-import 'github-markdown-css'
 
-const Markdown = ({source}) => {
+interface Props {
+    source: string
+}
+
+const Markdown: FunctionComponent<Props> = ({source}) => {
     return (
         <div className='markdown-body'>
             <ReactMarkdown

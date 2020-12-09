@@ -1,4 +1,3 @@
-
 Analysis and visualization of neurophysiology recordings and spike sorting results.
 
 Project home: [labbox-ephys on github](https://github.com/laboratorybox/labbox-ephys)

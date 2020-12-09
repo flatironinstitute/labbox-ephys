@@ -1,4 +1,5 @@
-// LABBOX-EXTENSION: correlogram
+// LABBOX-EXTENSION: correlograms
+// LABBOX-EXTENSION-TAGS: jupyter
 
 import { ExtensionContext } from "../extensionInterface";
 import AutoCorrelograms from "./AutoCorrelograms";

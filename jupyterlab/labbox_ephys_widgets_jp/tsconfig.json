@@ -20,7 +20,8 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noEmit": false
+    "noEmit": false,
+    "types" : ["node"] // see: https://github.com/Microsoft/TypeScript/issues/13992#issuecomment-385168781
   },
   "include": [
     "src/**/*.ts",
