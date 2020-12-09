@@ -1,4 +1,5 @@
 // LABBOX-EXTENSION: timeseries
+// LABBOX-EXTENSION-TAGS: jupyter
 
 import React, { FunctionComponent } from 'react';
 import sizeMe, { SizeMeProps } from "react-sizeme";

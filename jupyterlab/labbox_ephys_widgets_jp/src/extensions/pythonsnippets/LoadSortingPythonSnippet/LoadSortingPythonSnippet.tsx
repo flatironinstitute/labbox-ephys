@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import Markdown from '../../common/Markdown';
 import { SortingViewProps } from '../../extensionInterface';
-import snippetMd from './load_sorting.md.json';
+import snippetMd from './load_sorting.md.gen';
 
 
 const LoadSortingPythonSnippet: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds }) => {
@@ -13,7 +13,7 @@ const LoadSortingPythonSnippet: FunctionComponent<SortingViewProps & SizeMeProps
     }
     return (
         <Markdown
-            source={substitute(snippetMd + '')}
+            source={substitute(snippetMd)}
         />
     )
 }

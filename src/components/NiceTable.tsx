@@ -3,9 +3,10 @@ import { Delete, Edit } from "@material-ui/icons";
 import React, { FunctionComponent } from 'react';
 import './NiceTable.css';
 
-type Row = {
+interface Row {
     key: string
-} & {[key: string]: any}
+    columnValues: {[key: string]: any}
+}
 interface Col {
     key: string
     label: string
@@ -14,13 +15,13 @@ interface Col {
 interface Props {
     rows: Row[],
     columns: Col[],
-    onDeleteRow: ((row: Row) => void) | undefined,
-    deleteRowLabel: string | undefined,
-    onEditRow: ((row: Row) => void) | undefined,
-    editRowLabel: string | undefined,
-    selectionMode: 'none' | 'single' | 'multiple',
-    selectedRowKeys: {[key: string]: boolean},
-    onSelectedRowKeysChanged: ((keys: string[]) => void) | undefined
+    onDeleteRow?: ((key: string, columnValues: {[key: string]: any}) => void),
+    deleteRowLabel?: string,
+    onEditRow?: ((key: string, columnValues: {[key: string]: any}) => void),
+    editRowLabel?: string,
+    selectionMode?: 'none' | 'single' | 'multiple',
+    selectedRowKeys?: {[key: string]: boolean},
+    onSelectedRowKeysChanged?: ((keys: string[]) => void)
 }
 
 const NiceTable: FunctionComponent<Props> = ({
@@ -76,12 +77,12 @@ const NiceTable: FunctionComponent<Props> = ({
                             <TableCell>
                                 {
                                     onDeleteRow && (
-                                        <IconButton title={deleteRowLabel || ''} onClick={() => onDeleteRow && onDeleteRow(row)}><Delete /></IconButton>
+                                        <IconButton title={deleteRowLabel || ''} onClick={() => onDeleteRow && onDeleteRow(row.key, row.columnValues)}><Delete /></IconButton>
                                     )
                                 }
                                 {
                                     onEditRow && (
-                                        <IconButton title={editRowLabel || ''} onClick={() => onEditRow && onEditRow(row)}><Edit /></IconButton>
+                                        <IconButton title={editRowLabel || ''} onClick={() => onEditRow && onEditRow(row.key, row.columnValues)}><Edit /></IconButton>
                                     )
                                 }
                                 {
@@ -96,7 +97,7 @@ const NiceTable: FunctionComponent<Props> = ({
                             {
                                 columns.map(col => (
                                     <TableCell key={col.key}>
-                                        <span>{makeCell(row[col.key])}</span>
+                                        <span>{makeCell(row.columnValues[col.key])}</span>
                                     </TableCell>
                                 ))
                             }

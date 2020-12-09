@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import Markdown from '../extensions/common/Markdown';
-import aboutMd from './about.md.json';
+import aboutMd from './about.md.gen';
 
 interface Props {
 
@@ -9,7 +9,7 @@ interface Props {
 const About: FunctionComponent<Props> = (props) => {
     return (
         <Markdown
-            source={aboutMd + ''}
+            source={aboutMd}
         />
     )
 }

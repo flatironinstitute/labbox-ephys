@@ -1,4 +1,5 @@
 // LABBOX-EXTENSION: example
+// LABBOX-EXTENSION-TAGS: jupyter
 
 import React, { FunctionComponent } from 'react';
 import { ExtensionContext, RecordingViewProps } from "../extensionInterface";

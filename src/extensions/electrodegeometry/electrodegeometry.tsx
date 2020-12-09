@@ -1,4 +1,5 @@
 // LABBOX-EXTENSION: electrodegeometry
+// LABBOX-EXTENSION-TAGS: jupyter
 
 import React, { FunctionComponent, useState } from 'react';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";

@@ -60,15 +60,17 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
     useEffect(() => { effect() })
 
     const rows = recordings.map(rec => ({
-        recording: rec,
         key: rec.recordingId,
-        recordingLabel: {
-            text: rec.recordingLabel,
-            element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
-        },
-        numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
-        samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
-        durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
+        columnValues: {
+            recording: rec,
+            recordingLabel: {
+                text: rec.recordingLabel,
+                element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
+            },
+            numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
+            samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
+            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
+        }
     }));
 
     const columns = [
@@ -96,7 +98,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this recording"}
-                onDeleteRow={readOnly ? null : (row: {recording: {recordingId: string}}) => onDeleteRecordings([row.recording.recordingId])}
+                onDeleteRow={readOnly ? undefined : (key, columnValues) => onDeleteRecordings([key])}
             />
         </div>
     );

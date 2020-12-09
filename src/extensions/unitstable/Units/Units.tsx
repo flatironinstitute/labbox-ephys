@@ -1,5 +1,5 @@
 
-import { Button, CircularProgress, Paper } from '@material-ui/core';
+import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import MultiComboBox from '../../common/MultiComboBox';
 import { SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
@@ -144,14 +144,6 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         showExpandButton = true;
     }
 
-    // TODO: define additional columns such as: num. events, avg. firing rate, snr, ...
-    if (Object.keys(metrics).length === 0 ) { // empty object
-        return (
-            <div style={{'width': '100%'}}>
-                <CircularProgress />
-            </div>
-        );
-    }
     return (
         <div style={{'width': '100%'}}>
             <Paper style={{maxHeight: 350, overflow: 'auto'}}>

@@ -8,7 +8,7 @@ interface Props {
     options: {
         label: string
         value: string
-        disabled: boolean
+        disabled?: boolean
     }[]
 }
 

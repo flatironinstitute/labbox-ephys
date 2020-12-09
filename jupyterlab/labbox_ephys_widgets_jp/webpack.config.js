@@ -15,7 +15,7 @@ const externals = ['react', 'react-dom', '@jupyter-widgets/base']
 
 const resolve = {
   // Add '.ts' and '.tsx' as resolvable extensions.
-  extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".json"]
+  extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".css"]
 };
 
 module.exports = [

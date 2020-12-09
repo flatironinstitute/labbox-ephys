@@ -8,7 +8,6 @@ import { activate as activatedevel } from './extensions/devel/devel';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
 import { activate as activatetimeseries } from './extensions/timeseries/timeseries';
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms';
-import { activate as activatepythonsnippets } from './extensions/pythonsnippets/pythonsnippets';
 import { activate as activateunitstable } from './extensions/unitstable/unitstable';
 // !end-code-generation!
 
@@ -20,7 +19,6 @@ const registerExtensions = (context: ExtensionContext) => {
     activateelectrodegeometry(context)
     activatetimeseries(context)
     activateaveragewaveforms(context)
-    activatepythonsnippets(context)
     activateunitstable(context)
     // !end-code-generation!
 }

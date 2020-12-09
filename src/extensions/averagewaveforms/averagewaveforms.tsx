@@ -1,4 +1,5 @@
 // LABBOX-EXTENSION: averagewaveforms
+// LABBOX-EXTENSION-TAGS: jupyter
 
 import { ExtensionContext } from "../extensionInterface";
 import AverageWaveformsNew from "./AverageWaveformsNew";
