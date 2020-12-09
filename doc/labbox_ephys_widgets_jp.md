@@ -22,8 +22,6 @@ Also install a recent version of nodejs (>=12):
 conda install -c conda-forge nodejs
 ```
 
-Good point.
-
 ### Installation
 
 Clone this repository and then install the python packages in development mode
