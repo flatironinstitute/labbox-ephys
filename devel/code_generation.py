@@ -77,6 +77,8 @@ def update_template(template_fname: str, output_fname: str) -> None:
             with open(template_fname, 'w') as f:
                 f.write(new_template_code)
 
+# For every .md file that also has a .md.gen.ts file, generate the .md.gen.ts file so that the markdown can be imported via `import x from './---.md.gen'`
+# The previous raw.macro solution did not work with jupyter extension
 def create_md_ts_files(folder: str) -> None:
     ret: List[str] = []
     for a in os.listdir(folder):
