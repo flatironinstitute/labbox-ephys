@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 
-const SortingInfoUnitEntry = React.memo(({
+interface Props {
+    unitId: number
+    labels: string
+    unitStatus: 'unselected' | 'selected' | 'focused'
+    onUnitClicked: (unitId: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
+}
+
+const SortingInfoUnitEntry: FunctionComponent<Props> = ({
     unitId, labels = "", unitStatus = 'unselected', onUnitClicked
 }) => {
     const unitClass =
@@ -16,6 +23,6 @@ const SortingInfoUnitEntry = React.memo(({
             <span className={'unitLabelsStyle'}>{ labels }</span>
         </div>
     );
-})
+}
 
 export default SortingInfoUnitEntry;

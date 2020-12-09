@@ -1,7 +1,14 @@
-import React from 'react';
-import { XYPlot, XAxis, YAxis, LineSeries } from 'react-vis';
+import React, { FunctionComponent } from 'react';
+import { LineSeries, XAxis, XYPlot, YAxis } from 'react-vis';
 
-const SpikeWaveforms_rv = ({boxSize, plotData, argsObject = {id: 0}, title}) => {
+interface Props {
+    boxSize: {width: number, height: number}
+    plotData: any
+    argsObject: any
+    title: string
+}
+
+const SpikeWaveforms_rv: FunctionComponent<Props> = ({boxSize, plotData, argsObject = {id: 0}, title}) => {
 
     if (!plotData.spikes) {
         return <div />;
@@ -14,10 +21,7 @@ const SpikeWaveforms_rv = ({boxSize, plotData, argsObject = {id: 0}, title}) => 
     const xAxisLabel = 'dt (msec)'
 
     return (
-        <div className="App" width={boxSize.width} height={boxSize.height} display="flex"
-            padding={10}
-            key={"plot-"+argsObject.id}
-        >
+        <div className="App" key={"plot-"+argsObject.id}>
             <div style={{textAlign: 'center', fontSize: '12px'}}>{title || "Spike waveform(s)"}</div>
             <XYPlot
                 margin={30}
@@ -25,11 +29,11 @@ const SpikeWaveforms_rv = ({boxSize, plotData, argsObject = {id: 0}, title}) => 
                 width={boxSize.width}
             >
                 {
-                    spikes.map((spike, ispike) => {
+                    spikes.map((spike: {waveform: number[]}, ispike: boolean) => {
                         const data = spike.waveform.map((v, ii) => ({x: ii*factor, y: v}));
                         return (
                             <LineSeries
-                                key={ispike}
+                                key={ispike + ''}
                                 data={data}
                             />
                         )

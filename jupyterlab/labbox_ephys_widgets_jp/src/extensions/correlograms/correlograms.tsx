@@ -1,4 +1,4 @@
-// LABBOX-EXTENSION: correlogram
+// LABBOX-EXTENSION: correlograms
 
 import { ExtensionContext } from "../extensionInterface";
 import AutoCorrelograms from "./AutoCorrelograms";

@@ -7,24 +7,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
-import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms';
 import { sleepMsec } from './extensions/common/misc';
-import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
-import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
-import { ExtensionContext, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
-import { activate as activatetimeseries } from './extensions/timeseries/timeseries';
+import { HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
-const registerExtensions = (context: ExtensionContext) => {
-  activatecorrelograms(context)
-  // activateexample(context)
-  // activatedevel(context)
-  activateelectrodegeometry(context)
-  activatetimeseries(context)
-  activateaveragewaveforms(context)
-  // // activatepythonsnippets(context)
-  // activateunitstable(context)
-}
 
 class LEJExtensionContext {
   _sortingViewPlugins: {[key: string]: SortingViewPlugin} = {}

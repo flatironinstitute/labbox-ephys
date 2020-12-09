@@ -1,14 +1,17 @@
-import { ExtensionContext } from './ExtensionContext'
+
 // !begin-code-generation!
-import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
-import { activate as activatecorrelogram } from './extensions/correlograms/correlograms'
+import { ExtensionContext } from './extensions/extensionInterface'
+
+import { activate as activatecorrelograms } from './extensions/correlograms/correlograms'
+import { activate as activateexample } from './extensions/example/example'
 import { activate as activatedevel } from './extensions/devel/devel'
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry'
-import { activate as activateexample } from './extensions/example/example'
-import { activate as activatepythonsnippets } from './extensions/pythonsnippets/pythonsnippets'
 import { activate as activatetimeseries } from './extensions/timeseries/timeseries'
+import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
+import { activate as activatepythonsnippets } from './extensions/pythonsnippets/pythonsnippets'
 import { activate as activateunitstable } from './extensions/unitstable/unitstable'
 // !end-code-generation!
+
 /*
 Extensions are automatically detected and added to this file via code generation (see task configured in vscode)
 They must be .tsx files with the following appearing at the top of the file
@@ -19,7 +22,7 @@ And they must include an activate() function
 
 const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
-    activatecorrelogram(context)
+    activatecorrelograms(context)
     activateexample(context)
     activatedevel(context)
     activateelectrodegeometry(context)
@@ -28,7 +31,6 @@ const registerExtensions = (context: ExtensionContext) => {
     activatepythonsnippets(context)
     activateunitstable(context)
     // !end-code-generation!
-    ///////////////////////////////////////////////
 }
 
 export default registerExtensions

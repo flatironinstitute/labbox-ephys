@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import os
 from os.path import isdir
 from typing import List, NamedTuple, Union
@@ -15,6 +16,8 @@ def main():
     print(f'Found {len(output_fnames)} files with templates')
     for output_fname in output_fnames:
         process_template(output_fname, template_kwargs=dict(extensions=extensions))
+    
+    create_md_json_files('.')
 
 def find_files_with_templates(folder: str) -> List[str]:
     ret: List[str] = []
@@ -26,9 +29,10 @@ def find_files_with_templates(folder: str) -> List[str]:
                 template_code = f.read()
             if '!begin-code-generation!' in template_code:
                 ret.append(fname)
-        if os.path.isdir(a):
-            for b in find_files_with_templates(folder + '/' + a):
-                ret.append(b)
+        if os.path.isdir(fname):
+            if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
+                for b in find_files_with_templates(folder + '/' + a):
+                    ret.append(b)
     return ret
 
 def process_template(output_fname, template_kwargs):
@@ -71,7 +75,22 @@ def update_template(template_fname: str, output_fname: str) -> None:
         if not dry_run:
             with open(template_fname, 'w') as f:
                 f.write(new_template_code)
-    
+
+def create_md_json_files(folder: str) -> None:
+    ret: List[str] = []
+    for a in os.listdir(folder):
+        fname = folder + '/' + a
+        fname2 = fname + '.json'
+        if a.endswith('.md') and os.path.exists(fname2):
+            print(f'Writing {fname2}')
+            with open(fname, 'r') as f:
+                md_txt = f.read()
+            with open(fname2, 'w') as f:
+                f.write(json.dumps(md_txt))
+        if os.path.isdir(fname):
+            if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
+                create_md_json_files(folder + '/' + a)
+
 class SectionInfo(NamedTuple):
     code: str
     generation: bool
