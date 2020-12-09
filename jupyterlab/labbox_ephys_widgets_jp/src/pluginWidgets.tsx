@@ -12,6 +12,7 @@ import { sleepMsec } from './extensions/common/misc';
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
 import { ExtensionContext, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { activate as activatetimeseries } from './extensions/timeseries/timeseries';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
 const registerExtensions = (context: ExtensionContext) => {
@@ -19,7 +20,7 @@ const registerExtensions = (context: ExtensionContext) => {
   // activateexample(context)
   // activatedevel(context)
   activateelectrodegeometry(context)
-  // activatetimeseries(context)
+  activatetimeseries(context)
   activateaveragewaveforms(context)
   // // activatepythonsnippets(context)
   // activateunitstable(context)
@@ -27,6 +28,7 @@ const registerExtensions = (context: ExtensionContext) => {
 
 class LEJExtensionContext {
   _sortingViewPlugins: {[key: string]: SortingViewPlugin} = {}
+  _recordingViewPlugins: {[key: string]: RecordingViewPlugin} = {}
   constructor() {}
   registerSortingView(V: SortingViewPlugin) {
     this._sortingViewPlugins[V.name] = V
@@ -41,7 +43,7 @@ class LEJExtensionContext {
 
   }
   registerRecordingView(V: RecordingViewPlugin) {
-
+    this._recordingViewPlugins[V.name] = V
   }
   unregisterRecordingView(name: string) {
 
@@ -56,43 +58,6 @@ class LEJExtensionContext {
 
 const extensionContext = new LEJExtensionContext()
 registerExtensions(extensionContext)
-
-console.log(Object.keys(extensionContext._sortingViewPlugins))
-
-export class SortingViewModel extends DOMWidgetModel {
-  initialize(attributes: any, options: any) {
-    super.initialize(attributes, options);
-    
-    
-  }
-
-  defaults() {
-    return {
-      ...super.defaults(),
-      _model_name: SortingViewModel.model_name,
-      _model_module: SortingViewModel.model_module,
-      _model_module_version: SortingViewModel.model_module_version,
-      _view_name: SortingViewModel.view_name,
-      _view_module: SortingViewModel.view_module,
-      _view_module_version: SortingViewModel.view_module_version,
-      pluginName: '',
-      sortingObject: {},
-      recordingObject: {}
-    };
-  }
-
-  static serializers: ISerializers = {
-    ...DOMWidgetModel.serializers,
-    // Add any extra serializers here
-  };
-
-  static model_name = 'SortingViewModel';
-  static model_module = MODULE_NAME;
-  static model_module_version = MODULE_VERSION;
-  static view_name = 'SortingView'; // Set to null if no view
-  static view_module = MODULE_NAME; // Set to null if no view
-  static view_module_version = MODULE_VERSION;
-}
 
 class HitherJobManager {
   _activeJobs: {[key: string]: any} = {}
@@ -189,7 +154,40 @@ class HitherJobManager {
     })()
   }
 }
-  
+
+export class SortingViewModel extends DOMWidgetModel {
+  initialize(attributes: any, options: any) {
+    super.initialize(attributes, options);
+  }
+
+  defaults() {
+    return {
+      ...super.defaults(),
+      _model_name: SortingViewModel.model_name,
+      _model_module: SortingViewModel.model_module,
+      _model_module_version: SortingViewModel.model_module_version,
+      _view_name: SortingViewModel.view_name,
+      _view_module: SortingViewModel.view_module,
+      _view_module_version: SortingViewModel.view_module_version,
+      pluginName: '',
+      sortingObject: {},
+      recordingObject: {}
+    };
+  }
+
+  static serializers: ISerializers = {
+    ...DOMWidgetModel.serializers,
+    // Add any extra serializers here
+  };
+
+  static model_name = 'SortingViewModel';
+  static model_module = MODULE_NAME;
+  static model_module_version = MODULE_VERSION;
+  static view_name = 'SortingView'; // Set to null if no view
+  static view_module = MODULE_NAME; // Set to null if no view
+  static view_module_version = MODULE_VERSION;
+}
+
 export class SortingView extends DOMWidgetView {
   _hitherJobManager: HitherJobManager
   initialize() {
@@ -261,6 +259,90 @@ export class SortingView extends DOMWidgetView {
         readOnly={true}
         sortingUnitViews={{}}
         sortingUnitMetrics={{}}
+        hither={hitherContext}
+      />
+    )
+    return x
+  }
+  render() {
+    // this.el.classList.add('custom-widget');
+
+    const x = this.element()
+    ReactDOM.render(x, this.el)
+  }
+}
+
+export class RecordingViewModel extends DOMWidgetModel {
+  initialize(attributes: any, options: any) {
+    super.initialize(attributes, options);
+  }
+
+  defaults() {
+    return {
+      ...super.defaults(),
+      _model_name: RecordingViewModel.model_name,
+      _model_module: RecordingViewModel.model_module,
+      _model_module_version: RecordingViewModel.model_module_version,
+      _view_name: RecordingViewModel.view_name,
+      _view_module: RecordingViewModel.view_module,
+      _view_module_version: RecordingViewModel.view_module_version,
+      pluginName: '',
+      recordingObject: {}
+    };
+  }
+
+  static serializers: ISerializers = {
+    ...DOMWidgetModel.serializers,
+    // Add any extra serializers here
+  };
+
+  static model_name = 'RecordingViewModel';
+  static model_module = MODULE_NAME;
+  static model_module_version = MODULE_VERSION;
+  static view_name = 'RecordingView'; // Set to null if no view
+  static view_module = MODULE_NAME; // Set to null if no view
+  static view_module_version = MODULE_VERSION;
+}
+
+export class RecordingView extends DOMWidgetView {
+  _hitherJobManager: HitherJobManager
+  initialize() {
+    this._hitherJobManager = new HitherJobManager(this.model)
+  }
+  element() {
+    const pluginName = this.model.get('pluginName')
+    const recordingObject = this.model.get('recordingObject')
+    const recordingInfo = this.model.get('recordingInfo')
+    const plugin = extensionContext._recordingViewPlugins[pluginName]
+    if (!plugin) return <div>Plugin not found: {pluginName}</div>
+
+    const example = exampleSorting()
+
+    const hitherContext: HitherContext = {
+      createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
+        return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
+      }
+    }
+
+    let recording: Recording
+    if (recordingObject.recording_format) {
+      recording = {
+        recordingId: '',
+        recordingLabel: '',
+        recordingObject,
+        recordingPath: '',
+        recordingInfo
+      }
+    }
+    else {
+      recording = example.recording
+    }
+    
+
+    // this.el.textContent = this.model.get('value') + ' --- test9';
+    const x = (
+      <plugin.component
+        recording={recording}
         hither={hitherContext}
       />
     )

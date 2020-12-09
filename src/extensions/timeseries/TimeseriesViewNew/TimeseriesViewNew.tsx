@@ -71,7 +71,7 @@ const TimeseriesViewNew = (props: Props) => {
                     const slot = await timeseriesCalculationPool.requestSlot();
                     try {
                         result = await hither.createHitherJob(
-                            'get_timeseries_segment',
+                            'createjob_get_timeseries_segment',
                             {
                                 recording_object: props.recordingObject,
                                 ds_factor: ds_factor,
@@ -81,7 +81,8 @@ const TimeseriesViewNew = (props: Props) => {
                             {
                                 job_handler_name: 'timeseries',
                                 useClientCache: true,
-                                auto_substitute_file_objects: false
+                                auto_substitute_file_objects: false,
+                                newHitherJobMethod: true
                             }
                         ).wait() as {data_b64: string}
                     }
@@ -139,7 +140,7 @@ const calculateTimeseriesInfo = async (recordingObject: RecordingObject, hither:
     let info: TimeseriesInfo
     try {
         info = await hither.createHitherJob(
-            'calculate_timeseries_info',
+            'createjob_calculate_timeseries_info',
             { recording_object: recordingObject },
             {
                 hither_config: {
@@ -147,7 +148,8 @@ const calculateTimeseriesInfo = async (recordingObject: RecordingObject, hither:
                 },
                 job_handler_name: 'timeseries',
                 useClientCache: true,
-                auto_substitute_file_objects: false
+                auto_substitute_file_objects: false,
+                newHitherJobMethod: true
             }
         ).wait() as TimeseriesInfo
     }
