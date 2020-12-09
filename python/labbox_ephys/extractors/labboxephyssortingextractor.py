@@ -1,4 +1,5 @@
 from copy import deepcopy
+from os.path import basename
 from typing import Union
 
 import hither as hi
@@ -6,6 +7,8 @@ import kachery as ka
 import kachery_p2p as kp
 import spikeextractors as se
 
+from ._in_memory import (_random_string, get_in_memory_object,
+                         register_in_memory_object)
 from .h5extractors.h5sortingextractorv1 import H5SortingExtractorV1
 from .mdaextractors import MdaSortingExtractor
 from .snippetsextractors import Snippets1SortingExtractor
@@ -27,7 +30,7 @@ def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None
     if isinstance(arg, dict):
         if 'firings' in arg:
             return dict(
-                recording_format='mda',
+                sorting_format='mda',
                 data=dict(
                     firings=arg['firings'],
                     samplerate=arg.get('samplerate', None)
@@ -45,7 +48,7 @@ def _create_object_for_arg(arg: Union[str, dict], samplerate=None) -> Union[dict
     if (isinstance(arg, dict)) and ('path' in arg) and (type(arg['path']) == str):
         arg = arg['path']
 
-    # if has type LabboxEphysRecordingExtractor, then just get the object from arg.object()
+    # if has type LabboxEphysSortingExtractor, then just get the object from arg.object()
     if isinstance(arg, LabboxEphysSortingExtractor):
         return arg.object()
 
@@ -102,7 +105,12 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             S = se.NumpySortingExtractor()
             S.set_sampling_frequency(samplerate)
             S.set_times_labels(times_npy.ravel(), labels_npy.ravel())
-            self._sorting = S        
+            self._sorting = S
+        elif sorting_format == 'in_memory':
+            S = get_in_memory_object(data)
+            if S is None:
+                raise Exception('Unable to find in-memory object for sorting')
+            self._sorting = S
         else:
             raise Exception(f'Unexpected sorting format: {sorting_format}')
 
@@ -127,5 +135,30 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
         self._sorting.set_sampling_frequency(freq)
     
     @staticmethod
+    def from_memory(sorting: se.SortingExtractor, serialize=False):
+        if serialize:
+            with hi.TemporaryDirectory() as tmpdir:
+                fname = tmpdir + '/' + _random_string(10) + '_firings.mda'
+                MdaSortingExtractor.write_sorting(sorting=sorting, save_path=fname)
+                with ka.config(use_hard_links=True):
+                    uri = ka.store_file(fname, basename='firings.mda')
+                sorting = LabboxEphysSortingExtractor({
+                    'sorting_format': 'mda',
+                    'data': {
+                        'firings': uri,
+                        'samplerate': sorting.get_sampling_frequency()
+                    }
+                })
+                return sorting
+        obj = {
+            'sorting_format': 'in_memory',
+            'data': register_in_memory_object(sorting)
+        }
+        return LabboxEphysSortingExtractor(obj)
+    
+    @staticmethod
     def write_sorting(sorting, save_path):
-        MdaSortingExtractor.write_sorting(sorting=sorting, save_path=save_path)
+        with hi.TemporaryDirectory() as tmpdir:
+            H5SortingExtractorV1.write_sorting(sorting=sorting, save_path=tmpdir + '/' + _random_string(10) + '_sorting.h5')
+
+
