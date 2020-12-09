@@ -1,11 +1,15 @@
 from copy import deepcopy
+from os.path import basename
 from typing import Union
 
+import hither as hi
 import kachery as ka
 import kachery_p2p as kp
 import numpy as np
 import spikeextractors as se
 
+from ._in_memory import (_random_string, get_in_memory_object,
+                         register_in_memory_object)
 from .bandpass_filter import bandpass_filter
 from .binextractors import Bin1RecordingExtractor
 from .mdaextractors import MdaRecordingExtractor
@@ -254,6 +258,11 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         elif recording_format == 'filtered':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             self._recording: se.RecordingExtractor = _apply_filters(recording=R, filters=data['filters'])
+        elif recording_format == 'in_memory':
+            R = get_in_memory_object(data)
+            if R is None:
+                raise Exception('Unable to find in-memory object for recording')
+            self._recording = R
         else:
             raise Exception(f'Unexpected recording format: {recording_format}')
 
@@ -290,6 +299,39 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
 
     def get_traces(self, channel_ids=None, start_frame=None, end_frame=None) -> np.ndarray:
         return self._recording.get_traces(channel_ids=channel_ids, start_frame=start_frame, end_frame=end_frame)
+    
+    @staticmethod
+    def from_memory(recording: se.RecordingExtractor, serialize=False, serialize_dtype=None):
+        if serialize:
+            if serialize_dtype is None:
+                raise Exception('You must specify the serialize_dtype when serializing recording extractor in from_memory()')
+            with hi.TemporaryDirectory() as tmpdir:
+                fname = tmpdir + '/' + _random_string(10) + '_recording.mda'
+                se.BinDatRecordingExtractor.write_recording(recording=recording, save_path=fname, time_axis=0, dtype=serialize_dtype)
+                with ka.config(use_hard_links=True):
+                    uri = ka.store_file(fname, basename='raw.mda')
+                num_channels = recording.get_num_channels()
+                channel_ids = [int(a) for a in recording.get_channel_ids()]
+                xcoords = [recording.get_channel_property(a, 'location')[0] for a in channel_ids]
+                ycoords = [recording.get_channel_property(a, 'location')[1] for a in channel_ids]
+                recording = LabboxEphysRecordingExtractor({
+                    'recording_format': 'bin1',
+                    'data': {
+                        'raw': uri,
+                        'raw_num_channels': num_channels,
+                        'num_frames': int(recording.get_num_frames()),
+                        'samplerate': float(recording.get_sampling_frequency()),
+                        'channel_ids': channel_ids,
+                        'channel_map': dict(zip([str(c) for c in channel_ids], [int(i) for i in range(num_channels)])),
+                        'channel_positions': dict(zip([str(c) for c in channel_ids], [[float(xcoords[i]), float(ycoords[i])] for i in range(num_channels)]))
+                    }
+                })
+                return recording
+        obj = {
+            'recording_format': 'in_memory',
+            'data': register_in_memory_object(recording)
+        }
+        return LabboxEphysRecordingExtractor(obj)
 
     # @staticmethod
     # def get_recording_object(recording):
