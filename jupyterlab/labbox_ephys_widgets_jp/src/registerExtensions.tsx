@@ -4,6 +4,7 @@ import { ExtensionContext } from './extensions/extensionInterface';
 
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
 import { activate as activateexample } from './extensions/example/example';
+import { activate as activatecuration } from './extensions/curation/curation';
 import { activate as activatedevel } from './extensions/devel/devel';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
 import { activate as activatetimeseries } from './extensions/timeseries/timeseries';
@@ -15,6 +16,7 @@ const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
     activatecorrelograms(context)
     activateexample(context)
+    activatecuration(context)
     activatedevel(context)
     activateelectrodegeometry(context)
     activatetimeseries(context)

@@ -3,12 +3,12 @@
 
 // Import the CSS
 import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
-import React from 'react';
+import React, { FunctionComponent, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import { sleepMsec } from './extensions/common/misc';
-import { HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { defaultSortingCuration, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -175,6 +175,64 @@ export class SortingViewModel extends DOMWidgetModel {
   static view_module_version = MODULE_VERSION;
 }
 
+interface PluginComponentWrapperProps {
+  plugin: SortingViewPlugin
+  hither: HitherContext
+  sortingObject: any
+  recordingObject: any
+  sortingInfo: any
+  recordingInfo: any
+}
+
+const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo}) => {
+  let sorting: Sorting
+  let recording: Recording
+  if (sortingObject.sorting_format) {
+    sorting = {
+      sortingId: '',
+      sortingLabel: '',
+      sortingPath: '',
+      sortingObject,
+      recordingId: '',
+      recordingPath: '',
+      recordingObject,
+      sortingInfo
+    }
+    recording = {
+      recordingId: '',
+      recordingLabel: '',
+      recordingObject,
+      recordingPath: '',
+      recordingInfo
+    }
+  }
+  else {
+    const example = exampleSorting()
+    sorting = example.sorting
+    recording = example.recording
+  }
+
+  const [curation, curationDispatch] = useReducer(sortingCurationReducer, defaultSortingCuration)
+  sorting.curation = curation
+  
+  // this.el.textContent = this.model.get('value') + ' --- test9';
+  return (
+    <plugin.component
+      sorting={sorting}
+      recording={recording}
+      selectedUnitIds={{}}
+      focusedUnitId={null}
+      onUnitClicked={(unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {}}
+      curationDispatch={curationDispatch}
+      onSelectedUnitIdsChanged={(selectedUnitIds: {[key: string]: boolean}) => {}}
+      readOnly={true}
+      sortingUnitViews={{}}
+      sortingUnitMetrics={{}}
+      hither={hither}
+    />
+  )
+}
+
 export class SortingView extends DOMWidgetView {
   _hitherJobManager: HitherJobManager
   initialize() {
@@ -189,67 +247,22 @@ export class SortingView extends DOMWidgetView {
     const plugin = extensionContext._sortingViewPlugins[pluginName]
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-    const example = exampleSorting()
-
-    const hitherContext: HitherContext = {
+    const hither: HitherContext = {
       createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
         return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
       }
     }
 
-    let sorting: Sorting
-    let recording: Recording
-    if (sortingObject.sorting_format) {
-      sorting = {
-        sortingId: '',
-        sortingLabel: '',
-        sortingPath: '',
-        sortingObject,
-        recordingId: '',
-        recordingPath: '',
-        recordingObject,
-        sortingInfo
-      }
-      recording = {
-        recordingId: '',
-        recordingLabel: '',
-        recordingObject,
-        recordingPath: '',
-        recordingInfo
-      }
-    }
-    else {
-      sorting = example.sorting
-      recording = example.recording
-    }
-    
-
-    // this.el.textContent = this.model.get('value') + ' --- test9';
-    const x = (
-      <plugin.component
-        sorting={sorting}
-        recording={recording}
-        selectedUnitIds={{}}
-        focusedUnitId={null}
-        onUnitClicked={(unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {}}
-        onAddUnitLabel={(a: {
-            sortingId: string;
-            unitId: number;
-            label: string;
-        }) => {}}
-        onRemoveUnitLabel={(a: {
-            sortingId: string;
-            unitId: number;
-            label: string;
-        }) => {}}
-        onSelectedUnitIdsChanged={(selectedUnitIds: {[key: string]: boolean}) => {}}
-        readOnly={true}
-        sortingUnitViews={{}}
-        sortingUnitMetrics={{}}
-        hither={hitherContext}
+    return (
+      <PluginComponentWrapper
+        plugin={plugin}
+        hither={hither}
+        sortingObject={sortingObject}
+        recordingObject={recordingObject}
+        sortingInfo={sortingInfo}
+        recordingInfo={recordingInfo}
       />
     )
-    return x
   }
   render() {
     // this.el.classList.add('custom-widget');

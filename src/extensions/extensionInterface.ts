@@ -1,3 +1,5 @@
+import { Reducer } from "react"
+
 export interface Sorting {
     sortingId: string
     sortingLabel: string
@@ -10,7 +12,7 @@ export interface Sorting {
 
     sortingInfo?: SortingInfo
     externalUnitMetrics?: ExternalSortingUnitMetric[]
-    unitCuration?: {[key: string]: {labels: Label[]}}
+    curation?: SortingCuration
 }
 
 export type Label = string
@@ -57,6 +59,65 @@ export interface MetricPlugin extends LabboxPlugin {
     
 }
 
+// Sorting curation
+export type SortingCuration = {
+    labelsByUnit: {[key: string]: string[]}
+    labelChoices: string[]
+}
+export const defaultSortingCuration: SortingCuration = {
+    labelChoices: ["accept", "reject", "mua", "artifact", "noise"].sort(),
+    labelsByUnit: {}
+}
+
+export type SortingCurationDispatch = (action: SortingCurationAction) => void
+
+type AddLabelSortingCurationAction = {
+    type: 'AddLabel',
+    unitId: number
+    label: string
+}
+
+type RemoveLabelSortingCurationAction = {
+    type: 'RemoveLabel',
+    unitId: number
+    label: string
+}
+
+export type SortingCurationAction = AddLabelSortingCurationAction | RemoveLabelSortingCurationAction
+
+export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAction> = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
+    if (action.type === 'AddLabel') {
+        const uid = action.unitId + ''
+        const labels = state.labelsByUnit[uid] || []
+        if (!labels.includes(action.label)) {
+            return {
+                ...state,
+                labelsByUnit: {
+                    ...state.labelsByUnit,
+                    [uid]: [...labels, action.label].sort()
+                }
+            }
+        }
+        else return state
+    }
+    else if (action.type === 'RemoveLabel') {
+        const uid = action.unitId + ''
+        const labels = state.labelsByUnit[uid] || []
+        if (labels.includes(action.label)) {
+            return {
+                ...state,
+                labelsByUnit: {
+                    ...state.labelsByUnit,
+                    [uid]: labels.filter(l => (l !== action.label))
+                }
+            }
+        }
+        else return state
+    }
+    else return state
+}
+////////////////////
+
 export interface HitherJobOpts {
     useClientCache?: boolean,
     auto_substitute_file_objects?: boolean,
@@ -91,16 +152,7 @@ export interface SortingViewProps {
     selectedUnitIds: {[key: string]: boolean}
     focusedUnitId: number | null
     onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
-    onAddUnitLabel: (a: {
-        sortingId: string;
-        unitId: number;
-        label: string;
-    }) => void
-    onRemoveUnitLabel: (a: {
-        sortingId: string;
-        unitId: number;
-        label: string;
-    }) => void
+    curationDispatch: (action: SortingCurationAction) => void
     onSelectedUnitIdsChanged: (selectedUnitIds: {[key: string]: boolean}) => void
     readOnly: boolean | null
     sortingUnitViews: {[key: string]: SortingUnitViewPlugin} // maybe this doesn't belong here

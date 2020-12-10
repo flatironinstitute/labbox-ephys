@@ -1,6 +1,6 @@
 import { Reducer } from 'react'
 import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, REMOVE_UNIT_LABEL, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO } from '../actions'
-import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../extensions/extensionInterface'
+import { defaultSortingCuration, ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer, SortingInfo } from '../extensions/extensionInterface'
 export type { ExternalSortingUnitMetric, Label, Sorting, SortingInfo } from '../extensions/extensionInterface'
 
 type Label = string
@@ -68,7 +68,7 @@ const isRemoveUnitLabelAction = (x: any): x is RemoveUnitLabelAction => (
 )
 
 export type State = Sorting[]
-export type Action = AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | AddUnitLabelAction | RemoveUnitLabelAction | SetExternalSortingUnitMetricsAction
+export type Action = (AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | AddUnitLabelAction | RemoveUnitLabelAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
 export const initialState: State = []
 
 // the reducer
@@ -106,7 +106,7 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
             s.sortingId === action.sortingId ? (
                 {
                     ...s,
-                    unitCuration: unitCurationReducer(s.unitCuration, action)
+                    curation: unitCurationReducer(s.curation || defaultSortingCuration, action)
                 }
             ): s
         ))
@@ -126,37 +126,22 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
     }
 }
 
-const setAdd = (thelist: string[] = [], item: string) => {
-    return thelist.filter(l => (l !== item)).concat(item).sort()
-}
-
-const setRemove = (thelist: string[] = [], item: string) => {
-    return thelist.filter(l => (l !== item)).sort()
-}
-
 type Curation = {[key: string]: {labels: string[]}}
 
 
-const unitCurationReducer = (curation: Curation = { }, action: Action) => {
+const unitCurationReducer = (curation: SortingCuration, action: Action): SortingCuration => {
     // returns object corresponding to the value of the 'unitCuration' key of a sorting.
     if (action.type !== ADD_UNIT_LABEL && action.type !== REMOVE_UNIT_LABEL) {
-        return { ...curation }
+        return curation
     }
-    return {
-        ...curation,
-        [action.unitId]: {
-            ...(curation[action.unitId + ''] || {labels: []}),
-            labels: unitLabelReducer((curation[action.unitId + ''] || {labels: []}).labels, action)
-        }
+    if (action.type === 'ADD_UNIT_LABEL') {
+        return sortingCurationReducer(curation, {type: 'AddLabel', unitId: action.unitId, label: action.label})
     }
-}
-
-const unitLabelReducer = (labels: string[] = [], action: Action) => {
-    if (action.type === ADD_UNIT_LABEL) {
-        return setAdd(labels, action.label)
+    else if (action.type === 'REMOVE_UNIT_LABEL') {
+        return sortingCurationReducer(curation, {type: 'RemoveLabel', unitId: action.unitId, label: action.label})
     }
-    if (action.type === REMOVE_UNIT_LABEL) {
-        return setRemove(labels, action.label)
+    else {
+        return curation
     }
 }
 
