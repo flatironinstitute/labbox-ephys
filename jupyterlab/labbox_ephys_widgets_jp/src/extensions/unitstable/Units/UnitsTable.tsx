@@ -1,6 +1,6 @@
 import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import React, { FunctionComponent, useState } from 'react';
-import { ExternalSortingUnitMetric, Sorting, SortingUnitMetricPlugin } from '../../extensionInterface';
+import React, { FunctionComponent, useCallback, useState } from 'react';
+import { ExternalSortingUnitMetric, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import { sortMetricValues } from './metricPlugins/common';
 
@@ -85,16 +85,9 @@ interface Props {
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
     units: number[]
     metrics: {[key: string]: {data: {[key: string]: any}, error: string | null}}
-    selectedUnitIds: {[key: string]: boolean}
+    selection: SortingSelection
+    selectionDispatch: SortingSelectionDispatch
     sorting: Sorting
-    onSelectedUnitIdsChanged: (s: {[key: string]: boolean}) => void
-}
-
-const toggleSelectedUnitId = (selectedUnitIds: {[key: string]: boolean}, unitId: number): {[key: string]: boolean} => {
-    return {
-        ...selectedUnitIds,
-        [unitId + '']: !(selectedUnitIds[unitId + ''] || false)
-    }
 }
 
 type sortFieldEntry = {metricName: string, keyOrder: number, sortAscending: boolean}
@@ -109,11 +102,21 @@ const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
 }
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { sortingUnitMetrics, units, metrics, selectedUnitIds, sorting, onSelectedUnitIdsChanged } = props
+    const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, sorting } = props
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
     const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
     units.sort((a, b) => a - b) // first sort by actual unit number
     // Now sort the list iteratively by each of the sorters in the sortFieldOrder state.
+
+    const toggleSelectedUnitId = useCallback(
+        (unitId: number) => {
+            const newSelectedUnitIds = (selection.selectedUnitIds.includes(unitId)) ?
+                (selection.selectedUnitIds.filter(uid => (uid !== unitId))) :
+                ([...selection.selectedUnitIds, unitId])
+            selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: newSelectedUnitIds})
+        },
+        [selection, selectionDispatch]
+    )
 
     const sortingRules = interpretSortFields(sortFieldOrder)
     for (const r of sortingRules) {
@@ -127,6 +130,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
             return sortMetricValues(recordA, recordB, r.sortAscending)
         })
     }
+    const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     return (
         <Table className="NiceTable">
             <HeaderRow 
@@ -162,8 +166,8 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                         <TableRow key={unitId + '_row'}>
                             <UnitCheckbox
                                 unitKey = {unitId + ''}
-                                selected = {selectedUnitIds[unitId] || false}
-                                handleClicked = {() => onSelectedUnitIdsChanged(toggleSelectedUnitId(selectedUnitIds, unitId))}
+                                selected = {selectedUnitIdsLookup[unitId + ''] || false}
+                                handleClicked = {() => toggleSelectedUnitId(unitId)}
                             />
                             <UnitIdCell
                                 id = {unitId + ''}

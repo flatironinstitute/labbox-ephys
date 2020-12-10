@@ -10,7 +10,7 @@ interface OwnProps {
 }
 
 const CurationSortingView: FunctionComponent<SortingViewProps & SizeMeProps & OwnProps> = (props) => {
-    const { sorting, selectedUnitIds, curationDispatch } = props
+    const { sorting, selection, selectionDispatch, curationDispatch } = props
     const curation = sorting.curation || defaultSortingCuration
 
     if (!props.size.width) return <div>No width</div>
@@ -28,7 +28,8 @@ const CurationSortingView: FunctionComponent<SortingViewProps & SizeMeProps & Ow
                 width={initialControlPanelWidth} // this will be overridden by the splitter
                 curation={curation}
                 curationDispatch={curationDispatch}
-                selectedUnitIds={Object.keys(selectedUnitIds).filter(uid => (selectedUnitIds[uid])).map(uid => parseInt(uid))}
+                selection={selection}
+                selectionDispatch={selectionDispatch}
             />
             <Units
                 {...props}

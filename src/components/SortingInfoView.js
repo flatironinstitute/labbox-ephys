@@ -1,7 +1,7 @@
 import React from 'react';
 import SortingInfoUnitEntry from '../extensions/common/SortingInfoUnitEntry';
 
-const SortingViewDiv = React.memo(({ unit_ids, onUnitClicked, curation, focus = null, styling, selections }) => {
+const SortingViewDiv = React.memo(({ unit_ids, onUnitClicked, curation, styling, selections }) => {
     const unitTuples = unit_ids.reduce((priors, unitId) => {
         return {
             ...priors,
@@ -16,9 +16,6 @@ const SortingViewDiv = React.memo(({ unit_ids, onUnitClicked, curation, focus = 
         if (!selections[unitId]) return;
         unitTuples[unitId]['unitStatus'] = 'selected';
     });
-    if (focus && selections[focus]) {
-        unitTuples[focus]['unitStatus'] = 'focused';
-    }
     return (
         <div style={styling}>
             <div className={'unitIdsColumnLabelStyle'} key={'unit-ids-label'}>Unit IDs</div>
@@ -35,7 +32,7 @@ const SortingViewDiv = React.memo(({ unit_ids, onUnitClicked, curation, focus = 
     )
 })
 
-const SortingInfoView = ({ sortingInfo, selections = {}, focus = -999, onUnitClicked=undefined, curation={}, styling=undefined }) => {
+const SortingInfoView = ({ sortingInfo, selections = {}, onUnitClicked=undefined, curation={}, styling=undefined }) => {
     const si = sortingInfo;
     if (!si) return <div>No sorting info found</div>;
         
@@ -45,7 +42,6 @@ const SortingInfoView = ({ sortingInfo, selections = {}, focus = -999, onUnitCli
                 unit_ids={si.unit_ids}
                 onUnitClicked={onUnitClicked}
                 curation={curation}
-                focus={focus}
                 styling={styling}
                 selections={selections}
             />

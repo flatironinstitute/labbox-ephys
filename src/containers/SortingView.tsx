@@ -1,10 +1,10 @@
 import { Accordion, AccordionDetails, AccordionSummary, CircularProgress } from '@material-ui/core';
-import React, { Dispatch, useCallback, useEffect, useState } from 'react';
+import React, { Dispatch, useCallback, useEffect, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { HitherContext, SortingCurationAction, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface';
+import { defaultSortingSelection, HitherContext, SortingCurationAction, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -47,16 +47,15 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
 type CalcStatus = 'waiting' | 'computing' | 'finished'
 
-type SelectedUnitIds = {[key: string]: boolean}
-
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetExternalUnitMetrics, extensionsConfig, sortingUnitMetrics, hither } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
-  const [selectedUnitIds, setSelectedUnitIds] = useState<SelectedUnitIds>({})
-  const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, defaultSortingSelection)
+  const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
+  // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
   // const effect = async () => {
   //   if ((sorting) && (recording) && (!sorting.sortingInfo) && (sortingInfoStatus === 'waiting')) {
@@ -102,40 +101,31 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
 
   const handleUnitClicked = useCallback((unitId, event) => {
     if (event.ctrlKey) {
-      if (selectedUnitIds[unitId + '']) {
-        setSelectedUnitIds({
-          ...selectedUnitIds,
-          [unitId + '']: false
-        })
+      if (selection.selectedUnitIds.includes(unitId)) {
+        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: selection.selectedUnitIds.filter(uid => (uid !== unitId))})
       }
       else {
-        setSelectedUnitIds({
-          ...selectedUnitIds,
-          [unitId + '']: true
-        })
-        setFocusedUnitId(unitId)
+        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: [...selection.selectedUnitIds, unitId]})
       }
     }
-    else if (event.shiftKey) {
-      if (focusedUnitId !== null) {
-        const unitIds = intrange(focusedUnitId, unitId)
-        const newSelectedUnitIds = {...selectedUnitIds}
-        const sortingInfo = sorting?.sortingInfo
-        if (sortingInfo) {
-          for (let uid of unitIds) {
-            if (sortingInfo.unit_ids.includes(uid)) {
-              newSelectedUnitIds[uid] = true
-            }
+    else if ((event.shiftKey) && (anchorUnitId !== null)) {
+      const unitIds = intrange(anchorUnitId, unitId)
+      const newSelectedUnitIds = [...selection.selectedUnitIds]
+      const sortingInfo = sorting?.sortingInfo
+      if (sortingInfo) {
+        for (let uid of unitIds) {
+          if (sortingInfo.unit_ids.includes(uid)) {
+            if (!newSelectedUnitIds.includes(uid)) newSelectedUnitIds.push(uid)
           }
         }
-        setSelectedUnitIds(newSelectedUnitIds)
       }
+      selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: newSelectedUnitIds})
     }
     else {
-      setSelectedUnitIds({[unitId + '']: true})
-      setFocusedUnitId(unitId)
+      selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: [unitId]})
+      setAnchorUnitId(unitId)
     }
-  }, [selectedUnitIds, setSelectedUnitIds, focusedUnitId, sorting]);
+  }, [selection, selectionDispatch, anchorUnitId, setAnchorUnitId, sorting]);
 
   const sidebarWidth = '200px'
 
@@ -162,6 +152,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
 
+  const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
     <div>
       <h3>
@@ -176,8 +167,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
         ) : (
           <SortingInfoView
             sortingInfo={sorting.sortingInfo}
-            selections={selectedUnitIds}
-            focus={focusedUnitId !== null ? focusedUnitId : undefined}
+            selections={selectedUnitIdsLookup}
             onUnitClicked={handleUnitClicked}
             curation={sorting.curation}
             styling={sidebarStyle}
@@ -197,13 +187,10 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   {...sv.props || {}}
                   sorting={sorting}
                   recording={recording}
-                  selectedUnitIds={selectedUnitIds}
-                  focusedUnitId={focusedUnitId}
+                  selection={selection}
+                  selectionDispatch={selectionDispatch}
                   onUnitClicked={handleUnitClicked}
                   curationDispatch={curationDispatch}
-                  onSelectedUnitIdsChanged={(s: {[key: string]: boolean}) => {
-                    return setSelectedUnitIds(s)
-                  }}
                   readOnly={readOnly}
                   sortingUnitViews={sortingUnitViews}
                   sortingUnitMetrics={sortingUnitMetrics}

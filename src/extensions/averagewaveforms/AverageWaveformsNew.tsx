@@ -7,6 +7,7 @@ import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 const averageWaveformsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
 const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) => {
+    const { selection } = props
     // const { hither } = props
     // const [calcMode, setCalcMode] = useState('waiting')
     // const [result, setResult] = useState<any>(null)
@@ -20,11 +21,11 @@ const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) =
     //     }
     // }, [hither, setResult, calcMode, setCalcMode])
     // return <div>AAAA: {calcMode} {result + ''}</div>
+    const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     return (
         <PlotGrid
             sorting={props.sorting}
-            selections={props.selectedUnitIds}
-            focus={props.focusedUnitId}
+            selections={selectedUnitIdsLookup}
             onUnitClicked={props.onUnitClicked}
             dataFunctionName={'createjob_fetch_average_waveform_plot_data'}
             dataFunctionArgsCallback={(unitId: number) => ({

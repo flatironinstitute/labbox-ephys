@@ -7,17 +7,14 @@ import IndividualUnit from './IndividualUnit';
 
 const individualUnitsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds, sortingUnitViews, hither }) => {
+const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection, sortingUnitViews, hither }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     // const { documentId, feedUri, readOnly } = documentInfo || {};
     const { sortingInfo } = sorting
     if (!sortingInfo) return <div>No sorting info</div>
 
-    let selectedUnitIdsArray =
-        Object.keys(selectedUnitIds).filter(k => selectedUnitIds[k])
-        .filter(id => sortingInfo.unit_ids.includes(parseInt(id)))
-        .map(id => parseInt(id));
+    let selectedUnitIdsArray = selection.selectedUnitIds
     
     let showExpandButton = false;
     if (selectedUnitIdsArray.length > maxUnitsVisible) {
