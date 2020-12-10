@@ -92,12 +92,6 @@
             "command": "unison src/extensions jupyterlab/labbox_ephys_widgets_jp/src/extensions -ignore \"Name __pycache__\" -repeat watch"
         },
         {
-            "label": "jupyter lab dev",
-            "type": "shell",
-            // run jupyter lab in watch mode
-            "command": "jupyter lab --watch"
-        },
-        {
             "label": "jupyterlab dev",
             "type": "shell",
             // run jupyter lab in watch mode

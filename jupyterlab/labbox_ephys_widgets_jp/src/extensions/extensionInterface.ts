@@ -85,6 +85,7 @@ type RemoveLabelSortingCurationAction = {
 
 export type SortingCurationAction = AddLabelSortingCurationAction | RemoveLabelSortingCurationAction
 
+// This reducer is used by the jupyter widget, but not by the web gui. That's because the web gui uses the global redux state to dispatch the curation actions.
 export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAction> = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
     if (action.type === 'AddLabel') {
         const uid = action.unitId + ''
