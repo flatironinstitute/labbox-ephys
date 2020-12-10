@@ -90,6 +90,24 @@
             // You must install unison and unison-fsmonitor
             // curl -L -o unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor
             "command": "unison src/extensions jupyterlab/labbox_ephys_widgets_jp/src/extensions -ignore \"Name __pycache__\" -repeat watch"
+        },
+        {
+            "label": "jupyterlab dev",
+            "type": "shell",
+            // run jupyter lab in watch mode
+            "command": "jupyter lab --watch"
+        },
+        {
+            "label": "labextension install",
+            "type": "shell",
+            // run jupyter lab in watch mode
+            "command": "cd jupyterlab/labbox_ephys_widgets_jp && pip install -e . && jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build && jupyter labextension install ."
+        },
+        {
+            "label": "labextension dev",
+            "type": "shell",
+            // run jupyter lab in watch mode
+            "command": "cd jupyterlab/labbox_ephys_widgets_jp && npm run watch"
         }
     ]
 }

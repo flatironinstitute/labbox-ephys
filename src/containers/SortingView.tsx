@@ -2,9 +2,9 @@ import { Accordion, AccordionDetails, AccordionSummary, CircularProgress } from 
 import React, { Dispatch, useCallback, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { addUnitLabel, removeUnitLabel, setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
+import { setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { HitherContext, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface';
+import { HitherContext, SortingCurationAction, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -36,8 +36,7 @@ interface StateProps {
 interface DispatchProps {
   onSetSortingInfo: (a: {sortingId: string, sortingInfo: SortingInfo}) => void
   onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
-  onAddUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => void
-  onRemoveUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => void
+  curationDispatch: (a: SortingCurationAction) => void
 }
 
 interface OwnProps {
@@ -51,7 +50,7 @@ type CalcStatus = 'waiting' | 'computing' | 'finished'
 type SelectedUnitIds = {[key: string]: boolean}
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, onSetSortingInfo, onSetExternalUnitMetrics, onAddUnitLabel, onRemoveUnitLabel, extensionsConfig, sortingUnitMetrics, hither } = props
+  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetExternalUnitMetrics, extensionsConfig, sortingUnitMetrics, hither } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
@@ -180,7 +179,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             selections={selectedUnitIds}
             focus={focusedUnitId !== null ? focusedUnitId : undefined}
             onUnitClicked={handleUnitClicked}
-            curation={sorting.unitCuration || {}}
+            curation={sorting.curation}
             styling={sidebarStyle}
           />
         )
@@ -192,6 +191,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
               <Expandable
                 key={sv.name}
                 label={sv.label}
+                defaultExpanded={sv.defaultExpanded ? true : false}
               >
                 <sv.component
                   {...sv.props || {}}
@@ -200,8 +200,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   selectedUnitIds={selectedUnitIds}
                   focusedUnitId={focusedUnitId}
                   onUnitClicked={handleUnitClicked}
-                  onAddUnitLabel={onAddUnitLabel}
-                  onRemoveUnitLabel={onRemoveUnitLabel}
+                  curationDispatch={curationDispatch}
                   onSelectedUnitIdsChanged={(s: {[key: string]: boolean}) => {
                     return setSelectedUnitIds(s)
                   }}
@@ -254,12 +253,21 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   hither: state.hitherContext
 })
 
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-  onSetSortingInfo: (a: { sortingId: string, sortingInfo: SortingInfo }) => dispatch(setSortingInfo(a)),
-  onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => dispatch(setExternalSortingUnitMetrics(a)),
-  onAddUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => dispatch(addUnitLabel(a)),
-  onRemoveUnitLabel: (a: { sortingId: string, unitId: number, label: string }) => dispatch(removeUnitLabel(a)),
-})
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {
+  const curationDispatch = (a: SortingCurationAction) => {
+    if (a.type === 'AddLabel') {
+      dispatch({type: 'ADD_UNIT_LABEL', sortingId: ownProps.sortingId, unitId: a.unitId, label: a.label, persistKey: 'sortings'})
+    }
+    else if (a.type === 'RemoveLabel') {
+      dispatch({type: 'REMOVE_UNIT_LABEL', sortingId: ownProps.sortingId, unitId: a.unitId, label: a.label, persistKey: 'sortings'})
+    }
+  }
+  return {
+    onSetSortingInfo: (a: { sortingId: string, sortingInfo: SortingInfo }) => dispatch(setSortingInfo(a)),
+    onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => dispatch(setExternalSortingUnitMetrics(a)),
+    curationDispatch
+  }
+}
 
 export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
   mapStateToProps,

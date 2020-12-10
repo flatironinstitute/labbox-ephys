@@ -5,8 +5,8 @@ import sortByPriority from '../../sortByPriority';
 import { sortMetricValues } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
-    const unitCuration = sorting.unitCuration || {};
-    return (unitCuration[unitId] || {}).labels || [];
+    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {};
+    return labelsByUnit[unitId] || []
 }
 
 const HeaderRow = React.memo((a: {sortingUnitMetricsList: SortingUnitMetricPlugin[], externalUnitMetrics: ExternalSortingUnitMetric[], clearSorts: () => void, handleClick: (metricName: string) => void}) => {
@@ -203,7 +203,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                                             title={mp.tooltip}
                                             key = {metricName + '_' + unitId}
                                             data = {d}
-                                            error = {metric['error'] || ''}
+                                            error = {(metric || {})['error'] || ''}
                                             PayloadComponent = {mp.component}
                                         />
                                     );

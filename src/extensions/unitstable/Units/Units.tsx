@@ -1,7 +1,6 @@
 
 import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import MultiComboBox from '../../common/MultiComboBox';
 import { SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
@@ -52,21 +51,26 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction): Met
 
 type Label = string
 
-const Units: React.FunctionComponent<SortingViewProps> = (props) => {
-    const { sorting, recording, selectedUnitIds, onAddUnitLabel, onRemoveUnitLabel, onSelectedUnitIdsChanged, readOnly, sortingUnitMetrics, hither } = props
+interface OwnProps {
+    maxHeight?: number
+}
+
+const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
+    const { sorting, recording, selectedUnitIds, curationDispatch, onSelectedUnitIdsChanged, readOnly, sortingUnitMetrics, hither } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
     // const activeMetricPlugins = metricPlugins.filter(
     //     p => (!p.development || (extensionsConfig.enabled.development)));
 
+    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {}
     const labelOptions = [...new Set(
         defaultLabelOptions.concat(
-            Object.keys(sorting.unitCuration || {})
+            Object.keys(labelsByUnit || {})
                 .reduce(
                     (allLabels: Label[], unitId: string) => {
-                        const u = (sorting.unitCuration || {})[unitId]
-                        return allLabels.concat(u.labels || [])
+                        const labels = labelsByUnit[unitId] || []
+                        return allLabels.concat(labels)
                     }, [])
         )
     )].sort((a, b) => {
@@ -121,10 +125,10 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
         .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
 
     const handleAddLabel = (unitId: number, label: Label) => {
-        onAddUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label})
+        curationDispatch({type: 'AddLabel', unitId, label})
     }
     const handleRemoveLabel = (unitId: number, label: Label) => {
-        onRemoveUnitLabel({sortingId: sorting.sortingId, unitId: unitId, label: label})
+        curationDispatch({type: 'RemoveLabel', unitId, label})
     }
     const handleApplyLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
         Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
@@ -146,7 +150,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
 
     return (
         <div style={{'width': '100%'}}>
-            <Paper style={{maxHeight: 350, overflow: 'auto'}}>
+            <Paper style={{maxHeight: props.maxHeight, overflow: 'auto'}}>
                 <UnitsTable 
                     sortingUnitMetrics={sortingUnitMetrics}
                     units={units}
@@ -161,7 +165,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
                     )
                 }
             </Paper>
-            {
+            {/* {
                 (!readOnly) && (
                     <div>
                         <MultiComboBox
@@ -175,7 +179,7 @@ const Units: React.FunctionComponent<SortingViewProps> = (props) => {
                         <Button onClick={() => handlePurgeLabels(selectedRowKeys, activeOptions)}>Remove selected labels</Button>
                     </div>
                 )
-            }
+            } */}
         </div>
     );
 }

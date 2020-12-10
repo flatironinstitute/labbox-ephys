@@ -103,5 +103,23 @@
             ")(${1: ComponentName})"
         ],
         "description": ""
+    },
+    "component": {
+        "prefix": "component",
+        "body": [
+            "import React, { FunctionComponent } from 'react';",
+            "",
+            "type Props = {",
+            "    $0",
+            "    exampleProp: number",
+            "}",
+            "",
+            "const ${1: ComponentName}: FunctionComponent<Props> = ({ exampleProp }) => {",
+            "    return <div>${1: ComponentName}: {exampleProp}</div>",
+            "}",
+            "",
+            "export default ${1: ComponentName}"
+        ],
+        "description": ""
     }
 }

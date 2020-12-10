@@ -12,6 +12,9 @@ export function activate(context: ExtensionContext) {
         name: 'UnitsTable',
         label: 'Units Table',
         priority: 1000,
-        component: Units
+        component: Units,
+        props: {
+            maxHeight: 300
+        }
     })
 }
