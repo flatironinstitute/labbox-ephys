@@ -143,7 +143,6 @@ type SetVisibleUnitIdsSortingSelectionAction = {
 
 export type SortingSelectionAction = SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction
 
-// This reducer is used by the jupyter widget, but not by the web gui. That's because the web gui uses the global redux state to dispatch the selection actions.
 export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelectionAction> = (state: SortingSelection, action: SortingSelectionAction): SortingSelection => {
     if (action.type === 'SetSelectedUnitIds') {
         return {
