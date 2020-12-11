@@ -2,6 +2,9 @@ import os
 import shutil
 
 
+# Checks if the folders are identical. If so we are good. If not:
+# If we are in a dev workspace (as evidenced by a file existing), then we raise an exception.
+# If we are not in a dev workspace, then we remove any existing extensions/ folder and replace it with a new one.
 def sync_extensions_code():
     def check_identical_file_content(path1: str, path2: str):
         with open(path1, 'r') as f:
