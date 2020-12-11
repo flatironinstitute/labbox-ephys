@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
-import { CanvasWidgetLayer, ClickEventType, formClickEventFromMouseEvent, KeyEventType } from './CanvasWidgetLayer'
+import { CanvasWidgetLayer, ClickEventType, formClickEventFromMouseEvent, KeyEventType, MousePresenceEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
 // This class serves three purposes:
@@ -174,6 +174,13 @@ const CanvasWidget = (props: Props) => {
         }
     }, [layers, dragState])
 
+    const _handleMousePresenceEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: MousePresenceEventType) => {
+        if (!layers) return
+        for (const l of layers) {
+            l && l.handleMousePresenceEvent(e, type)
+        }
+    }, [layers])
+
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { point, mouseButton, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Move)
         dispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
@@ -194,12 +201,12 @@ const CanvasWidget = (props: Props) => {
     }, [_handleDiscreteMouseEvents, dispatchDrag])
 
     const _handleMouseEnter = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        // todo
-    }, [])
+        _handleMousePresenceEvents(e, MousePresenceEventType.Enter)
+    }, [_handleMousePresenceEvents])
 
     const _handleMouseLeave = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        // todo
-    }, [])
+        _handleMousePresenceEvents(e, MousePresenceEventType.Leave)
+    }, [_handleMousePresenceEvents])
 
     const _handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
         for (let l of layers) {
