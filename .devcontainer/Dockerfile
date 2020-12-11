@@ -100,6 +100,10 @@ RUN pip install matplotlib mpld3
 # nano
 RUN apt-get install -y nano
 
+# unison and unison-fsmonitor
+RUN apt-get install unison
+RUN curl -Lo /usr/local/bin/unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor && chmod a+x /usr/local/bin/unison-fsmonitor
+
 # # See: https://blog.miguelgrinberg.com/post/how-to-deploy-a-react--flask-project
 # ##### nginx, etc
 # RUN apt-get update && apt-get install -y nginx
