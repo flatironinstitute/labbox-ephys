@@ -8,15 +8,23 @@ import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import { sleepMsec } from './extensions/common/misc';
-import { defaultSortingCuration, defaultSortingSelection, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { defaultSortingCuration, defaultSortingSelection, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
 
 class LEJExtensionContext {
-  _sortingViewPlugins: {[key: string]: SortingViewPlugin} = {}
   _recordingViewPlugins: {[key: string]: RecordingViewPlugin} = {}
+  _sortingViewPlugins: {[key: string]: SortingViewPlugin} = {}
+  _sortingUnitViewPlugins: {[key: string]: SortingUnitViewPlugin} = {}
+  _sortingUnitMetricPlugins: {[key: string]: SortingUnitMetricPlugin} = {}
   constructor() {}
+  registerRecordingView(V: RecordingViewPlugin) {
+    this._recordingViewPlugins[V.name] = V
+  }
+  unregisterRecordingView(name: string) {
+
+  }
   registerSortingView(V: SortingViewPlugin) {
     this._sortingViewPlugins[V.name] = V
   }
@@ -24,19 +32,13 @@ class LEJExtensionContext {
 
   }
   registerSortingUnitView(V: SortingUnitViewPlugin) {
-
+    this._sortingUnitViewPlugins[V.name] = V
   }
   unregisterSortingUnitView(name: string) {
 
   }
-  registerRecordingView(V: RecordingViewPlugin) {
-    this._recordingViewPlugins[V.name] = V
-  }
-  unregisterRecordingView(name: string) {
-
-  }
   registerSortingUnitMetric(M: SortingUnitMetricPlugin) {
-
+    this._sortingUnitMetricPlugins[M.name] = M
   }
   unregisterSortingUnitMetric(name: string) {
 
@@ -182,9 +184,10 @@ interface PluginComponentWrapperProps {
   recordingObject: any
   sortingInfo: any
   recordingInfo: any
+  plugins: Plugins
 }
 
-const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo}) => {
+const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins}) => {
   let sorting: Sorting
   let recording: Recording
   if (sortingObject.sorting_format) {
@@ -226,8 +229,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       selection={selection}
       selectionDispatch={selectionDispatch}
       readOnly={false}
-      sortingUnitViews={{}}
-      sortingUnitMetrics={{}}
+      plugins={plugins}
       hither={hither}
     />
   )
@@ -253,6 +255,13 @@ export class SortingView extends DOMWidgetView {
       }
     }
 
+    const plugins: Plugins = {
+      recordingViews: extensionContext._recordingViewPlugins,
+      sortingViews: extensionContext._sortingViewPlugins,
+      sortingUnitViews: extensionContext._sortingUnitViewPlugins,
+      sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
+    }
+
     return (
       <PluginComponentWrapper
         plugin={plugin}
@@ -261,6 +270,7 @@ export class SortingView extends DOMWidgetView {
         recordingObject={recordingObject}
         sortingInfo={sortingInfo}
         recordingInfo={recordingInfo}
+        plugins={plugins}
       />
     )
   }
@@ -337,12 +347,19 @@ export class RecordingView extends DOMWidgetView {
     else {
       recording = example.recording
     }
-    
+
+    const plugins: Plugins = {
+      recordingViews: extensionContext._recordingViewPlugins,
+      sortingViews: extensionContext._sortingViewPlugins,
+      sortingUnitViews: extensionContext._sortingUnitViewPlugins,
+      sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
+    }
 
     // this.el.textContent = this.model.get('value') + ' --- test9';
     const x = (
       <plugin.component
         recording={recording}
+        plugins={plugins}
         hither={hitherContext}
       />
     )

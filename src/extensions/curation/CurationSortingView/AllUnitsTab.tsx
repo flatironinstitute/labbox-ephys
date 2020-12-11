@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
-import { Expandable } from '../../../containers/SortingView';
 import { SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
+import Expandable from './Expandable';
 
 const AllUnitsTab: FunctionComponent<SortingViewProps> = (props) => {
     // very important that we exclude the CurationSortingView, else we get infinite recursion

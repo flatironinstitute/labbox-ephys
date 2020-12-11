@@ -1,8 +1,8 @@
 import React, { Fragment, FunctionComponent } from 'react';
-import { Expandable } from '../../../containers/SortingView';
 import createCalculationPool from '../../common/createCalculationPool';
 import { SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
+import Expandable from './Expandable';
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6, method: 'queue'})
 
