@@ -2,8 +2,8 @@ import React, { FunctionComponent } from 'react'
 import sizeMe, { SizeMeProps } from "react-sizeme"
 import { defaultSortingCuration, SortingViewProps } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
-import Units from '../../unitstable/Units/Units'
 import ControlPanel from './ControlPanel'
+import TabsView from './TabsView'
 
 interface OwnProps {
     height?: number
@@ -31,7 +31,7 @@ const CurationSortingView: FunctionComponent<SortingViewProps & SizeMeProps & Ow
                 selection={selection}
                 selectionDispatch={selectionDispatch}
             />
-            <Units
+            <TabsView
                 {...props}
             />
         </Splitter>

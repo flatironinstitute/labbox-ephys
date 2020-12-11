@@ -56,7 +56,7 @@ interface OwnProps {
 }
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
-    const { sorting, recording, selection, selectionDispatch, curationDispatch, sortingUnitMetrics, hither } = props
+    const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, hither } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
@@ -115,8 +115,8 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     }, [metrics, sorting.sortingObject, recording.recordingObject, hither]);
 
     useEffect(() => { 
-        sortByPriority(sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
-    }, [sortingUnitMetrics, metrics, fetchMetric]);
+        sortByPriority(plugins.sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
+    }, [plugins.sortingUnitMetrics, metrics, fetchMetric]);
 
     const { sortingInfo } = sorting
     if (!sortingInfo) return <div>No sorting info</div>
@@ -149,7 +149,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
         <div style={{'width': '100%'}}>
             <Paper style={{maxHeight: props.maxHeight, overflow: 'auto'}}>
                 <UnitsTable 
-                    sortingUnitMetrics={sortingUnitMetrics}
+                    sortingUnitMetrics={plugins.sortingUnitMetrics}
                     units={units}
                     metrics={metrics}
                     selection={selection}

@@ -1,12 +1,7 @@
 import { Reducer } from 'react'
-import { RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface'
+import { Plugins, RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface'
 
-export interface State {
-    sortingViews: {[key: string]: SortingViewPlugin},
-    sortingUnitViews: {[key: string]: SortingUnitViewPlugin},
-    recordingViews: {[key: string]: RecordingViewPlugin},
-    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
-}
+export type State = Plugins
 export const initialState: State = {
     sortingViews: {},
     sortingUnitViews: {},

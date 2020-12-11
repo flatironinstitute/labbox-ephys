@@ -7,7 +7,7 @@ import IndividualUnit from './IndividualUnit';
 
 const individualUnitsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection, sortingUnitViews, hither }) => {
+const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection, plugins, hither }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     // const { documentId, feedUri, readOnly } = documentInfo || {};
@@ -51,7 +51,7 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
                             calculationPool={individualUnitsCalculationPool}
                             width={width}
                             sortingInfo={sortingInfo}
-                            sortingUnitViews={sortingUnitViews}
+                            plugins={plugins}
                             hither={hither}
                         />
                         {/* <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
