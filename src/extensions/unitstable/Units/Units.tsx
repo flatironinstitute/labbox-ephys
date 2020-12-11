@@ -56,7 +56,7 @@ interface OwnProps {
 }
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
-    const { sorting, recording, selectedUnitIds, curationDispatch, onSelectedUnitIdsChanged, readOnly, sortingUnitMetrics, hither } = props
+    const { sorting, recording, selection, selectionDispatch, curationDispatch, sortingUnitMetrics, hither } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
@@ -121,25 +121,22 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     const { sortingInfo } = sorting
     if (!sortingInfo) return <div>No sorting info</div>
 
-    const selectedRowKeys = sortingInfo.unit_ids
-        .reduce((obj, id) => ({...obj, [id]: selectedUnitIds[id] || false}), {});
-
-    const handleAddLabel = (unitId: number, label: Label) => {
-        curationDispatch({type: 'AddLabel', unitId, label})
-    }
-    const handleRemoveLabel = (unitId: number, label: Label) => {
-        curationDispatch({type: 'RemoveLabel', unitId, label})
-    }
-    const handleApplyLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
-        Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
-            ? labels.forEach((label) => handleAddLabel(Number(key), label))
-            : {});
-    };
-    const handlePurgeLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
-        Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
-            ? labels.forEach((label) => handleRemoveLabel(Number(key), label))
-            : {});
-    };
+    // const handleAddLabel = (unitId: number, label: Label) => {
+    //     curationDispatch({type: 'AddLabel', unitId, label})
+    // }
+    // const handleRemoveLabel = (unitId: number, label: Label) => {
+    //     curationDispatch({type: 'RemoveLabel', unitId, label})
+    // }
+    // const handleApplyLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
+    //     Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
+    //         ? labels.forEach((label) => handleAddLabel(Number(key), label))
+    //         : {});
+    // };
+    // const handlePurgeLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
+    //     Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
+    //         ? labels.forEach((label) => handleRemoveLabel(Number(key), label))
+    //         : {});
+    // };
 
     let units = sortingInfo.unit_ids;
     let showExpandButton = false;
@@ -155,9 +152,9 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
                     sortingUnitMetrics={sortingUnitMetrics}
                     units={units}
                     metrics={metrics}
-                    selectedUnitIds={selectedUnitIds}
+                    selection={selection}
+                    selectionDispatch={selectionDispatch}
                     sorting={sorting}
-                    onSelectedUnitIdsChanged={onSelectedUnitIdsChanged}
                 />
                 {
                     showExpandButton && (

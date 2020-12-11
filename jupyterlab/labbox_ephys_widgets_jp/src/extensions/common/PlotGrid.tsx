@@ -9,7 +9,6 @@ interface Props {
     sorting: Sorting
     onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
     selections: {[key: string]: boolean}
-    focus: number | null
     dataFunctionName: string
     dataFunctionArgsCallback: any
     boxSize?: { width: number, height: number}
@@ -21,7 +20,7 @@ interface Props {
     hither: HitherContext
 }
 
-const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections, focus,
+const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections,
     dataFunctionName, dataFunctionArgsCallback, // fix this
     boxSize = { width: 200, height: 200},
     plotComponent, plotComponentArgsCallback, // fix this
@@ -48,11 +47,7 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                             <div className='plotWrapperStyle'
                             >
                                 <div
-                                    className={isSelected(unitId + '', selections)
-                                        ? (unitId === focus)
-                                            ? 'plotFocusedStyle'
-                                            : 'plotSelectedStyle'
-                                        : 'unselectedStyle'}
+                                    className={isSelected(unitId + '', selections) ? 'plotSelectedStyle' : 'unselectedStyle'}
                                     onClick={(event) => onUnitClicked(unitId, event)}
                                 >
                                     <div className='plotUnitLabel'>

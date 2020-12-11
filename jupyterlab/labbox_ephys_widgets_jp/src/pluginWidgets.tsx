@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import { sleepMsec } from './extensions/common/misc';
-import { defaultSortingCuration, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { defaultSortingCuration, defaultSortingSelection, HitherContext, HitherJob, HitherJobOpts, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -214,18 +214,18 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
 
   const [curation, curationDispatch] = useReducer(sortingCurationReducer, defaultSortingCuration)
   sorting.curation = curation
+
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, defaultSortingSelection)
   
-  // this.el.textContent = this.model.get('value') + ' --- test9';
   return (
     <plugin.component
       sorting={sorting}
       recording={recording}
-      selectedUnitIds={{}}
-      focusedUnitId={null}
       onUnitClicked={(unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {}}
       curationDispatch={curationDispatch}
-      onSelectedUnitIdsChanged={(selectedUnitIds: {[key: string]: boolean}) => {}}
-      readOnly={true}
+      selection={selection}
+      selectionDispatch={selectionDispatch}
+      readOnly={false}
       sortingUnitViews={{}}
       sortingUnitMetrics={{}}
       hither={hither}

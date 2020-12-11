@@ -3,7 +3,7 @@ import React, { FunctionComponent } from 'react';
 interface Props {
     unitId: number
     labels: string
-    unitStatus: 'unselected' | 'selected' | 'focused'
+    unitStatus: 'unselected' | 'selected'
     onUnitClicked: (unitId: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
 }
 
@@ -11,9 +11,7 @@ const SortingInfoUnitEntry: FunctionComponent<Props> = ({
     unitId, labels = "", unitStatus = 'unselected', onUnitClicked
 }) => {
     const unitClass =
-        unitStatus === 'selected' ? 'selectedUnitEntry'
-        : unitStatus === 'focused' ? 'focusedUnitEntry'
-        : 'unselectedUnitEntry'; // default to unselected
+        unitStatus === 'selected' ? 'selectedUnitEntry' : 'unselectedUnitEntry'; // default to unselected
     return (
         <div
             className={unitClass}

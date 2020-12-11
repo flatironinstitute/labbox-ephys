@@ -25,9 +25,9 @@ const Splitter: FunctionComponent<Props> = (props) => {
     let child1 = props.children[0] as any as ReactElement
     let child2 = props.children[1] as any as ReactElement
 
-    const gripWidth = props.gripWidth !== undefined ? props.gripWidth : 12
-    const gripInnerWidth = props.gripInnerWidth !== undefined ? props.gripInnerWidth : 4
-    const gripMargin = props.gripMargin !== undefined ? props.gripMargin : 8
+    const gripWidth = props.gripWidth ?? 12
+    const gripInnerWidth = props.gripInnerWidth ?? 4
+    const gripMargin = props.gripMargin ?? 8
     const width1 = gripPosition - gripWidth / 2 - gripMargin
     const width2 = width - width1 - gripWidth - 2 * gripMargin;
 

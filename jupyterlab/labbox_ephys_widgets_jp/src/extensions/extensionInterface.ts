@@ -119,6 +119,47 @@ export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAct
 }
 ////////////////////
 
+// Sorting selection
+export type SortingSelection = {
+    selectedUnitIds: number[]
+    visibleUnitIds: number[] | null // null means all are selected
+}
+export const defaultSortingSelection: SortingSelection = {
+    selectedUnitIds: [],
+    visibleUnitIds: null
+}
+
+export type SortingSelectionDispatch = (action: SortingSelectionAction) => void
+
+type SetSelectedUnitIdsSortingSelectionAction = {
+    type: 'SetSelectedUnitIds',
+    selectedUnitIds: number[]
+}
+
+type SetVisibleUnitIdsSortingSelectionAction = {
+    type: 'SetVisibleUnitIds',
+    visibleUnitIds: number[] | null
+}
+
+export type SortingSelectionAction = SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction
+
+export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelectionAction> = (state: SortingSelection, action: SortingSelectionAction): SortingSelection => {
+    if (action.type === 'SetSelectedUnitIds') {
+        return {
+            ...state,
+            selectedUnitIds: action.selectedUnitIds
+        }
+    }
+    else if (action.type === 'SetVisibleUnitIds') {
+        return {
+            ...state,
+            visibleUnitIds: action.visibleUnitIds
+        }
+    }
+    else return state
+}
+////////////////////
+
 export interface HitherJobOpts {
     useClientCache?: boolean,
     auto_substitute_file_objects?: boolean,
@@ -150,11 +191,10 @@ export interface HitherContext {
 export interface SortingViewProps {
     sorting: Sorting
     recording: Recording
-    selectedUnitIds: {[key: string]: boolean}
-    focusedUnitId: number | null
     onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
     curationDispatch: (action: SortingCurationAction) => void
-    onSelectedUnitIdsChanged: (selectedUnitIds: {[key: string]: boolean}) => void
+    selection: SortingSelection
+    selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null
     sortingUnitViews: {[key: string]: SortingUnitViewPlugin} // maybe this doesn't belong here
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}

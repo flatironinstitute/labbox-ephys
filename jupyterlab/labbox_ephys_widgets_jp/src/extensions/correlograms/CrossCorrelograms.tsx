@@ -8,14 +8,13 @@ import Correlogram_rv from './Correlogram_ReactVis';
 
 const crossCorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selectedUnitIds, hither }) => {
+const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection, hither }) => {
     const plotMargin = 2; // in pixels
     const [chosenPlots, setChosenPlots] = useState<number[]>([]);
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const handleUpdateChosenPlots = () => {
-        setChosenPlots(Object.keys(selectedUnitIds)
-            .map((x) => parseInt(x))
+        setChosenPlots(selection.selectedUnitIds
             .filter(x => !isNaN(x)));
     };
 
@@ -91,7 +90,7 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps>
         );
     }
 
-    if (Object.keys(selectedUnitIds).length === 0) {
+    if (selection.selectedUnitIds.length === 0) {
         return <div style={{'width': '100%'}} >First select one or more units</div>
     }
 
