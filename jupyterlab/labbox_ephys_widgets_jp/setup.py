@@ -5,18 +5,15 @@
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
+
 from glob import glob
 from os.path import join as pjoin
 
-
-from setupbase import (
-    create_cmdclass, install_npm, ensure_targets,
-    find_packages, combine_commands, ensure_python,
-    get_version, HERE
-)
-
 from setuptools import setup
 
+from setupbase import (HERE, combine_commands, create_cmdclass, ensure_python,
+                       ensure_targets, find_packages, get_version, install_npm)
+from sync_extensions_code import sync_extensions_code
 
 # The name of the project
 name = 'labbox_ephys_widgets_jp'
@@ -50,6 +47,12 @@ data_files_spec = [
     ('etc/jupyter/nbconfig/notebook.d' , HERE, 'labbox_ephys_widgets_jp.json')
 ]
 
+################################################################################
+# extensions code sync
+# Checks if the folders are identical. If so we are good. If not:
+# If we are in a dev workspace (as evidenced by a file existing), then we raise an exception.
+# If we are not in a dev workspace, then we remove any existing extensions/ folder and replace it with a new one.
+sync_extensions_code()
 
 cmdclass = create_cmdclass('jsdeps', package_data_spec=package_data_spec,
     data_files_spec=data_files_spec)
@@ -57,7 +60,6 @@ cmdclass['jsdeps'] = combine_commands(
     install_npm(HERE, build_cmd='build:all'),
     ensure_targets(jstargets),
 )
-
 
 setup_args = dict(
     name            = name,

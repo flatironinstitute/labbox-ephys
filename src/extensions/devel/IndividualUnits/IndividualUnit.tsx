@@ -1,7 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import ClientSidePlot from '../../common/ClientSidePlot';
-import { CalculationPool, HitherContext, Recording, Sorting, SortingInfo, SortingUnitViewPlugin } from '../../extensionInterface';
+import { CalculationPool, HitherContext, Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import DriftFeatures_rv from './DriftFeatures_rv';
 import PCAFeatures_rv from './PCAFeatures_rv';
@@ -14,7 +14,7 @@ interface Props {
     width: number
     calculationPool: CalculationPool
     sortingInfo: SortingInfo
-    sortingUnitViews: {[key: string]: SortingUnitViewPlugin}
+    plugins: Plugins
     hither: HitherContext
 }
 
@@ -106,7 +106,7 @@ const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recordin
     )
 }
 
-const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, sortingUnitViews, hither }) => {
+const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, plugins, hither }) => {
     const [selectedSpikeIndex, setSelectedSpikeIndex] = useState<number | null>(null);
     const handleSelectedPointIndexChanged = useCallback(
         (index: number | null) => {
@@ -120,7 +120,7 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
             <div>
                 <Grid container direction="row">
                     {
-                        sortByPriority(sortingUnitViews).filter(v => (!v.disabled)).map(suv => (
+                        sortByPriority(plugins.sortingUnitViews).filter(v => (!v.disabled)).map(suv => (
                             <Grid item key={suv.name}>
                                 <suv.component
                                     sorting={sorting}
@@ -129,6 +129,7 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
                                     calculationPool={calculationPool}
                                     selectedSpikeIndex={selectedSpikeIndex}
                                     onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
+                                    plugins={plugins}
                                     hither={hither}
                                 />
                             </Grid>

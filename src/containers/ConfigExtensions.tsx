@@ -1,14 +1,13 @@
 import { Checkbox } from '@material-ui/core';
 import React, { Dispatch, Fragment, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { LabboxPlugin } from '../extensions/extensionInterface';
+import { LabboxPlugin, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { RootAction, RootState } from '../reducers';
-import { State as ExtensionContext } from '../reducers/extensionContext';
 
 interface StateProps {
     extensionsConfig: ExtensionsConfig
-    extensionContext: ExtensionContext
+    plugins: Plugins
 }
 
 interface DispatchProps {
@@ -19,29 +18,40 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const ConfigExtensions: FunctionComponent<Props> = ({ extensionContext, extensionsConfig }) => {
-    const plugins: LabboxPlugin[] = [];
-    Object.values(extensionContext.recordingViews).forEach(sv => {
-        plugins.push(sv)
+const ConfigExtensions: FunctionComponent<Props> = ({ plugins, extensionsConfig }) => {
+    const allPlugins: LabboxPlugin[] = [];
+    Object.values(plugins.recordingViews).forEach(p => {
+        allPlugins.push(p)
     })
-    Object.values(extensionContext.sortingViews).forEach(sv => {
-        plugins.push(sv)
+    Object.values(plugins.sortingViews).forEach(p => {
+        allPlugins.push(p)
     })
-    Object.values(extensionContext.sortingUnitViews).forEach(sv => {
-        plugins.push(sv)
+    Object.values(plugins.sortingUnitViews).forEach(p => {
+        allPlugins.push(p)
     })
-    Object.values(extensionContext.sortingUnitMetrics).forEach(sv => {
-        plugins.push(sv)
+    Object.values(plugins.sortingUnitMetrics).forEach(p => {
+        allPlugins.push(p)
     })
 
     return (
         <div>
-            <h3>Plugins:</h3>
+            <PluginsList plugins={Object.values(plugins.recordingViews)} heading="Recording view plugins" />
+            <PluginsList plugins={Object.values(plugins.sortingViews)} heading="Sorting view plugins" />
+            <PluginsList plugins={Object.values(plugins.sortingUnitViews)} heading="Sorting unit view plugins" />
+            <PluginsList plugins={Object.values(plugins.sortingUnitMetrics)} heading="Sorting unit metric plugins" />
+        </div>
+    )
+}
+
+const PluginsList: FunctionComponent<{plugins: LabboxPlugin[], heading: string}> = ({ plugins, heading }) => {
+    return (
+        <div>
+        <h3>Sorting view plugins:</h3>
             {
-                plugins.map(e => (
-                    <Fragment key={e.name}>
+                plugins.map(p => (
+                    <Fragment key={p.name}>
                         <Checkbox checked={true} onClick={() => {}} readOnly={true} />
-                        {e.label}
+                        {p.label}
                     </Fragment>
                 ))
             }
@@ -50,7 +60,7 @@ const ConfigExtensions: FunctionComponent<Props> = ({ extensionContext, extensio
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    extensionContext: state.extensionContext,
+    plugins: state.plugins,
     extensionsConfig: state.extensionsConfig
 })
   

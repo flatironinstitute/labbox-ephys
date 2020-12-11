@@ -7,7 +7,7 @@ import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SimilarUnit from '../components/SimilarUnit';
 import createCalculationPool from '../extensions/common/createCalculationPool';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { CalculationPool, HitherContext, SortingUnitViewPlugin } from '../extensions/extensionInterface';
+import { CalculationPool, HitherContext, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -16,11 +16,11 @@ import { Recording } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
 
 interface StateProps {
-  sortingUnitViews: {[key: string]: SortingUnitViewPlugin},
   sorting: Sorting,
   recording: Recording,
   extensionsConfig: ExtensionsConfig,
   documentInfo: DocumentInfo
+  plugins: Plugins
   hither: HitherContext
 }
 
@@ -36,7 +36,7 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, extensionsConfig, documentInfo, size, sortingUnitViews, hither }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, documentInfo, size, hither }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
@@ -78,7 +78,7 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
             calculationPool={calculationPool}
             width={width}
             sortingInfo={sortingInfo}
-            sortingUnitViews={sortingUnitViews}
+            plugins={plugins}
             hither={hither}
           />
         </Grid>
@@ -213,12 +213,12 @@ function findRecordingForId(state: RootState, id: string) {
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    sortingUnitViews: state.extensionContext.sortingUnitViews,
     // todo: use selector
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
     documentInfo: state.documentInfo,
+    plugins: state.plugins,
     hither: state.hitherContext
 })
   

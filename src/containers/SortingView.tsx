@@ -4,7 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { defaultSortingSelection, HitherContext, SortingCurationAction, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from '../extensions/extensionInterface';
+import { defaultSortingSelection, HitherContext, Plugins, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -23,13 +23,11 @@ const intrange = (a: number, b: number) => {
 }
 
 interface StateProps {
-  sortingViews: {[key: string]: SortingViewPlugin}
-  sortingUnitViews: {[key: string]: SortingUnitViewPlugin}
-  sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
   sorting: Sorting | undefined
   recording: Recording | undefined
   extensionsConfig: any
   documentInfo: DocumentInfo
+  plugins: Plugins
   hither: HitherContext
 }
 
@@ -48,7 +46,7 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 type CalcStatus = 'waiting' | 'computing' | 'finished'
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { sortingViews, sortingUnitViews, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetExternalUnitMetrics, extensionsConfig, sortingUnitMetrics, hither } = props
+  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetExternalUnitMetrics, hither } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
@@ -176,7 +174,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       }
       <div style={contentWrapperStyle}>
         {
-          sortByPriority(sortingViews).filter(v => (!v.disabled)).map(sv => {
+          sortByPriority(plugins.sortingViews).filter(v => (!v.disabled)).map(sv => {
             return (
               <Expandable
                 key={sv.name}
@@ -192,8 +190,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   onUnitClicked={handleUnitClicked}
                   curationDispatch={curationDispatch}
                   readOnly={readOnly}
-                  sortingUnitViews={sortingUnitViews}
-                  sortingUnitMetrics={sortingUnitMetrics}
+                  plugins={plugins}
                   hither={hither}
                 />
               </Expandable>
@@ -229,9 +226,7 @@ function findRecordingForId(state: any, id: string): Recording | undefined {
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-  sortingViews: state.extensionContext.sortingViews,
-  sortingUnitViews: state.extensionContext.sortingUnitViews,
-  sortingUnitMetrics: state.extensionContext.sortingUnitMetrics,
+  plugins: state.plugins,
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),

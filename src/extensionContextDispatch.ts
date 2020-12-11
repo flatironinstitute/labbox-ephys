@@ -1,7 +1,7 @@
 import { Dispatch } from "react"
 import { ExtensionContext, RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from "./extensions/extensionInterface"
 import { RootAction } from "./reducers"
-import { RegisterRecordingViewAction, RegisterSortingUnitMetricAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from "./reducers/extensionContext"
+import { RegisterRecordingViewAction, RegisterSortingUnitMetricAction, RegisterSortingUnitViewAction, RegisterSortingViewAction } from "./reducers/plugins"
 
 export const extensionContextDispatch = (dispatch: Dispatch<RootAction>): ExtensionContext => {
     return new ExtensionContextDispatch(dispatch)

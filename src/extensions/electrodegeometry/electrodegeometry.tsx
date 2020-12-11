@@ -33,10 +33,11 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     );
 }
 
-const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, hither}) => {
+const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, plugins, hither}) => {
     return (
         <ElectrodeGeometryRecordingView
             recording={recording}
+            plugins={plugins}
             hither={hither}
         />
     )

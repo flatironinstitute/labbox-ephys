@@ -7,7 +7,7 @@ import { setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
-import { HitherContext, RecordingViewPlugin } from '../extensions/extensionInterface';
+import { HitherContext, Plugins } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -17,10 +17,10 @@ import { Sorting } from '../reducers/sortings';
 import { Expandable } from './SortingView';
 
 interface StateProps {
-  recordingViews: {[key: string]: RecordingViewPlugin},
   recording: Recording,
   sortings: Sorting[],
   documentInfo: DocumentInfo,
+  plugins: Plugins,
   hither: HitherContext
 }
 
@@ -34,7 +34,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, recordingViews, hither }) => {
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, plugins, hither }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const effect = async () => {
@@ -76,11 +76,12 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
         </Grid>
       </Grid>
       {
-          sortByPriority(recordingViews).filter(rv => (!rv.disabled)).map(rv => (
+          sortByPriority(plugins.recordingViews).filter(rv => (!rv.disabled)).map(rv => (
             <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false} key={'rv-' + rv.name}>
               <rv.component
                 key={'rvc-' + rv.name}
                 recording={recording}
+                plugins={plugins}
                 hither={hither}
               />
             </Expandable>
@@ -95,10 +96,10 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
   // todo: use selector
-  recordingViews: state.extensionContext.recordingViews,
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
   documentInfo: state.documentInfo,
+  plugins: state.plugins,
   hither: state.hitherContext
 })
   

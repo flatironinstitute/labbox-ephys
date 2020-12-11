@@ -188,6 +188,13 @@ export interface HitherContext {
     createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => HitherJob
 }
 
+export interface Plugins {
+    recordingViews: {[key: string]: RecordingViewPlugin}
+    sortingViews: {[key: string]: SortingViewPlugin}
+    sortingUnitViews: {[key: string]: SortingUnitViewPlugin}
+    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
+}
+
 export interface SortingViewProps {
     sorting: Sorting
     recording: Recording
@@ -196,8 +203,7 @@ export interface SortingViewProps {
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null
-    sortingUnitViews: {[key: string]: SortingUnitViewPlugin} // maybe this doesn't belong here
-    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
+    plugins: Plugins
     hither: HitherContext
 }
 
@@ -216,6 +222,7 @@ export interface SortingUnitViewProps {
     calculationPool: CalculationPool
     selectedSpikeIndex: number | null
     onSelectedSpikeIndexChanged: (index: number | null) => void
+    plugins: Plugins
     hither: HitherContext
 }
 
@@ -225,6 +232,7 @@ export interface SortingUnitViewPlugin extends ViewPlugin {
 
 export interface RecordingViewProps {
     recording: Recording
+    plugins: Plugins
     hither: HitherContext
 }
 
