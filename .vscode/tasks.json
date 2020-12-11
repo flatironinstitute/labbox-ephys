@@ -89,7 +89,7 @@
             "type": "shell",
             // You must install unison and unison-fsmonitor
             // curl -L -o unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor
-            "command": "unison src/extensions jupyterlab/labbox_ephys_widgets_jp/src/extensions -ignore \"Name __pycache__\" -repeat watch"
+            "command": "bash -ic .vscode/tasks/start_code_sync.sh"
         },
         {
             "label": "jupyterlab dev",
