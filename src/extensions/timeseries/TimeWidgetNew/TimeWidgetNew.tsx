@@ -1,7 +1,7 @@
 import React, { FunctionComponent, ReactElement, useCallback, useEffect, useReducer, useState } from 'react'
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../CanvasWidget/CanvasWidget'
-import { useCanvasWidgetLayer, useCanvasWidgetLayers } from "../../CanvasWidget/CanvasWidgetLayer"
+import { useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer'
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
 import { createPanelLabelLayer } from './panelLabelLayer'
@@ -9,7 +9,6 @@ import Splitter from './Splitter'
 import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar from './TimeWidgetBottomBar'
-import { TimeWidgetLayerProps } from './TimeWidgetLayerProps'
 import TimeWidgetToolbarNew from './TimeWidgetToolbarNew'
 
 interface ActionItem {
@@ -192,6 +191,13 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
     }
 }
 
+const plotMargins = {
+    left: 100,
+    top: 50,
+    right: 50,
+    bottom: 100
+}
+
 const TimeWidgetNew = (props: Props) => {
 
     const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate} = props
@@ -202,12 +208,12 @@ const TimeWidgetNew = (props: Props) => {
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
 
-    const mainLayer = useCanvasWidgetLayer(createMainLayer)
-    const timeAxisLayer = useCanvasWidgetLayer(createTimeAxisLayer)
-    const panelLabelLayer = useCanvasWidgetLayer(createPanelLabelLayer)
-    const cursorLayer = useCanvasWidgetLayer(createCursorLayer)
+    const mainLayer = useLayer(createMainLayer)
+    const timeAxisLayer = useLayer(createTimeAxisLayer)
+    const panelLabelLayer = useLayer(createPanelLabelLayer)
+    const cursorLayer = useLayer(createCursorLayer)
 
-    const layers = useCanvasWidgetLayers([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
+    const allLayers = useLayers([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
 
     useEffect(() => {
         panels.forEach(p => {
@@ -228,15 +234,13 @@ const TimeWidgetNew = (props: Props) => {
             cursorLayer && cursorLayer.scheduleRepaint()
         }   
         if (timeState.timeRange !== prevTimeRange) {
-            if (layers) {
-                Object.values(layers).forEach(layer => {
-                    layer && layer.scheduleRepaint()
-                })
-            }
+            allLayers.forEach(layer => {
+                layer && layer.scheduleRepaint()
+            })
         }
         setPrevCurrentTime(timeState.currentTime)
         setPrevTimeRange(timeState.timeRange)
-    }, [layers, cursorLayer, mainLayer, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
+    }, [allLayers, cursorLayer, mainLayer, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {
@@ -277,12 +281,10 @@ const TimeWidgetNew = (props: Props) => {
     const handleRepaintTimeEstimate = useCallback((ms: number) => {
         const refreshRateEstimate = 1000 / ms
         const refreshRate = refreshRateEstimate / 2
-        if (layers) {
-            layers.forEach(layer => {
-                layer && layer.setRefreshRate(refreshRate)
-            })
-        }
-    }, [layers])
+        allLayers.forEach(layer => {
+            layer && layer.setRefreshRate(refreshRate)
+        })
+    }, [allLayers])
 
     const _zoomTime = (fac: number) => {
         timeDispatch({type: 'zoomTimeRange', factor: fac})
@@ -306,13 +308,6 @@ const TimeWidgetNew = (props: Props) => {
 
     const leftPanel = null
 
-    const plotMargins = {
-        left: 100,
-        top: 50,
-        right: 50,
-        bottom: 100
-    }
-
     const bottomBarInfo = {
         show: true,
         currentTime: timeState.currentTime,
@@ -322,6 +317,27 @@ const TimeWidgetNew = (props: Props) => {
     }
     const showBottomBar = true
     const bottomBarHeight = showBottomBar ? 40 : 0;
+
+    const layerProps = {
+        customActions,
+        panels,
+        width: width - toolbarWidth,
+        height: height - spanWidgetHeight - bottomBarHeight,
+        timeRange: timeState.timeRange,
+        currentTime: timeState.currentTime,
+        samplerate,
+        margins: plotMargins,
+        onClick: handleClick,
+        onDrag: handleDrag,
+        onTimeZoom: handleTimeZoom,
+        onTimeShiftFrac: handleTimeShiftFrac,
+        onGotoHome: handleGotoHome,
+        onGotoEnd: handleGotoEnd,
+        onRepaintTimeEstimate: handleRepaintTimeEstimate
+    }
+    allLayers.forEach(L => {
+        if (L) L.setProps(layerProps)
+    })
 
     const innerContainer = (
         <InnerContainer>
@@ -333,27 +349,11 @@ const TimeWidgetNew = (props: Props) => {
                 onCurrentTimeChanged={handleCurrentTimeChanged}
                 onTimeRangeChanged={handleTimeRangeChanged}
             />
-            <CanvasWidget<TimeWidgetLayerProps>
+            <CanvasWidget
                 key='canvas'
-                layers={layers || []}
+                layers={allLayers}
                 preventDefaultWheel={true}
-                layerProps={{
-                    customActions,
-                    panels,
-                    width: width - toolbarWidth,
-                    height: height - spanWidgetHeight - bottomBarHeight,
-                    timeRange: timeState.timeRange,
-                    currentTime: timeState.currentTime,
-                    samplerate,
-                    margins: plotMargins,
-                    onClick: handleClick,
-                    onDrag: handleDrag,
-                    onTimeZoom: handleTimeZoom,
-                    onTimeShiftFrac: handleTimeShiftFrac,
-                    onGotoHome: handleGotoHome,
-                    onGotoEnd: handleGotoEnd,
-                    onRepaintTimeEstimate: handleRepaintTimeEstimate
-                }}
+                {...{width: layerProps.width, height: layerProps.height}}
             />
             {/* <CanvasWidget
                 

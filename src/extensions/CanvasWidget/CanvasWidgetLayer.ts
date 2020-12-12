@@ -102,6 +102,7 @@ export const formKeyboardEvent = (type: KeyEventType, e: React.KeyboardEvent<HTM
 export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends object> {
     _onPaint: OnPaint<LayerProps, State>
     _onPropsChange: OnPropsChange<LayerProps>
+    _runningOnPropsChange = false
 
     _props: LayerProps | null = null // this will be null until props are passed in from the CanvasWidget
     _state: State
@@ -139,11 +140,18 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         if (!this._props) throw Error('getProps must not be called before initial props are set')
         return this._props
     }
-    updateProps(p: LayerProps) { // this should only be called by the CanvasWidget which owns the Layer.
-        this._props = p
-        this._pixelWidth = p.width
-        this._pixelHeight = p.height
-        this._onPropsChange(this, p)
+    setProps(p: LayerProps) { // this should either be called inside the useLayer hook or in the render method of the parent to the CanvasWidget
+        if (this._runningOnPropsChange) {
+            throw Error('Calling setProps inside onPropsChange is not allowed.')
+        }
+        if ((this._props === null) || (!shallowEqual(this._props, p))) {
+            this._props = p
+            this._pixelWidth = p.width
+            this._pixelHeight = p.height
+            this._runningOnPropsChange = true
+            this._onPropsChange(this, p)
+            this._runningOnPropsChange = false
+        }
     }
     getState() {
         return this._state
@@ -260,29 +268,65 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     }
 }
 
-export const useCanvasWidgetLayer = <LayerProps extends BaseLayerProps, LayerState extends Object>(createLayer: () => CanvasWidgetLayer<LayerProps, LayerState>): CanvasWidgetLayer<LayerProps, LayerState> | null => {
+export const useLayer = <LayerProps extends BaseLayerProps, LayerState extends Object>(createLayer: () => CanvasWidgetLayer<LayerProps, LayerState>, layerProps?: LayerProps): CanvasWidgetLayer<LayerProps, LayerState> | null => {
     const [layer, setLayer] = useState<CanvasWidgetLayer<LayerProps, LayerState> | null>(null)
     useEffect(() => {
         if (layer === null) {
             setLayer(createLayer())
         }
     }, [layer, setLayer, createLayer])
+    if ((layer) && (layerProps)) {
+        layer.setProps(layerProps)
+    }
     return layer
 }
 
-export const useCanvasWidgetLayers = <LayerProps extends BaseLayerProps>(layerList: (CanvasWidgetLayer<LayerProps, any> | null)[]): CanvasWidgetLayer<LayerProps, any>[] | null => {
-    const [layers, setLayers] = useState<CanvasWidgetLayer<LayerProps, Object>[] | null>(null)
-    useEffect(() => {
-        if (layers === null) {
-            if (layerList.filter(L => (L === null)).length === 0) {
-                const layerList2: CanvasWidgetLayer<LayerProps, any>[] = []
-                layerList.forEach(L => {
-                    if (L === null) throw Error('Unexpected null layer')
-                    layerList2.push(L)
-                })
-                setLayers(layerList2)
-            }
+const listsMatch = (list1: any[], list2: any[]) => {
+    if (list1.length !== list2.length) return false
+    for (let i = 0; i < list1.length; i++) {
+        if (list1[i] !== list2[i]) return false
+    }
+    return true
+}
+
+export const useLayers = (layers: (CanvasWidgetLayer<any, any> | null)[]) => {
+    const [prevLayers, setPrevLayers] = useState<(CanvasWidgetLayer<any, any> | null)[]>([])
+    if (listsMatch(prevLayers, layers)) {
+        return prevLayers
+    }
+    else {
+        setPrevLayers(layers)
+        return layers
+    }
+}
+
+// export const useLayers = <LayerProps extends BaseLayerProps>(layerList: (CanvasWidgetLayer<LayerProps, any> | null)[]): CanvasWidgetLayer<LayerProps, any>[] | null => {
+//     const [layers, setLayers] = useState<CanvasWidgetLayer<LayerProps, Object>[] | null>(null)
+//     useEffect(() => {
+//         if (layers === null) {
+//             if (layerList.filter(L => (L === null)).length === 0) {
+//                 const layerList2: CanvasWidgetLayer<LayerProps, any>[] = []
+//                 layerList.forEach(L => {
+//                     if (L === null) throw Error('Unexpected null layer')
+//                     layerList2.push(L)
+//                 })
+//                 setLayers(layerList2)
+//             }
+//         }
+//     }, [layers, setLayers, layerList])
+//     return layers
+// }
+
+const shallowEqual = (x: {[key: string]: any}, y: {[key: string]: any}) => {
+    for (let k in x) {
+        if (x[k] !== y[k]) {
+            return false
         }
-    }, [layers, setLayers, layerList])
-    return layers
+    }
+    for (let k in y) {
+        if (x[k] !== y[k]) {
+            return false
+        }
+    }
+    return true
 }
