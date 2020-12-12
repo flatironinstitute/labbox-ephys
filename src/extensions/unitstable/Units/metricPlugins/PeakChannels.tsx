@@ -3,7 +3,7 @@ import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
 const PeakChannels = React.memo((a: {record: number}) => {
     return (
-        <span>{a.record}</span>
+        <span>{a.record || ''}</span>
     );
 })
 

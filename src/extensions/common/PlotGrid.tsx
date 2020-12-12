@@ -47,7 +47,7 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                             <div className='plotWrapperStyle'
                             >
                                 <div
-                                    className={isSelected(unitId + '', selections) ? 'plotSelectedStyle' : 'unselectedStyle'}
+                                    className={isSelected(unitId + '', selections) ? 'plotSelectedStyle' : 'plotUnselectedStyle'}
                                     onClick={(event) => onUnitClicked(unitId, event)}
                                 >
                                     <div className='plotUnitLabel'>
@@ -57,7 +57,7 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                                         dataFunctionName={dataFunctionName}
                                         dataFunctionArgs={dataFunctionArgsCallback(unitId)}
                                         boxSize={boxSize}
-                                        plotComponent={plotComponent}
+                                        PlotComponent={plotComponent}
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
                                         useJobCache={useJobCache}
                                         newHitherJobMethod={newHitherJobMethod}

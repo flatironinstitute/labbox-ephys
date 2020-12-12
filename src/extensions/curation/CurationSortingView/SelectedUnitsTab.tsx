@@ -27,7 +27,7 @@ const SelectedUnitsView: FunctionComponent<SortingViewProps> = (props) => {
                             {
                                 props.selection.selectedUnitIds.sort().map(unitId => {
                                     return (
-                                        <Fragment>
+                                        <Fragment key={unitId}>
                                             <h3>Unit {unitId}</h3>
                                             <sv.component
                                                 {...sv.props || {}}

@@ -31,12 +31,12 @@
             "// LABBOX-EXTENSION-TAGS: jupyter",
 			"",
 			"import React from 'react';",
-			"import { ExtensionContext } from \"../../extension\";",
+			"import { ExtensionContext } from '../extensionInterface';",
 			"",
-			"// Use recordingview snippet to insert a recording view",
+			"// Use recordingview or sortingview snippet to insert a recording or sorting view (better to put it in a separate file)",
 			"",
 			"export function activate(context: ExtensionContext) {",
-			"    // Use registerrecordingview snippet to insert a recording view",
+			"    // Use registerrecordingview or registersortingview snippet to insert a recording or sorting view",
 			"    $0",
 			"}"
 		],
@@ -55,11 +55,37 @@
             "}"
         ],
         "description": ""
+    },
+    "sortingview": {
+        "prefix": "sortingview",
+        "body": [
+			"const ${1: ClassName}: FunctionComponent<SortingViewProps> = ({recording, sorting}) => {",
+			"    $0",
+            "    return (",
+            "        <div>",
+            "            Example sorting view. Sorting ID: {sorting.sortingId}",
+            "        </div>",
+            "    )",
+            "}"
+        ],
+        "description": ""
 	},
 	"registerrecordingview": {
         "prefix": "registerrecordingview",
         "body": [
             "context.registerRecordingView({",
+            "    name: '${1: Name}',",
+            "    label: '${2: label}',",
+            "    priority: 50,",
+            "    component: ${3: ComponentName}",
+            "})"
+        ],
+        "description": ""
+    },
+    "registersortingview": {
+        "prefix": "registersortingview",
+        "body": [
+            "context.registerSortingView({",
             "    name: '${1: Name}',",
             "    label: '${2: label}',",
             "    priority: 50,",
@@ -119,6 +145,25 @@
             "}",
             "",
             "export default ${1: ComponentName}"
+        ],
+        "description": ""
+    },
+    "canvaswidgetlayer": {
+        "prefix": "canvaswidgetlayer",
+        "body": [
+            "type LayerProps = Props",
+            "type LayerState = {}",
+            "const initialLayerState = {}",
+            "",
+            "const create${1: Name}Layer = () => {",
+            "    const onPaint = (painter: CanvasPainter, props: LayerProps, state: LayerState) => {",
+            "",
+            "    }",
+            "    const onPropsChange = (layer: CanvasWidgetLayer<Props, {}>, props: Props) => {",
+            "        $0",
+            "    }",
+            "    return new CanvasWidgetLayer<LayerProps, LayerState>(onPaint, onPropsChange, initialLayerState)",
+            "}"
         ],
         "description": ""
     }

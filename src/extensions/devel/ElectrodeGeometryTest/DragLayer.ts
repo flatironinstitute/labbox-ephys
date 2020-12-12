@@ -1,5 +1,5 @@
 import { Brush, CanvasPainter } from '../../CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, DragEvent, DragHandler } from '../../CanvasWidget/CanvasWidgetLayer'
+import { CanvasDragEvent, CanvasWidgetLayer, DragHandler } from '../../CanvasWidget/CanvasWidgetLayer'
 import { RectangularRegion, rectangularRegionsIntersect } from '../../CanvasWidget/Geometry'
 import { Electrode, ElectrodeLayerProps, setCanvasFromProps } from './ElectrodeGeometry'
 
@@ -50,7 +50,7 @@ export const paintDragLayer = (painter: CanvasPainter, props: ElectrodeLayerProp
     })
     state.dragRegion && painter.fillRect(state.dragRegion, regionBrush)
 }
-export const updateDragRegion: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>, drag: DragEvent) => {
+export const updateDragRegion: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, DragLayerState>, drag: CanvasDragEvent) => {
     const { electrodeBoundingBoxes } = layer.getState() as DragLayerState
     const hits = electrodeBoundingBoxes.filter((r: any) => rectangularRegionsIntersect(r.br, drag.dragRect))
     if (drag.released) {

@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { funcToTransform } from '../../CanvasWidget';
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter';
 import CanvasWidget from '../../CanvasWidget/CanvasWidget';
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DragEvent, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../../CanvasWidget/Geometry';
 
 
@@ -92,7 +92,7 @@ const createTimeSpanLayer = () => {
         }
     }
 
-    const onDrag = (layer: CanvasWidgetLayer<LayerProps, LayerState>, drag: DragEvent) => {
+    const onDrag = (layer: CanvasWidgetLayer<LayerProps, LayerState>, drag: CanvasDragEvent) => {
         const props = layer.getProps()
         if (!props) return
         const {anchorCurrentTime, anchorTimeRange, dragging} = layer.getState() as LayerState

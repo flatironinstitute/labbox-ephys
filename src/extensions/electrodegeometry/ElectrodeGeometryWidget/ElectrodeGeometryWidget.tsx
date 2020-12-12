@@ -3,7 +3,7 @@ import React from "react"
 import { funcToTransform } from '../../CanvasWidget'
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../CanvasWidget/CanvasWidget'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, useCanvasWidgetLayer, useCanvasWidgetLayers } from "../../CanvasWidget/CanvasWidgetLayer"
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, useCanvasWidgetLayer, useCanvasWidgetLayers } from "../../CanvasWidget/CanvasWidgetLayer"
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../../CanvasWidget/Geometry'
 
 
@@ -204,7 +204,7 @@ const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLay
     state.dragRegion && painter.fillRect(state.dragRegion, {color: Color.DRAGRECT})
 }
 
-const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>, drag: DragEvent) => {
+const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>, drag: CanvasDragEvent) => {
     const state = layer.getState()
     if (state === null) return // state not set; can't happen but keeps linter happy
     const hits = state.electrodeBoundingBoxes.filter((r) => rectangularRegionsIntersect(r.br, drag.dragRect)) ?? []

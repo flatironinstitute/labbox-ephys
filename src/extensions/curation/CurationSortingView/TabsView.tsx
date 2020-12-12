@@ -41,7 +41,7 @@ const TabPanel: FunctionComponent<{index: number, currentTabIndex: number, width
 
 const TabsView: FunctionComponent<SortingViewProps & {width?: number, height?: number}> = (props) => {
     const classes = useStyles();
-    const [currentTabIndex, setCurrentTabIndex] = React.useState<number>(0);
+    const [currentTabIndex, setCurrentTabIndex] = React.useState<number>(1);
 
     const handleChange = useCallback((event: React.ChangeEvent<{}>, newTabIndex: number) => {
         setCurrentTabIndex(newTabIndex);
