@@ -37,9 +37,11 @@ const TimeseriesForRecordingView: FunctionComponent<Props> = ({ recordingId, rec
       <div>
         <TimeseriesViewNew
           recordingObject={recording.recordingObject}
+          recordingInfo={recording.recordingInfo}
           width={width}
           height={height}
           hither={hither}
+          opts={{channelSelectPanel: true}}
         />
       </div>
     </div>

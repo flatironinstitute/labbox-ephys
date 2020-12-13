@@ -14,7 +14,7 @@ interface Props {
     y_scale_factor: number
     width: number
     height: number
-    leftPanels: any[]
+    visibleChannelIds?: number[] | null
 }
 
 const channelColors = [
@@ -173,9 +173,10 @@ const yScaleReducer = (state: YScaleState, action: YScaleAction): YScaleState =>
 }
 
 const TimeseriesWidgetNew = (props: Props) => {
-    const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids } = props
+    const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids, visibleChannelIds } = props
     const [panels, setPanels] = useState<Panel[]>([])
     const [prevTimeseriesModel, setPrevTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
+    const [prevVisibleChannelIds, setPrevVisibleChannelIds] = useState<number[] | null | undefined>(null)
     const [yScaleState, yScaleDispatch] = useReducer(yScaleReducer, {yScale: 1})
     const [prevYScale, setPrevYScale] = useState<number>(1)
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
@@ -187,18 +188,22 @@ const TimeseriesWidgetNew = (props: Props) => {
     }, [yScaleDispatch])
 
     useEffect(() => {
-        if (timeseriesModel !== prevTimeseriesModel) {
+        if ((timeseriesModel !== prevTimeseriesModel) || (visibleChannelIds !== prevVisibleChannelIds)) {
             // we only want to do this once (as a function of the timeseries model)
             const panels0: Panel[] = []
             for (let ch = 0; ch < timeseriesModel.numChannels(); ch ++) {
                 // todo: i guess we need to redefine the panels whenever y_offsets or y_scale_factor or channel_ids change
-                const p = new Panel(ch, channel_ids[ch], timeseriesModel, y_offsets[ch], y_scale_factor)
-                panels0.push(p)
+                const channel_id = channel_ids[ch]
+                if ((!visibleChannelIds) || (visibleChannelIds.includes(channel_id))) {
+                    const p = new Panel(ch, channel_id, timeseriesModel, y_offsets[ch], y_scale_factor)
+                    panels0.push(p)
+                }
             }
             setPanels(panels0)
             setPrevTimeseriesModel(timeseriesModel)
+            setPrevVisibleChannelIds(visibleChannelIds)
         }
-    }, [channel_ids, setPanels, setPrevTimeseriesModel, timeseriesModel, prevTimeseriesModel, y_offsets, y_scale_factor])
+    }, [channel_ids, setPanels, setPrevTimeseriesModel, timeseriesModel, prevTimeseriesModel, y_offsets, y_scale_factor, visibleChannelIds, prevVisibleChannelIds])
     useEffect(() => {
         if (actions === null) {
             const a: TimeWidgetAction[] = [
@@ -250,7 +255,6 @@ const TimeseriesWidgetNew = (props: Props) => {
             startTimeSpan={1e7 / timeseriesModel.numChannels()}
             maxTimeSpan={1e7 / timeseriesModel.numChannels()}
             numTimepoints={timeseriesModel ? timeseriesModel.numTimepoints() : 0}
-            // leftPanel={leftPanel}
         />
     )
 }
