@@ -89,6 +89,7 @@ const CanvasWidget = (props: Props) => {
 
     // To learn about callback refs: https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
     const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
+    const [hasFocus, setHasFocus] = useState<boolean>(false)
     const divRef = React.useCallback((elmt: HTMLDivElement) => {
         // this should get called only once after the div has been written to the DOM
         // we set this div element so that it can be used below when we set the canvas
@@ -101,13 +102,15 @@ const CanvasWidget = (props: Props) => {
         // or when the layers (prop) has changed (or if preventDefaultWheel has changed)
         // we set the canvas elements on the layers and schedule repaints
         if (!divElement) return
+        if (!layers) return
+        const stopScrollEvent = (e: Event) => {
+            e.preventDefault()
+        }
         layers.forEach((L, i) => {
             const canvasElement = divElement.children[i]
             if ((canvasElement) && (L)) {
                 if (preventDefaultWheel) {
-                    canvasElement.addEventListener("wheel", (event) => {
-                        event.preventDefault()
-                    })
+                    canvasElement.addEventListener("wheel", stopScrollEvent)
                 }
                 L.resetCanvasElement(canvasElement)
                 L.scheduleRepaint()
@@ -194,6 +197,7 @@ const CanvasWidget = (props: Props) => {
     }, [_handleDiscreteMouseEvents])
 
     const _handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        setHasFocus(true)
         const { point, mouseButton, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Move)
         _handleDiscreteMouseEvents(e, ClickEventType.Release)
         dispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
@@ -205,6 +209,7 @@ const CanvasWidget = (props: Props) => {
     }, [_handleMousePresenceEvents])
 
     const _handleMouseLeave = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        setHasFocus(false)
         _handleMousePresenceEvents(e, MousePresenceEventType.Leave)
     }, [_handleMousePresenceEvents])
 
@@ -214,6 +219,17 @@ const CanvasWidget = (props: Props) => {
                 l.handleWheelEvent(e)
             }
         }
+        // The below *ought* to disable events only when this element has focus.
+        // Unfortunately it fails to disable them because React attaches this to an element
+        // which is by default passive (i.e. not allowed to preventDefault) and I can't
+        // sort out how to make it not do that.
+        // Leaving this code in because it's almost a solution to the bigger problem.
+        // console.log(`I have focus: ${hasFocus}`)
+        // if (preventDefaultWheel && hasFocus) {
+        //     console.log(`Absorbing wheel event. Default: ${preventDefaultWheel} Focus: ${hasFocus}`)
+        //     e.preventDefault()
+        // }
+    // }, [layers, preventDefaultWheel, hasFocus])
     }, [layers])
 
     const _handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {

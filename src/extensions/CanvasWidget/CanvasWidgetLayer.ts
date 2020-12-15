@@ -283,6 +283,7 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     handleWheelEvent(e: React.WheelEvent<HTMLCanvasElement>) {
         if (this._wheelEventHandlers.length === 0) return
+        
         const wheelEvent = formWheelEvent(e)
         for (let fn of this._wheelEventHandlers) {
             fn(wheelEvent, this)

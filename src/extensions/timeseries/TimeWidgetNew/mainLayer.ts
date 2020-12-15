@@ -13,7 +13,7 @@ interface LayerState {
     inverseTransformations: TransformationMatrix[]
     anchorTimepoint: number | null
     dragging: boolean
-    listeningToWheel: boolean
+    captureWheel: boolean
     paintStatus: {
         paintCode: number,
         completenessFactor: number
@@ -26,7 +26,7 @@ const initialLayerState = {
     inverseTransformations: [],
     anchorTimepoint: null,
     dragging: false,
-    listeningToWheel: false,
+    captureWheel: false,
     paintStatus: {
         paintCode: 0,
         completenessFactor: 0.2
@@ -111,7 +111,7 @@ export const handleClick: DiscreteMouseEventHandler = (e: ClickEvent, layer: Can
         const p = transformPoint(inverseTransformations[i], e.point)
         if ((0 <= p[1]) && (p[1] <= 1)) {
             if (e.type === ClickEventType.Press) {
-                layer.setState({...state, listeningToWheel: true, anchorTimepoint: p[0], dragging: false})
+                layer.setState({...state, captureWheel: true, anchorTimepoint: p[0], dragging: false})
             }
             else if (e.type === ClickEventType.Release) {
                 if (!dragging) {
@@ -125,7 +125,7 @@ export const handleClick: DiscreteMouseEventHandler = (e: ClickEvent, layer: Can
 
 export const handleMouseOut: MousePresenceEventHandler = (e: MousePresenceEvent, layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>) => {
     if (e.type !== MousePresenceEventType.Leave) return
-    layer.setState({...layer.getState(), listeningToWheel: false})
+    layer.setState({...layer.getState(), captureWheel: false})
 }
 
 const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {min: number, max: number} => {
@@ -159,7 +159,7 @@ export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayer
 export const handleWheel: WheelEventHandler = (e: WheelEvent, layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>) => {
     const props = layer.getProps()
     if (!props) return
-    const listening = layer.getState().listeningToWheel
+    const listening = layer.getState().captureWheel
     if (!listening) return
     if (e.deltaY > 0) {
         props.onTimeZoom && props.onTimeZoom(1 / 1.15)
