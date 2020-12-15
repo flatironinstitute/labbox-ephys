@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../CanvasWidget/CanvasWidget'
 import { useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer'
@@ -339,9 +339,8 @@ const TimeWidgetNew = (props: Props) => {
     })
 
     return (
-        <OuterContainer
-            width={width}
-            height={height}
+        <div
+            style={{position: 'relative', left: 0, top: 0, width, height}}
         >
             <TimeWidgetToolbarNew
                 width={toolbarWidth}
@@ -353,10 +352,12 @@ const TimeWidgetNew = (props: Props) => {
                 onShiftTimeRight={() => {_handleShiftTimeRight()}}
                 customActions={customActions}
             />
-            <InnerContainer width={layerProps.width} height={height}>
+            <div
+                style={{position: 'relative', left: toolbarWidth, top: 0, width: width - toolbarWidth, height: height}}
+            >
                 <TimeSpanWidget
                     key='timespan'
-                    width={layerProps.width}
+                    width={width - toolbarWidth}
                     height={spanWidgetHeight}
                     info={spanWidgetInfo}
                     onCurrentTimeChanged={handleCurrentTimeChanged}
@@ -366,18 +367,18 @@ const TimeWidgetNew = (props: Props) => {
                     key='canvas'
                     layers={allLayers}
                     preventDefaultWheel={true}
-                    {...{width: layerProps.width, height: layerProps.height}}
+                    {...{width: width - toolbarWidth, height: layerProps.height}}
                 />
                 <TimeWidgetBottomBar
                     key='bottom'
-                    width={layerProps.width}
+                    width={width - toolbarWidth}
                     height={bottomBarHeight}
                     info={bottomBarInfo}
                     onCurrentTimeChanged={handleCurrentTimeChanged}
                     onTimeRangeChanged={handleTimeRangeChanged}
                 />
-            </InnerContainer>
-        </OuterContainer>
+            </div>
+        </div>
     );
 }
 
@@ -394,50 +395,6 @@ const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {
         min: Math.floor(timeRange.min + shift),
         max: Math.floor(timeRange.max + shift)
     }
-}
-
-interface InnerContainerProps {
-    width?: number
-    height?: number
-    left?: number
-}
-
-const InnerContainer: FunctionComponent<InnerContainerProps> = (props) => {
-    const style0 = {
-        left: props.left || 0,
-        top: 0,
-        width: props.width,
-        height: props.height
-    }
-    const ch = props.children as any as ReactElement[]
-    return (
-        <div className="innerContainer" style={{position: 'relative', ...style0}}>
-            {
-                ch.map((child, ii) => (
-                    <child.type key={ii} {...child.props} width={props.width} />
-                ))
-            }
-        </div>
-    )
-}
-
-interface OuterContainerProps {
-    width: number,
-    height: number
-}
-
-const OuterContainer: FunctionComponent<OuterContainerProps> = (props) => {
-    const style0 = {
-        left: 0,
-        top: 0,
-        width: props.width,
-        height: props.height
-    }
-    return (
-        <div className="outerContainer" style={{position: 'relative', ...style0}}>
-            {props.children}
-        </div>
-    )
 }
 
 export default TimeWidgetNew
