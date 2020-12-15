@@ -5,7 +5,6 @@ import { useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer'
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
 import { createPanelLabelLayer } from './panelLabelLayer'
-import Splitter from './Splitter'
 import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar from './TimeWidgetBottomBar'
@@ -207,6 +206,7 @@ const TimeWidgetNew = (props: Props) => {
     const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null, numTimepoints, maxTimeSpan})
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
+    const [prevPanels, setPrevPanels] = useState<TimeWidgetPanel[] | null>(null)
 
     const mainLayer = useLayer(createMainLayer)
     const timeAxisLayer = useLayer(createTimeAxisLayer)
@@ -233,13 +233,14 @@ const TimeWidgetNew = (props: Props) => {
         if (timeState.currentTime !== prevCurrentTime) {
             cursorLayer && cursorLayer.scheduleRepaint()
         }   
-        if (timeState.timeRange !== prevTimeRange) {
+        if ((timeState.timeRange !== prevTimeRange) || (panels !== prevPanels)) {
             allLayers.forEach(layer => {
                 layer && layer.scheduleRepaint()
             })
         }
         setPrevCurrentTime(timeState.currentTime)
         setPrevTimeRange(timeState.timeRange)
+        setPrevPanels(panels)
     }, [allLayers, cursorLayer, mainLayer, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
 
     const handleClick = useCallback(
@@ -306,8 +307,6 @@ const TimeWidgetNew = (props: Props) => {
         }
     }, [timeState, numTimepoints, startTimeSpan])
 
-    const leftPanel = null
-
     const bottomBarInfo = {
         show: true,
         currentTime: timeState.currentTime,
@@ -339,45 +338,6 @@ const TimeWidgetNew = (props: Props) => {
         if (L) L.setProps(layerProps)
     })
 
-    const innerContainer = (
-        <InnerContainer>
-            <TimeSpanWidget
-                key='timespan'
-                width={width}
-                height={spanWidgetHeight}
-                info={spanWidgetInfo}
-                onCurrentTimeChanged={handleCurrentTimeChanged}
-                onTimeRangeChanged={handleTimeRangeChanged}
-            />
-            <CanvasWidget
-                key='canvas'
-                layers={allLayers}
-                preventDefaultWheel={true}
-                {...{width: layerProps.width, height: layerProps.height}}
-            />
-            {/* <CanvasWidget
-                
-                layers={layers}
-                width={this.props.width}
-                height={this.props.height - this._spanWidgetHeight - this._bottomBarHeight}
-                onMousePress={this.handle_mouse_press}
-                onMouseRelease={this.handle_mouse_release}
-                onMouseDrag={this.handle_mouse_drag}
-                onMouseDragRelease={this.handle_mouse_drag_release}
-                onKeyPress={this.handle_key_press}
-                menuOpts={{exportSvg: true}}
-            /> */}
-            <TimeWidgetBottomBar
-                key='bottom'
-                width={width}
-                height={bottomBarHeight}
-                info={bottomBarInfo}
-                onCurrentTimeChanged={handleCurrentTimeChanged}
-                onTimeRangeChanged={handleTimeRangeChanged}
-            />
-        </InnerContainer>
-    )
-
     return (
         <OuterContainer
             width={width}
@@ -393,19 +353,30 @@ const TimeWidgetNew = (props: Props) => {
                 onShiftTimeRight={() => {_handleShiftTimeRight()}}
                 customActions={customActions}
             />
-            <Splitter
-                width={width - toolbarWidth}
-                height={height}
-                initialPosition={toolbarWidth}
-            >
-                {
-                    leftPanel ? (
-                        [leftPanel, innerContainer]
-                    ) : (
-                        innerContainer
-                    )
-                }
-            </Splitter>
+            <InnerContainer width={layerProps.width} height={height}>
+                <TimeSpanWidget
+                    key='timespan'
+                    width={layerProps.width}
+                    height={spanWidgetHeight}
+                    info={spanWidgetInfo}
+                    onCurrentTimeChanged={handleCurrentTimeChanged}
+                    onTimeRangeChanged={handleTimeRangeChanged}
+                />
+                <CanvasWidget
+                    key='canvas'
+                    layers={allLayers}
+                    preventDefaultWheel={true}
+                    {...{width: layerProps.width, height: layerProps.height}}
+                />
+                <TimeWidgetBottomBar
+                    key='bottom'
+                    width={layerProps.width}
+                    height={bottomBarHeight}
+                    info={bottomBarInfo}
+                    onCurrentTimeChanged={handleCurrentTimeChanged}
+                    onTimeRangeChanged={handleTimeRangeChanged}
+                />
+            </InnerContainer>
         </OuterContainer>
     );
 }

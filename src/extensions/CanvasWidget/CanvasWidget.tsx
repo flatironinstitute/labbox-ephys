@@ -78,8 +78,8 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
 }
 
 interface Props {
-    layers: (CanvasWidgetLayer<any, any> | null)[], // the layers to paint (each corresponds to a canvas html element)
-    width: number,
+    layers: (CanvasWidgetLayer<any, any> | null)[] // the layers to paint (each corresponds to a canvas html element)
+    width: number
     height: number
     preventDefaultWheel?: boolean // whether to prevent default behavior of mouse wheel
 }
@@ -224,6 +224,7 @@ const CanvasWidget = (props: Props) => {
         if (L) {
             const {width: layerWidth, height: layerHeight} = L.getProps()
             if ((layerWidth !== width) || (layerHeight !== height)) {
+                console.warn(layerWidth, layerHeight, width, height)
                 throw Error('Inconsistent width or height between canvas widget and layer')
             }
         }

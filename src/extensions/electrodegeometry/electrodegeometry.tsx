@@ -13,7 +13,7 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
     })
 }
 
-const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording}) => {
+export const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording}) => {
     const ri = recording.recordingInfo
     const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
     const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);

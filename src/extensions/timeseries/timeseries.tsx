@@ -11,9 +11,11 @@ const TimeseriesSortingView: FunctionComponent<SortingViewProps & SizeMeProps> =
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
+            recordingInfo={recording.recordingInfo}
             width={size.width || 0}
             height={height}
             hither={hither}
+            opts={{channelSelectPanel: true}}
         />
     )
 }
@@ -23,9 +25,11 @@ const TimeseriesRecordingView: FunctionComponent<RecordingViewProps & SizeMeProp
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
+            recordingInfo={recording.recordingInfo}
             width={size.width || 0}
             height={height}
             hither={hither}
+            opts={{channelSelectPanel: true}}
         />
     )
 }
