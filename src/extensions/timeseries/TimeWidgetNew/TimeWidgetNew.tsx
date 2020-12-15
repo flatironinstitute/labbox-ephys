@@ -25,7 +25,7 @@ export type TimeWidgetAction = ActionItem | DividerItem
 
 interface Props {
     panels: TimeWidgetPanel[]
-    customActions: TimeWidgetAction[]
+    customActions?: TimeWidgetAction[]
     width: number
     height: number
     samplerate: number
@@ -241,7 +241,7 @@ const TimeWidgetNew = (props: Props) => {
         setPrevCurrentTime(timeState.currentTime)
         setPrevTimeRange(timeState.timeRange)
         setPrevPanels(panels)
-    }, [allLayers, cursorLayer, mainLayer, panels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
+    }, [allLayers, cursorLayer, mainLayer, panels, prevPanels, timeState, prevCurrentTime, prevTimeRange, setPrevCurrentTime, setPrevTimeRange, setSpanWidgetInfo, spanWidgetInfo])
 
     const handleClick = useCallback(
         (args: {timepoint: number, panelIndex: number, y: number}) => {

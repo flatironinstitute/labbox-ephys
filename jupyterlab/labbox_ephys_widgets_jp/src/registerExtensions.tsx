@@ -5,6 +5,7 @@ import { ExtensionContext } from './extensions/extensionInterface';
 import { activate as activateaveragewaveforms2 } from './extensions/averagewaveforms2/averagewaveforms2';
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
 import { activate as activateexample } from './extensions/example/example';
+import { activate as activatespikeamplitudes } from './extensions/spikeamplitudes/spikeamplitudes';
 import { activate as activatecuration } from './extensions/curation/curation';
 import { activate as activatedevel } from './extensions/devel/devel';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
@@ -18,6 +19,7 @@ const registerExtensions = (context: ExtensionContext) => {
     activateaveragewaveforms2(context)
     activatecorrelograms(context)
     activateexample(context)
+    activatespikeamplitudes(context)
     activatecuration(context)
     activatedevel(context)
     activateelectrodegeometry(context)

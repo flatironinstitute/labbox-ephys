@@ -82,9 +82,9 @@ const MetricCell = React.memo((a: {title?: string, error: string, data: any, Pay
 
 
 interface Props {
-    sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
+    sortingUnitMetrics?: {[key: string]: SortingUnitMetricPlugin}
     units: number[]
-    metrics: {[key: string]: {data: {[key: string]: any}, error: string | null}}
+    metrics?: {[key: string]: {data: {[key: string]: any}, error: string | null}}
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
     sorting: Sorting
@@ -103,7 +103,7 @@ const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
     const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, sorting } = props
-    const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics)).filter(p => (!p.disabled))
+    const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics || {})).filter(p => (!p.disabled))
     const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
     units.sort((a, b) => a - b) // first sort by actual unit number
     // Now sort the list iteratively by each of the sorters in the sortFieldOrder state.
@@ -121,7 +121,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     const sortingRules = interpretSortFields(sortFieldOrder)
     for (const r of sortingRules) {
         const metricName = r.metricName
-        const metric = metrics[metricName]
+        const metric = (metrics || {})[metricName]
         if (!metric || !metric.data || metric['error']) continue // no data, nothing to do
         const getRecordForMetric = sortingUnitMetricsList.filter(mp => mp.name === metricName)[0].getRecordValue
         units.sort((a, b) => {
@@ -198,7 +198,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                             {
                                 sortingUnitMetricsList.map(mp => {
                                     const metricName = mp.name
-                                    const metric = metrics[metricName] || null
+                                    const metric = (metrics || {})[metricName] || null
                                     const d = (metric && metric.data) ? (
                                         (unitId + '' in metric.data) ? metric.data[unitId + ''] : NaN
                                     ) : NaN

@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import CanvasWidget from '../../CanvasWidget';
-import { useLayer } from '../../CanvasWidget/CanvasWidgetLayer';
+import { useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer';
 import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 
@@ -55,9 +55,10 @@ const AverageWaveformWidget: FunctionComponent<Props> = (props) => {
     }
     const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
     const waveformLayer = useLayer(createWaveformLayer, layerProps)
+    const layers = useLayers([electrodesLayer, waveformLayer])
     return (
         <CanvasWidget
-            layers={[electrodesLayer, waveformLayer]}
+            layers={layers}
             {...{width: props.width, height: props.height}}
         />
     )
