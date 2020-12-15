@@ -41,8 +41,13 @@ const ViewContainerTabBar: FunctionComponent<Props> = ({ views, currentView, onC
 
 const viewContainerTab = (view: View, onClose: (view: View) => void) => {
     // thanks: https://stackoverflow.com/questions/63265780/react-material-ui-tabs-close/63277341#63277341
+    // thanks also: https://www.freecodecamp.org/news/reactjs-implement-drag-and-drop-feature-without-using-external-libraries-ad8994429f1a/
     const label = (
-        <span style={{whiteSpace: 'nowrap'}}>
+        <div
+            style={{whiteSpace: 'nowrap'}}
+            draggable
+            onDragStart={(e) => {e.dataTransfer.setData('viewId', view.viewId);}}
+        >
             {view.plugin.label}
             <span>&nbsp;</span>
             <IconButton
@@ -57,7 +62,7 @@ const viewContainerTab = (view: View, onClose: (view: View) => void) => {
                     }}
                 />
             </IconButton>
-        </span>
+        </div>
     )
     return (
         <Tab key={view.viewId} label={label} />

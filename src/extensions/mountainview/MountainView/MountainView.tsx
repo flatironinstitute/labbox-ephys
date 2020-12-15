@@ -14,6 +14,7 @@ type AddViewAction = {
     type: 'AddView'
     pluginType: ViewPluginType
     plugin: ViewPlugin
+    area: 'north' | 'south' | ''
 }
 
 type CloseViewAction = {
@@ -21,17 +22,24 @@ type CloseViewAction = {
     view: View
 }
 
+type SetViewAreaAction = {
+    type: 'SetViewArea'
+    viewId: string
+    area: 'north' | 'south'
+}
+
 export class View {
     activate: boolean = false // signal to set this tab as active
-    constructor(public pluginType: ViewPluginType, public plugin: ViewPlugin, public viewId: number) {
+    area: 'north' | 'south' | '' = ''
+    constructor(public pluginType: ViewPluginType, public plugin: ViewPlugin, public viewId: string) {
 
     }
 
 }
 
-type OpenViewsAction = AddViewAction | CloseViewAction
+type OpenViewsAction = AddViewAction | CloseViewAction | SetViewAreaAction
 
-let lastViewId: number = 0
+let lastViewIdNum: number = 0
 export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: View[], action: OpenViewsAction): View[] => {
     if (action.type === 'AddView') {
         const plugin = action.plugin
@@ -43,13 +51,17 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
                 }
             }
         }
-        lastViewId ++
-        const v = new View(action.pluginType, plugin, lastViewId)
+        lastViewIdNum ++
+        const v = new View(action.pluginType, plugin, lastViewIdNum + '')
         v.activate = true // signal to set this as active
-        return [...state, v]
+        v.area = action.area
+        return [...state, v].sort((a, b) => (a.plugin.label > b.plugin.label ? 1 : a.plugin.label < b.plugin.label ? -1 : 0))
     }
     else if (action.type === 'CloseView') {
         return state.filter(v => (v !== action.view))
+    }
+    else if (action.type === 'SetViewArea') {
+        return state.map(v => (v.viewId === action.viewId ? {...v, area: action.area, activate: true} : v))
     }
     else return state
 }
@@ -61,7 +73,8 @@ const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) 
         openViewsDispatch({
             type: 'AddView',
             pluginType,
-            plugin
+            plugin,
+            area: ''
         })
     }, [])
     const handleViewClosed = useCallback((v: View) => {
@@ -70,10 +83,19 @@ const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) 
             view: v
         })
     }, [openViewsDispatch])
+    const handleSetViewArea = useCallback((view: View, area: 'north' | 'south') => {
+        openViewsDispatch({
+            type: 'SetViewArea',
+            viewId: view.viewId,
+            area
+        })
+    }, [openViewsDispatch])
+    const width = size.width || 600
+    const height = 900 // hard-coded for now
     return (
         <Splitter
-            width={size.width || 600}
-            height={900} // hard-coded for now
+            width={width}
+            height={height} // hard-coded for now
             initialPosition={initialLeftPanelWidth}
         >
             <div>
@@ -94,7 +116,10 @@ const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) 
             </div>
             <ViewContainer
                 onViewClosed={handleViewClosed}
+                onSetViewArea={handleSetViewArea}
                 views={openViews}
+                width={0} // will be replaced by splitter
+                height={0} // will be replaced by splitter
             >
                 {
                     openViews.map(v => (
