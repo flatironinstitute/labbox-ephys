@@ -1,5 +1,5 @@
 import { matrix, multiply } from 'mathjs'
-import { getCenter, getHeight, getWidth, isNumber, isString, isVec2, isVec3, isVec4, RectangularRegion, toTransformationMatrix, TransformationMatrix, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
+import { getCenter, getHeight, getWidth, isNumber, isString, isVec2, isVec3, isVec4, RectangularRegion, toTransformationMatrix, TransformationMatrix, transformPoint, transformRect, Vec2, Vec3, Vec4 } from './Geometry'
 
 export interface TextAlignment {
     Horizontal: 'AlignLeft' | 'AlignCenter' | 'AlignRight'
@@ -263,6 +263,24 @@ export class CanvasPainter {
         applyPen(this._context2D, pen);
         applyBrush(this._context2D, brush)
         this._context2D.fillText(txt, config.x, config.y);
+        this._context2D.restore()
+    }
+    drawMarker(center: Vec2, opts: {radius: number, pen?: Pen, brush?: Brush}) {
+        const p = transformPoint(this._transformMatrix, center)
+        this._context2D.save()
+        if (opts.pen) {
+            applyPen(this._context2D, opts.pen)
+            this._context2D.beginPath()
+            this._context2D.ellipse(p[0], p[1], opts.radius, opts.radius, 0, 0, 2 * Math.PI)
+            this._context2D.stroke()
+        }
+        if (opts.brush) {
+            applyBrush(this._context2D, opts.brush)
+            this._context2D.beginPath()
+            this._context2D.ellipse(p[0], p[1], opts.radius, opts.radius, 0, 0, 2 * Math.PI)
+            this._context2D.fill()
+        }
+        
         this._context2D.restore()
     }
     // in future we may want to implement this:

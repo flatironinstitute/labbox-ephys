@@ -10,7 +10,7 @@ interface Props {
     onZoomOut: () => void
     onShiftTimeLeft: () => void
     onShiftTimeRight: () => void
-    customActions: any[]
+    customActions?: any[]
 }
 
 const TimeWidgetToolbarNew: FunctionComponent<Props> = (props) => {
@@ -48,7 +48,7 @@ const TimeWidgetToolbarNew: FunctionComponent<Props> = (props) => {
     buttons.push({
         type: 'divider'
     });
-    for (let a of props.customActions) {
+    for (let a of (props.customActions || [])) {
         buttons.push({
             type: a.type || 'button',
             title: a.title,

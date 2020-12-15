@@ -13,7 +13,7 @@ export function activate(context: ExtensionContext) {
         priority: 1000,
         component: CurationSortingView,
         props: {
-            height: 500
+            height: 1000
         }
     })
 }
