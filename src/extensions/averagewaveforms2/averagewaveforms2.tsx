@@ -9,7 +9,8 @@ export function activate(context: ExtensionContext) {
         name: 'AverageWaveforms2',
         label: 'Average waveforms 2',
         priority: 350,
-        defaultExpanded: true,
-        component: AverageWaveformsView
+        defaultExpanded: false,
+        component: AverageWaveformsView,
+        singleton: true
     })
 }

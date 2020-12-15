@@ -15,6 +15,7 @@ export function activate(context: ExtensionContext) {
         component: Units,
         props: {
             maxHeight: 300
-        }
+        },
+        singleton: true
     })
 }

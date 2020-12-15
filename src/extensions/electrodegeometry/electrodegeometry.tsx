@@ -48,13 +48,15 @@ export function activate(context: ExtensionContext) {
         name: 'ElectrodeGeometryRecordingView',
         label: 'Electrode geometry',
         priority: 50,
-        defaultExpanded: true,
-        component: ElectrodeGeometryRecordingView
+        defaultExpanded: false,
+        component: ElectrodeGeometryRecordingView,
+        singleton: true
     })
     context.registerSortingView({
         name: 'ElectrodeGeometrySortingView',
         label: 'Electrode geometry',
         priority: 50,
-        component: ElectrodeGeometrySortingView
+        component: ElectrodeGeometrySortingView,
+        singleton: true
     })
 }
