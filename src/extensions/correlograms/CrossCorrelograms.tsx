@@ -74,7 +74,7 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps>
                                         height: plotWidth
                                     }}
                                     title={pair.xkey + " vs " + pair.ykey}
-                                    plotComponent={Correlogram_rv}
+                                    PlotComponent={Correlogram_rv}
                                     plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
                                     useJobCache={true}
                                     requiredFiles={sorting.sortingObject}

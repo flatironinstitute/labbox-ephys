@@ -2,6 +2,7 @@
 // !begin-code-generation!
 import { ExtensionContext } from './extensions/extensionInterface'
 
+import { activate as activateaveragewaveforms2 } from './extensions/averagewaveforms2/averagewaveforms2'
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms'
 import { activate as activateexample } from './extensions/example/example'
 import { activate as activatecuration } from './extensions/curation/curation'
@@ -25,6 +26,7 @@ Use the following to also include the extension in the jupyterlab extension:
 
 const registerExtensions = (context: ExtensionContext) => {
     // !begin-code-generation!
+    activateaveragewaveforms2(context)
     activatecorrelograms(context)
     activateexample(context)
     activatecuration(context)

@@ -1,6 +1,6 @@
 import { funcToTransform } from "../../CanvasWidget"
 import { CanvasPainter } from "../../CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragEvent, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../../CanvasWidget/CanvasWidgetLayer"
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, KeyboardEvent, KeyboardEventHandler, WheelEvent, WheelEventHandler } from "../../CanvasWidget/CanvasWidgetLayer"
 import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../../CanvasWidget/Geometry"
 import { sleepMsec } from "../../common/misc"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
@@ -128,7 +128,7 @@ const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {
     }
 }
 
-export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>, drag: DragEvent) => {
+export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>, drag: CanvasDragEvent) => {
     const props = layer.getProps()
     if (!props) return
     const state = layer.getState()

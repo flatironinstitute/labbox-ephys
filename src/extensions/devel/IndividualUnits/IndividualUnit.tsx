@@ -34,7 +34,7 @@ const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, un
                 width: 300,
                 height: 300
             }}
-            plotComponent={PCAFeatures_rv}
+            PlotComponent={PCAFeatures_rv}
             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
             newHitherJobMethod={true}
             useJobCache={true}
@@ -62,7 +62,7 @@ const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: 
                 width: 600,
                 height: 300
             }}
-            plotComponent={DriftFeatures_rv}
+            PlotComponent={DriftFeatures_rv}
             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
             newHitherJobMethod={true}
             useJobCache={true}
@@ -93,7 +93,7 @@ const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recordin
                     height: 300
                 }}
                 title="Example waveforms"
-                plotComponent={SpikeWaveforms_rv}
+                PlotComponent={SpikeWaveforms_rv}
                 plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
                 newHitherJobMethod={true}
                 useJobCache={true}
@@ -189,7 +189,7 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
                                         width: 300,
                                         height: 300
                                     }}
-                                    plotComponent={SpikeWaveforms_rv}
+                                    PlotComponent={SpikeWaveforms_rv}
                                     plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
                                     newHitherJobMethod={true}
                                     useJobCache={true}

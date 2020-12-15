@@ -17,7 +17,7 @@ const AverageWaveformSortingUnitView: FunctionComponent<{sorting: Sorting, recor
                 width: 300,
                 height: 300
             }}
-            plotComponent={AverageWaveform_rv}
+            PlotComponent={AverageWaveform_rv}
             plotComponentArgs={{ id: unitId }}
             newHitherJobMethod={true}
             useJobCache={true}

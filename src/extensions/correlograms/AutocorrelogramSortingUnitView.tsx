@@ -17,7 +17,7 @@ const AutocorrelogramSortingUnitView: FunctionComponent<{sorting: Sorting, unitI
                 height: 300
             }}
             title="Autocorrelogram"
-            plotComponent={Correlogram_rv}
+            PlotComponent={Correlogram_rv}
             plotComponentArgs={{ id: unitId }}
             newHitherJobMethod={true}
             useJobCache={true}

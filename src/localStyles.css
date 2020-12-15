@@ -44,7 +44,7 @@
 }
 
 .plotUnselectedStyle {
-    border: 3px solid transparent;
+    border: 3px solid rgb(202, 224, 231);
 }
 
 .plotSelectedStyle {

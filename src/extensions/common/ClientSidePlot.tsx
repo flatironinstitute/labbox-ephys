@@ -11,17 +11,17 @@ const ClientSidePlot: FunctionComponent<{
     requiredFiles?: {[key: string]: any},
     calculationPool?: CalculationPool,
     boxSize: {width: number, height: number},
-    plotComponent: React.FunctionComponent<any>,
+    PlotComponent: React.FunctionComponent<{boxSize: {width: number, height: number}, plotData: any, argsObject: {[key: string]: any}, title: string}>,
     plotComponentArgs: {[key: string]: any},
     title: string,
     hither: HitherContext
 }> = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, requiredFiles,
     calculationPool,
     boxSize = { width: 200, height: 200 },
-    plotComponent, plotComponentArgs, title, hither }) => {
-    const [calculationStatus, setCalculationStatus] = useState('waitingForVisible');
-    const [calculationError, setCalculationError] = useState(null);
-    const [plotData, setPlotData] = useState(null);
+    PlotComponent, plotComponentArgs, title, hither }) => {
+    const [calculationStatus, setCalculationStatus] = useState<string>('waitingForVisible');
+    const [calculationError, setCalculationError] = useState<string | null>(null);
+    const [plotData, setPlotData] = useState<any | null>(null);
     const [visible, setVisible] = useState(false);
 
     const effect = async () => {
@@ -113,9 +113,11 @@ const ClientSidePlot: FunctionComponent<{
                 </Box>
             </Box>
         );
-    } else if (calculationStatus === 'finished') {
+    } else if ((calculationStatus === 'finished') && (plotData)) {
         // TODO: Follow-up on distinction b/w this and <PlotComponent arg1={} arg2={} ... />
-        return plotComponent({boxSize, plotData, argsObject: plotComponentArgs, title});
+        return <PlotComponent
+            {...{boxSize, plotData, argsObject: plotComponentArgs, title}}
+        />
     } else {
         return (
             <div>Unexpected calculation status: {calculationStatus}</div>

@@ -46,7 +46,7 @@ export enum ClickEventType {
 }
 export type ClickEventTypeStrings = keyof typeof ClickEventType
 
-export interface DragEvent {
+export interface CanvasDragEvent {
     dragRect: RectangularRegion,
     released: boolean,
     shift: boolean, // might extend this to the full modifier set later
@@ -60,7 +60,7 @@ export interface DragEvent {
 // this allows the handler functions to modify the parent function state without having direct reference
 // to values outside their own scope.
 export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
-export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: DragEvent) => void
+export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: CanvasDragEvent) => void
 export type WheelEventHandler = (event: WheelEvent, layer: CanvasWidgetLayer<any, any>) => void
 export type KeyboardEventHandler = (event: KeyboardEvent, layer: CanvasWidgetLayer<any, any>) => boolean // return false to prevent default
 

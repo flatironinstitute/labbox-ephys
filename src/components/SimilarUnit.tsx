@@ -29,7 +29,7 @@ const SimilarUnit: FunctionComponent<{
                                 height: 300
                             }}
                             title="Autocorrelogram"
-                            plotComponent={Correlogram_rv}
+                            PlotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
@@ -52,7 +52,7 @@ const SimilarUnit: FunctionComponent<{
                                 height: 300
                             }}
                             title={`Unit ${unitId} vs ${compareUnitId}`}
-                            plotComponent={Correlogram_rv}
+                            PlotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId+'-'+compareUnitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
@@ -74,7 +74,7 @@ const SimilarUnit: FunctionComponent<{
                                 width: 300,
                                 height: 300
                             }}
-                            plotComponent={AverageWaveform_rv}
+                            PlotComponent={AverageWaveform_rv}
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
@@ -97,7 +97,7 @@ const SimilarUnit: FunctionComponent<{
                                 width: 300,
                                 height: 300
                             }}
-                            plotComponent={PCAFeatures_rv}
+                            PlotComponent={PCAFeatures_rv}
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
@@ -120,7 +120,7 @@ const SimilarUnit: FunctionComponent<{
                                 width: 600,
                                 height: 300
                             }}
-                            plotComponent={DriftFeatures_rv}
+                            PlotComponent={DriftFeatures_rv}
                             plotComponentArgs={{id: unitId}}
                             newHitherJobMethod={true}
                             useJobCache={true}
