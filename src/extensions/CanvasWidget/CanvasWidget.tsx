@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
-import { BaseLayerProps, CanvasWidgetLayer, ClickEventType, formClickEventFromMouseEvent, KeyEventType } from './CanvasWidgetLayer'
+import { CanvasWidgetLayer, ClickEventType, formClickEventFromMouseEvent, KeyEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
 // This class serves three purposes:
@@ -77,14 +77,15 @@ const dragReducer = (state: DragState, action: DragAction): DragState => {
     throw Error('Unexpected: unreachable, but keeps ESLint happy')
 }
 
-interface Props<T extends BaseLayerProps> {
-    layers: CanvasWidgetLayer<T, any>[] | null, // the layers to paint (each corresponds to a canvas html element)
+interface Props {
+    layers: (CanvasWidgetLayer<any, any> | null)[], // the layers to paint (each corresponds to a canvas html element)
+    width: number,
+    height: number
     preventDefaultWheel?: boolean // whether to prevent default behavior of mouse wheel
-    layerProps: T // props sent to the layer
 }
 
-const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
-    const { layers, layerProps, preventDefaultWheel } = props
+const CanvasWidget = (props: Props) => {
+    const { layers, preventDefaultWheel, width, height } = props
 
     // To learn about callback refs: https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
     const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
@@ -100,10 +101,9 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         // or when the layers (prop) has changed (or if preventDefaultWheel has changed)
         // we set the canvas elements on the layers and schedule repaints
         if (!divElement) return
-        if (!layers) return
         layers.forEach((L, i) => {
             const canvasElement = divElement.children[i]
-            if (canvasElement) {
+            if ((canvasElement) && (L)) {
                 if (preventDefaultWheel) {
                     canvasElement.addEventListener("wheel", (event) => {
                         event.preventDefault()
@@ -123,21 +123,12 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
         dragging: false
     })
 
-    const { width, height } = layerProps
-
-    // set the layer props on the layers
-    useEffect(() => {
-        if (!layers) return
-        layers.forEach(L => {
-            L.updateProps(layerProps)
-        })
-    }, [layerProps, layers])
-
     // schedule repaint when width or height change
     useEffect(() => {
-        if (!layers) return
         layers.forEach(L => {
-            L.scheduleRepaint()
+            if (L) {
+                L.scheduleRepaint()
+            }
         })
     }, [width, height, layers])
 
@@ -145,7 +136,6 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
 
     // handle drag when dragState changes
     useEffect(() => {
-        if (!layers) return
         let ds: DragState | null = null
         if (dragState.dragging) {
             ds = dragState
@@ -166,7 +156,9 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
                     ymax: dragRect[1]
                 }
                 for (let l of layers) {
-                    l.handleDrag(pixelDragRect, !dragState.dragging, ds.shift, ds.dragAnchor, ds.dragPosition)
+                    if (l) {
+                        l.handleDrag(pixelDragRect, !dragState.dragging, ds.shift, ds.dragAnchor, ds.dragPosition)
+                    }
                 }
             }
         }
@@ -174,10 +166,11 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [dragState, prevDragState, setPrevDragState, layers])
 
     const _handleDiscreteMouseEvents = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: ClickEventType) => {
-        if (!layers) return
         if (dragState.dragging) return
         for (let l of layers) {
-            l.handleDiscreteEvent(e, type)
+            if (l) {
+                l.handleDiscreteEvent(e, type)
+            }
         }
     }, [layers, dragState])
 
@@ -209,25 +202,37 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
     }, [])
 
     const _handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
-        if (!layers) return
         for (let l of layers) {
-            l.handleWheelEvent(e)
-        }
-    }, [layers])
-
-    const _handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (!layers) return
-        for (let l of layers) {
-            if (l.handleKeyboardEvent(KeyEventType.Press, e) === false) {
-                e.preventDefault()
+            if (l) {
+                l.handleWheelEvent(e)
             }
         }
     }, [layers])
 
+    const _handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+        for (let l of layers) {
+            if (l) {
+                if (l.handleKeyboardEvent(KeyEventType.Press, e) === false) {
+                    e.preventDefault()
+                }
+            }
+        }
+    }, [layers])
+
+    // make sure that the layers have width/height that matches this canvas widget
+    for (const L of layers) {
+        if (L) {
+            const {width: layerWidth, height: layerHeight} = L.getProps()
+            if ((layerWidth !== width) || (layerHeight !== height)) {
+                throw Error('Inconsistent width or height between canvas widget and layer')
+            }
+        }
+    }
+
     return (
         <div
             ref={divRef}
-            style={{position: 'relative', width: layerProps.width, height: layerProps.height, left: 0, top: 0}}
+            style={{position: 'relative', width, height, left: 0, top: 0}}
             onKeyDown={_handleKeyPress}
             tabIndex={0} // tabindex needed to handle keypress
         >
@@ -236,8 +241,8 @@ const CanvasWidget = <T extends BaseLayerProps>(props: Props<T>) => {
                     <canvas
                         key={'canvas-' + index}
                         style={{position: 'absolute', left: 0, top: 0}}
-                        width={layerProps.width}
-                        height={layerProps.height}
+                        width={width}
+                        height={height}
                         onMouseMove={_handleMouseMove}
                         onMouseDown={_handleMouseDown}
                         onMouseUp={_handleMouseUp}

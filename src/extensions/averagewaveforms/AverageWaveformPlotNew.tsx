@@ -1,7 +1,7 @@
 import React from 'react';
 import CanvasWidget, { funcToTransform } from '../CanvasWidget';
 import { CanvasPainter, PainterPath } from '../CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../CanvasWidget/CanvasWidgetLayer';
+import { CanvasWidgetLayer, useLayer } from '../CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../CanvasWidget/Geometry';
 
 interface PlotData {
@@ -122,13 +122,13 @@ const createPlotWaveformLayer = () => {
 }
 
 const HelperPlot = (props: HelperPlotProps) => {
-    const plotWaveformLayer = useCanvasWidgetLayer(createPlotWaveformLayer)
-    const layers = useCanvasWidgetLayers([plotWaveformLayer])
+    const plotWaveformLayer = useLayer(createPlotWaveformLayer, props)
     return (
         <div style={{gridArea: "2 / 1 / 7 / 2"}}>
-            <CanvasWidget<HelperPlotProps>
-                layers={layers || []}
-                layerProps={props}
+            <CanvasWidget
+                layers={[plotWaveformLayer]}
+                width={props.width}
+                height={props.height}
             />
         </div>
     )
