@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { funcToTransform } from '../../CanvasWidget';
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter';
 import CanvasWidget from '../../CanvasWidget/CanvasWidget';
-import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer';
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, useLayer } from '../../CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../../CanvasWidget/Geometry';
 
 
@@ -126,19 +126,19 @@ const createTimeSpanLayer = () => {
 
 const TimeSpanWidget: FunctionComponent<Props> = (props) => {
 
-    const timeSpanLayer = useCanvasWidgetLayer(createTimeSpanLayer)
-    const layers = useCanvasWidgetLayers([timeSpanLayer])
+    const layerProps = {
+        width: props.width,
+        height: props.height,
+        info: props.info,
+        onCurrentTimeChanged: props.onCurrentTimeChanged,
+        onTimeRangeChanged: props.onTimeRangeChanged
+    }
+    const timeSpanLayer = useLayer(createTimeSpanLayer, layerProps)
 
     return (
         <CanvasWidget
-            layers={layers || []}
-            layerProps={{
-                width: props.width,
-                height: props.height,
-                info: props.info,
-                onCurrentTimeChanged: props.onCurrentTimeChanged,
-                onTimeRangeChanged: props.onTimeRangeChanged
-            }}
+            layers={[timeSpanLayer]}
+            {...{width: props.width, height: props.height}}
         />
     )
 }

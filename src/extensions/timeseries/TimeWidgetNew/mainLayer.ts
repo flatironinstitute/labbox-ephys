@@ -178,7 +178,7 @@ export const handleKeyboardEvent: KeyboardEventHandler = (e: KeyboardEvent, laye
         case 189: props.onTimeZoom && props.onTimeZoom(1 / 1.15); return false;
         case 35: props.onGotoEnd && props.onGotoEnd(); return false;
         case 36: props.onGotoHome && props.onGotoHome(); return false;
-        default: console.info('key: ' + e.keyCode); return true;
+        default: return true; // console.info('key: ' + e.keyCode); return true;
     }
 }
 

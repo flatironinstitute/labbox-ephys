@@ -2,9 +2,10 @@ import { Accordion, AccordionDetails, AccordionSummary, CircularProgress } from 
 import React, { Dispatch, useCallback, useEffect, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { setExternalSortingUnitMetrics, setSortingInfo } from '../actions';
+import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
+import { getRecordingInfo } from '../actions/getRecordingInfo';
 import SortingInfoView from '../components/SortingInfoView';
-import { defaultSortingSelection, HitherContext, Plugins, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
+import { defaultSortingSelection, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -33,6 +34,7 @@ interface StateProps {
 
 interface DispatchProps {
   onSetSortingInfo: (a: {sortingId: string, sortingInfo: SortingInfo}) => void
+  onSetRecordingInfo: (a: {recordingId: string, recordingInfo: RecordingInfo}) => void
   onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
   curationDispatch: (a: SortingCurationAction) => void
 }
@@ -46,7 +48,7 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 type CalcStatus = 'waiting' | 'computing' | 'finished'
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetExternalUnitMetrics, hither } = props
+  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, hither } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
@@ -96,6 +98,32 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       })
     }
   }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId, hither])
+
+  const [recordingInfoStatus, setRecordingInfoStatus]= useState<'waiting' | 'calculating' | 'finished' | 'error'>('waiting')
+  useEffect(() => {
+    if (!recording) return;
+    if (recordingInfoStatus === 'waiting') {
+      const rec = recording;
+      if (rec.recordingInfo) {
+        setRecordingInfoStatus('finished')
+      }
+      else {
+        setRecordingInfoStatus('calculating')
+        getRecordingInfo({ recordingObject: rec.recordingObject, hither }).then((info: RecordingInfo) => {
+          setRecordingInfoStatus('finished')
+          onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info })
+        })
+        .catch((err: Error) => {
+          setRecordingInfoStatus('error')
+          console.error(err)
+        })
+      }
+    }
+  }, [recording, hither, onSetRecordingInfo, recordingInfoStatus, setRecordingInfoStatus])
+  const effect = async () => {
+    
+  }
+  useEffect(() => { effect() })
 
   const handleUnitClicked = useCallback((unitId, event) => {
     if (event.ctrlKey) {
@@ -246,6 +274,7 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatc
   }
   return {
     onSetSortingInfo: (a: { sortingId: string, sortingInfo: SortingInfo }) => dispatch(setSortingInfo(a)),
+    onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => dispatch(setRecordingInfo(a)),
     onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => dispatch(setExternalSortingUnitMetrics(a)),
     curationDispatch
   }

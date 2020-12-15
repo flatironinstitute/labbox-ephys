@@ -22,8 +22,14 @@ const Splitter: FunctionComponent<Props> = (props) => {
         let child0: ReactElement = props.children as any as ReactElement
         return <child0.type {...child0.props} width={width} height={height} />
     }
-    let child1 = props.children[0] as any as ReactElement
-    let child2 = props.children[1] as any as ReactElement
+    
+    const children = props.children.filter(c => (c !== undefined))
+    let child1 = children[0] as any as ReactElement
+    let child2 = children[1] as any as ReactElement
+
+    if (child2 === undefined) {
+        return <child1.type {...child1.props} width={width} height={height} />
+    }
 
     const gripWidth = props.gripWidth ?? 12
     const gripInnerWidth = props.gripInnerWidth ?? 4

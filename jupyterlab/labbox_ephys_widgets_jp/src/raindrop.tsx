@@ -1,7 +1,7 @@
 import React from 'react';
 import CanvasWidget from './extensions/CanvasWidget';
 import { CanvasPainter } from './extensions/CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, useCanvasWidgetLayer, useCanvasWidgetLayers } from './extensions/CanvasWidget/CanvasWidgetLayer';
+import { CanvasWidgetLayer, ClickEvent, ClickEventType } from './extensions/CanvasWidget/CanvasWidgetLayer';
 import { TransformationMatrix, Vec2 } from './extensions/CanvasWidget/Geometry';
 
 interface Raindrop {
@@ -82,8 +82,8 @@ interface Props {
 }
 
 const RaindropWidget: React.FunctionComponent<Props> = () => {
-  const layer = useCanvasWidgetLayer(createLayer)
-  const layers = useCanvasWidgetLayers([layer])
+  const layer = useLayer(createLayer)
+  const layers = useLayers([layer])
   return (
     <CanvasWidget
       layers={layers}

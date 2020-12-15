@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import CanvasWidget from '../../CanvasWidget';
-import { useCanvasWidgetLayer, useCanvasWidgetLayers } from "../../CanvasWidget/CanvasWidgetLayer";
+import { useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer';
 import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 
@@ -42,23 +42,24 @@ const AverageWaveformWidget: FunctionComponent<Props> = (props) => {
     const waveformColors: WaveformColors = {
         base: 'black'
     }
-    const electrodesLayer = useCanvasWidgetLayer(createElectrodesLayer)
-    const waveformLayer = useCanvasWidgetLayer(createWaveformLayer)
-    const layers = useCanvasWidgetLayers([electrodesLayer, waveformLayer])
+    const layerProps = {
+        ...props,
+        electrodeOpts: {
+            colors: electrodeColors,
+            showLabels: false
+        },
+        waveformOpts: {
+            colors: waveformColors,
+            waveformWidth: 2
+        }
+    }
+    const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
+    const waveformLayer = useLayer(createWaveformLayer, layerProps)
+    const layers = useLayers([electrodesLayer, waveformLayer])
     return (
         <CanvasWidget
             layers={layers}
-            layerProps={{
-                ...props,
-                electrodeOpts: {
-                    colors: electrodeColors,
-                    showLabels: false
-                },
-                waveformOpts: {
-                    colors: waveformColors,
-                    waveformWidth: 2
-                }
-            }}
+            {...{width: props.width, height: props.height}}
         />
     )
 }

@@ -9,6 +9,7 @@ export function activate(context: ExtensionContext) {
         name: 'LoadSortingInPython',
         label: 'Load sorting in Python',
         priority: 10,
-        component: LoadSortingPythonSnippet
+        component: LoadSortingPythonSnippet,
+        singleton: true
     })
 }

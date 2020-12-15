@@ -1,7 +1,7 @@
 import { norm } from 'mathjs'
 import React from 'react'
 import CanvasWidget from '../../CanvasWidget/CanvasWidget'
-import { CanvasWidgetLayer, useCanvasWidgetLayer, useCanvasWidgetLayers } from '../../CanvasWidget/CanvasWidgetLayer'
+import { CanvasWidgetLayer, useLayer } from '../../CanvasWidget/CanvasWidgetLayer'
 import { getHeight, getWidth, RectangularRegion } from '../../CanvasWidget/Geometry'
 import { AnimatedLayerState, handleAnimatedClick, paintAnimationLayer } from './AnimatedLayer'
 import { ClickHistoryState, handleClickTrail, paintClickLayer } from './ClickHistoryLayer'
@@ -152,17 +152,16 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
         electrodeRadius: radius,
     }
 
-    const testLayer = useCanvasWidgetLayer(createTestLayer)
-    const dragLayer = useCanvasWidgetLayer(createDragLayer)
-    const clickLayer = useCanvasWidgetLayer(createClickLayer)
-    const animatedLayer = useCanvasWidgetLayer(createAnimatedLayer)
-    const layers = useCanvasWidgetLayers([testLayer, dragLayer, clickLayer, animatedLayer])
+    const testLayer = useLayer(createTestLayer, layerProps)
+    const dragLayer = useLayer(createDragLayer, layerProps)
+    const clickLayer = useLayer(createClickLayer, layerProps)
+    const animatedLayer = useLayer(createAnimatedLayer, layerProps)
 
     return (
-        <CanvasWidget<ElectrodeLayerProps>
+        <CanvasWidget
             key='canvas'
-            layers={layers || []}
-            layerProps={layerProps}
+            layers={[testLayer, dragLayer, clickLayer, animatedLayer]}
+            {...{width, height}}
         />
     )
 }

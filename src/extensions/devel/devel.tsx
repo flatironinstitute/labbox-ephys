@@ -12,7 +12,8 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'ElectrodeGeometryTest',
         label: 'Electrode geometry test',
-        component: ElectrodeGeometryTest
+        component: ElectrodeGeometryTest,
+        singleton: true
     })
 
     context.registerSortingView({
@@ -26,13 +27,15 @@ export function activate(context: ExtensionContext) {
         name: 'RawSortingView',
         label: 'Raw sorting object',
         priority: -10,
-        component: RawSortingView
+        component: RawSortingView,
+        singleton: true
     })
 
     context.registerSortingView({
         name: 'RawRecordingView',
         label: 'Raw recording object',
         priority: -10,
-        component: RawRecordingView
+        component: RawRecordingView,
+        singleton: true
     })
 }

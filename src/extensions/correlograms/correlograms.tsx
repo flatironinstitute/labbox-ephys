@@ -11,12 +11,14 @@ export function activate(context: ExtensionContext) {
         name: 'Autocorrelograms',
         label: 'Autocorrelograms',
         priority: 100,
-        component: AutoCorrelograms
+        component: AutoCorrelograms,
+        singleton: true
     })
     context.registerSortingView({
         name: 'CrossCorrelograms',
         label: 'Cross-Correlograms',
-        component: CrossCorrelograms
+        component: CrossCorrelograms,
+        singleton: false
     })
     context.registerSortingUnitView({
         name: 'AutocorrelogramSortingUnitView',

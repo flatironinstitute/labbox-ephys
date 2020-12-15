@@ -5,12 +5,14 @@ import { ExtensionContext } from './extensions/extensionInterface';
 import { activate as activateaveragewaveforms2 } from './extensions/averagewaveforms2/averagewaveforms2';
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
 import { activate as activateexample } from './extensions/example/example';
+import { activate as activatespikeamplitudes } from './extensions/spikeamplitudes/spikeamplitudes';
 import { activate as activatecuration } from './extensions/curation/curation';
 import { activate as activatedevel } from './extensions/devel/devel';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
 import { activate as activatetimeseries } from './extensions/timeseries/timeseries';
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms';
 import { activate as activateunitstable } from './extensions/unitstable/unitstable';
+import { activate as activatemountainview } from './extensions/mountainview/mountainview';
 // !end-code-generation!
 
 const registerExtensions = (context: ExtensionContext) => {
@@ -18,12 +20,14 @@ const registerExtensions = (context: ExtensionContext) => {
     activateaveragewaveforms2(context)
     activatecorrelograms(context)
     activateexample(context)
+    activatespikeamplitudes(context)
     activatecuration(context)
     activatedevel(context)
     activateelectrodegeometry(context)
     activatetimeseries(context)
     activateaveragewaveforms(context)
     activateunitstable(context)
+    activatemountainview(context)
     // !end-code-generation!
 }
 

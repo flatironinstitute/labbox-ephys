@@ -1,6 +1,7 @@
 
 import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
+import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
@@ -53,10 +54,11 @@ type Label = string
 
 interface OwnProps {
     maxHeight?: number
+    width?: number
 }
 
-const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
-    const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, hither } = props
+const Units: React.FunctionComponent<SortingViewProps & OwnProps & SizeMeProps> = (props) => {
+    const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, hither, size } = props
     const [activeOptions, setActiveOptions] = useState([]);
     const [expandedTable, setExpandedTable] = useState(false);
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
@@ -146,7 +148,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     }
 
     return (
-        <div style={{'width': '100%'}}>
+        <div style={{width: props.width || size.width || 300}}>
             <Paper style={{maxHeight: props.maxHeight, overflow: 'auto'}}>
                 <UnitsTable 
                     sortingUnitMetrics={plugins.sortingUnitMetrics}
@@ -181,4 +183,4 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     );
 }
 
-export default Units
+export default sizeMe()(Units)

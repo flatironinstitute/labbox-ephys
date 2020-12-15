@@ -15,12 +15,14 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'AverageWaveformsNew',
         label: 'Average waveforms new',
-        component: AverageWaveformsNew
+        component: AverageWaveformsNew,
+        singleton: true
     })
     context.registerSortingView({
         name: 'AverageWaveforms',
         label: 'Average waveforms',
         priority: 90,
-        component: AverageWaveforms
+        component: AverageWaveforms,
+        singleton: true
     })
 }
