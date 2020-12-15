@@ -21,7 +21,7 @@ def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, u
             unit_id=unit_id
         )
 
-def _compute_peak_channel_index_from_average_form(average_waveform):
+def _compute_peak_channel_index_from_average_waveform(average_waveform):
     channel_maxes = np.max(average_waveform, axis=1)
     channel_mins = np.min(average_waveform, axis=1)
     channel_amplitudes = channel_maxes - channel_mins
@@ -37,8 +37,8 @@ def fetch_spike_amplitudes(snippets_h5, unit_id):
     with h5py.File(h5_path, 'r') as f:
         unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
         unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms'))
-        average_waveform = np.mean(waveforms, axis=0)
-        peak_channel_index, sign = _compute_peak_channel_index_from_average_waveform(average_waveform)
+        average_waveform = np.mean(unit_waveforms, axis=0)
+        peak_channel_index = _compute_peak_channel_index_from_average_waveform(average_waveform)
         maxs = [np.max(unit_waveforms[i][peak_channel_index, :]) for i in range(unit_waveforms.shape[0])]
         mins = [np.min(unit_waveforms[i][peak_channel_index, :]) for i in range(unit_waveforms.shape[0])]
         peak_amplitudes = [maxs[i] - mins[i] for i in range(len(mins))]

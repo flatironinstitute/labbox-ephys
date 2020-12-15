@@ -13,6 +13,7 @@ import { activate as activatetimeseries } from './extensions/timeseries/timeseri
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
 import { activate as activatepythonsnippets } from './extensions/pythonsnippets/pythonsnippets'
 import { activate as activateunitstable } from './extensions/unitstable/unitstable'
+import { activate as activatemountainview } from './extensions/mountainview/mountainview'
 // !end-code-generation!
 
 /*
@@ -38,6 +39,7 @@ const registerExtensions = (context: ExtensionContext) => {
     activateaveragewaveforms(context)
     activatepythonsnippets(context)
     activateunitstable(context)
+    activatemountainview(context)
     // !end-code-generation!
 }
 

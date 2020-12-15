@@ -9,11 +9,12 @@ export function activate(context: ExtensionContext) {
         name: 'CurationSortingView',
         label: 'Curation (WIP)',
         fullWidth: true,
-        defaultExpanded: true,
+        defaultExpanded: false,
         priority: 1000,
         component: CurationSortingView,
         props: {
             height: 1000
-        }
+        },
+        singleton: true
     })
 }

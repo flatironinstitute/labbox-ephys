@@ -40,7 +40,7 @@ export function activate(context: ExtensionContext) {
         label: 'Timeseries',
         priority: 50,
         fullWidth: true,
-        component: sizeMe()(TimeseriesRecordingView)
+        component: sizeMe()(TimeseriesRecordingView),
     })
     context.registerSortingView({
         name: 'TimeseriesView',

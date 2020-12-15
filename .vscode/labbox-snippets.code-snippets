@@ -166,5 +166,14 @@
             "}"
         ],
         "description": ""
+    },
+    "usecallback": {
+        "prefix": "usecallback",
+        "body": [
+            "const ${1: callbackName} = useCallback((${2: args}) => {",
+            "    $0",
+            "}, [${3: dependencies}])"
+        ],
+        "description": ""
     }
 }

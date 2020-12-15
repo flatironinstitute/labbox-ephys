@@ -10,7 +10,8 @@ export function activate(context: ExtensionContext) {
         name: 'SpikeAmplitudes',
         label: 'Spike amplitudes',
         priority: 500,
-        defaultExpanded: true,
-        component: SpikeAmplitudesView
+        defaultExpanded: false,
+        component: SpikeAmplitudesView,
+        singleton: false
     })
 }

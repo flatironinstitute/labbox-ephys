@@ -53,6 +53,7 @@ export interface ViewPlugin extends LabboxPlugin {
     props?: {[key: string]: any}
     fullWidth?: boolean
     defaultExpanded?: boolean
+    singleton?: boolean
 }
 
 export interface MetricPlugin extends LabboxPlugin {
