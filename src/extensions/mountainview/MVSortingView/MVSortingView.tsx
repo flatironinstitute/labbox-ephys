@@ -68,7 +68,7 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
     else return state
 }
 
-const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
+const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
     const {plugins, size} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
@@ -163,4 +163,4 @@ const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) 
     )
 }
 
-export default sizeMe()(MountainView)
+export default sizeMe()(MVSortingView)

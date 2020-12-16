@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { SortingViewPlugin, SortingViewProps } from '../../extensionInterface';
-import { View } from './MountainView';
+import { View } from './MVSortingView';
 
 type Props = {
     view: View

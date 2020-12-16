@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { View } from './MountainView';
+import { View } from './MVSortingView';
 import ViewContainerTabBar from './ViewContainerTabBar';
 
 

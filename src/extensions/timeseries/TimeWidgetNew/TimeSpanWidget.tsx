@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { funcToTransform } from '../../CanvasWidget';
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter';
 import CanvasWidget from '../../CanvasWidget/CanvasWidget';
-import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, useLayer } from '../../CanvasWidget/CanvasWidgetLayer';
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../../CanvasWidget/Geometry';
 
 
@@ -95,6 +95,8 @@ const createTimeSpanLayer = () => {
     const onDrag = (layer: CanvasWidgetLayer<LayerProps, LayerState>, drag: CanvasDragEvent) => {
         const props = layer.getProps()
         if (!props) return
+        const numTimepoints = props.info.numTimepoints
+        if (!numTimepoints) return
         const {anchorCurrentTime, anchorTimeRange, dragging} = layer.getState() as LayerState
         if (!dragging) {
             const timeRange = props.info.timeRange
@@ -109,7 +111,14 @@ const createTimeSpanLayer = () => {
         const { position, anchor } = drag
         if (!position) return
         if (!anchor) return
-        const delta = position[0] - anchor[0]
+        let delta = position[0] - anchor[0]
+        if (!anchorTimeRange) return
+        if (anchorTimeRange.max + delta > numTimepoints) {
+            delta = numTimepoints - anchorTimeRange.max
+        }
+        if (anchorTimeRange.min + delta < 0) {
+            delta = 0 - anchorTimeRange.min
+        }
         if ((anchorCurrentTime !== null) && (anchorCurrentTime !== undefined)) {
             props.onCurrentTimeChanged(anchorCurrentTime + delta)
         }
@@ -134,10 +143,10 @@ const TimeSpanWidget: FunctionComponent<Props> = (props) => {
         onTimeRangeChanged: props.onTimeRangeChanged
     }
     const timeSpanLayer = useLayer(createTimeSpanLayer, layerProps)
-
+    const layers = useLayers([timeSpanLayer])
     return (
         <CanvasWidget
-            layers={[timeSpanLayer]}
+            layers={layers}
             {...{width: props.width, height: props.height}}
         />
     )
