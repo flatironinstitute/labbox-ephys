@@ -1,7 +1,7 @@
 import { IconButton, Tab, Tabs } from '@material-ui/core';
 import CloseIcon from "@material-ui/icons/Close";
 import { default as React, FunctionComponent, useCallback, useEffect } from 'react';
-import { View } from './MountainView';
+import { View } from './MVSortingView';
 
 type Props = {
     views: View[]

@@ -1,7 +1,7 @@
 import { norm } from 'mathjs'
 import React from 'react'
 import CanvasWidget from '../../CanvasWidget/CanvasWidget'
-import { CanvasWidgetLayer, useLayer } from '../../CanvasWidget/CanvasWidgetLayer'
+import { CanvasWidgetLayer, useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer'
 import { getHeight, getWidth, RectangularRegion } from '../../CanvasWidget/Geometry'
 import { AnimatedLayerState, handleAnimatedClick, paintAnimationLayer } from './AnimatedLayer'
 import { ClickHistoryState, handleClickTrail, paintClickLayer } from './ClickHistoryLayer'
@@ -157,10 +157,12 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
     const clickLayer = useLayer(createClickLayer, layerProps)
     const animatedLayer = useLayer(createAnimatedLayer, layerProps)
 
+    const layers = useLayers([testLayer, dragLayer, clickLayer, animatedLayer])
+
     return (
         <CanvasWidget
             key='canvas'
-            layers={[testLayer, dragLayer, clickLayer, animatedLayer]}
+            layers={layers}
             {...{width, height}}
         />
     )
