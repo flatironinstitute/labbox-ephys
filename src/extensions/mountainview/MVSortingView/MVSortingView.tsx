@@ -1,7 +1,7 @@
-import React, { FunctionComponent, useCallback, useReducer } from 'react'
+import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
 import sizeMe, { SizeMeProps } from 'react-sizeme'
 import { Expandable } from '../../../containers/SortingView'
-import { defaultSortingCuration, SortingViewProps, ViewPlugin } from "../../extensionInterface"
+import { defaultSortingCuration, SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
 import CurationControl from './CurationControl'
 import ViewContainer from './ViewContainer'
@@ -14,7 +14,9 @@ type AddViewAction = {
     type: 'AddView'
     pluginType: ViewPluginType
     plugin: ViewPlugin
+    label: string
     area: 'north' | 'south' | ''
+    extraProps?: {[key: string]: any}
 }
 
 type CloseViewAction = {
@@ -31,7 +33,7 @@ type SetViewAreaAction = {
 export class View {
     activate: boolean = false // signal to set this tab as active
     area: 'north' | 'south' | '' = ''
-    constructor(public pluginType: ViewPluginType, public plugin: ViewPlugin, public viewId: string) {
+    constructor(public pluginType: ViewPluginType, public plugin: ViewPlugin, public extraProps: {[key: string]: any}, public label: string, public viewId: string) {
 
     }
 
@@ -52,7 +54,7 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
             }
         }
         lastViewIdNum ++
-        const v = new View(action.pluginType, plugin, lastViewIdNum + '')
+        const v = new View(action.pluginType, plugin, action.extraProps || {}, action.label, lastViewIdNum + '')
         v.activate = true // signal to set this as active
         v.area = action.area
         return [...state, v].sort((a, b) => (a.plugin.label > b.plugin.label ? 1 : a.plugin.label < b.plugin.label ? -1 : 0))
@@ -66,17 +68,42 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
     else return state
 }
 
-const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
+const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
     const {plugins, size} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
-    const handleLaunchView = useCallback((pluginType: ViewPluginType, plugin: ViewPlugin) => {
+    const unitsTablePlugin = plugins.sortingViews.UnitsTable
+    useEffect(() => {
+        if (openViews.length === 0) {
+            if (unitsTablePlugin) {
+                openViewsDispatch({
+                    type: 'AddView',
+                    plugin: unitsTablePlugin,
+                    pluginType: 'SortingUnitView',
+                    label: unitsTablePlugin.label,
+                    area: 'north'
+                })
+            }
+        }
+    }, [openViews, openViewsDispatch, unitsTablePlugin])
+    const handleLaunchSortingView = useCallback((plugin: SortingViewPlugin) => {
         openViewsDispatch({
             type: 'AddView',
-            pluginType,
+            pluginType: 'SortingView',
             plugin,
+            label: plugin.label,
             area: ''
         })
-    }, [])
+    }, [openViewsDispatch])
+    const handleLaunchSortingUnitView = useCallback((plugin: SortingUnitViewPlugin, unitId: number, label: string) => {
+        openViewsDispatch({
+            type: 'AddView',
+            pluginType: 'SortingUnitView',
+            plugin,
+            label,
+            area: '',
+            extraProps: {unitId}
+        })
+    }, [openViewsDispatch])
     const handleViewClosed = useCallback((v: View) => {
         openViewsDispatch({
             type: 'CloseView',
@@ -102,7 +129,9 @@ const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) 
                 <Expandable label="Launch" defaultExpanded={true}>
                     <ViewLauncher
                         plugins={plugins}
-                        onLaunch={handleLaunchView}
+                        onLaunchSortingView={handleLaunchSortingView}
+                        onLaunchSortingUnitView={handleLaunchSortingUnitView}
+                        selection={props.selection}
                     />
                 </Expandable>
                 <Expandable label="Curate" defaultExpanded={true}>
@@ -134,4 +163,4 @@ const MountainView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) 
     )
 }
 
-export default sizeMe()(MountainView)
+export default sizeMe()(MVSortingView)

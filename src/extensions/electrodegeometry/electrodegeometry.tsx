@@ -13,7 +13,7 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
     })
 }
 
-const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording}) => {
+const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height}) => {
     const ri = recording.recordingInfo
     const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
     const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
@@ -27,18 +27,21 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
             electrodes={electrodes}
             selectedElectrodeIds={selectedElectrodeIds}
             onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
-            width={350}
-            height={150}
+            width={width || 350}
+            height={height || 150}
         />
     );
 }
 
-const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, plugins, hither}) => {
+const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, plugins, hither, calculationPool, width, height}) => {
     return (
         <ElectrodeGeometryRecordingView
             recording={recording}
             plugins={plugins}
             hither={hither}
+            calculationPool={calculationPool}
+            width={width}
+            height={height}
         />
     )
 }

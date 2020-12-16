@@ -1,8 +1,6 @@
-import { Grid } from '@material-ui/core';
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import ClientSidePlot from '../../common/ClientSidePlot';
 import { CalculationPool, HitherContext, Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
-import sortByPriority from '../../sortByPriority';
 import DriftFeatures_rv from './DriftFeatures_rv';
 import PCAFeatures_rv from './PCAFeatures_rv';
 import SpikeWaveforms_rv from './SpikeWaveforms_rv';
@@ -107,105 +105,106 @@ const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recordin
 }
 
 const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, plugins, hither }) => {
-    const [selectedSpikeIndex, setSelectedSpikeIndex] = useState<number | null>(null);
-    const handleSelectedPointIndexChanged = useCallback(
-        (index: number | null) => {
-            setSelectedSpikeIndex(index)
-        },
-        [setSelectedSpikeIndex]
-    )
+    return <div>IndividualUnit: obsolete</div>
+    // const [selectedSpikeIndex, setSelectedSpikeIndex] = useState<number | null>(null);
+    // const handleSelectedPointIndexChanged = useCallback(
+    //     (index: number | null) => {
+    //         setSelectedSpikeIndex(index)
+    //     },
+    //     [setSelectedSpikeIndex]
+    // )
     
-    return (
-        <div style={{ width }}>
-            <div>
-                <Grid container direction="row">
-                    {
-                        sortByPriority(plugins.sortingUnitViews).filter(v => (!v.disabled)).map(suv => (
-                            <Grid item key={suv.name}>
-                                <suv.component
-                                    sorting={sorting}
-                                    recording={recording}
-                                    unitId={unitId}
-                                    calculationPool={calculationPool}
-                                    selectedSpikeIndex={selectedSpikeIndex}
-                                    onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
-                                    plugins={plugins}
-                                    hither={hither}
-                                />
-                            </Grid>
-                        ))
-                    }
-                    <Grid item key="pca-features">
-                        {/* PCA features */}
-                        <PcaFeatures
-                            sorting={sorting}
-                            recording={recording}
-                            unitId={unitId}
-                            calculationPool={calculationPool}
-                            onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
-                            hither={hither}
-                        />
-                    </Grid>
-                    <Grid item key="drift">
-                        {/* Drift */}
-                        <Drift
-                            sorting={sorting}
-                            recording={recording}
-                            unitId={unitId}
-                            calculationPool={calculationPool}
-                            onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
-                            hither={hither}
-                        />
-                    </Grid>
-                    {
-                        sortingInfo && (
-                            <Grid item key={"example-waveforms"}>
-                                {/* Example waveforms */}
-                                <ExampleWaveforms
-                                    sorting={sorting}
-                                    recording={recording}
-                                    unitId={unitId}
-                                    calculationPool={calculationPool}
-                                    selectedSpikeIndex={selectedSpikeIndex}
-                                    onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
-                                    hither={hither}
-                                />
-                            </Grid>
-                        )
-                    }
-                    {
-                        /* Individual waveform */
-                        (selectedSpikeIndex !== null) && (
-                            <Grid item key={"waveform-" + selectedSpikeIndex}>
-                                <ClientSidePlot
-                                    dataFunctionName={'createjob_fetch_spike_waveforms'}
-                                    dataFunctionArgs={{
-                                        sorting_object: sorting.sortingObject,
-                                        recording_object: recording.recordingObject,
-                                        unit_ids: [unitId],
-                                        spike_indices: [[selectedSpikeIndex]]
-                                    }}
-                                    boxSize={{
-                                        width: 300,
-                                        height: 300
-                                    }}
-                                    PlotComponent={SpikeWaveforms_rv}
-                                    plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
-                                    newHitherJobMethod={true}
-                                    useJobCache={true}
-                                    requiredFiles={sorting.sortingObject}
-                                    calculationPool={calculationPool}
-                                    // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
-                                    title=""
-                                    hither={hither}
-                                />
-                            </Grid>
-                        )
-                    }
-                </Grid>
-            </div>
-        </div>
-    )
+    // return (
+    //     <div style={{ width }}>
+    //         <div>
+    //             <Grid container direction="row">
+    //                 {
+    //                     sortByPriority(plugins.sortingUnitViews).filter(v => (!v.disabled)).map(suv => (
+    //                         <Grid item key={suv.name}>
+    //                             <suv.component
+    //                                 sorting={sorting}
+    //                                 recording={recording}
+    //                                 unitId={unitId}
+    //                                 calculationPool={calculationPool}
+    //                                 selectedSpikeIndex={selectedSpikeIndex}
+    //                                 onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
+    //                                 plugins={plugins}
+    //                                 hither={hither}
+    //                             />
+    //                         </Grid>
+    //                     ))
+    //                 }
+    //                 <Grid item key="pca-features">
+    //                     {/* PCA features */}
+    //                     <PcaFeatures
+    //                         sorting={sorting}
+    //                         recording={recording}
+    //                         unitId={unitId}
+    //                         calculationPool={calculationPool}
+    //                         onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
+    //                         hither={hither}
+    //                     />
+    //                 </Grid>
+    //                 <Grid item key="drift">
+    //                     {/* Drift */}
+    //                     <Drift
+    //                         sorting={sorting}
+    //                         recording={recording}
+    //                         unitId={unitId}
+    //                         calculationPool={calculationPool}
+    //                         onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
+    //                         hither={hither}
+    //                     />
+    //                 </Grid>
+    //                 {
+    //                     sortingInfo && (
+    //                         <Grid item key={"example-waveforms"}>
+    //                             {/* Example waveforms */}
+    //                             <ExampleWaveforms
+    //                                 sorting={sorting}
+    //                                 recording={recording}
+    //                                 unitId={unitId}
+    //                                 calculationPool={calculationPool}
+    //                                 selectedSpikeIndex={selectedSpikeIndex}
+    //                                 onSelectedSpikeIndexChanged={handleSelectedPointIndexChanged}
+    //                                 hither={hither}
+    //                             />
+    //                         </Grid>
+    //                     )
+    //                 }
+    //                 {
+    //                     /* Individual waveform */
+    //                     (selectedSpikeIndex !== null) && (
+    //                         <Grid item key={"waveform-" + selectedSpikeIndex}>
+    //                             <ClientSidePlot
+    //                                 dataFunctionName={'createjob_fetch_spike_waveforms'}
+    //                                 dataFunctionArgs={{
+    //                                     sorting_object: sorting.sortingObject,
+    //                                     recording_object: recording.recordingObject,
+    //                                     unit_ids: [unitId],
+    //                                     spike_indices: [[selectedSpikeIndex]]
+    //                                 }}
+    //                                 boxSize={{
+    //                                     width: 300,
+    //                                     height: 300
+    //                                 }}
+    //                                 PlotComponent={SpikeWaveforms_rv}
+    //                                 plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
+    //                                 newHitherJobMethod={true}
+    //                                 useJobCache={true}
+    //                                 requiredFiles={sorting.sortingObject}
+    //                                 calculationPool={calculationPool}
+    //                                 // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
+    //                                 title=""
+    //                                 hither={hither}
+    //                             />
+    //                         </Grid>
+    //                     )
+    //                 }
+    //             </Grid>
+    //         </div>
+    //     </div>
+    // )
 }
 
 const spikeIndexSubset = (n: number, maxNum: number) => {

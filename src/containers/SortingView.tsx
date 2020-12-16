@@ -5,6 +5,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import SortingInfoView from '../components/SortingInfoView';
+import createCalculationPool from '../extensions/common/createCalculationPool';
 import { defaultSortingSelection, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
@@ -46,6 +47,8 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
 type CalcStatus = 'waiting' | 'computing' | 'finished'
+
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, hither } = props
@@ -220,6 +223,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
                   readOnly={readOnly}
                   plugins={plugins}
                   hither={hither}
+                  calculationPool={calculationPool}
                 />
               </Expandable>
             )

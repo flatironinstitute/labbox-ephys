@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { View } from './MountainView';
+import { View } from './MVSortingView';
 import ViewContainerTabBar from './ViewContainerTabBar';
 
 
@@ -89,7 +89,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
             onDragOver={handleDragOver}
             onDrop={handleDragDrop}
         >
-            <div key="north-tab-bar" style={{position: 'absolute', ...areas['north'].tabBarStyle, border: 1, borderStyle: 'solid', borderColor: (activeArea === 'north') ? 'black' : 'white'}}>
+            <div key="north-tab-bar" style={{position: 'absolute', ...areas['north'].tabBarStyle, border: 1, borderStyle: 'solid', borderColor: (activeArea === 'north') ? 'black' : 'lightgray'}}>
                 <ViewContainerTabBar
                     views={views.filter(v => v.area === 'north')}
                     currentView={currentNorthView}
@@ -97,7 +97,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
                     onViewClosed={onViewClosed}
                 />
             </div>
-            <div key="south-tab-bar" style={{position: 'absolute', ...areas['south'].tabBarStyle, border: 1, borderStyle: 'solid',  borderColor: (activeArea === 'south') ? 'black' : 'white'}}>
+            <div key="south-tab-bar" style={{position: 'absolute', ...areas['south'].tabBarStyle, border: 1, borderStyle: 'solid',  borderColor: (activeArea === 'south') ? 'black' : 'lightgray'}}>
                 <ViewContainerTabBar
                     views={views.filter(v => v.area === 'south')}
                     currentView={currentSouthView}
@@ -112,7 +112,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
                     const area = areas[childView.area || 'north']
                     return (
                         <div key={childView.viewId} style={{visibility: visible ? 'visible' : 'hidden', overflowY: 'auto', overflowX: 'hidden', position: 'absolute', ...area.divStyle}}>
-                            <c.type {...c.props} width={W}/>
+                            <c.type {...c.props} width={W} height={area.divStyle.height}/>
                         </div>
                     )
                 })
