@@ -18,8 +18,25 @@ export interface ClickEvent {
     type: ClickEventType
 }
 
-export interface WheelEvent {
-    deltaY: number
+export interface ClickEventModifiers {
+    alt?: boolean,
+    ctrl?: boolean,
+    shift?: boolean
+}
+
+export enum ClickEventType {
+    Move = 'MOVE',
+    Press = 'PRESS',
+    Release = 'RELEASE'
+}
+export type ClickEventTypeStrings = keyof typeof ClickEventType
+
+export interface CanvasDragEvent {
+    dragRect: RectangularRegion,
+    released: boolean,
+    shift: boolean, // might extend this to the full modifier set later
+    anchor?: Vec2,
+    position?: Vec2
 }
 
 export interface KeyboardEvent {
@@ -32,27 +49,20 @@ export enum KeyEventType {
     Release = 'RELEASE'
 }
 
-export interface ClickEventModifiers {
-    alt?: boolean,
-    ctrl?: boolean,
-    shift?: boolean
+export interface MousePresenceEvent {
+    type: MousePresenceEventType
 }
 
-export enum ClickEventType {
-    Move = 'MOVE',
-    Press = 'PRESS',
-    Release = 'RELEASE'
-    // TODO: Wheel, etc?
+export enum MousePresenceEventType {
+    Enter = 'ENTER',
+    Leave = 'LEAVE',
+    Out = 'OUT'
 }
-export type ClickEventTypeStrings = keyof typeof ClickEventType
 
-export interface CanvasDragEvent {
-    dragRect: RectangularRegion,
-    released: boolean,
-    shift: boolean, // might extend this to the full modifier set later
-    anchor?: Vec2,
-    position?: Vec2
+export interface WheelEvent {
+    deltaY: number
 }
+
 
 // These two handlers, and the EventHandlerSet, could all instead have parameterized types.
 // But I couldn't figure out how to make the inheritance work right, so I bagged it.
@@ -61,14 +71,16 @@ export interface CanvasDragEvent {
 // to values outside their own scope.
 export type DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<any, any>) => void
 export type DragHandler = (layer: CanvasWidgetLayer<any, any>,  dragEvent: CanvasDragEvent) => void
-export type WheelEventHandler = (event: WheelEvent, layer: CanvasWidgetLayer<any, any>) => void
 export type KeyboardEventHandler = (event: KeyboardEvent, layer: CanvasWidgetLayer<any, any>) => boolean // return false to prevent default
+export type MousePresenceEventHandler = (event: MousePresenceEvent, layer: CanvasWidgetLayer<any, any>) => void
+export type WheelEventHandler = (event: WheelEvent, layer: CanvasWidgetLayer<any, any>) => void
 
 export interface EventHandlerSet {
     discreteMouseEventHandlers?: DiscreteMouseEventHandler[],
     dragHandlers?:   DragHandler[],
+    keyboardEventHandlers?: KeyboardEventHandler[],
+    mousePresenceEventHandlers?: MousePresenceEventHandler[],
     wheelEventHandlers?: WheelEventHandler[]
-    keyboardEventHandlers?: KeyboardEventHandler[]
 }
 
 export const formClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, t: ClickEventType, i?: TransformationMatrix): ClickEvent => {
@@ -120,8 +132,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
 
     _discreteMouseEventHandlers: DiscreteMouseEventHandler[] = []
     _dragHandlers: DragHandler[] = []
-    _wheelEventHandlers: WheelEventHandler[] = []
     _keyboardEventHandlers: KeyboardEventHandler[] = []
+    _mousePresenceEventHandlers: MousePresenceEventHandler[] = []
+    _wheelEventHandlers: WheelEventHandler[] = []
 
     _refreshRate = 120 // Hz
 
@@ -131,8 +144,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         this._onPropsChange = onPropsChange
         this._discreteMouseEventHandlers = handlers?.discreteMouseEventHandlers || []
         this._dragHandlers = handlers?.dragHandlers || []
-        this._wheelEventHandlers = handlers?.wheelEventHandlers || []
         this._keyboardEventHandlers = handlers?.keyboardEventHandlers || []
+        this._mousePresenceEventHandlers = handlers?.mousePresenceEventHandlers || []
+        this._wheelEventHandlers = handlers?.wheelEventHandlers || []
         this._transformMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
         this._inverseMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as any as TransformationMatrix
     }
@@ -248,14 +262,6 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
         }
     }
 
-    handleWheelEvent(e: React.WheelEvent<HTMLCanvasElement>) {
-        if (this._wheelEventHandlers.length === 0) return
-        const wheelEvent = formWheelEvent(e)
-        for (let fn of this._wheelEventHandlers) {
-            fn(wheelEvent, this)
-        }
-    }
-
     handleKeyboardEvent(type: KeyEventType, e: React.KeyboardEvent<HTMLDivElement>): boolean {
         if (this._keyboardEventHandlers.length === 0) return true
         const keyboardEvent = formKeyboardEvent(type, e)
@@ -265,6 +271,23 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
                 passEventBackToUi = false
         }
         return passEventBackToUi
+    }
+
+    handleMousePresenceEvent(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>, type: MousePresenceEventType) {
+        if (this._mousePresenceEventHandlers.length === 0) return
+        const presenceEvent = { type: type }
+        for (let fn of this._mousePresenceEventHandlers) {
+            fn(presenceEvent, this)
+        }
+    }
+
+    handleWheelEvent(e: React.WheelEvent<HTMLCanvasElement>) {
+        if (this._wheelEventHandlers.length === 0) return
+        
+        const wheelEvent = formWheelEvent(e)
+        for (let fn of this._wheelEventHandlers) {
+            fn(wheelEvent, this)
+        }
     }
 }
 
