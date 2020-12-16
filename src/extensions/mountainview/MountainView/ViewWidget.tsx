@@ -14,7 +14,7 @@ const ViewWidget: FunctionComponent<Props> = ({ view, sortingViewProps, width })
     let pr: {[key: string]: any} = {}
     if (width) pr.width = width
     return (
-        <Component {...sortingViewProps} {...pr} />
+        <Component {...sortingViewProps} {...pr} {...view.extraProps} />
     )
 }
 

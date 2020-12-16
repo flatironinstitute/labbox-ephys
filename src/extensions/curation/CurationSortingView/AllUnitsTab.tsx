@@ -30,6 +30,7 @@ const AllUnitsTab: FunctionComponent<SortingViewProps> = (props) => {
                                 readOnly={props.readOnly}
                                 plugins={props.plugins}
                                 hither={props.hither}
+                                calculationPool={props.calculationPool}
                             />
                         </Expandable>
                     )

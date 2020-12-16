@@ -3,6 +3,7 @@
 
 import { ExtensionContext } from '../extensionInterface';
 import MountainView from './MountainView/MountainView';
+import MVSortingUnitView from './MVSortingUnitView/MVSortingUnitView';
 
 export function activate(context: ExtensionContext) {
     context.registerSortingView({
@@ -11,5 +12,10 @@ export function activate(context: ExtensionContext) {
         priority: 5000,
         defaultExpanded: true,
         component: MountainView
+    })
+    context.registerSortingUnitView({
+        name: 'MVSortingUnitView',
+        label: 'MV sorting unit view',
+        component: MVSortingUnitView
     })
 }

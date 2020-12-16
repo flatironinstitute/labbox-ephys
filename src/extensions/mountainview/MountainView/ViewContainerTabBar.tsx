@@ -48,7 +48,7 @@ const viewContainerTab = (view: View, onClose: (view: View) => void) => {
             draggable
             onDragStart={(e) => {e.dataTransfer.setData('viewId', view.viewId);}}
         >
-            {view.plugin.label}
+            {view.label}
             <span>&nbsp;</span>
             <IconButton
                 component="div"

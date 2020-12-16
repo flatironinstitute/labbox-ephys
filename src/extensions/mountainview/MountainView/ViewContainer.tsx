@@ -89,7 +89,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
             onDragOver={handleDragOver}
             onDrop={handleDragDrop}
         >
-            <div key="north-tab-bar" style={{position: 'absolute', ...areas['north'].tabBarStyle, border: 1, borderStyle: 'solid', borderColor: (activeArea === 'north') ? 'black' : 'white'}}>
+            <div key="north-tab-bar" style={{position: 'absolute', ...areas['north'].tabBarStyle, border: 1, borderStyle: 'solid', borderColor: (activeArea === 'north') ? 'black' : 'lightgray'}}>
                 <ViewContainerTabBar
                     views={views.filter(v => v.area === 'north')}
                     currentView={currentNorthView}
@@ -97,7 +97,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
                     onViewClosed={onViewClosed}
                 />
             </div>
-            <div key="south-tab-bar" style={{position: 'absolute', ...areas['south'].tabBarStyle, border: 1, borderStyle: 'solid',  borderColor: (activeArea === 'south') ? 'black' : 'white'}}>
+            <div key="south-tab-bar" style={{position: 'absolute', ...areas['south'].tabBarStyle, border: 1, borderStyle: 'solid',  borderColor: (activeArea === 'south') ? 'black' : 'lightgray'}}>
                 <ViewContainerTabBar
                     views={views.filter(v => v.area === 'south')}
                     currentView={currentSouthView}

@@ -196,10 +196,18 @@ export interface Plugins {
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
 }
 
-export interface SortingViewProps {
+interface ViewProps {
+    plugins: Plugins
+    hither: HitherContext
+    calculationPool: CalculationPool
+    width?: number
+    height?: number
+}
+
+export interface SortingViewProps extends ViewProps {
     sorting: Sorting
     recording: Recording
-    onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
+    onUnitClicked?: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
     curationDispatch: (action: SortingCurationAction) => void
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
@@ -216,25 +224,18 @@ export interface CalculationPool {
     requestSlot: () => Promise<{complete: () => void}>
 }
 
-export interface SortingUnitViewProps {
-    sorting: Sorting
-    recording: Recording
+export interface SortingUnitViewProps extends SortingViewProps {
     unitId: number
-    calculationPool: CalculationPool
     selectedSpikeIndex: number | null
-    onSelectedSpikeIndexChanged: (index: number | null) => void
-    plugins: Plugins
-    hither: HitherContext
+    onSelectedSpikeIndexChanged?: (index: number | null) => void
 }
 
 export interface SortingUnitViewPlugin extends ViewPlugin {
     component: React.ComponentType<SortingUnitViewProps>
 }
 
-export interface RecordingViewProps {
+export interface RecordingViewProps extends ViewProps {
     recording: Recording
-    plugins: Plugins
-    hither: HitherContext
 }
 
 export interface RecordingViewPlugin extends ViewPlugin {

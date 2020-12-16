@@ -1,11 +1,13 @@
 import React, { Fragment, FunctionComponent, useCallback } from 'react';
-import { Plugins, ViewPlugin } from '../../extensionInterface';
+import { Plugins, SortingSelection, SortingUnitViewPlugin, SortingViewPlugin } from '../../extensionInterface';
 
 export type ViewPluginType = 'RecordingView' | 'SortingView' | 'SortingUnitView'
 
 type Props = {
     plugins: Plugins,
-    onLaunch?: (pluginType: ViewPluginType, plugin: ViewPlugin) => void
+    selection: SortingSelection
+    onLaunchSortingView: (plugin: SortingViewPlugin) => void
+    onLaunchSortingUnitView: (plugin: SortingUnitViewPlugin, unitId: number, label: string) => void
 }
 
 const buttonStyle: React.CSSProperties = {
@@ -14,16 +16,14 @@ const buttonStyle: React.CSSProperties = {
     margin: 3
 }
 
-const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunch }) => {
-    const handleLaunch = useCallback((pluginType: ViewPluginType, plugin: ViewPlugin) => {
-        onLaunch && onLaunch(pluginType, plugin)
-    }, [onLaunch])
+const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, onLaunchSortingUnitView, selection }) => {
+    const sortingUnitViewPlugin = plugins.sortingUnitViews.MVSortingUnitView
     return (
         <Fragment>
             <div key="sortingViews" style={{flexFlow: 'wrap'}}>
                 {
                     Object.values(plugins.sortingViews).map(sv => (
-                        <LaunchButton key={sv.name} pluginType="SortingView" plugin={sv} onLaunch={handleLaunch} />
+                        <LaunchSortingViewButton key={sv.name} plugin={sv} onLaunch={onLaunchSortingView} />
                     ))
                 }
             </div>
@@ -35,30 +35,55 @@ const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunch }) => {
                     ))
                 }
             </div> */}
-            <hr></hr>
+            {/* <hr></hr>
             <div key="recordingViews" style={{flexFlow: 'wrap'}}>
                 {
                     Object.values(plugins.recordingViews).map(sv => (
                         <LaunchButton key={sv.name} pluginType="RecordingView" plugin={sv} onLaunch={handleLaunch} />
                     ))
                 }
-            </div>
+            </div> */}
+            <hr></hr>
+            {
+                <div key="view-single-unit">
+                {
+                    sortingUnitViewPlugin && selection.selectedUnitIds.map(unitId => (
+                        <LaunchSortingUnitViewButton key={unitId} plugin={sortingUnitViewPlugin} unitId={unitId} label={`Unit ${unitId}`} onLaunch={onLaunchSortingUnitView} />
+                    ))
+                }
+                </div>
+            }
         </Fragment>
     )
 }
 
-type LaunchButtonProps = {
-    pluginType: ViewPluginType
-    plugin: ViewPlugin
-    onLaunch: (pluginType: ViewPluginType, plugin: ViewPlugin) => void
+type LaunchSortingViewButtonProps = {
+    plugin: SortingViewPlugin
+    onLaunch: (plugin: SortingViewPlugin) => void
 }
 
-const LaunchButton: FunctionComponent<LaunchButtonProps> = ({ pluginType, plugin, onLaunch }) => {
+const LaunchSortingViewButton: FunctionComponent<LaunchSortingViewButtonProps> = ({ plugin, onLaunch }) => {
     const handleClick = useCallback(() => {
-        onLaunch(pluginType, plugin)
-    }, [])
+        onLaunch(plugin)
+    }, [onLaunch, plugin])
     return (
         <button onClick={handleClick} style={buttonStyle}>{plugin.label}</button>
+    )
+}
+
+type LaunchSortingUnitViewButtonProps = {
+    plugin: SortingUnitViewPlugin
+    unitId: number
+    label: string
+    onLaunch: (plugin: SortingUnitViewPlugin, unitId: number, label: string) => void
+}
+
+const LaunchSortingUnitViewButton: FunctionComponent<LaunchSortingUnitViewButtonProps> = ({ plugin, unitId, label, onLaunch }) => {
+    const handleClick = useCallback(() => {
+        onLaunch(plugin, unitId, label)
+    }, [onLaunch, plugin, unitId, label])
+    return (
+        <button onClick={handleClick} style={buttonStyle}>{label}</button>
     )
 }
 

@@ -7,6 +7,7 @@ import { setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
+import createCalculationPool from '../extensions/common/createCalculationPool';
 import { HitherContext, Plugins } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
@@ -31,6 +32,8 @@ interface DispatchProps {
 interface OwnProps {
   recordingId: string
 }
+
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
@@ -80,6 +83,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
             <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false} key={'rv-' + rv.name}>
               <rv.component
                 key={'rvc-' + rv.name}
+                calculationPool={calculationPool}
                 recording={recording}
                 plugins={plugins}
                 hither={hither}

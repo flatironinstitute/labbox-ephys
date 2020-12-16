@@ -31,14 +31,11 @@ const SelectedUnitsView: FunctionComponent<SortingViewProps> = (props) => {
                                             <h3>Unit {unitId}</h3>
                                             <sv.component
                                                 {...sv.props || {}}
-                                                sorting={props.sorting}
-                                                recording={props.recording}
+                                                {...props}
                                                 unitId={unitId}
                                                 calculationPool={calculationPool}
                                                 selectedSpikeIndex={null}
                                                 onSelectedSpikeIndexChanged={(index: number | null)  => {}}
-                                                plugins={props.plugins}
-                                                hither={props.hither}
                                             />
                                         </Fragment>
                                     )

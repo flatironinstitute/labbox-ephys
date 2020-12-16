@@ -7,7 +7,7 @@ const isSelected = (query: string, selections: {[key: string]: boolean} = {}) =>
 
 interface Props {
     sorting: Sorting
-    onUnitClicked: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
+    onUnitClicked?: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
     selections: {[key: string]: boolean}
     dataFunctionName: string
     dataFunctionArgsCallback: any
@@ -48,7 +48,7 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                             >
                                 <div
                                     className={isSelected(unitId + '', selections) ? 'plotSelectedStyle' : 'plotUnselectedStyle'}
-                                    onClick={(event) => onUnitClicked(unitId, event)}
+                                    onClick={(event) => {onUnitClicked && onUnitClicked(unitId, event)}}
                                 >
                                     <div className='plotUnitLabel'>
                                         <div>Unit {unitId}</div>
