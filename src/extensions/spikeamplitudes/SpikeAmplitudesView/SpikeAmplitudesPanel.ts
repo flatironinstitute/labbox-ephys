@@ -46,11 +46,13 @@ class SpikeAmplitudesPanel {
             }
             painter.drawLine(timeRange.min, 0, timeRange.max, 0, {color: 'gray'})
             const N = this._timepoints.length
+            let debug_count = 0
             for (let i = 0; i < N; i++) {
                 const t = this._timepoints[i]
                 const a = this._amplitudes[i]
                 const y = (a - yrange.min) / (yrange.max - yrange.min)
                 if ((timeRange.min <= t) && (t <= timeRange.max)) {
+                    debug_count ++
                     painter.drawMarker([t, y], {radius: 3, pen, brush})
                 }
             }

@@ -3,7 +3,7 @@ import React from "react"
 import { funcToTransform } from '../../CanvasWidget'
 import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../CanvasWidget/CanvasWidget'
-import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, useLayer } from "../../CanvasWidget/CanvasWidgetLayer"
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, useLayer, useLayers } from "../../CanvasWidget/CanvasWidgetLayer"
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../../CanvasWidget/Geometry'
 
 
@@ -271,11 +271,11 @@ const createLayer = () => {
 type LayerArray = Array<CanvasWidgetLayer<ElectrodeLayerProps, ElectrodeLayerState>> 
 const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
     const layer = useLayer(createLayer, props)
-
+    const layers = useLayers([layer])
     return (
         <CanvasWidget
             key='electrodeGeometryCanvas'
-            layers={[layer]}
+            layers={layers}
             {...{width: props.width, height: props.height}}
         />
     )

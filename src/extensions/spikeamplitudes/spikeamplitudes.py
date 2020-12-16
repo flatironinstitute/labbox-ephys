@@ -5,7 +5,7 @@ import kachery as ka
 import numpy as np
 
 
-@hi.function('createjob_fetch_spike_amplitudes', '0.1.0')
+@hi.function('createjob_fetch_spike_amplitudes', '0.1.1')
 def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition2')
@@ -15,7 +15,7 @@ def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, u
         job_handler=jh,
         container=jh.is_remote
     ):
-        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
+        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object, max_events_per_unit=None)
         return fetch_spike_amplitudes.run(
             snippets_h5=snippets_h5,
             unit_id=unit_id

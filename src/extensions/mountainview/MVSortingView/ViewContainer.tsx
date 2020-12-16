@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { View } from './MountainView';
+import { View } from './MVSortingView';
 import ViewContainerTabBar from './ViewContainerTabBar';
 
 
@@ -112,7 +112,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
                     const area = areas[childView.area || 'north']
                     return (
                         <div key={childView.viewId} style={{visibility: visible ? 'visible' : 'hidden', overflowY: 'auto', overflowX: 'hidden', position: 'absolute', ...area.divStyle}}>
-                            <c.type {...c.props} width={W}/>
+                            <c.type {...c.props} width={W} height={area.divStyle.height}/>
                         </div>
                     )
                 })

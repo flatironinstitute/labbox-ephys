@@ -1,15 +1,14 @@
 import React, { FunctionComponent } from 'react'
-import sizeMe, { SizeMeProps } from 'react-sizeme'
 import { SortingViewProps } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
 import SelectUnitsWidget from './SelectUnitsWidget'
 import SpikeAmplitudesTimeWidget from './SpikeAmplitudesTimeWidget'
 
-const SpikeAmplitudesView: FunctionComponent<SortingViewProps & SizeMeProps> = ({recording, sorting, selection, selectionDispatch, size, hither}) => {
+const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, hither, width, height}) => {
     return (
         <Splitter
-            width={size.width || 600}
-            height={900} // hard-coded for now
+            width={width || 600}
+            height={height || 900} // how to determine default height?
             initialPosition={200}
         >
             <SelectUnitsWidget sorting={sorting} selection={selection} selectionDispatch={selectionDispatch} />
@@ -24,4 +23,4 @@ const SpikeAmplitudesView: FunctionComponent<SortingViewProps & SizeMeProps> = (
     )
 }
 
-export default sizeMe()(SpikeAmplitudesView)
+export default SpikeAmplitudesView
