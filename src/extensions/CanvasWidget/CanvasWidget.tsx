@@ -98,13 +98,21 @@ const CanvasWidget = (props: Props) => {
     }, [])
 
     useEffect(() => {
+        if (divElement) {
+            (divElement as any)['_hasFocus'] = hasFocus
+        }
+    }, [hasFocus, divElement])
+
+    useEffect(() => {
         // this should be called only when the divElement has been first set (above)
         // or when the layers (prop) has changed (or if preventDefaultWheel has changed)
         // we set the canvas elements on the layers and schedule repaints
         if (!divElement) return
         if (!layers) return
         const stopScrollEvent = (e: Event) => {
-            e.preventDefault()
+            if ((divElement as any)['_hasFocus']) {
+                e.preventDefault()
+            }
         }
         layers.forEach((L, i) => {
             const canvasElement = divElement.children[i]
