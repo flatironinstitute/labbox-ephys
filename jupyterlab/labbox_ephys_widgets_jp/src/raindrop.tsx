@@ -1,5 +1,4 @@
 import React from 'react';
-import CanvasWidget from './extensions/CanvasWidget';
 import { CanvasPainter } from './extensions/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer, ClickEvent, ClickEventType } from './extensions/CanvasWidget/CanvasWidgetLayer';
 import { TransformationMatrix, Vec2 } from './extensions/CanvasWidget/Geometry';
@@ -82,19 +81,20 @@ interface Props {
 }
 
 const RaindropWidget: React.FunctionComponent<Props> = () => {
-  const layer = useLayer(createLayer)
-  const layers = useLayers([layer])
-  return (
-    <CanvasWidget
-      layers={layers}
-      layerProps={{
-        width: 100,
-        height: 100,
-        raindrops: [{position: [0.5, 0.2]}, {position: [0.5, 0.7]}],
-        onKillRaindrop: (r: Raindrop) => {console.log('---- click', r)}
-      }}
-    />
-  )
+  return <div>RaindropWidget: to be deleted</div>
+  // const layer = useLayer(createLayer)
+  // const layers = useLayers([layer])
+  // return (
+  //   <CanvasWidget
+  //     layers={layers}
+  //     layerProps={{
+  //       width: 100,
+  //       height: 100,
+  //       raindrops: [{position: [0.5, 0.2]}, {position: [0.5, 0.7]}],
+  //       onKillRaindrop: (r: Raindrop) => {console.log('---- click', r)}
+  //     }}
+  //   />
+  // )
 }
 
 

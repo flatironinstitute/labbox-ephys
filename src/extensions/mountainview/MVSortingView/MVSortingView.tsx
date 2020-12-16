@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
 import sizeMe, { SizeMeProps } from 'react-sizeme'
-import { Expandable } from '../../../containers/SortingView'
+import Expandable from "../../curation/CurationSortingView/Expandable"
 import { defaultSortingCuration, SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
 import CurationControl from './CurationControl'

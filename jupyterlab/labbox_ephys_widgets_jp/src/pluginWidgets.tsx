@@ -7,8 +7,9 @@ import React, { FunctionComponent, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
+import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { defaultSortingCuration, defaultSortingSelection, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, defaultSortingCuration, defaultSortingSelection, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -185,9 +186,10 @@ interface PluginComponentWrapperProps {
   sortingInfo: any
   recordingInfo: any
   plugins: Plugins
+  calculationPool: CalculationPool
 }
 
-const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins}) => {
+const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool}) => {
   let sorting: Sorting
   let recording: Recording
   if (sortingObject.sorting_format) {
@@ -231,9 +233,12 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       readOnly={false}
       plugins={plugins}
       hither={hither}
+      calculationPool={calculationPool}
     />
   )
 }
+
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 export class SortingView extends DOMWidgetView {
   _hitherJobManager: HitherJobManager
@@ -271,6 +276,7 @@ export class SortingView extends DOMWidgetView {
         sortingInfo={sortingInfo}
         recordingInfo={recordingInfo}
         plugins={plugins}
+        calculationPool={calculationPool}
       />
     )
   }
@@ -361,6 +367,7 @@ export class RecordingView extends DOMWidgetView {
         recording={recording}
         plugins={plugins}
         hither={hitherContext}
+        calculationPool={calculationPool}
       />
     )
     return x
