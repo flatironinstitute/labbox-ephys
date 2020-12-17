@@ -37,6 +37,8 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
         recordingObject = DictTrait(recording.object()).tag(sync=True)
         recordingInfo = DictTrait(le.get_recording_info(recording_object=recording.object())).tag(sync=True)
         sortingInfo = DictTrait(le.get_sorting_info(sorting_object=sorting.object(), recording_object=recording.object())).tag(sync=True)
+        selection = DictTrait({}).tag(sync=True)
+        curation = DictTrait({}).tag(sync=True)
         def __init__(self) -> None:
             super().__init__()
             self._jobs_by_id: Dict[str, HitherJob] = {}

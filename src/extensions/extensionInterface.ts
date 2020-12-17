@@ -72,6 +72,11 @@ export const defaultSortingCuration: SortingCuration = {
 
 export type SortingCurationDispatch = (action: SortingCurationAction) => void
 
+type SetCurationSortingCurationAction = {
+    type: 'SetCuration',
+    curation: SortingCuration
+}
+
 type AddLabelSortingCurationAction = {
     type: 'AddLabel',
     unitId: number
@@ -84,11 +89,14 @@ type RemoveLabelSortingCurationAction = {
     label: string
 }
 
-export type SortingCurationAction = AddLabelSortingCurationAction | RemoveLabelSortingCurationAction
+export type SortingCurationAction = SetCurationSortingCurationAction | AddLabelSortingCurationAction | RemoveLabelSortingCurationAction
 
 // This reducer is used by the jupyter widget, but not by the web gui. That's because the web gui uses the global redux state to dispatch the curation actions.
 export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAction> = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
-    if (action.type === 'AddLabel') {
+    if (action.type === 'SetCuration') {
+        return action.curation
+    }
+    else if (action.type === 'AddLabel') {
         const uid = action.unitId + ''
         const labels = state.labelsByUnit[uid] || []
         if (!labels.includes(action.label)) {
@@ -132,6 +140,11 @@ export const defaultSortingSelection: SortingSelection = {
 
 export type SortingSelectionDispatch = (action: SortingSelectionAction) => void
 
+type SetSelectionSortingSelectionAction = {
+    type: 'SetSelection',
+    selection: SortingSelection
+}
+
 type SetSelectedUnitIdsSortingSelectionAction = {
     type: 'SetSelectedUnitIds',
     selectedUnitIds: number[]
@@ -142,10 +155,13 @@ type SetVisibleUnitIdsSortingSelectionAction = {
     visibleUnitIds: number[] | null
 }
 
-export type SortingSelectionAction = SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction
+export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction
 
 export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelectionAction> = (state: SortingSelection, action: SortingSelectionAction): SortingSelection => {
-    if (action.type === 'SetSelectedUnitIds') {
+    if (action.type === 'SetSelection') {
+        return action.selection
+    }
+    else if (action.type === 'SetSelectedUnitIds') {
         return {
             ...state,
             selectedUnitIds: action.selectedUnitIds

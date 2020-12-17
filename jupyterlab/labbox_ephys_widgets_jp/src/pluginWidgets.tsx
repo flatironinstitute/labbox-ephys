@@ -2,8 +2,8 @@
 // Distributed under the terms of the Modified BSD License.
 
 // Import the CSS
-import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
-import React, { FunctionComponent, useReducer } from 'react';
+import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyter-widgets/base';
+import React, { FunctionComponent, useEffect, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
@@ -161,7 +161,9 @@ export class SortingViewModel extends DOMWidgetModel {
       _view_module_version: SortingViewModel.view_module_version,
       pluginName: '',
       sortingObject: {},
-      recordingObject: {}
+      recordingObject: {},
+      curation: defaultSortingCuration,
+      selection: defaultSortingSelection
     };
   }
 
@@ -187,9 +189,10 @@ interface PluginComponentWrapperProps {
   recordingInfo: any
   plugins: Plugins
   calculationPool: CalculationPool
+  model: WidgetModel
 }
 
-const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool}) => {
+const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool, model}) => {
   let sorting: Sorting
   let recording: Recording
   if (sortingObject.sorting_format) {
@@ -217,11 +220,39 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     recording = example.recording
   }
 
-  const [curation, curationDispatch] = useReducer(sortingCurationReducer, defaultSortingCuration)
-  sorting.curation = curation
+  // const [curation, curationDispatch] = useReducer(sortingCurationReducer, defaultSortingCuration)
 
-  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, defaultSortingSelection)
+  // curation
+  const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation').labelChoices ? model.get('curation') : defaultSortingCuration)
+  useEffect(() => {
+    if (model.get('curation') !== curation) {
+      model.set('curation', curation)
+      model.save_changes()
+    }
+  }, [curation, model])
+  model.on('change:curation', () => {
+    curationDispatch({
+      type: 'SetCuration',
+      curation: model.get('curation')
+    })
+  }, null)
+
+  // selection
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : defaultSortingSelection)
+  useEffect(() => {
+    if (model.get('selection') !== selection) {
+      model.set('selection', selection)
+      model.save_changes()
+    }
+  }, [selection, model])
+  model.on('change:selection', () => {
+    selectionDispatch({
+      type: 'SetSelection',
+      selection: model.get('selection')
+    })
+  }, null)
   
+  sorting.curation = curation
   return (
     <plugin.component
       sorting={sorting}
@@ -252,6 +283,7 @@ export class SortingView extends DOMWidgetView {
     const recordingInfo = this.model.get('recordingInfo')
     const sortingInfo = this.model.get('sortingInfo')
     const plugin = extensionContext._sortingViewPlugins[pluginName]
+    
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
     const hither: HitherContext = {
@@ -277,6 +309,7 @@ export class SortingView extends DOMWidgetView {
         recordingInfo={recordingInfo}
         plugins={plugins}
         calculationPool={calculationPool}
+        model={this.model}
       />
     )
   }
