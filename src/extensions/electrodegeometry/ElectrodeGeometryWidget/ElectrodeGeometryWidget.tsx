@@ -81,9 +81,7 @@ const initialElectrodeLayerState: ElectrodeLayerState = {
 }
 
 const computeRadiusCache = new Map<string, number>()
-const computeRadius = (electrodes: Electrode[], scalingFactor: number): number => {
-    const MAX_RADIUS_PIXELS = 32
-    const MAX_RADIUS_COORDS = MAX_RADIUS_PIXELS / scalingFactor
+const computeRadius = (electrodes: Electrode[]): number => {
     const key = JSON.stringify(electrodes)
     const val = computeRadiusCache.get(key)
     if (val !== undefined) {
@@ -102,8 +100,8 @@ const computeRadius = (electrodes: Electrode[], scalingFactor: number): number =
     })
     // (might set a hard cap, but remember these numbers are in electrode-space coordinates)
     const radius = 0.4 * leastNorm
-    computeRadiusCache.set(key, Math.min(radius, MAX_RADIUS_COORDS))
-    return Math.min(radius, MAX_RADIUS_COORDS)
+    computeRadiusCache.set(key, radius)
+    return radius
 }
 
 const getElectrodesBoundingBox = (electrodes: Electrode[], radius: number): RectangularRegion => {
@@ -121,24 +119,15 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     // If that changes, we'll have to make further adjustments.
     const state = layer.getState()
     const { width, height, electrodes } = layerProps
-    const W = width - 10 * 2
+    const W = width - 10 * 2 // compute canvas aspect ratio assuming a hard 10-pixel border
     const H = height - 10 * 2
     const canvasAspect = W / H
 
-    // To set a max pixel radius limit, we need to know the (rough) scaling factor between electrode coordinates and pixels.
-    // This won't be exact, because the chosen radius actually factors into the scaling factor. But it's probably
-    // close enough for our purposes.
-    // Get the electrode bounding box (assuming 0 radius), orient per the canvas aspect ratio orientation,
-    // then set the scaling factor per whether we are constrained by width or height. These steps will be repeated below, alas.
-    const rawElectrodeBoundingBox = getElectrodesBoundingBox(electrodes, 0)
-    let rawAspect = getWidth(rawElectrodeBoundingBox) / getHeight(rawElectrodeBoundingBox)
-    const aspectMismatch = ((rawAspect > 1) !== (canvasAspect > 1))
-    rawAspect = aspectMismatch ? 1/rawAspect : rawAspect
-    const roughScalingFactor = rawAspect > canvasAspect ? W / getWidth(rawElectrodeBoundingBox) : H / getHeight(rawElectrodeBoundingBox)
 
-    const radius = computeRadius(electrodes, roughScalingFactor)
+    const radius = computeRadius(electrodes)
     let boundingBox = getElectrodesBoundingBox(electrodes, radius)
     let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+    const aspectMismatch = ((boxAspect > 1) !== (canvasAspect > 1))
 
     let realizedElectrodes = electrodes
     if (aspectMismatch) {
@@ -162,6 +151,11 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
         // we are constrained in height
         scaleFactor = H / getHeight(boundingBox)
     }
+
+    // We don't want to have big huge electrode circles if there are too few electrodes relative to the canvas.
+    // To correct for this, adjust the scale factor downwards if it would result in an unacceptably large radius.
+    const MAX_RADIUS_PIXELS = 32
+    scaleFactor = Math.min(scaleFactor, MAX_RADIUS_PIXELS / radius)
 
     const xMargin = (width - getWidth(boundingBox) * scaleFactor) / 2
     const yMargin = (height - getHeight(boundingBox) * scaleFactor) / 2
@@ -188,6 +182,10 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
 const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLayerProps, state: ElectrodeLayerState) => {
     painter.wipe()
     const useLabels = state.pixelRadius > 5
+    // The following three lines are visualizations to confirm the scaled image remains centered.
+    // painter.fillWholeCanvas('rgb(224, 196, 224)')
+    // const electrodesBoundngBox = getElectrodesBoundingBox(props.electrodes, 0)
+    // painter.drawRect(electrodesBoundngBox, {color: 'black', width: 4})
     for (let e of state.electrodeBoundingBoxes) {
         const selected = props.selectedElectrodeIds?.includes(e.id) || false
         const hovered = state.hoveredElectrodeId === e.id

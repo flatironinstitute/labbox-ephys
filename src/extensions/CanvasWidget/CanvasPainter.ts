@@ -162,6 +162,14 @@ export class CanvasPainter {
     exportingFigure() {
         return this._exportingFigure
     }
+    // This is basically just for debugging purposes.
+    fillWholeCanvas(color: Color): void {
+        console.log(`Pixel dimensions: 0 to ${this._pixelWidth} and 0 to ${this._pixelHeight}`)
+        this._context2D.save()
+        applyBrush(this._context2D, {color: color})
+        this._context2D.fillRect(0, 0, this._pixelWidth, this._pixelHeight)
+        this._context2D.restore()
+    }
     clear(): void {
         this.clearRect({xmin: 0, xmax: this._pixelWidth, ymin: 0, ymax: this._pixelHeight});
     }
