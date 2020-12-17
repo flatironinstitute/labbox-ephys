@@ -14,7 +14,7 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
     const { sortingInfo } = sorting
     if (!sortingInfo) return <div>No sorting info</div>
 
-    let selectedUnitIdsArray = selection.selectedUnitIds
+    let selectedUnitIdsArray = selection.selectedUnitIds || []
     
     let showExpandButton = false;
     if (selectedUnitIdsArray.length > maxUnitsVisible) {

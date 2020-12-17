@@ -7,7 +7,7 @@ import Correlogram_rv from './Correlogram_ReactVis';
 const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
 const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selection, onUnitClicked, hither }) => {
-    const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+    const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     return (
         <PlotGrid
             sorting={sorting}

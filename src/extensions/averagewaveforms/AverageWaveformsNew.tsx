@@ -21,7 +21,7 @@ const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) =
     //     }
     // }, [hither, setResult, calcMode, setCalcMode])
     // return <div>AAAA: {calcMode} {result + ''}</div>
-    const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+    const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     return (
         <PlotGrid
             sorting={props.sorting}

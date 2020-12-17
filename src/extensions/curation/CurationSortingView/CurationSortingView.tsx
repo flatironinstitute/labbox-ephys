@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react'
 import sizeMe, { SizeMeProps } from "react-sizeme"
-import { defaultSortingCuration, SortingViewProps } from "../../extensionInterface"
+import { SortingViewProps } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
 import ControlPanel from './ControlPanel'
 import TabsView from './TabsView'
@@ -11,7 +11,7 @@ interface OwnProps {
 
 const CurationSortingView: FunctionComponent<SortingViewProps & SizeMeProps & OwnProps> = (props) => {
     const { sorting, selection, selectionDispatch, curationDispatch } = props
-    const curation = sorting.curation || defaultSortingCuration
+    const curation = sorting.curation || {}
 
     if (!props.size.width) return <div>No width</div>
 

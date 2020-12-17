@@ -48,14 +48,14 @@ const UnitCheckbox = React.memo((a: {unitKey: string, selected: boolean, handleC
     );
 });
 
-const UnitIdCell = React.memo((a: {id: string, sortingId: string}) => {
+const UnitIdCell = React.memo((a: {id: number, mergeGroup: number[] | null, sortingId: string}) => {
     // const elmt = (
     //     <Link to={`/${a.documentId}/sortingUnit/${a.sortingId}/${a.id}/${getPathQuery({feedUri: a.feedUri})}`}>
     //         {a.id}
     //     </Link>
     // )
-    const elmt = a.id
-    return <TableCell><span>{elmt}</span></TableCell>
+    const g = a.mergeGroup
+    return <TableCell><span>{a.id + ''}{g && ' (' + g.filter(x => (x !== a.id)).join(', ') + ')'}</span></TableCell>
 })
 
 const UnitLabelCell = React.memo((a: {labels: string}) => (
@@ -110,9 +110,9 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
 
     const toggleSelectedUnitId = useCallback(
         (unitId: number) => {
-            const newSelectedUnitIds = (selection.selectedUnitIds.includes(unitId)) ?
-                (selection.selectedUnitIds.filter(uid => (uid !== unitId))) :
-                ([...selection.selectedUnitIds, unitId])
+            const newSelectedUnitIds = ((selection.selectedUnitIds || []).includes(unitId)) ?
+                ((selection.selectedUnitIds || []).filter(uid => (uid !== unitId))) :
+                ([...(selection.selectedUnitIds || []), unitId])
             selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: newSelectedUnitIds})
         },
         [selection, selectionDispatch]
@@ -130,7 +130,11 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
             return sortMetricValues(recordA, recordB, r.sortAscending)
         })
     }
-    const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+    const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+    const mergeGroupForUnitId = (unitId: number) => {
+        const mergeGroups = (sorting.curation || {}).mergeGroups || []
+        return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
+    }
     return (
         <Table className="NiceTable">
             <HeaderRow 
@@ -170,7 +174,8 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
                                 handleClicked = {() => toggleSelectedUnitId(unitId)}
                             />
                             <UnitIdCell
-                                id = {unitId + ''}
+                                id = {unitId}
+                                mergeGroup = {mergeGroupForUnitId(unitId)}
                                 // documentId = {documentInfo.documentId || 'default'}
                                 sortingId = {sorting.sortingId}
                                 // feedUri = {documentInfo.feedUri || ''}

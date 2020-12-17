@@ -6,7 +6,7 @@ import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from 
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import SortingInfoView from '../components/SortingInfoView';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { defaultSortingSelection, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
+import { HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -56,7 +56,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
-  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, defaultSortingSelection)
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, {})
   const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
@@ -130,16 +130,16 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
 
   const handleUnitClicked = useCallback((unitId, event) => {
     if (event.ctrlKey) {
-      if (selection.selectedUnitIds.includes(unitId)) {
-        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: selection.selectedUnitIds.filter(uid => (uid !== unitId))})
+      if ((selection.selectedUnitIds || []).includes(unitId)) {
+        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: (selection.selectedUnitIds || []).filter(uid => (uid !== unitId))})
       }
       else {
-        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: [...selection.selectedUnitIds, unitId]})
+        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: [...(selection.selectedUnitIds || []), unitId]})
       }
     }
     else if ((event.shiftKey) && (anchorUnitId !== null)) {
       const unitIds = intrange(anchorUnitId, unitId)
-      const newSelectedUnitIds = [...selection.selectedUnitIds]
+      const newSelectedUnitIds = [...(selection.selectedUnitIds || [])]
       const sortingInfo = sorting?.sortingInfo
       if (sortingInfo) {
         for (let uid of unitIds) {
@@ -181,7 +181,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
 
-  const selectedUnitIdsLookup: {[key: string]: boolean} = selection.selectedUnitIds.reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+  const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
     <div>
       <h3>
@@ -269,11 +269,20 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {
   const curationDispatch = (a: SortingCurationAction) => {
-    if (a.type === 'AddLabel') {
+    if (a.type === 'SetCuration') {
+      dispatch({type: 'SET_CURATION', sortingId: ownProps.sortingId, curation: a.curation, persistKey: 'sortings'})
+    }
+    else if (a.type === 'AddLabel') {
       dispatch({type: 'ADD_UNIT_LABEL', sortingId: ownProps.sortingId, unitId: a.unitId, label: a.label, persistKey: 'sortings'})
     }
     else if (a.type === 'RemoveLabel') {
       dispatch({type: 'REMOVE_UNIT_LABEL', sortingId: ownProps.sortingId, unitId: a.unitId, label: a.label, persistKey: 'sortings'})
+    }
+    else if (a.type === 'MergeUnits') {
+      dispatch({type: 'MERGE_UNITS', sortingId: ownProps.sortingId, unitIds: a.unitIds, persistKey: 'sortings'})
+    }
+    else if (a.type === 'UnmergeUnits') {
+      dispatch({type: 'UNMERGE_UNITS', sortingId: ownProps.sortingId, unitIds: a.unitIds, persistKey: 'sortings'})
     }
   }
   return {

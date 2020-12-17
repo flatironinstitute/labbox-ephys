@@ -42,8 +42,11 @@ export const SET_DOCUMENT_INFO = 'SET_DOCUMENT_INFO'
 
 export const SET_SERVER_INFO = 'SET_SERVER_INFO'
 
+export const SET_CURATION = 'SET_CURATION'
 export const ADD_UNIT_LABEL = 'ADD_UNIT_LABEL'
 export const REMOVE_UNIT_LABEL = 'REMOVE_UNIT_LABEL'
+export const MERGE_UNITS = 'MERGE_UNITS'
+export const UNMERGE_UNITS = 'UNMERGE_UNITS'
 
 export const sleep = (m: number) => new Promise(r => setTimeout(r, m));
 

@@ -62,12 +62,9 @@ export interface MetricPlugin extends LabboxPlugin {
 
 // Sorting curation
 export type SortingCuration = {
-    labelsByUnit: {[key: string]: string[]}
-    labelChoices: string[]
-}
-export const defaultSortingCuration: SortingCuration = {
-    labelChoices: ["accept", "reject", "mua", "artifact", "noise"].sort(),
-    labelsByUnit: {}
+    labelsByUnit?: {[key: string]: string[]}
+    labelChoices?: string[]
+    mergeGroups?: (number[])[]
 }
 
 export type SortingCurationDispatch = (action: SortingCurationAction) => void
@@ -88,8 +85,43 @@ type RemoveLabelSortingCurationAction = {
     unitId: number
     label: string
 }
+type MergeUnitsSortingCurationAction = {
+    type: 'MergeUnits',
+    unitIds: number[]
+}
+type UnmergeUnitsSortingCurationAction = {
+    type: 'UnmergeUnits',
+    unitIds: number[]
+}
 
-export type SortingCurationAction = SetCurationSortingCurationAction | AddLabelSortingCurationAction | RemoveLabelSortingCurationAction
+export type SortingCurationAction = SetCurationSortingCurationAction | AddLabelSortingCurationAction | RemoveLabelSortingCurationAction | MergeUnitsSortingCurationAction | UnmergeUnitsSortingCurationAction
+
+const intersection = (a: number[], b: number[]) => (
+    a.filter(x => (b.includes(x)))
+)
+const union = (a: number[], b: number[]) => (
+    [...a, ...b.filter(x => (!a.includes(x)))].sort()
+)
+
+const simplifyMergeGroups = (mg: (number[])[]): (number[])[] => {
+    const newMergeGroups = mg.map(g => [...g]) // make a copy
+    let somethingChanged = true
+    while (somethingChanged) {
+        somethingChanged = false
+        for (let i = 0; i < newMergeGroups.length; i ++) {
+            const g1 = newMergeGroups[i]
+            for (let j = i + 1; j < newMergeGroups.length; j ++) {
+                const g2 = newMergeGroups[j]
+                if (intersection(g1, g2).length > 0) {
+                    newMergeGroups[i] = union(g1, g2)
+                    newMergeGroups[j] = []
+                    somethingChanged = true
+                }
+            }
+        }
+    }
+    return newMergeGroups.filter(g => (g.length >= 2))
+}
 
 // This reducer is used by the jupyter widget, but not by the web gui. That's because the web gui uses the global redux state to dispatch the curation actions.
 export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAction> = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
@@ -98,7 +130,7 @@ export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAct
     }
     else if (action.type === 'AddLabel') {
         const uid = action.unitId + ''
-        const labels = state.labelsByUnit[uid] || []
+        const labels = (state.labelsByUnit || {})[uid] || []
         if (!labels.includes(action.label)) {
             return {
                 ...state,
@@ -112,7 +144,7 @@ export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAct
     }
     else if (action.type === 'RemoveLabel') {
         const uid = action.unitId + ''
-        const labels = state.labelsByUnit[uid] || []
+        const labels = (state.labelsByUnit || {})[uid] || []
         if (labels.includes(action.label)) {
             return {
                 ...state,
@@ -124,18 +156,26 @@ export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAct
         }
         else return state
     }
+    else if (action.type === 'MergeUnits') {
+        return {
+            ...state,
+            mergeGroups: simplifyMergeGroups([...(state.mergeGroups || []), action.unitIds])
+        }
+    }
+    else if (action.type === 'UnmergeUnits') {
+        return {
+            ...state,
+            mergeGroups: simplifyMergeGroups((state.mergeGroups || []).map(g => (g.filter(x => (!action.unitIds.includes(x))))))
+        }
+    }
     else return state
 }
 ////////////////////
 
 // Sorting selection
 export type SortingSelection = {
-    selectedUnitIds: number[]
-    visibleUnitIds: number[] | null // null means all are selected
-}
-export const defaultSortingSelection: SortingSelection = {
-    selectedUnitIds: [],
-    visibleUnitIds: null
+    selectedUnitIds?: number[]
+    visibleUnitIds?: number[] | null // null means all are selected
 }
 
 export type SortingSelectionDispatch = (action: SortingSelectionAction) => void
