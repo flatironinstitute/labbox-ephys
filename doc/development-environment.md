@@ -87,3 +87,13 @@ TODO: finish this list
 ### Deploying docker image
 
 See [../docker/labbox-ephys](../docker/labbox-ephys)
+
+### Jupyter Lab Widget Integration
+
+Labbox-ephys Jupyter integration features are currently under development. We have implemented an extension system
+which allows all UI elements (visualizations, etc) to be integrated into Jupyter notebooks. For
+more information on how to run labbox in Jupyter, see
+[the documentation on labbox_ephys_widgets_jp](labbox_ephys_widgets_jp.md).
+
+Developers should be aware that some code duplication is required to facilitate consistent development of the
+Jupyter versions. This is explained fully in [the documentation on the jupyterlab sync process](jupyterlab-sync.md).
