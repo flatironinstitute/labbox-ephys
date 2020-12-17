@@ -81,7 +81,9 @@ const initialElectrodeLayerState: ElectrodeLayerState = {
 }
 
 const computeRadiusCache = new Map<string, number>()
-const computeRadius = (electrodes: Electrode[]): number => {
+const computeRadius = (electrodes: Electrode[], scalingFactor: number): number => {
+    const MAX_RADIUS_PIXELS = 32
+    const MAX_RADIUS_COORDS = MAX_RADIUS_PIXELS / scalingFactor
     const key = JSON.stringify(electrodes)
     const val = computeRadiusCache.get(key)
     if (val !== undefined) {
@@ -100,8 +102,8 @@ const computeRadius = (electrodes: Electrode[]): number => {
     })
     // (might set a hard cap, but remember these numbers are in electrode-space coordinates)
     const radius = 0.4 * leastNorm
-    computeRadiusCache.set(key, radius)
-    return radius
+    computeRadiusCache.set(key, Math.min(radius, MAX_RADIUS_COORDS))
+    return Math.min(radius, MAX_RADIUS_COORDS)
 }
 
 const getElectrodesBoundingBox = (electrodes: Electrode[], radius: number): RectangularRegion => {
@@ -123,12 +125,23 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     const H = height - 10 * 2
     const canvasAspect = W / H
 
-    const radius = computeRadius(electrodes)
+    // To set a max pixel radius limit, we need to know the (rough) scaling factor between electrode coordinates and pixels.
+    // This won't be exact, because the chosen radius actually factors into the scaling factor. But it's probably
+    // close enough for our purposes.
+    // Get the electrode bounding box (assuming 0 radius), orient per the canvas aspect ratio orientation,
+    // then set the scaling factor per whether we are constrained by width or height. These steps will be repeated below, alas.
+    const rawElectrodeBoundingBox = getElectrodesBoundingBox(electrodes, 0)
+    let rawAspect = getWidth(rawElectrodeBoundingBox) / getHeight(rawElectrodeBoundingBox)
+    const aspectMismatch = ((rawAspect > 1) !== (canvasAspect > 1))
+    rawAspect = aspectMismatch ? 1/rawAspect : rawAspect
+    const roughScalingFactor = rawAspect > canvasAspect ? W / getWidth(rawElectrodeBoundingBox) : H / getHeight(rawElectrodeBoundingBox)
+
+    const radius = computeRadius(electrodes, roughScalingFactor)
     let boundingBox = getElectrodesBoundingBox(electrodes, radius)
     let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
 
     let realizedElectrodes = electrodes
-    if ((boxAspect > 1) !== (canvasAspect > 1)) {
+    if (aspectMismatch) {
         // if the two aspect ratios' relationship to 1 is different, then one is portrait
         // and the other landscape. We should then correct by rotating the electrode set 90 degrees.
         // note: a 90-degree right rotation in 2d makes x' = y and y' = -x
