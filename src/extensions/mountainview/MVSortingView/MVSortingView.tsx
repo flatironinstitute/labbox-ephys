@@ -3,6 +3,7 @@ import sizeMe, { SizeMeProps } from 'react-sizeme'
 import Expandable from "../../curation/CurationSortingView/Expandable"
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
+import '../mountainview.css'
 import CurationControl from './CurationControl'
 import ViewContainer from './ViewContainer'
 import ViewLauncher, { ViewPluginType } from './ViewLauncher'
@@ -117,49 +118,51 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
             area
         })
     }, [openViewsDispatch])
-    const width = size.width || 600
-    const height = 900 // hard-coded for now
+    const width = props.width || size.width || 600
+    const height = props.height || 900
     return (
-        <Splitter
-            width={width}
-            height={height} // hard-coded for now
-            initialPosition={initialLeftPanelWidth}
-        >
-            <div>
-                <Expandable label="Launch" defaultExpanded={true}>
-                    <ViewLauncher
-                        plugins={plugins}
-                        onLaunchSortingView={handleLaunchSortingView}
-                        onLaunchSortingUnitView={handleLaunchSortingUnitView}
-                        selection={props.selection}
-                    />
-                </Expandable>
-                <Expandable label="Curate" defaultExpanded={true}>
-                    <CurationControl
-                        curation={props.sorting.curation || {}}
-                        curationDispatch={props.curationDispatch}
-                        selection={props.selection}
-                        selectionDispatch={props.selectionDispatch}
-                    />
-                </Expandable>
-            </div>
-            <ViewContainer
-                onViewClosed={handleViewClosed}
-                onSetViewArea={handleSetViewArea}
-                views={openViews}
-                width={0} // will be replaced by splitter
-                height={0} // will be replaced by splitter
+        <div className="MVSortingView">
+            <Splitter
+                width={width}
+                height={height}
+                initialPosition={initialLeftPanelWidth}
             >
-                {
-                    openViews.map(v => (
-                        <ViewWidget key={v.viewId}
-                            view={v}
-                            sortingViewProps={props}
+                <div>
+                    <Expandable label="Launch" defaultExpanded={true}>
+                        <ViewLauncher
+                            plugins={plugins}
+                            onLaunchSortingView={handleLaunchSortingView}
+                            onLaunchSortingUnitView={handleLaunchSortingUnitView}
+                            selection={props.selection}
                         />
-                    ))
-                }
-            </ViewContainer>
-        </Splitter>
+                    </Expandable>
+                    <Expandable label="Curate" defaultExpanded={true}>
+                        <CurationControl
+                            curation={props.sorting.curation || {}}
+                            curationDispatch={props.curationDispatch}
+                            selection={props.selection}
+                            selectionDispatch={props.selectionDispatch}
+                        />
+                    </Expandable>
+                </div>
+                <ViewContainer
+                    onViewClosed={handleViewClosed}
+                    onSetViewArea={handleSetViewArea}
+                    views={openViews}
+                    width={0} // will be replaced by splitter
+                    height={0} // will be replaced by splitter
+                >
+                    {
+                        openViews.map(v => (
+                            <ViewWidget key={v.viewId}
+                                view={v}
+                                sortingViewProps={props}
+                            />
+                        ))
+                    }
+                </ViewContainer>
+            </Splitter>
+        </div>
     )
 }
 

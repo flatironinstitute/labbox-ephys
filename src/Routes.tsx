@@ -16,7 +16,7 @@ const TestPage = () => {
     return <div>{`Test page`}</div>;
 }
 
-const Routes: FunctionComponent<{}> = () => {
+const Routes: FunctionComponent<{width: number, height: number}> = ({width, height}) => {
     return (
         <Switch>
             <Route path="/about"><About /></Route>
@@ -55,7 +55,7 @@ const Routes: FunctionComponent<{}> = () => {
             <Route
                 path="/:documentId/sorting/:sortingId*"
                 render={({ match }) => (
-                    <SortingView sortingId={match.params.sortingId} />
+                    <SortingView sortingId={match.params.sortingId} width={width} height={height} />
                 )}
             />
             <Route

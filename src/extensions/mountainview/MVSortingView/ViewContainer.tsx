@@ -11,7 +11,7 @@ type Props = {
     height: number
 }
 
-const tabBarHeight = 60
+const tabBarHeight = 40 + 5
 
 const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed, onSetViewArea, width, height }) => {
     const [currentNorthView, setCurrentNorthView] = useState<View | null>(null)
@@ -29,23 +29,29 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
                 else if (v.area === 'south') {
                     setCurrentSouthView(v)
                     setActiveArea('south')
+                    
                 }
             }
         })
     }, [views, activeArea])
 
-    const H0 = (height - tabBarHeight * 2) / 2
+    const hMargin = 3
+    const vMargin = 3
+    const W = (width || 300) - hMargin * 2
+    const H = height - vMargin * 2
+
+    const H0 = (H - tabBarHeight * 2) / 2
     const areas: {[key: string]: {
         tabBarStyle: React.CSSProperties,
         divStyle: React.CSSProperties
     }} = {
         'north': {
-            tabBarStyle: { left: 0, top: 0, width: width, height: tabBarHeight },
-            divStyle: {left: 0, top: tabBarHeight, width: width, height: H0}
+            tabBarStyle: { left: 0, top: 0, width: W, height: tabBarHeight },
+            divStyle: {left: 0, top: tabBarHeight, width: W, height: H0}
         },
         'south': {
-            tabBarStyle: { left: 0, top: tabBarHeight + H0, width: width, height: tabBarHeight },
-            divStyle: { left: 0, top: tabBarHeight * 2 + H0, width: width, height: H0 }
+            tabBarStyle: { left: 0, top: tabBarHeight + H0, width: W, height: tabBarHeight },
+            divStyle: { left: 0, top: tabBarHeight * 2 + H0, width: W, height: H0 }
         }
     }
 
@@ -82,27 +88,29 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
         throw Error('Unexpected children in ViewContainer')
     }
     const children2 = children as React.ReactElement[]
-    const W = width || 300
     return (
         <div
-            style={{width: W, height: height}} onClick={handleClick}
+            style={{position: 'absolute', left: hMargin, top: vMargin, width: W, height: H}} onClick={handleClick}
             onDragOver={handleDragOver}
             onDrop={handleDragDrop}
+            className="ViewContainer"
         >
-            <div key="north-tab-bar" style={{position: 'absolute', ...areas['north'].tabBarStyle, border: 1, borderStyle: 'solid', borderColor: (activeArea === 'north') ? 'black' : 'lightgray'}}>
+            <div key="north-tab-bar" style={{position: 'absolute', ...areas['north'].tabBarStyle}}>
                 <ViewContainerTabBar
                     views={views.filter(v => v.area === 'north')}
                     currentView={currentNorthView}
                     onCurrentViewChanged={setCurrentNorthView}
                     onViewClosed={onViewClosed}
+                    active={activeArea === 'north'}
                 />
             </div>
-            <div key="south-tab-bar" style={{position: 'absolute', ...areas['south'].tabBarStyle, border: 1, borderStyle: 'solid',  borderColor: (activeArea === 'south') ? 'black' : 'lightgray'}}>
+            <div key="south-tab-bar" style={{position: 'absolute', ...areas['south'].tabBarStyle}}>
                 <ViewContainerTabBar
                     views={views.filter(v => v.area === 'south')}
                     currentView={currentSouthView}
                     onCurrentViewChanged={setCurrentSouthView}
                     onViewClosed={onViewClosed}
+                    active={activeArea === 'south'}
                 />
             </div>
             {

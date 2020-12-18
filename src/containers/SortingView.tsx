@@ -1,13 +1,11 @@
-import { Accordion, AccordionDetails, AccordionSummary, CircularProgress } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import React, { Dispatch, useCallback, useEffect, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
-import SortingInfoView from '../components/SortingInfoView';
 import createCalculationPool from '../extensions/common/createCalculationPool';
 import { HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
-import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -41,7 +39,9 @@ interface DispatchProps {
 }
 
 interface OwnProps {
-  sortingId: string
+  sortingId: string,
+  width: number,
+  height: number
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
@@ -51,7 +51,7 @@ type CalcStatus = 'waiting' | 'computing' | 'finished'
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, hither } = props
+  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, hither, width, height } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
@@ -156,22 +156,22 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     }
   }, [selection, selectionDispatch, anchorUnitId, setAnchorUnitId, sorting]);
 
-  const sidebarWidth = '200px'
+  // const sidebarWidth = '200px'
 
-  const sidebarStyle = {
-    'width': sidebarWidth,
-    'height': '100%',
-    'position': 'absolute',
-    'zIndex': 1,
-    'top': 165,
-    'left': 0,
-    'overflowX': 'hidden',
-    'paddingTop': '20px',
-    'paddingLeft': '20px'
-  }
+  // const sidebarStyle = {
+  //   'width': sidebarWidth,
+  //   'height': '100%',
+  //   'position': 'absolute',
+  //   'zIndex': 1,
+  //   'top': 165,
+  //   'left': 0,
+  //   'overflowX': 'hidden',
+  //   'paddingTop': '20px',
+  //   'paddingLeft': '20px'
+  // }
 
   const contentWrapperStyle = {
-    'marginLeft': sidebarWidth
+    'marginLeft': 0
   }
 
   if (!sorting) {
@@ -181,7 +181,10 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
 
-  const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+  const sv = plugins.sortingViews['MVSortingView']
+  if (!sv) throw Error('Missing sorting view: MVSortingView')
+
+  // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
     <div>
       <h3>
@@ -190,7 +193,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             {recording.recordingLabel}
           </Link>
       </h3>
-      {
+      {/* {
         (sortingInfoStatus === 'computing') ? (
           <div><CircularProgress /></div>
         ) : (
@@ -202,9 +205,24 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             styling={sidebarStyle}
           />
         )
-      }
+      } */}
       <div style={contentWrapperStyle}>
-        {
+          <sv.component
+            {...sv.props || {}}
+            sorting={sorting}
+            recording={recording}
+            selection={selection}
+            selectionDispatch={selectionDispatch}
+            onUnitClicked={handleUnitClicked}
+            curationDispatch={curationDispatch}
+            readOnly={readOnly}
+            plugins={plugins}
+            hither={hither}
+            calculationPool={calculationPool}
+            width={props.width ? props.width : undefined}
+            height={props.height ? props.height - 80 : undefined}
+          />
+        {/* {
           sortByPriority(plugins.sortingViews).filter(v => (!v.disabled)).map(sv => {
             return (
               <Expandable
@@ -228,7 +246,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
               </Expandable>
             )
           })
-        }
+        } */}
       </div>
     </div>
   );
