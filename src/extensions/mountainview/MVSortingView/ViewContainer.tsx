@@ -11,6 +11,7 @@ type Props = {
     height: number
 }
 
+// needs to correspond to css (not best system)
 const tabBarHeight = 40 + 5
 
 const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed, onSetViewArea, width, height }) => {
