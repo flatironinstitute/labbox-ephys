@@ -92,7 +92,7 @@ export const formClickEventFromMouseEvent = (e: React.MouseEvent<HTMLCanvasEleme
     }
     const modifiers = {
         alt: e.altKey,
-        ctrl: e.ctrlKey,
+        ctrl: e.ctrlKey || e.metaKey,
         shift: e.shiftKey,
     }
     return {point: [point[0], point[1]], mouseButton: e.buttons, modifiers: modifiers, type: t}
