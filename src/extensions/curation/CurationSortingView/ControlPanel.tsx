@@ -17,7 +17,7 @@ const buttonStyle = {
 const ControlPanel: FunctionComponent<Props> = ({ width, selection, selectionDispatch, curation, curationDispatch }) => {
     const _handleApplyLabel = useCallback(
         (label: string) => {
-            for (let unitId of selection.selectedUnitIds) {
+            for (let unitId of (selection.selectedUnitIds || [])) {
                 curationDispatch({
                     type: 'AddLabel',
                     unitId,
@@ -30,7 +30,7 @@ const ControlPanel: FunctionComponent<Props> = ({ width, selection, selectionDis
 
     const _handleRemoveLabel = useCallback(
         (label: string) => {
-            for (let unitId of selection.selectedUnitIds) {
+            for (let unitId of (selection.selectedUnitIds || [])) {
                 curationDispatch({
                     type: 'RemoveLabel',
                     unitId,
@@ -47,8 +47,8 @@ const ControlPanel: FunctionComponent<Props> = ({ width, selection, selectionDis
     }
 
     const labelCounts: {[key: string]: number} = {}
-    for (const uid of selection.selectedUnitIds) {
-        const labels = curation.labelsByUnit[uid + ''] || []
+    for (const uid of (selection.selectedUnitIds || [])) {
+        const labels = (curation.labelsByUnit || {})[uid + ''] || []
         for (const label of labels) {
             let c = labelCounts[label] || 0
             c ++
@@ -58,18 +58,20 @@ const ControlPanel: FunctionComponent<Props> = ({ width, selection, selectionDis
     const labels = Object.keys(labelCounts).sort()
     const labelRecords: LabelRecord[] = labels.map(label => ({
         label,
-        partial: labelCounts[label] < selection.selectedUnitIds.length ? true : false
+        partial: labelCounts[label] < (selection.selectedUnitIds || []).length ? true : false
     }))
     const paperStyle: React.CSSProperties = {
         marginTop: 25,
         marginBottom: 25,
         backgroundColor: '#f9f9ff'
     }
-    const enableApply = selection.selectedUnitIds.length > 0
+    const enableApply = (selection.selectedUnitIds || []).length > 0
+    const standardChoices = ['accept', 'reject', 'noise', 'artifact', 'mua']
+    const labelChoices = [...standardChoices, ...(curation.labelChoices || []).filter(l => (!standardChoices.includes(l)))]
     return (
         <div style={{width, position: 'relative'}}>
             <Paper style={paperStyle} key="selected">
-                Selected units: {selection.selectedUnitIds.join(', ')}
+                Selected units: {(selection.selectedUnitIds || []).join(', ')}
             </Paper>
             <Paper style={paperStyle} key="labels">
                 Labels:
@@ -88,8 +90,8 @@ const ControlPanel: FunctionComponent<Props> = ({ width, selection, selectionDis
                     Apply:
                     <Grid container style={{flexFlow: 'wrap'}} spacing={0}>
                         {
-                            curation.labelChoices.map(labelChoice => (
-                                ((labelCounts[labelChoice] || 0) < selection.selectedUnitIds.length) || (!enableApply)) ? (
+                            labelChoices.map(labelChoice => (
+                                ((labelCounts[labelChoice] || 0) < (selection.selectedUnitIds || []).length) || (!enableApply)) ? (
                                     <Grid item key={labelChoice}>
                                         <button style={buttonStyle} disabled={!enableApply} onClick={() => {_handleApplyLabel(labelChoice)}}>{labelChoice}</button>
                                     </Grid>

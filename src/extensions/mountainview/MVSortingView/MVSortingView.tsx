@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
 import sizeMe, { SizeMeProps } from 'react-sizeme'
 import Expandable from "../../curation/CurationSortingView/Expandable"
-import { defaultSortingCuration, SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
+import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
 import CurationControl from './CurationControl'
 import ViewContainer from './ViewContainer'
@@ -136,7 +136,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                 </Expandable>
                 <Expandable label="Curate" defaultExpanded={true}>
                     <CurationControl
-                        curation={props.sorting.curation || defaultSortingCuration}
+                        curation={props.sorting.curation || {}}
                         curationDispatch={props.curationDispatch}
                         selection={props.selection}
                         selectionDispatch={props.selectionDispatch}

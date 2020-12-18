@@ -11,7 +11,7 @@ const SelectedUnitsView: FunctionComponent<SortingViewProps> = (props) => {
     const sortingUnitViews = sortByPriority(props.plugins.sortingUnitViews).filter(v => (!v.disabled))
         .filter(v => (!toExclude.has(v.name)))
     
-    if (props.selection.selectedUnitIds.length === 0) {
+    if ((props.selection.selectedUnitIds || []).length === 0) {
         return <div>Please select one or more units</div>
     }
     return (
@@ -25,7 +25,7 @@ const SelectedUnitsView: FunctionComponent<SortingViewProps> = (props) => {
                             defaultExpanded={sv.defaultExpanded ? true : false}
                         >
                             {
-                                props.selection.selectedUnitIds.sort().map(unitId => {
+                                (props.selection.selectedUnitIds || []).sort().map(unitId => {
                                     return (
                                         <Fragment key={unitId}>
                                             <h3>Unit {unitId}</h3>

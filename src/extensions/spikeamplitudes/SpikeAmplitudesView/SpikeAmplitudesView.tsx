@@ -15,7 +15,7 @@ const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, so
             <SpikeAmplitudesTimeWidget
                 recording={recording}
                 sorting={sorting}
-                unitIds={selection.selectedUnitIds}
+                unitIds={selection.selectedUnitIds || []}
                 hither={hither}
                 {...{width: 0, height: 0}} // filled in by splitter
             />

@@ -14,7 +14,7 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps>
     const myId =  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const handleUpdateChosenPlots = () => {
-        setChosenPlots(selection.selectedUnitIds
+        setChosenPlots((selection.selectedUnitIds || [])
             .filter(x => !isNaN(x)));
     };
 
@@ -90,7 +90,7 @@ const CrossCorrelograms: React.FunctionComponent<SortingViewProps & SizeMeProps>
         );
     }
 
-    if (selection.selectedUnitIds.length === 0) {
+    if ((selection.selectedUnitIds || []).length === 0) {
         return <div style={{'width': '100%'}} >First select one or more units</div>
     }
 

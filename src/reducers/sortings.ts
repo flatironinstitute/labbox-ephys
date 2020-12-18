@@ -1,6 +1,6 @@
 import { Reducer } from 'react'
-import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, REMOVE_UNIT_LABEL, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO } from '../actions'
-import { defaultSortingCuration, ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer, SortingInfo } from '../extensions/extensionInterface'
+import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, MERGE_UNITS, REMOVE_UNIT_LABEL, SET_CURATION, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO, UNMERGE_UNITS } from '../actions'
+import { ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer, SortingInfo } from '../extensions/extensionInterface'
 export type { ExternalSortingUnitMetric, Label, Sorting, SortingInfo } from '../extensions/extensionInterface'
 
 type Label = string
@@ -47,6 +47,15 @@ const isSetExternalSortingUnitMetricsAction = (x: any): x is SetExternalSortingU
     x.type === SET_EXTERNAL_SORTING_UNIT_METRICS
 )
 
+export interface SetCurationAction {
+    type: 'SET_CURATION'
+    sortingId: string
+    curation: SortingCuration
+}
+const isSetCurationAction = (x: any): x is SetCurationAction => (
+    x.type === SET_CURATION
+)
+
 export interface AddUnitLabelAction {
     type: 'ADD_UNIT_LABEL'
     sortingId: string
@@ -67,8 +76,26 @@ const isRemoveUnitLabelAction = (x: any): x is RemoveUnitLabelAction => (
     x.type === REMOVE_UNIT_LABEL
 )
 
+export interface MergeUnitsAction {
+    type: 'MERGE_UNITS'
+    sortingId: string
+    unitIds: number[]
+}
+const isMergeUnitsAction = (x: any): x is MergeUnitsAction => (
+    x.type === MERGE_UNITS
+)
+
+export interface UnmergeUnitsAction {
+    type: 'UNMERGE_UNITS'
+    sortingId: string
+    unitIds: number[]
+}
+const isUnmergeUnitsAction = (x: any): x is UnmergeUnitsAction => (
+    x.type === UNMERGE_UNITS
+)
+
 export type State = Sorting[]
-export type Action = (AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | AddUnitLabelAction | RemoveUnitLabelAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
+export type Action = (AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
 export const initialState: State = []
 
 // the reducer
@@ -101,12 +128,12 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
             ): s
         ))
     }
-    else if ((isAddUnitLabelAction(action)) || (isRemoveUnitLabelAction(action))) {
+    else if ((isSetCurationAction(action)) || (isAddUnitLabelAction(action)) || (isRemoveUnitLabelAction(action)) || (isMergeUnitsAction(action)) || (isUnmergeUnitsAction(action))) {
         return state.map(s => (
             s.sortingId === action.sortingId ? (
                 {
                     ...s,
-                    curation: unitCurationReducer(s.curation || defaultSortingCuration, action)
+                    curation: unitCurationReducer(s.curation || {}, action)
                 }
             ): s
         ))
@@ -128,13 +155,18 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
 
 type Curation = {[key: string]: {labels: string[]}}
 
-
 const unitCurationReducer = (curation: SortingCuration, action: Action): SortingCuration => {
     // returns object corresponding to the value of the 'unitCuration' key of a sorting.
-    if (action.type !== ADD_UNIT_LABEL && action.type !== REMOVE_UNIT_LABEL) {
-        return curation
+    if (action.type === 'SET_CURATION') {
+        return action.curation
     }
-    if (action.type === 'ADD_UNIT_LABEL') {
+    else if (action.type === 'MERGE_UNITS') {
+        return sortingCurationReducer(curation, {type: 'MergeUnits', unitIds: action.unitIds})
+    }
+    else if (action.type === 'UNMERGE_UNITS') {
+        return sortingCurationReducer(curation, {type: 'UnmergeUnits', unitIds: action.unitIds})
+    }
+    else if (action.type === 'ADD_UNIT_LABEL') {
         return sortingCurationReducer(curation, {type: 'AddLabel', unitId: action.unitId, label: action.label})
     }
     else if (action.type === 'REMOVE_UNIT_LABEL') {

@@ -9,7 +9,7 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, defaultSortingCuration, defaultSortingSelection, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -162,8 +162,8 @@ export class SortingViewModel extends DOMWidgetModel {
       pluginName: '',
       sortingObject: {},
       recordingObject: {},
-      curation: defaultSortingCuration,
-      selection: defaultSortingSelection
+      curation: {},
+      selection: {}
     };
   }
 
@@ -220,10 +220,8 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     recording = example.recording
   }
 
-  // const [curation, curationDispatch] = useReducer(sortingCurationReducer, defaultSortingCuration)
-
   // curation
-  const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation').labelChoices ? model.get('curation') : defaultSortingCuration)
+  const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
   useEffect(() => {
     if (model.get('curation') !== curation) {
       model.set('curation', curation)
