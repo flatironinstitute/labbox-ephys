@@ -9,7 +9,7 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, externalUnitMetricsReducer, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -163,7 +163,8 @@ export class SortingViewModel extends DOMWidgetModel {
       sortingObject: {},
       recordingObject: {},
       curation: {},
-      selection: {}
+      selection: {},
+      externalUnitMetrics: []
     };
   }
 
@@ -236,7 +237,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
   }, null)
 
   // selection
-  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : defaultSortingSelection)
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : {})
   useEffect(() => {
     if (model.get('selection') !== selection) {
       model.set('selection', selection)
@@ -249,8 +250,24 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       selection: model.get('selection')
     })
   }, null)
+
+  // externalUnitMetrics
+  const [externalUnitMetrics, externalUnitMetricsDispatch] = useReducer(externalUnitMetricsReducer, model.get('externalUnitMetrics') ? model.get('externalUnitMetrics') : [])
+  useEffect(() => {
+    if (model.get('externalUnitMetrics') !== externalUnitMetrics) {
+      model.set('externalUnitMetrics', externalUnitMetrics)
+      model.save_changes()
+    }
+  }, [externalUnitMetrics, model])
+  model.on('change:externalUnitMetrics', () => {
+    externalUnitMetricsDispatch({
+      type: 'SetExternalUnitMetrics',
+      externalUnitMetrics: model.get('externalUnitMetrics')
+    })
+  }, null)
   
   sorting.curation = curation
+  sorting.externalUnitMetrics = externalUnitMetrics
   return (
     <plugin.component
       sorting={sorting}

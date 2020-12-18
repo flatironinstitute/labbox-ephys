@@ -19,7 +19,6 @@ import './localStyles.css';
 import rootReducer, { RootState } from './reducers';
 import { handleHitherJobCreated, handleHitherJobCreationError, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
 import registerExtensions from './registerExtensions';
-import Routes from './Routes';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
 import './styles.css';
@@ -203,9 +202,7 @@ const content = (
   <MuiThemeProvider theme={theme}>
     <Provider store={theStore}>
       <Router>
-        <AppContainer>
-          <Routes />
-        </AppContainer>
+        <AppContainer />
       </Router>
     </Provider>
   </MuiThemeProvider>

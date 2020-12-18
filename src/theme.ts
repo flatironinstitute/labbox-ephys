@@ -9,12 +9,12 @@ const themeOptions: ThemeOptions = {
         secondary: indigo,
     },
     overrides: {
-        MuiTableCell: {
-            root: {  //This can be referred from Material UI API documentation. 
-                padding: '4px 8px',
-                backgroundColor: "#fafafa",
-            }
-        },
+        // MuiTableCell: {
+        //     root: {  //This can be referred from Material UI API documentation. 
+        //         padding: '4px 8px',
+        //         backgroundColor: "#fafafa",
+        //     }
+        // },
     },
 }
 /////////////////////////////////

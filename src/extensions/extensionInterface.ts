@@ -172,6 +172,20 @@ export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAct
 }
 ////////////////////
 
+// This reducer is used only by the jupyter extension
+type SetExternalUnitMetricsAction = {
+    type: 'SetExternalUnitMetrics',
+    externalUnitMetrics: ExternalSortingUnitMetric[]
+}
+type ExternalUnitMetricsAction = SetExternalUnitMetricsAction
+export const externalUnitMetricsReducer: Reducer<ExternalSortingUnitMetric[], ExternalUnitMetricsAction> = (state: ExternalSortingUnitMetric[], action: ExternalUnitMetricsAction): ExternalSortingUnitMetric[] => {
+    if (action.type === 'SetExternalUnitMetrics') {
+        return action.externalUnitMetrics
+    }
+    else return state
+}
+////////////////////////////////
+
 // Sorting selection
 export type SortingSelection = {
     selectedUnitIds?: number[]

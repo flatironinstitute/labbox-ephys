@@ -9,6 +9,7 @@ import numpy as np
 from hither.job import Job as HitherJob
 from ipywidgets import DOMWidget
 from traitlets import Dict as DictTrait
+from traitlets import List as ListTrait
 from traitlets import Unicode
 
 from ._frontend import module_name, module_version
@@ -39,6 +40,7 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
         sortingInfo = DictTrait(le.get_sorting_info(sorting_object=sorting.object(), recording_object=recording.object())).tag(sync=True)
         selection = DictTrait({}).tag(sync=True)
         curation = DictTrait({}).tag(sync=True)
+        externalUnitMetrics = ListTrait([]).tag(sync=True)
         def __init__(self) -> None:
             super().__init__()
             self._jobs_by_id: Dict[str, HitherJob] = {}

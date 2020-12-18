@@ -8,9 +8,10 @@ type Props = {
     currentView: View | null
     onCurrentViewChanged: (v: View) => void
     onViewClosed: (v: View) => void
+    active: boolean
 }
 
-const ViewContainerTabBar: FunctionComponent<Props> = ({ views, currentView, onCurrentViewChanged, onViewClosed }) => {
+const ViewContainerTabBar: FunctionComponent<Props> = ({ views, currentView, onCurrentViewChanged, onViewClosed, active }) => {
     const handleChange = useCallback((event: React.ChangeEvent<{}>, newTabIndex: number) => {
         const v = views[newTabIndex]
         if (v) onCurrentViewChanged(v)
@@ -25,21 +26,24 @@ const ViewContainerTabBar: FunctionComponent<Props> = ({ views, currentView, onC
     }, [currentView, onCurrentViewChanged, views])
     let currentIndex: number | null = currentView ? views.indexOf(currentView) : null
     if (currentIndex === -1) currentIndex = null
+    const classes = ['ViewContainerTabBar']
+    if (active) classes.push('active')
     return (
         <Tabs
             value={currentIndex || 0}
             onChange={handleChange}
             scrollButtons="auto"
             variant="scrollable"
+            className={classes.join(' ')}
         >
-            {views.map(v => (
-                viewContainerTab(v, onViewClosed)
+            {views.map((v, i) => (
+                viewContainerTab(v, onViewClosed, {selected: (i === (currentIndex || 0))})
             ))}
         </Tabs>
     )
 }
 
-const viewContainerTab = (view: View, onClose: (view: View) => void) => {
+const viewContainerTab = (view: View, onClose: (view: View) => void, opts: {selected?: boolean}) => {
     // thanks: https://stackoverflow.com/questions/63265780/react-material-ui-tabs-close/63277341#63277341
     // thanks also: https://www.freecodecamp.org/news/reactjs-implement-drag-and-drop-feature-without-using-external-libraries-ad8994429f1a/
     const label = (
@@ -53,6 +57,7 @@ const viewContainerTab = (view: View, onClose: (view: View) => void) => {
             <IconButton
                 component="div"
                 onClick={() => onClose(view)}
+                className="CloseButton"
             >
                 <CloseIcon
                     style={{
@@ -64,8 +69,10 @@ const viewContainerTab = (view: View, onClose: (view: View) => void) => {
             </IconButton>
         </div>
     )
+    const classes = ["Tab"]
+    if (opts.selected) classes.push('selected')
     return (
-        <Tab key={view.viewId} label={label} />
+        <Tab key={view.viewId} label={label} className={classes.join(' ')} />
     )
 }
 

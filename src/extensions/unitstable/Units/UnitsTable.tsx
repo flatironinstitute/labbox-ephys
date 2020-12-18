@@ -2,6 +2,7 @@ import { Checkbox, LinearProgress, Table, TableBody, TableCell, TableHead, Table
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { ExternalSortingUnitMetric, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
+import '../unitstable.css';
 import { sortMetricValues } from './metricPlugins/common';
 
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
@@ -135,8 +136,9 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
         const mergeGroups = (sorting.curation || {}).mergeGroups || []
         return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
     }
+    
     return (
-        <Table className="NiceTable">
+        <Table className="UnitsTable">
             <HeaderRow 
                 externalUnitMetrics={sorting.externalUnitMetrics || []}
                 sortingUnitMetricsList={sortingUnitMetricsList}

@@ -33,7 +33,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
 
     const gripWidth = props.gripWidth ?? 12
     const gripInnerWidth = props.gripInnerWidth ?? 4
-    const gripMargin = props.gripMargin ?? 8
+    const gripMargin = props.gripMargin ?? 4
     const width1 = gripPosition - gripWidth / 2 - gripMargin
     const width2 = width - width1 - gripWidth - 2 * gripMargin;
 
