@@ -119,16 +119,18 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
     // If that changes, we'll have to make further adjustments.
     const state = layer.getState()
     const { width, height, electrodes } = layerProps
-    const W = width - 10 * 2
+    const W = width - 10 * 2 // compute canvas aspect ratio assuming a hard 10-pixel border
     const H = height - 10 * 2
     const canvasAspect = W / H
+
 
     const radius = computeRadius(electrodes)
     let boundingBox = getElectrodesBoundingBox(electrodes, radius)
     let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+    const aspectMismatch = ((boxAspect > 1) !== (canvasAspect > 1))
 
     let realizedElectrodes = electrodes
-    if ((boxAspect > 1) !== (canvasAspect > 1)) {
+    if (aspectMismatch) {
         // if the two aspect ratios' relationship to 1 is different, then one is portrait
         // and the other landscape. We should then correct by rotating the electrode set 90 degrees.
         // note: a 90-degree right rotation in 2d makes x' = y and y' = -x
@@ -149,6 +151,11 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
         // we are constrained in height
         scaleFactor = H / getHeight(boundingBox)
     }
+
+    // We don't want to have big huge electrode circles if there are too few electrodes relative to the canvas.
+    // To correct for this, adjust the scale factor downwards if it would result in an unacceptably large radius.
+    const MAX_RADIUS_PIXELS = 32
+    scaleFactor = Math.min(scaleFactor, MAX_RADIUS_PIXELS / radius)
 
     const xMargin = (width - getWidth(boundingBox) * scaleFactor) / 2
     const yMargin = (height - getHeight(boundingBox) * scaleFactor) / 2
@@ -175,6 +182,10 @@ const onUpdateLayerProps = (layer: CanvasWidgetLayer<ElectrodeLayerProps, Electr
 const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLayerProps, state: ElectrodeLayerState) => {
     painter.wipe()
     const useLabels = state.pixelRadius > 5
+    // The following three lines are visualizations to confirm the scaled image remains centered.
+    // painter.fillWholeCanvas('rgb(224, 196, 224)')
+    // const electrodesBoundngBox = getElectrodesBoundingBox(props.electrodes, 0)
+    // painter.drawRect(electrodesBoundngBox, {color: 'black', width: 4})
     for (let e of state.electrodeBoundingBoxes) {
         const selected = props.selectedElectrodeIds?.includes(e.id) || false
         const hovered = state.hoveredElectrodeId === e.id
