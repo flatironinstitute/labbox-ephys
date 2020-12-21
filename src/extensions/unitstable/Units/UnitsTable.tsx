@@ -56,7 +56,8 @@ const UnitIdCell = React.memo((a: {id: number, mergeGroup: number[] | null, sort
     //     </Link>
     // )
     const g = a.mergeGroup
-    return <TableCell><span>{a.id + ''}{g && ' (' + g.filter(x => (x !== a.id)).join(', ') + ')'}</span></TableCell>
+    // const g = a.mergeGroup ? a.mergeGroup.filter(x => (x !== a.id)) : null // this would be if we did not want to include the ID itself
+    return <TableCell><span>{a.id + ''}{g && ' (' + [...g].sort().join(', ') + ')'}</span></TableCell>
 })
 
 const UnitLabelCell = React.memo((a: {labels: string}) => (
