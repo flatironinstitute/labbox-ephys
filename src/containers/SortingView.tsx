@@ -181,7 +181,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
 
-  let sv = plugins.sortingViews['MVSortingView']
+  const sv = plugins.sortingViews['MVSortingView']
   if (!sv) throw Error('Missing sorting view: MVSortingView')
 
   // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
