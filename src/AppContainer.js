@@ -114,7 +114,7 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
                     <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
                 </Toolbar>
             </AppBar>
-            <div classNAme={"AppContent"} style={{padding: 0, position: 'absolute', top: toolBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
+            <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: toolBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
                 {
                     initialLoadComplete ? (
                         <Routes width={W} height={H} />

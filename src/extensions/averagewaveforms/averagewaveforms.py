@@ -1,7 +1,1 @@
-import labbox_ephys as le
-
-
-@le.register_sorting_view()
-def AverageWaveformsNew(*, sorting: le.LabboxEphysSortingExtractor, recording: le.LabboxEphysRecordingExtractor):
-    import labbox_ephys_widgets_jp as lew
-    return lew.create_sorting_view('AverageWaveformsNew', sorting=sorting, recording=recording)
+from .AverageWaveformsView.fetch_average_waveforms_2 import createjob_fetch_average_waveform_2, fetch_average_waveform_2

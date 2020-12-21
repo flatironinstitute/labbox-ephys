@@ -1,7 +1,7 @@
 // LABBOX-EXTENSION: curation
 // LABBOX-EXTENSION-TAGS: jupyter
 
-import { ExtensionContext } from '../extensionInterface';
+import { ExtensionContext } from '../../extensionInterface';
 import CurationSortingView from './CurationSortingView/CurationSortingView';
 
 export function activate(context: ExtensionContext) {
@@ -10,6 +10,7 @@ export function activate(context: ExtensionContext) {
         label: 'Curation (WIP)',
         fullWidth: true,
         defaultExpanded: false,
+        development: true,
         priority: 1000,
         component: CurationSortingView,
         props: {

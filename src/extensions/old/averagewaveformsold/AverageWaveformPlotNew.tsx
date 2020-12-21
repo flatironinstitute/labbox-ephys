@@ -1,8 +1,8 @@
 import React from 'react';
-import CanvasWidget, { funcToTransform } from '../CanvasWidget';
-import { CanvasPainter, PainterPath } from '../CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer, useLayer, useLayers } from '../CanvasWidget/CanvasWidgetLayer';
-import { Vec2 } from '../CanvasWidget/Geometry';
+import CanvasWidget, { funcToTransform } from '../../common/CanvasWidget';
+import { CanvasPainter, PainterPath } from '../../common/CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer, useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
+import { Vec2 } from '../../common/CanvasWidget/Geometry';
 
 interface PlotData {
     average_waveform: number[]

@@ -1,7 +1,7 @@
-import { funcToTransform } from "../../CanvasWidget"
-import { CanvasPainter } from "../../CanvasWidget/CanvasPainter"
-import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, KeyboardEvent, KeyboardEventHandler, MousePresenceEvent, MousePresenceEventHandler, MousePresenceEventType, WheelEvent, WheelEventHandler } from "../../CanvasWidget/CanvasWidgetLayer"
-import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../../CanvasWidget/Geometry"
+import { funcToTransform } from "../../common/CanvasWidget"
+import { CanvasPainter } from "../../common/CanvasWidget/CanvasPainter"
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, KeyboardEvent, KeyboardEventHandler, MousePresenceEvent, MousePresenceEventHandler, MousePresenceEventType, WheelEvent, WheelEventHandler } from "../../common/CanvasWidget/CanvasWidgetLayer"
+import { getInverseTransformationMatrix, TransformationMatrix, transformPoint, Vec2 } from "../../common/CanvasWidget/Geometry"
 import { sleepMsec } from "../../common/misc"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 

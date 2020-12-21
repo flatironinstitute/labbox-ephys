@@ -1,7 +1,7 @@
-import { funcToTransform } from '../../CanvasWidget'
-import { Brush, CanvasPainter, Font, TextAlignment } from "../../CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer } from "../../CanvasWidget/CanvasWidgetLayer"
-import { getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, Vec2 } from "../../CanvasWidget/Geometry"
+import { funcToTransform } from '../../common/CanvasWidget'
+import { Brush, CanvasPainter, Font, TextAlignment } from "../../common/CanvasWidget/CanvasPainter"
+import { CanvasWidgetLayer } from "../../common/CanvasWidget/CanvasWidgetLayer"
+import { getInverseTransformationMatrix, RectangularRegion, TransformationMatrix, Vec2 } from "../../common/CanvasWidget/Geometry"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>

@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react'
-import ClientSidePlot from '../common/ClientSidePlot'
-import { CalculationPool, HitherContext, Recording, Sorting } from '../extensionInterface'
+import ClientSidePlot from '../../common/ClientSidePlot'
+import { CalculationPool, HitherContext, Recording, Sorting } from '../../extensionInterface'
 import AverageWaveform_rv from './AverageWaveform_ReactVis'
 
 

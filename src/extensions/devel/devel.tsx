@@ -12,6 +12,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'ElectrodeGeometryTest',
         label: 'Electrode geometry test',
+        development: true,
         component: ElectrodeGeometryTest,
         singleton: true
     })
@@ -19,6 +20,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'IndividualUnits',
         label: 'Individual Units',
+        development: true,
         priority: 70,
         component: IndividualUnits
     })

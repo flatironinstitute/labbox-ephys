@@ -19,6 +19,7 @@ export function activate(context: ExtensionContext) {
         name: 'ExampleRecordingView',
         label: 'Example recording view',
         priority: 50,
+        development: true,
         disabled: true,
         component: ExampleRecordingView
     })

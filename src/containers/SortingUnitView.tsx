@@ -7,7 +7,7 @@ import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SimilarUnit from '../components/SimilarUnit';
 import createCalculationPool from '../extensions/common/createCalculationPool';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { CalculationPool, HitherContext, Plugins } from '../extensions/extensionInterface';
+import { CalculationPool, filterPlugins, HitherContext, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -218,7 +218,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
     documentInfo: state.documentInfo,
-    plugins: state.plugins,
+    plugins: filterPlugins(state.plugins),
     hither: state.hitherContext
 })
   

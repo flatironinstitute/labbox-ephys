@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { SortingViewProps } from '../../extensionInterface';
-import sortByPriority from '../../sortByPriority';
+import { SortingViewProps } from '../../../extensionInterface';
+import sortByPriority from '../../../sortByPriority';
 import Expandable from './Expandable';
 
 const AllUnitsTab: FunctionComponent<SortingViewProps> = (props) => {

@@ -5,7 +5,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
+import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -181,7 +181,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
 
-  const sv = plugins.sortingViews['MVSortingView']
+  let sv = plugins.sortingViews['MVSortingView']
   if (!sv) throw Error('Missing sorting view: MVSortingView')
 
   // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
@@ -276,7 +276,7 @@ function findRecordingForId(state: any, id: string): Recording | undefined {
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-  plugins: state.plugins,
+  plugins: filterPlugins(state.plugins),
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),

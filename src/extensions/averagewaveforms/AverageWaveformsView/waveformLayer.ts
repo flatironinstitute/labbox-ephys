@@ -1,6 +1,6 @@
-import { funcToTransform } from '../../CanvasWidget';
-import { CanvasPainter } from '../../CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer } from "../../CanvasWidget/CanvasWidgetLayer";
+import { funcToTransform } from '../../common/CanvasWidget';
+import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
+import { CanvasWidgetLayer } from "../../common/CanvasWidget/CanvasWidgetLayer";
 import { LayerProps } from './AverageWaveformWidget';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
 
