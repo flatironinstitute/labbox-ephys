@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - run: npm build
+      - run: npm run build
       -
         name: Build and push
         uses: docker/build-push-action@v2
