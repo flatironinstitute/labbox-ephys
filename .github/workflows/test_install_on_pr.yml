@@ -1,4 +1,4 @@
-name: Node.js CI
+name: labbox-ephys install tests
 on:
   pull_request:
     types: [opened, synchronize]
