@@ -1,11 +1,10 @@
 name: Node.js CI
 on:
   pull_request:
-    branches:
-      - main
+    types: [opened, synchronize]
   push:
     branches:
-      - magland/issue222
+      - master
 defaults:
   run:
     shell: bash -l {0}
@@ -16,7 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
+        # os: ["ubuntu-latest", "macos-latest"] - macos-latest not working on the node compile step: ld: library not found for -lstdc++
+        os: ["ubuntu-latest"]
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
