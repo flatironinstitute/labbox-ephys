@@ -28,9 +28,9 @@ jobs:
         with:
           node-version: 12.x
       - run: npm install
-      - run: npm run build
+      - run: CI=false npm run build # if CI=true then warnings are treated as errors. See: https://github.com/facebook/create-react-app/issues/3657
       -
-        name: Build and push
+        name: Build and push image
         uses: docker/build-push-action@v2
         with:
           context: .
