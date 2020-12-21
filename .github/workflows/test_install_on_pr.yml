@@ -25,6 +25,7 @@ jobs:
           auto-update-conda: true
           activate-environment: labbox
           python-version: ${{ matrix.python-version }}
+      - run: python --version
       - run: conda info
       - run: conda list
       - run: conda install jupyterlab
