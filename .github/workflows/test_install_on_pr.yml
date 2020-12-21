@@ -25,16 +25,14 @@ jobs:
           auto-update-conda: true
           activate-environment: labbox
           python-version: ${{ matrix.python-version }}
-      - name: Conda info
-        shell: bash -l {0}
-        run: conda info
-      - name: Conda list
-        shell: pwsh
-        run: conda list
+      - run: conda info
+      - run: conda list
       - run: conda install jupyterlab
       - run: conda install -c conda-forge nodejs
+      - run: conda list
       - run: pip install -e ./python
       - run: pip install -e jupyterlab/labbox_ephys_widgets_jp
+      - run: conda list
       - run: jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
       - run: jupyter labextension install jupyterlab/labbox_ephys_widgets_jp
       - run: jupyter labextension list
