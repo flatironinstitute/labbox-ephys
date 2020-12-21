@@ -1,8 +1,8 @@
 name: labbox-ephys-push-docker
 on:
   push:
-    branches:
-      - dockerhub
+    tags:
+      - 'v*'
 jobs:
   build-and-push-docker:
     runs-on: ubuntu-latest
