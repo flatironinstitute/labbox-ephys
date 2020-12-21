@@ -2,7 +2,7 @@ name: labbox-ephys-push-docker
 on:
   push:
     branches:
-      - magland/issue224
+      - dockerhub
 jobs:
   build-and-push-docker:
     runs-on: ubuntu-latest
