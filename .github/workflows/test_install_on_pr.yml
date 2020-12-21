@@ -8,7 +8,7 @@ on:
       - magland/issue222
 defaults:
   run:
-    shell: bash
+    shell: bash -l {0}
 jobs:
   install_jupyterlab:
     name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
@@ -24,12 +24,6 @@ jobs:
           python-version: '3.8'
           activate-environment: test
       - name: Bash
-        shell: bash -l {0}
-        run: |
-          conda info
-          conda list
-      - name: PowerShell Core
-        shell: pwsh
         run: |
           conda info
           conda list
