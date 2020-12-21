@@ -1,4 +1,4 @@
-name: labbox-ephys install tests
+name: labbox-ephys-install-tests
 on:
   pull_request:
     types: [opened, synchronize]
