@@ -1,5 +1,7 @@
 # Labbox-ephys
 
+![labbox-ephys-install-tests](https://github.com/laboratorybox/labbox-ephys/workflows/labbox-ephys-install-tests/badge.svg?branch=master)
+
 **Under development** (and seeking helpers for this open source project)
 
 Analysis and visualization of neurophysiology recordings and spike sorting results.
