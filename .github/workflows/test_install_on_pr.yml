@@ -9,7 +9,6 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: scripts
 jobs:
   install_jupyterlab:
     name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
@@ -22,11 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
-          with:
-            # auto-update-conda: true
-            # activate-environment: labbox
-            python-version: ${{ matrix.python-version }}
-      # - run: conda info
+        with:
+          auto-update-conda: true
+          activate-environment: labbox
+          python-version: ${{ matrix.python-version }}
+      - run: conda info
       - run: conda list
       - run: conda install jupyterlab
       - run: conda install -c conda-forge nodejs
