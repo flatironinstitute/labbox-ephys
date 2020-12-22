@@ -1,6 +1,6 @@
 import { Grid, Paper } from '@material-ui/core';
 import React, { FunctionComponent, useCallback } from 'react';
-import { SortingCuration, SortingCurationDispatch, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { SortingCuration, SortingCurationDispatch, SortingSelection, SortingSelectionDispatch } from '../../../extensionInterface';
 
 type Props = {
     width: number

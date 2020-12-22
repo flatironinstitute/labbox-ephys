@@ -1,7 +1,7 @@
-import { funcToTransform } from '../../CanvasWidget'
-import { CanvasPainter, Pen } from "../../CanvasWidget/CanvasPainter"
-import { CanvasWidgetLayer } from "../../CanvasWidget/CanvasWidgetLayer"
-import { Vec2 } from "../../CanvasWidget/Geometry"
+import { funcToTransform } from '../../common/CanvasWidget'
+import { CanvasPainter, Pen } from "../../common/CanvasWidget/CanvasPainter"
+import { CanvasWidgetLayer } from "../../common/CanvasWidget/CanvasWidgetLayer"
+import { Vec2 } from "../../common/CanvasWidget/Geometry"
 import { TimeWidgetLayerProps } from "./TimeWidgetLayerProps"
 
 type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>

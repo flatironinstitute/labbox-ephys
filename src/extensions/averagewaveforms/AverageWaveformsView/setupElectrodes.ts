@@ -1,6 +1,6 @@
 import { norm } from 'mathjs';
-import { funcToTransform } from '../../CanvasWidget';
-import { getBoundingBoxForEllipse, getHeight, getWidth, RectangularRegion, TransformationMatrix, transformDistance, Vec2 } from '../../CanvasWidget/Geometry';
+import { funcToTransform } from '../../common/CanvasWidget';
+import { getBoundingBoxForEllipse, getHeight, getWidth, RectangularRegion, TransformationMatrix, transformDistance, Vec2 } from '../../common/CanvasWidget/Geometry';
 
 export type ElectrodeBox = {
     label: string

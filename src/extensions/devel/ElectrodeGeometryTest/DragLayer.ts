@@ -1,6 +1,6 @@
-import { Brush, CanvasPainter } from '../../CanvasWidget/CanvasPainter'
-import { CanvasDragEvent, CanvasWidgetLayer, DragHandler } from '../../CanvasWidget/CanvasWidgetLayer'
-import { RectangularRegion, rectangularRegionsIntersect } from '../../CanvasWidget/Geometry'
+import { Brush, CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
+import { CanvasDragEvent, CanvasWidgetLayer, DragHandler } from '../../common/CanvasWidget/CanvasWidgetLayer'
+import { RectangularRegion, rectangularRegionsIntersect } from '../../common/CanvasWidget/Geometry'
 import { Electrode, ElectrodeLayerProps, setCanvasFromProps } from './ElectrodeGeometry'
 
 // This could just as well have gone in the ElectrodeGeometry.tsx file since it touches on the data that's 'owned' by the

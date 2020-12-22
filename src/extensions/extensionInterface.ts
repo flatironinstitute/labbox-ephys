@@ -47,6 +47,7 @@ export interface LabboxPlugin {
     label: string
     priority?: number
     disabled?: boolean
+    development?: boolean
 }
 
 export interface ViewPlugin extends LabboxPlugin {
@@ -266,6 +267,23 @@ export interface Plugins {
     sortingUnitMetrics: {[key: string]: SortingUnitMetricPlugin}
 }
 
+const filterObject = <T>(x: {[key: string]: T}, filter: (x: T) => boolean): {[key: string]: T} => {
+    const ret: {[key: string]: T} = {}
+    for (let k in x) {
+        if (filter(x[k])) ret[k] = x[k]
+    }
+    return ret
+}
+  
+export const filterPlugins = (plugins: Plugins): Plugins => {  
+    const filter = (v: LabboxPlugin) => ((!v.disabled) && (!v.development))
+    return {
+        recordingViews: filterObject(plugins.recordingViews, filter),
+        sortingViews: filterObject(plugins.sortingViews, filter),
+        sortingUnitViews: filterObject(plugins.sortingUnitViews, filter),
+        sortingUnitMetrics: filterObject(plugins.sortingUnitMetrics, filter)
+    }
+}
 interface ViewProps {
     plugins: Plugins
     hither: HitherContext

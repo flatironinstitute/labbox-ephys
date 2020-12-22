@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import React, { FunctionComponent, useCallback } from 'react';
-import { SortingViewProps } from '../../extensionInterface';
-import Units from '../../unitstable/Units/Units';
+import { SortingViewProps } from '../../../extensionInterface';
+import Units from '../../../unitstable/Units/Units';
 import AllUnitsTab from './AllUnitsTab';
 import SelectedUnitsTab from './SelectedUnitsTab';
 

@@ -1,6 +1,6 @@
-import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
-import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler } from '../../CanvasWidget/CanvasWidgetLayer'
-import { Vec2 } from '../../CanvasWidget/Geometry'
+import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
+import { CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler } from '../../common/CanvasWidget/CanvasWidgetLayer'
+import { Vec2 } from '../../common/CanvasWidget/Geometry'
 import { ElectrodeLayerProps } from './ElectrodeGeometry'
 
 export type ClickHistoryState = {clickHistory: Vec2[]}

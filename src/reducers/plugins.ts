@@ -8,7 +8,6 @@ export const initialState: State = {
     recordingViews: {},
     sortingUnitMetrics: {}
 }
-
 export interface RegisterSortingViewAction {
     type: 'REGISTER_SORTING_VIEW'
     sortingView: SortingViewPlugin
@@ -46,6 +45,7 @@ export type Action = RegisterSortingViewAction | RegisterSortingUnitViewAction |
 // the reducer
 const extensionContext: Reducer<State, Action> = (state: State = initialState, action: Action): State => {
     if (isRegisterSortingViewAction(action)) {
+        if (state.sortingViews[action.sortingView.name]) throw Error(`Sorting view already registered: ${action.sortingView.name}`)
         return {
             ...state,
             sortingViews: {
@@ -55,6 +55,7 @@ const extensionContext: Reducer<State, Action> = (state: State = initialState, a
         }
     }
     else if (isRegisterSortingUnitViewAction(action)) {
+        if (state.sortingUnitViews[action.sortingUnitView.name]) throw Error(`Sorting unit view already registered: ${action.sortingUnitView.name}`)
         return {
             ...state,
             sortingUnitViews: {
@@ -64,6 +65,7 @@ const extensionContext: Reducer<State, Action> = (state: State = initialState, a
         }
     }
     else if (isRegisterRecordingViewAction(action)) {
+        if (state.recordingViews[action.recordingView.name]) throw Error(`Recording view already registered: ${action.recordingView.name}`)
         return {
             ...state,
             recordingViews: {
@@ -73,6 +75,7 @@ const extensionContext: Reducer<State, Action> = (state: State = initialState, a
         }
     }
     else if (isRegisterSortingUnitMetricAction(action)) {
+        if (state.sortingUnitMetrics[action.sortingUnitMetric.name]) throw Error(`Sorting unit metric already registered: ${action.sortingUnitMetric.name}`)
         return {
             ...state,
             sortingUnitMetrics: {

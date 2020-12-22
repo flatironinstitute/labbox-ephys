@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
 import sizeMe, { SizeMeProps } from 'react-sizeme'
-import Expandable from "../../curation/CurationSortingView/Expandable"
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
+import Expandable from "../../old/curation/CurationSortingView/Expandable"
 import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
@@ -73,6 +73,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
     const {plugins, size} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
+    const averageWaveformsPlugin = plugins.sortingViews.AverageWaveforms
     useEffect(() => {
         if (openViews.length === 0) {
             if (unitsTablePlugin) {
@@ -82,6 +83,15 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                     pluginType: 'SortingUnitView',
                     label: unitsTablePlugin.label,
                     area: 'north'
+                })
+            }
+            if (averageWaveformsPlugin) {
+                openViewsDispatch({
+                    type: 'AddView',
+                    plugin: averageWaveformsPlugin,
+                    pluginType: 'SortingUnitView',
+                    label: averageWaveformsPlugin.label,
+                    area: 'south'
                 })
             }
         }

@@ -22,7 +22,7 @@ const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, 
         <Fragment>
             <div key="sortingViews" style={{flexFlow: 'wrap'}}>
                 {
-                    Object.values(plugins.sortingViews).map(sv => (
+                    Object.values(plugins.sortingViews).filter(p => (p.name !== 'MVSortingView')).map(sv => (
                         <LaunchSortingViewButton key={sv.name} plugin={sv} onLaunch={onLaunchSortingView} />
                     ))
                 }

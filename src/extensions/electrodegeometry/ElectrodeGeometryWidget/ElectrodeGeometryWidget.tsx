@@ -1,10 +1,10 @@
 import { norm } from 'mathjs'
 import React from "react"
-import { funcToTransform } from '../../CanvasWidget'
-import { CanvasPainter } from '../../CanvasWidget/CanvasPainter'
-import CanvasWidget from '../../CanvasWidget/CanvasWidget'
-import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, useLayer, useLayers } from "../../CanvasWidget/CanvasWidgetLayer"
-import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../../CanvasWidget/Geometry'
+import { funcToTransform } from '../../common/CanvasWidget'
+import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
+import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
+import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler, useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
+import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from '../../common/CanvasWidget/Geometry'
 
 
 // - allows drag and click selection of electrodes

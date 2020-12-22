@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import CanvasWidget from '../../CanvasWidget';
-import { useLayer, useLayers } from '../../CanvasWidget/CanvasWidgetLayer';
+import CanvasWidget from '../../common/CanvasWidget';
+import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
 import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 

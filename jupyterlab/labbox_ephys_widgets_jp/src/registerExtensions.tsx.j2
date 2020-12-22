@@ -3,7 +3,7 @@
 import { ExtensionContext } from './extensions/extensionInterface';
 
 {% for extension in extensions if ('jupyter' in extension.tags) -%}
-import { activate as activate{{ extension.name }} } from './extensions/{{ extension.name }}/{{ extension.name }}';
+import { activate as activate{{ extension.name }} } from '{{ extension.relPath }}'
 {% endfor -%}
 // !end-code-generation!
 

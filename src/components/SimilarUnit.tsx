@@ -1,11 +1,11 @@
 import { Grid } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
-import AverageWaveform_rv from '../extensions/averagewaveforms/AverageWaveform_ReactVis';
 import ClientSidePlot from '../extensions/common/ClientSidePlot';
 import Correlogram_rv from '../extensions/correlograms/Correlogram_ReactVis';
 import DriftFeatures_rv from '../extensions/devel/IndividualUnits/DriftFeatures_rv';
 import PCAFeatures_rv from '../extensions/devel/IndividualUnits/PCAFeatures_rv';
 import { CalculationPool, HitherContext } from '../extensions/extensionInterface';
+import AverageWaveform_rv from '../extensions/old/averagewaveformsold/AverageWaveform_ReactVis';
 import { Recording } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
 
