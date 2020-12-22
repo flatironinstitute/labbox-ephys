@@ -20,7 +20,6 @@ export interface MetricPlugin {
         job_handler_name?: string
     }
     component: React.ComponentType<{record: any}>
-    getRecordValue: (r: any) => MetricValue
     development?: boolean
 }
 

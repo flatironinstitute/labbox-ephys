@@ -15,11 +15,10 @@
 	// 	],
 	// 	"description": "Log output to console"
 	// }
-	"Print to console": {
-		"scope": "javascript,typescript",
-		"prefix": "debug",
+	"consolelog": {
+		"prefix": "consolelog",
 		"body": [
-			"console.log('---$1');",
+			"console.log('--- $1');",
 			"$2"
 		],
 		"description": "Debug log"

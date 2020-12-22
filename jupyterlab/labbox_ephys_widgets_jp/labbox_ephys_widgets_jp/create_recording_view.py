@@ -41,7 +41,6 @@ def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordin
             self.on_msg(self._handle_message)
         def _handle_message(self, widget, msg, buffers):
             if msg['type'] == 'hitherCreateJob':
-                self.send(dict(type='test 1'))
                 functionName = msg['functionName']
                 kwargs = msg['kwargs']
                 opts = msg['opts']
@@ -50,15 +49,15 @@ def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordin
                 try:
                     job: HitherJob = hi.run(functionName, **kwargs, labbox=labbox_context).wait()
                 except Exception as err:
-                    self.send(dict(type='test 3'))
                     self.send({
                         'type': 'hitherJobCreationError',
                         'client_job_id': client_job_id,
                         'error': str(err) + ' (new method)'
                     })
                     return
-                self.send(dict(type='test 4'))
-                setattr(job, '_client_job_id', client_job_id)
+                client_job_ids = getattr(job, '_client_job_ids', [])
+                client_job_ids.append(client_job_id)
+                setattr(job, '_client_job_ids', client_job_ids)
                 job_id = job._job_id
                 self._jobs_by_id[job_id] = job
                 print(f'======== Created hither job (2): {job_id} {functionName}')
@@ -84,26 +83,28 @@ def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordin
                     result = job.get_result()
                     runtime_info = job.get_runtime_info()
                     del self._jobs_by_id[job_id]
-                    msg = {
-                        'type': 'hitherJobFinished',
-                        'client_job_id': job._client_job_id,
-                        'job_id': job_id,
-                        'result': _make_json_safe(result),
-                        'runtime_info': runtime_info
-                    }
-                    self.send(msg)
+                    for client_job_id in job._client_job_ids:
+                        msg = {
+                            'type': 'hitherJobFinished',
+                            'client_job_id': client_job_id,
+                            'job_id': job_id,
+                            'result': _make_json_safe(result),
+                            'runtime_info': runtime_info
+                        }
+                        self.send(msg)
                 elif status0 == hi.JobStatus.ERROR:
                     exc = job.get_exception()
                     runtime_info = job.get_runtime_info()
                     del self._jobs_by_id[job_id]
-                    msg = {
-                        'type': 'hitherJobError',
-                        'job_id': job_id,
-                        'client_job_id': job._client_job_id,
-                        'error_message': str(exc),
-                        'runtime_info': runtime_info
-                    }
-                    self.send(msg)
+                    for client_job_id in job._client_job_ids:
+                        msg = {
+                            'type': 'hitherJobError',
+                            'job_id': job_id,
+                            'client_job_id': client_job_id,
+                            'error_message': str(exc),
+                            'runtime_info': runtime_info
+                        }
+                        self.send(msg)
     X = RecordingView()
     return X
 

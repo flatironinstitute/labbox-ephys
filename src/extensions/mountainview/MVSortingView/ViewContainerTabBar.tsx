@@ -52,6 +52,7 @@ const viewContainerTab = (view: View, onClose: (view: View) => void, opts: {sele
             draggable
             onDragStart={(e) => {e.dataTransfer.setData('viewId', view.viewId);}}
         >
+            {view.plugin.icon && <span style={{paddingRight: 5}}>{view.plugin.icon}</span>}
             {view.label}
             <span>&nbsp;</span>
             <IconButton

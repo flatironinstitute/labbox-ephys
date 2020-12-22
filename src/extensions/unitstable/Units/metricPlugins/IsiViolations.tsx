@@ -1,18 +1,10 @@
 import React from 'react';
 import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
-const IsiViolations = React.memo((a: {record: number}) => {
+const IsiViolations = (record: any) => {
     return (
-        <span>{a.record.toFixed(4)}</span>
+        <span>{record !== undefined ? record.toFixed(4): ''}</span>
     );
-})
-
-const getRecordValue = (record: any) => {
-    return { 
-        numericValue: record ? record as number : NaN, 
-        stringValue: '',
-        isNumeric: true
-    }
 }
 
 const plugin: SortingUnitMetricPlugin = {
@@ -32,7 +24,8 @@ const plugin: SortingUnitMetricPlugin = {
         useClientCache: true
     },
     component: IsiViolations,
-    getRecordValue: getRecordValue
+    isNumeric: true,
+    getValue: (record: any) => record
 }
 
 export default plugin

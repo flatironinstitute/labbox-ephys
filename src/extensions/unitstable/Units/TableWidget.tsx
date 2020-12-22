@@ -1,5 +1,7 @@
-import { Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Checkbox, Grid, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import '../unitstable.css';
 
 export interface Row {
@@ -16,19 +18,42 @@ export interface Column {
     tooltip: string
     sort: (a: any, b: any) => number
     dataElement: (d: any) => JSX.Element
+    calculating?: boolean
 }
 
-const HeaderRow: FunctionComponent<{columns: Column[], onColumnClick: (column: Column) => void}> = (props) => {
-    const { columns, onColumnClick } = props
+const HeaderRow: FunctionComponent<{columns: Column[], onColumnClick: (column: Column) => void, primarySortColumnName: string | undefined, primarySortColumnDirection: 'ascending' | 'descending' | undefined}> = (props) => {
+    const { columns, onColumnClick, primarySortColumnDirection, primarySortColumnName } = props
     return (
         <TableHead>
             <TableRow>
                 <TableCell key="_checkbox" />
                 {
                     columns.map(column => {
+                        const tooltip = (column.tooltip || column.label || '') + ' (click to sort)'
                         return (
-                            <TableCell key={column.columnName} onClick={() => onColumnClick(column)}>
-                                <span title={column.tooltip || column.label}>{column.label}</span>
+                            <TableCell key={column.columnName} onClick={() => onColumnClick(column)} title={tooltip} style={{cursor: 'pointer'}}>
+                                <Grid container justify="flex-start" style={{flexFlow: 'row'}}>
+                                    <Grid item>
+                                        <span style={{fontSize: 16, color: 'gray', paddingLeft: 3, paddingRight: 5, paddingTop: 2}}>
+                                            {
+                                                (primarySortColumnName === column.columnName) && (
+                                                    primarySortColumnDirection === 'ascending' ? (
+                                                        // <TriangleUp fontSize="inherit" />
+                                                        <FontAwesomeIcon icon={faCaretUp} />
+                                                    ) : (
+                                                        <FontAwesomeIcon icon={faCaretDown} />
+                                                    )
+                                                )
+                                            }
+                                        </span>
+                                    </Grid>
+                                    <Grid item>
+                                        <span>
+                                            {column.label}
+                                            {column.calculating && <LinearProgress />}
+                                        </span>
+                                    </Grid>
+                                </Grid>
                             </TableCell>
                         )
                     })
@@ -44,6 +69,9 @@ const RowCheckbox = React.memo((props: {rowId: string, selected: boolean, onClic
         <Checkbox
             checked={selected}
             onClick={() => onClick(rowId)}
+            style={{
+                padding: 1
+            }}
         />
     );
 });
@@ -53,6 +81,7 @@ interface Props {
     onSelectedRowIdsChanged: (x: string[]) => void
     rows: Row[]
     columns: Column[]
+    defaultSortColumnName?: string
 }
 
 type sortFieldEntry = {columnName: string, keyOrder: number, sortAscending: boolean}
@@ -68,9 +97,15 @@ const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
 
 const TableWidget: FunctionComponent<Props> = (props) => {
 
-    const { selectedRowIds, onSelectedRowIdsChanged, rows, columns } = props
+    const { selectedRowIds, onSelectedRowIdsChanged, rows, columns, defaultSortColumnName } = props
 
     const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
+
+    useEffect(() => {
+        if ((sortFieldOrder.length === 0) && (defaultSortColumnName)) {
+            setSortFieldOrder([defaultSortColumnName])
+        }
+    }, [setSortFieldOrder, sortFieldOrder, defaultSortColumnName])
 
     const toggleSelectedRowId = useCallback(
         (rowId: string) => {
@@ -94,15 +129,21 @@ const TableWidget: FunctionComponent<Props> = (props) => {
             const valueA = dA.sortValue
             const valueB = dB.sortValue
 
-            return column.sort(valueA, valueB)
+            return r.sortAscending ? column.sort(valueA, valueB) : column.sort(valueB, valueA)
         })
     }
     const selectedRowIdsLookup: {[key: string]: boolean} = (selectedRowIds || []).reduce((m, id) => {m[id] = true; return m}, {} as {[key: string]: boolean})
+
+    const primaryRule = (sortingRules.length > 0) ? sortingRules[sortingRules.length - 1] : undefined
+    const primarySortColumnName = primaryRule ? primaryRule.columnName : undefined
+    const primarySortColumnDirection = primaryRule ? (primaryRule.sortAscending ? 'ascending' : 'descending') : undefined
     
     return (
         <Table className="TableWidget">
             <HeaderRow
                 columns={columns}
+                primarySortColumnName={primarySortColumnName}
+                primarySortColumnDirection={primarySortColumnDirection}
                 onColumnClick={(column) => {
                     const columnName = column.columnName
                     let newSortFieldOrder = [...sortFieldOrder]
@@ -120,6 +161,7 @@ const TableWidget: FunctionComponent<Props> = (props) => {
                         // the last one does not match this column, let's clear out all previous instances and add one
                         newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== columnName)), columnName]
                     }
+                    console.log('--- set sort field order', newSortFieldOrder)
                     setSortFieldOrder(newSortFieldOrder)
                 }}
             />

@@ -104,9 +104,36 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
         })
         rows.forEach(row => {
             const unitId = Number(row.rowId)
+            const v = m.data[unitId + '']
             row.data[columnName] = {
-                value: m.data[unitId + ''],
-                sortValue: m.data[unitId + '']
+                value: v !== undefined ? v : NaN,
+                sortValue: v !== undefined ? v : NaN
+            }
+        })
+    })
+
+    ;(sortingUnitMetricsList).forEach((m: SortingUnitMetricPlugin) => {
+        const columnName = 'plugin-metric-' + m.name
+        const metric = (metrics || {})[m.name] || null
+        const metricData = metric ? metric.data : null
+        columns.push({
+            columnName,
+            label: m.columnLabel,
+            tooltip: m.tooltip || '',
+            sort: numericSort,
+            dataElement: m.component,
+            calculating: (metric && (!metricData))
+        })
+        
+        rows.forEach(row => {
+            const unitId = Number(row.rowId)
+            const record = metricData ? (
+                (unitId + '' in metricData) ? metricData[unitId + ''] : undefined
+            ) : undefined
+            const v = (record !== undefined) ? m.getValue(record) : undefined
+            row.data[columnName] = {
+                value: record,
+                sortValue: v !== undefined ? v : (m.isNumeric ? NaN : '')
             }
         })
     })
@@ -119,6 +146,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
             columns={columns}
             selectedRowIds={selectedRowIds}
             onSelectedRowIdsChanged={handleSelectedRowIdsChanged}
+            defaultSortColumnName="_unit_id"
         />
     )
 }

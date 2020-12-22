@@ -1,18 +1,10 @@
 import React from 'react';
 import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
-const PeakChannels = React.memo((a: {record: number}) => {
+const PeakChannels = (record: any) => {
     return (
-        <span>{a.record || ''}</span>
+        <span>{record !== undefined ? record : ''}</span>
     );
-})
-
-const getRecordValue = (record: any) => {
-    return { 
-        numericValue: ((record) || (record === 0)) ? record as number : NaN, 
-        stringValue: '',
-        isNumeric: true
-    }
 }
 
 const plugin: SortingUnitMetricPlugin = {
@@ -28,7 +20,8 @@ const plugin: SortingUnitMetricPlugin = {
         useClientCache: true
     },
     component: PeakChannels,
-    getRecordValue: getRecordValue
+    isNumeric: true,
+    getValue: (record: any) => record
 }
 
 export default plugin
