@@ -1,3 +1,6 @@
+import { faSquare } from '@fortawesome/free-regular-svg-icons'
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
 import sizeMe, { SizeMeProps } from 'react-sizeme'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
@@ -130,6 +133,8 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
     }, [openViewsDispatch])
     const width = props.width || size.width || 600
     const height = props.height || 900
+    const launchIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSquare} type="outline" /></span>
+    const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
     return (
         <div className="MVSortingView">
             <Splitter
@@ -138,7 +143,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                 initialPosition={initialLeftPanelWidth}
             >
                 <div>
-                    <Expandable label="Launch" defaultExpanded={true}>
+                    <Expandable icon={launchIcon} label="Launch" defaultExpanded={true}>
                         <ViewLauncher
                             plugins={plugins}
                             onLaunchSortingView={handleLaunchSortingView}
@@ -146,7 +151,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                             selection={props.selection}
                         />
                     </Expandable>
-                    <Expandable label="Curate" defaultExpanded={true}>
+                    <Expandable icon={curationIcon} label="Curation" defaultExpanded={true}>
                         <CurationControl
                             curation={props.sorting.curation || {}}
                             curationDispatch={props.curationDispatch}

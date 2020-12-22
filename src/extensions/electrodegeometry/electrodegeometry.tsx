@@ -1,6 +1,8 @@
 // LABBOX-EXTENSION: electrodegeometry
 // LABBOX-EXTENSION-TAGS: jupyter
 
+import { faThLarge } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { FunctionComponent, useState } from 'react';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
@@ -53,13 +55,15 @@ export function activate(context: ExtensionContext) {
         priority: 50,
         defaultExpanded: false,
         component: ElectrodeGeometryRecordingView,
-        singleton: true
+        singleton: true,
+        icon: <FontAwesomeIcon icon={faThLarge} />
     })
     context.registerSortingView({
         name: 'ElectrodeGeometrySortingView',
         label: 'Electrode geometry',
         priority: 50,
         component: ElectrodeGeometrySortingView,
-        singleton: true
+        singleton: true,
+        icon: <FontAwesomeIcon icon={faThLarge} />
     })
 }

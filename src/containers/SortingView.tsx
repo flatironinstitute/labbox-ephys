@@ -170,8 +170,26 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   //   'paddingLeft': '20px'
   // }
 
-  const contentWrapperStyle = {
-    'marginLeft': 0
+  const W = props.width || 800
+  const H = props.height || 800
+
+  const headingHeight = 70
+
+  const headingStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: W,
+    height: headingHeight,
+    overflow: 'auto'
+  }
+
+  const contentWrapperStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: 0,
+    top: headingHeight,
+    width: W,
+    height: H - headingHeight
   }
 
   if (!sorting) {
@@ -187,25 +205,14 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
     <div>
-      <h3>
-        {`Sorting: ${sorting.sortingLabel} for `}
+      <div style={headingStyle}>
+        <h3>
+          {`Sorting: ${sorting.sortingLabel} for `}
           <Link to={`/${documentId}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
             {recording.recordingLabel}
           </Link>
-      </h3>
-      {/* {
-        (sortingInfoStatus === 'computing') ? (
-          <div><CircularProgress /></div>
-        ) : (
-          <SortingInfoView
-            sortingInfo={sorting.sortingInfo}
-            selections={selectedUnitIdsLookup}
-            onUnitClicked={handleUnitClicked}
-            curation={sorting.curation}
-            styling={sidebarStyle}
-          />
-        )
-      } */}
+        </h3>
+      </div>
       <div style={contentWrapperStyle}>
           <sv.component
             {...sv.props || {}}
@@ -219,34 +226,9 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             plugins={plugins}
             hither={hither}
             calculationPool={calculationPool}
-            width={props.width ? props.width : undefined}
-            height={props.height ? props.height - 80 : undefined}
+            width={W}
+            height={H - headingHeight}
           />
-        {/* {
-          sortByPriority(plugins.sortingViews).filter(v => (!v.disabled)).map(sv => {
-            return (
-              <Expandable
-                key={sv.name}
-                label={sv.label}
-                defaultExpanded={sv.defaultExpanded ? true : false}
-              >
-                <sv.component
-                  {...sv.props || {}}
-                  sorting={sorting}
-                  recording={recording}
-                  selection={selection}
-                  selectionDispatch={selectionDispatch}
-                  onUnitClicked={handleUnitClicked}
-                  curationDispatch={curationDispatch}
-                  readOnly={readOnly}
-                  plugins={plugins}
-                  hither={hither}
-                  calculationPool={calculationPool}
-                />
-              </Expandable>
-            )
-          })
-        } */}
       </div>
     </div>
   );

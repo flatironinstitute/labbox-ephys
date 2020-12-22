@@ -48,6 +48,7 @@ export interface LabboxPlugin {
     priority?: number
     disabled?: boolean
     development?: boolean
+    icon?: JSX.Element
 }
 
 export interface ViewPlugin extends LabboxPlugin {
@@ -345,12 +346,9 @@ export interface SortingUnitMetricPlugin extends MetricPlugin {
         useClientCache?: boolean,
         newHitherJobMethod?: boolean
     },
-    component: React.FunctionComponent<{record: any}>
-    getRecordValue: (record: any) => { 
-        numericValue: number, 
-        stringValue: string,
-        isNumeric: boolean
-    }
+    component: (record: any) => JSX.Element,
+    isNumeric: boolean,
+    getValue: (record: any) => number | string
 }
 
 export interface ExtensionContext {

@@ -1,18 +1,10 @@
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { SortingUnitMetricPlugin } from '../../../extensionInterface';
 
-const EventCount: FunctionComponent<{record: any}> = ({record}) => {
+const EventCount = (record: any) => {
     return (
-        <span>{record.count}</span>
+        <span>{record !== undefined ? record.count: ''}</span>
     );
-}
-
-const getRecordValue = (record: any) => {
-    return { 
-        numericValue: Number(record?.count ?? NaN), 
-        stringValue: '',
-        isNumeric: true
-    }
 }
 
 const plugin: SortingUnitMetricPlugin = {
@@ -28,7 +20,8 @@ const plugin: SortingUnitMetricPlugin = {
         newHitherJobMethod: true
     },
     component: EventCount,
-    getRecordValue: getRecordValue
+    isNumeric: true,
+    getValue: (record: any) => record.count
 }
 
 export default plugin

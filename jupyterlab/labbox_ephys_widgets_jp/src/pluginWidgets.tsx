@@ -74,11 +74,14 @@ class HitherJobManager {
         }
         delete this._activeJobs[clientJobId]
       }
+      else if (msg.type === 'debug') {
+        console.info('DEBUG MESSAGE', msg)
+      }
     })
   }
   createHitherJob(functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) {
-    console.warn('hitherCreateJob', functionName, kwargs, opts)
     const clientJobId: string = randomAlphaId()
+    console.info('hitherCreateJob', functionName, kwargs, opts, clientJobId)
     let localJob: HitherJob = {
       jobId: null,
       functionName,

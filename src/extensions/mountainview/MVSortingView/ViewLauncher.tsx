@@ -67,7 +67,7 @@ const LaunchSortingViewButton: FunctionComponent<LaunchSortingViewButtonProps> =
         onLaunch(plugin)
     }, [onLaunch, plugin])
     return (
-        <button onClick={handleClick} style={buttonStyle}>{plugin.label}</button>
+        <button onClick={handleClick} style={buttonStyle}>{plugin.icon && <span style={{paddingRight: 5}}>{plugin.icon}</span>}{plugin.label}</button>
     )
 }
 
@@ -83,7 +83,7 @@ const LaunchSortingUnitViewButton: FunctionComponent<LaunchSortingUnitViewButton
         onLaunch(plugin, unitId, label)
     }, [onLaunch, plugin, unitId, label])
     return (
-        <button onClick={handleClick} style={buttonStyle}>{label}</button>
+        <button onClick={handleClick} style={buttonStyle}>{plugin.icon && <span style={{paddingRight: 5}}>{plugin.icon}</span>}{label}</button>
     )
 }
 

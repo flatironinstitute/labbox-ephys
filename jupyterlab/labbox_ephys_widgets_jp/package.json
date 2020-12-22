@@ -54,6 +54,10 @@
     "copy-files": "copyfiles -u 1 src/**/*.css lib/"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-regular-svg-icons": "^5.15.1",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.13",
     "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3",
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
