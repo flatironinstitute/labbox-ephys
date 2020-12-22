@@ -120,11 +120,9 @@ class HitherJobManager {
           return
         }
         localOnFinished = (result: any) => {
-          console.log('---- finished', functionName, clientJobId)
           resolve(result)
         }
         localOnError = (error_message: string) => {
-          console.log('---- error', functionName, clientJobId)
           reject(new Error(error_message))
         }
       })

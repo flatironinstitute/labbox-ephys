@@ -161,7 +161,6 @@ const TableWidget: FunctionComponent<Props> = (props) => {
                         // the last one does not match this column, let's clear out all previous instances and add one
                         newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== columnName)), columnName]
                     }
-                    console.log('--- set sort field order', newSortFieldOrder)
                     setSortFieldOrder(newSortFieldOrder)
                 }}
             />
