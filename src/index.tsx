@@ -77,7 +77,7 @@ class ApiConnection {
   _queuedMessages: any[] = []
 
   constructor() {
-    const url = `ws://${window.location.hostname}:15309`;
+    const url = `ws://${window.location.hostname}:15308`;
 
     this._ws = new WebSocket(url);
     console.log(this._ws);

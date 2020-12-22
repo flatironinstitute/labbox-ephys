@@ -132,7 +132,7 @@ async def connection_handler(websocket, path):
     for task in pending:
         task.cancel()
 
-start_server = websockets.serve(connection_handler, '0.0.0.0', 15309)
+start_server = websockets.serve(connection_handler, '0.0.0.0', 15308)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

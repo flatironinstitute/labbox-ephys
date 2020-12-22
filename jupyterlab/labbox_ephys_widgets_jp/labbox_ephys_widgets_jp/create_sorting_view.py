@@ -62,13 +62,6 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
                     return
                 client_job_ids = getattr(job, '_client_job_ids', [])
                 client_job_ids.append(client_job_id)
-                self.send({
-                    'type': 'debug',
-                    'data': {
-                        'name': 'setting client job ids',
-                        'client_job_ids': client_job_ids
-                    }
-                })
                 setattr(job, '_client_job_ids', client_job_ids)
                 job_id = job._job_id
                 self._jobs_by_id[job_id] = job

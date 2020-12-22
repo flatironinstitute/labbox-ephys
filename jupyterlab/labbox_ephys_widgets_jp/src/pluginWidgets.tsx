@@ -77,9 +77,6 @@ class HitherJobManager {
       else if (msg.type === 'debug') {
         console.info('DEBUG MESSAGE', msg)
       }
-      else {
-        console.info('msg', msg)
-      }
     })
   }
   createHitherJob(functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) {
