@@ -3,7 +3,7 @@
 
 // Import the CSS
 import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyter-widgets/base';
-import React, { FunctionComponent, useEffect, useReducer } from 'react';
+import React, { FunctionComponent, useEffect, useReducer, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
@@ -196,32 +196,8 @@ interface PluginComponentWrapperProps {
 }
 
 const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool, model}) => {
-  let sorting: Sorting
-  let recording: Recording
-  if (sortingObject.sorting_format) {
-    sorting = {
-      sortingId: '',
-      sortingLabel: '',
-      sortingPath: '',
-      sortingObject,
-      recordingId: '',
-      recordingPath: '',
-      recordingObject,
-      sortingInfo
-    }
-    recording = {
-      recordingId: '',
-      recordingLabel: '',
-      recordingObject,
-      recordingPath: '',
-      recordingInfo
-    }
-  }
-  else {
-    const example = exampleSorting()
-    sorting = example.sorting
-    recording = example.recording
-  }
+  const [sorting, setSorting] = useState<Sorting | null>(null)
+  const [recording, setRecording] = useState<Recording | null>(null)
 
   // curation
   const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
@@ -231,27 +207,14 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       model.save_changes()
     }
   }, [curation, model])
-  model.on('change:curation', () => {
-    curationDispatch({
-      type: 'SetCuration',
-      curation: model.get('curation')
-    })
-  }, null)
-
-  // selection
-  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : {})
   useEffect(() => {
-    if (model.get('selection') !== selection) {
-      model.set('selection', selection)
-      model.save_changes()
-    }
-  }, [selection, model])
-  model.on('change:selection', () => {
-    selectionDispatch({
-      type: 'SetSelection',
-      selection: model.get('selection')
-    })
-  }, null)
+    model.on('change:curation', () => {
+      curationDispatch({
+        type: 'SetCuration',
+        curation: model.get('curation')
+      })
+    }, null)
+  }, [model])
 
   // externalUnitMetrics
   const [externalUnitMetrics, externalUnitMetricsDispatch] = useReducer(externalUnitMetricsReducer, model.get('externalUnitMetrics') ? model.get('externalUnitMetrics') : [])
@@ -261,15 +224,61 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       model.save_changes()
     }
   }, [externalUnitMetrics, model])
-  model.on('change:externalUnitMetrics', () => {
-    externalUnitMetricsDispatch({
-      type: 'SetExternalUnitMetrics',
-      externalUnitMetrics: model.get('externalUnitMetrics')
+  useEffect(() => {
+    model.on('change:externalUnitMetrics', () => {
+      externalUnitMetricsDispatch({
+        type: 'SetExternalUnitMetrics',
+        externalUnitMetrics: model.get('externalUnitMetrics')
+      })
+    }, null)
+  }, [model])
+
+  useEffect(() => {
+    setSorting({
+      sortingId: '',
+      sortingLabel: '',
+      sortingPath: '',
+      sortingObject,
+      recordingId: '',
+      recordingPath: '',
+      recordingObject,
+      sortingInfo,
+      curation,
+      externalUnitMetrics
     })
-  }, null)
+    setRecording({
+      recordingId: '',
+      recordingLabel: '',
+      recordingObject,
+      recordingPath: '',
+      recordingInfo
+    })
+  }, [setSorting, sortingObject, recordingObject, sortingInfo, recordingInfo, curation, externalUnitMetrics])
+
+  // selection
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : {})
+  useEffect(() => {
+    if (model.get('selection') !== selection) {
+      model.set('selection', selection)
+      model.save_changes()
+    }
+  }, [selection, model])
+  useEffect(() => {
+    model.on('change:selection', () => {
+      selectionDispatch({
+        type: 'SetSelection',
+        selection: model.get('selection')
+      })
+    }, null)
+  }, [model])
+
+  if (!sorting) {
+    return <div>No sorting</div>
+  }
+  if (!recording) {
+    return <div>No recording</div>
+  }
   
-  sorting.curation = curation
-  sorting.externalUnitMetrics = externalUnitMetrics
   return (
     <plugin.component
       sorting={sorting}
@@ -390,18 +399,12 @@ export class RecordingView extends DOMWidgetView {
       }
     }
 
-    let recording: Recording
-    if (recordingObject.recording_format) {
-      recording = {
-        recordingId: '',
-        recordingLabel: '',
-        recordingObject,
-        recordingPath: '',
-        recordingInfo
-      }
-    }
-    else {
-      recording = example.recording
+    const recording = {
+      recordingId: '',
+      recordingLabel: '',
+      recordingObject,
+      recordingPath: '',
+      recordingInfo
     }
 
     const plugins: Plugins = {
