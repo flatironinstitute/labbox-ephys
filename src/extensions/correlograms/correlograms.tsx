@@ -3,8 +3,7 @@
 
 import { ExtensionContext } from "../extensionInterface";
 import AutoCorrelograms from "./AutoCorrelograms";
-import AutocorrelogramSortingUnitView from "./AutocorrelogramSortingUnitView";
-import CrossCorrelograms from "./CrossCorrelograms";
+import CrossCorrelogramsView from "./CrossCorrelogramsView/CrossCorrelogramsView";
 
 export function activate(context: ExtensionContext) {
     context.registerSortingView({
@@ -17,12 +16,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'CrossCorrelograms',
         label: 'Cross-Correlograms',
-        component: CrossCorrelograms,
+        component: CrossCorrelogramsView,
         singleton: false
-    })
-    context.registerSortingUnitView({
-        name: 'AutocorrelogramSortingUnitView',
-        label: 'Autocorrelogram',
-        component: AutocorrelogramSortingUnitView
     })
 }

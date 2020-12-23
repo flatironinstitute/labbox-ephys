@@ -69,7 +69,7 @@ export const handleHitherJobFinished = (msg: any) => {
     result: msg.result,
     runtime_info: msg.runtime_info
   })
-  dispatchUpdateHitherJob({jobId: job._jobId, update: job.object()});
+  dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
 }
 
 export const handleHitherJobError = (msg: any) => {
@@ -78,16 +78,16 @@ export const handleHitherJobError = (msg: any) => {
     console.warn(`job not found (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
     return;
   }
-  const jobId = job._jobId
-  if (!jobId) {
-    console.warn(`no _jobId (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
-    return;
-  }
+  // const jobId = job._jobId
+  // if (!jobId) {
+  //   console.warn(`no _jobId (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
+  //   return;
+  // }
   job._handleHitherJobError({
     errorString: msg.error_message,
     runtime_info: msg.runtime_info
   })
-  dispatchUpdateHitherJob({jobId, update: job.object()});
+  dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
 }
 
 const dispatchAddHitherJob = (job: HitherJob) => {
@@ -98,7 +98,7 @@ const dispatchAddHitherJob = (job: HitherJob) => {
   globalData.dispatch(addHitherJob(job));
 }
 
-const dispatchUpdateHitherJob = (args: { jobId: string, update: HitherJobUpdate} ) => {
+const dispatchUpdateHitherJob = (args: { clientJobId: string, update: HitherJobUpdate} ) => {
   if (!globalData.dispatch) return;
   globalData.dispatch(updateHitherJob(args));
 }

@@ -7,8 +7,8 @@ export const addHitherJob = (job: HitherJob): RootAction => ({
     job: job
 })
 
-export const updateHitherJob = (args: { jobId: string, update: HitherJobUpdate}): RootAction => ({
+export const updateHitherJob = (args: { clientJobId: string, update: HitherJobUpdate}): RootAction => ({
     type: 'UPDATE_HITHER_JOB',
-    jobId: args.jobId,
+    clientJobId: args.clientJobId,
     update: args.update
 })
