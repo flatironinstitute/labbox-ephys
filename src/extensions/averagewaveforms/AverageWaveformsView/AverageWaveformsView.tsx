@@ -25,7 +25,6 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = ({recording, s
             plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
             })}
-            newHitherJobMethod={true}
             calculationPool={calculationPool}
             hither={hither}
         />

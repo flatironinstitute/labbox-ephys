@@ -99,18 +99,31 @@ class WorkerSession:
         elif type0 == 'hitherCreateJob':
             functionName = msg['functionName']
             kwargs = msg['kwargs']
-            opts = msg['opts']
             client_job_id = msg['clientJobId']
-            if opts.get('newHitherJobMethod', False):
-                try:
-                    job = hi.run(functionName, **kwargs, labbox=self._labbox_context).wait()
-                except Exception as err:
-                    self._send_message({
-                        'type': 'hitherJobCreationError',
-                        'client_job_id': client_job_id,
-                        'error': str(err) + ' (new method)'
-                    })
-                    return
+            try:
+                outer_job = hi.run(functionName, **kwargs, labbox=self._labbox_context)
+            except Exception as err:
+                self._send_message({
+                    'type': 'hitherJobError',
+                    'job_id': client_job_id,
+                    'client_job_id': client_job_id,
+                    'error_message': f'Error creating outer job: {str(err)}',
+                    'runtime_info': None
+                })
+                return
+            try:
+                job_or_result = outer_job.wait()
+            except Exception as err:
+                self._send_message({
+                    'type': 'hitherJobError',
+                    'job_id': outer_job._job_id,
+                    'client_job_id': client_job_id,
+                    'error_message': str(err),
+                    'runtime_info': outer_job.get_runtime_info()
+                })
+                return
+            if hasattr(job_or_result, '_job_id'):
+                job = job_or_result
                 setattr(job, '_client_job_id', client_job_id)
                 job_id = job._job_id
                 self._jobs_by_id[job_id] = job
@@ -121,37 +134,14 @@ class WorkerSession:
                     'client_job_id': client_job_id
                 })
             else:
-                hither_config = opts.get('hither_config', {})
-                job_handler_name = opts.get('job_handler_name', 'default')
-                required_files = opts.get('required_files', {})
-                jh = self._get_job_handler_from_name(job_handler_name)
-                hither_config['job_handler'] = jh
-                hither_config['required_files'] = required_files
-                if hither_config['job_handler'].is_remote:
-                    hither_config['container'] = True
-                if 'use_job_cache' in hither_config:
-                    if hither_config['use_job_cache']:
-                        hither_config['job_cache'] = self._default_job_cache
-                    del hither_config['use_job_cache']
-                with hi.Config(**hither_config):
-                    try:
-                        job = hi.run(functionName, **kwargs)
-                    except Exception as err:
-                        self._send_message({
-                            'type': 'hitherJobCreationError',
-                            'client_job_id': client_job_id,
-                            'error': str(err) + ' (old method)'
-                        })
-                        return
-                    setattr(job, '_client_job_id', client_job_id)
-                    job_id = job._job_id
-                    self._jobs_by_id[job_id] = job
-                    print(f'======== Created hither job: {job_id} {functionName} ({job_handler_name})')
-                self._send_message({
-                    'type': 'hitherJobCreated',
-                    'job_id': job_id,
-                    'client_job_id': client_job_id
-                })
+                result = job_or_result
+                msg = {
+                    'type': 'hitherJobFinished',
+                    'client_job_id': client_job_id,
+                    'job_id': client_job_id,
+                    'result': _make_json_safe(result),
+                    'runtime_info': outer_job.get_runtime_info()
+                }
         elif type0 == 'hitherCancelJob':
             job_id = msg['job_id']
             assert job_id, 'Missing job_id'

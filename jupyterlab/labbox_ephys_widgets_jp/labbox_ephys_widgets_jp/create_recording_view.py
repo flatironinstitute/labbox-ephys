@@ -13,16 +13,25 @@ from traitlets import Unicode
 
 from ._frontend import module_name, module_version
 
-
-class LabboxContext:
-    def __init__(self):
-        self._job_cache = hi.JobCache(use_tempdir=True)
-        self._job_handler = hi.ParallelJobHandler(4)
-    def get_default_job_cache(self):
-        return self._job_cache
-    def get_job_handler(self, job_handler_name):
-        return self._job_handler
-labbox_context = LabboxContext()
+labbox_config = {
+        'job_handlers': {
+            'default': {
+                'type': 'local'
+            },
+            'partition1': {
+                'type': 'local'
+            },
+            'partition2': {
+                'type': 'local'
+            },
+            'partition3': {
+                'type': 'local'
+            },
+            'timeseries': {
+                'type': 'local'
+            }
+        }
+    }
 
 def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordingExtractor):
     class RecordingView(DOMWidget):
@@ -37,101 +46,15 @@ def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordin
         recordingInfo = DictTrait(le.get_recording_info(recording_object=recording.object())).tag(sync=True)
         def __init__(self) -> None:
             super().__init__()
-            self._jobs_by_id: Dict[str, HitherJob] = {}
             self.on_msg(self._handle_message)
+            self._worker_session = le.WorkerSession(labbox_config=labbox_config)
+            def on_msg(msg):
+                self.send(msg)
+            self._worker_session.on_message(on_msg)
         def _handle_message(self, widget, msg, buffers):
-            if msg['type'] == 'hitherCreateJob':
-                functionName = msg['functionName']
-                kwargs = msg['kwargs']
-                opts = msg['opts']
-                client_job_id = msg['clientJobId']
-                self.send(dict(type='test 2'))
-                try:
-                    job: HitherJob = hi.run(functionName, **kwargs, labbox=labbox_context).wait()
-                except Exception as err:
-                    self.send({
-                        'type': 'hitherJobCreationError',
-                        'client_job_id': client_job_id,
-                        'error': str(err) + ' (new method)'
-                    })
-                    return
-                client_job_ids = getattr(job, '_client_job_ids', [])
-                client_job_ids.append(client_job_id)
-                setattr(job, '_client_job_ids', client_job_ids)
-                job_id = job._job_id
-                self._jobs_by_id[job_id] = job
-                print(f'======== Created hither job (2): {job_id} {functionName}')
-                self.send({
-                    'type': 'hitherJobCreated',
-                    'job_id': job_id,
-                    'client_job_id': client_job_id
-                })
-                self._iterate()
-            elif msg['type'] == 'iterate':
-                self._iterate()
-        def _iterate(self):
-            hi.wait(0)
-            job_ids = list(self._jobs_by_id.keys())
-            self.send(dict(type='iterating', job_ids=job_ids))
-            for job_id in job_ids:
-                job: HitherJob = self._jobs_by_id[job_id]
-                self.send(dict(type='getting status', a=str(job)))
-                status0 = job.get_status()
-                self.send(dict(type='status', status=status0.value))
-                if status0 == hi.JobStatus.FINISHED:
-                    print(f'======== Finished hither job: {job_id} {job.get_label()}')
-                    result = job.get_result()
-                    runtime_info = job.get_runtime_info()
-                    del self._jobs_by_id[job_id]
-                    for client_job_id in job._client_job_ids:
-                        msg = {
-                            'type': 'hitherJobFinished',
-                            'client_job_id': client_job_id,
-                            'job_id': job_id,
-                            'result': _make_json_safe(result),
-                            'runtime_info': runtime_info
-                        }
-                        self.send(msg)
-                elif status0 == hi.JobStatus.ERROR:
-                    exc = job.get_exception()
-                    runtime_info = job.get_runtime_info()
-                    del self._jobs_by_id[job_id]
-                    for client_job_id in job._client_job_ids:
-                        msg = {
-                            'type': 'hitherJobError',
-                            'job_id': job_id,
-                            'client_job_id': client_job_id,
-                            'error_message': str(exc),
-                            'runtime_info': runtime_info
-                        }
-                        self.send(msg)
+            if msg['type'] == 'iterate':
+                self._worker_session.iterate()
+            else:
+                self._worker_session.handle_message(msg)
     X = RecordingView()
     return X
-
-def _make_json_safe(x):
-    if isinstance(x, np.integer):
-        return int(x)
-    elif isinstance(x, np.floating):
-        return float(x)
-    elif type(x) == dict:
-        ret = dict()
-        for key, val in x.items():
-            ret[key] = _make_json_safe(val)
-        return ret
-    elif (type(x) == list) or (type(x) == tuple):
-        return [_make_json_safe(val) for val in x]
-    elif isinstance(x, np.ndarray):
-        raise Exception('Cannot make ndarray json safe')
-    else:
-        if _is_jsonable(x):
-            # this will capture int, float, str, bool
-            return x
-    raise Exception(f'Item is not json safe: {type(x)}')
-
-def _is_jsonable(x) -> bool:
-    import json
-    try:
-        json.dumps(x)
-        return True
-    except:
-        return False

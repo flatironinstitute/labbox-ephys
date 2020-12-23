@@ -31,9 +31,6 @@ const SimilarUnit: FunctionComponent<{
                             title="Autocorrelogram"
                             PlotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId}}
-                            newHitherJobMethod={true}
-                            useJobCache={true}
-                            requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             hither={hither}
                         />
@@ -54,9 +51,6 @@ const SimilarUnit: FunctionComponent<{
                             title={`Unit ${unitId} vs ${compareUnitId}`}
                             PlotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId+'-'+compareUnitId}}
-                            newHitherJobMethod={true}
-                            useJobCache={true}
-                            requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             hither={hither}
                         />
@@ -76,9 +70,6 @@ const SimilarUnit: FunctionComponent<{
                             }}
                             PlotComponent={AverageWaveform_rv}
                             plotComponentArgs={{id: unitId}}
-                            newHitherJobMethod={true}
-                            useJobCache={true}
-                            requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             title=""
                             hither={hither}
@@ -99,9 +90,6 @@ const SimilarUnit: FunctionComponent<{
                             }}
                             PlotComponent={PCAFeatures_rv}
                             plotComponentArgs={{id: unitId}}
-                            newHitherJobMethod={true}
-                            useJobCache={true}
-                            requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             title=""
                             hither={hither}
@@ -122,9 +110,6 @@ const SimilarUnit: FunctionComponent<{
                             }}
                             PlotComponent={DriftFeatures_rv}
                             plotComponentArgs={{id: unitId}}
-                            newHitherJobMethod={true}
-                            useJobCache={true}
-                            requiredFiles={sorting.sortingObject}
                             calculationPool={calculationPool}
                             title=""
                             hither={hither}

@@ -9,7 +9,7 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, externalUnitMetricsReducer, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -81,7 +81,6 @@ class HitherJobManager {
   }
   createHitherJob(functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) {
     const clientJobId: string = randomAlphaId()
-    console.info('hitherCreateJob', functionName, kwargs, opts, clientJobId)
     let localJob: HitherJob = {
       jobId: null,
       functionName,
@@ -108,7 +107,7 @@ class HitherJobManager {
       localJob.runtime_info = runtime_info
       if (localOnError) localOnError(error_message)
     }
-    this.model.send({type: 'hitherCreateJob', functionName, kwargs, opts, clientJobId}, {})
+    this.model.send({type: 'hitherCreateJob', functionName, kwargs, clientJobId}, {})
     const _wait = () => {
       return new Promise((resolve, reject) => {
         if (localJob.result) {
@@ -325,7 +324,7 @@ export class SortingView extends DOMWidgetView {
         recordingObject={recordingObject}
         sortingInfo={sortingInfo}
         recordingInfo={recordingInfo}
-        plugins={plugins}
+        plugins={filterPlugins(plugins)}
         calculationPool={calculationPool}
         model={this.model}
       />

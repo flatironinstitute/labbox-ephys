@@ -23,9 +23,7 @@ const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, 
             plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
             })}
-            newHitherJobMethod={true}
             calculationPool={autocorrelogramsCalculationPool}
-            useJobCache={true}
             hither={hither}
         />
     );

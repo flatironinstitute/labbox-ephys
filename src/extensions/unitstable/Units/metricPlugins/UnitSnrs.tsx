@@ -14,9 +14,7 @@ const plugin: SortingUnitMetricPlugin = {
     tooltip: 'Unit SNR (peak-to-peak amp of mean waveform / est. std. dev on peak chan)',
     hitherFnName: 'createjob_get_unit_snrs',
     metricFnParams: {},
-    hitherConfig: {
-        wait: true,
-        newHitherJobMethod: true,
+    hitherOpts: {
         useClientCache: true
     },
     component: UnitSnrs,

@@ -66,7 +66,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   //     const sortingInfo = await createHitherJob(
   //       'createjob_get_sorting_info',
   //       { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-  //       { kachery_config: {}, useClientCache: true, wait: true, newHitherJobMethod: true}
+  //       { kachery_config: {}, useClientCache: true }
   //     );
   //     onSetSortingInfo({ sortingId, sortingInfo });
   //     setSortingInfoStatus('finished');
@@ -80,7 +80,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       hither.createHitherJob(
         'createjob_get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { useClientCache: true, newHitherJobMethod: true}
+        { useClientCache: true }
       ).wait().then((sortingInfo: any) => {
         onSetSortingInfo({ sortingId, sortingInfo: sortingInfo as SortingInfo });
         setSortingInfoStatus('finished');
@@ -94,7 +94,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       hither.createHitherJob(
         'fetch_external_sorting_unit_metrics',
         { uri: sorting.externalUnitMetricsUri },
-        { useClientCache: true, newHitherJobMethod: true}
+        { useClientCache: true }
       ).wait().then((externalUnitMetrics: any) => {
         onSetExternalUnitMetrics({ sortingId, externalUnitMetrics: externalUnitMetrics as ExternalSortingUnitMetric[] });
         setExternalUnitMetricsStatus('finished');

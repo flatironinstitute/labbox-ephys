@@ -14,10 +14,8 @@ const plugin: SortingUnitMetricPlugin = {
     tooltip: 'Number of firing events',
     hitherFnName: 'createjob_get_firing_data',
     metricFnParams: {},
-    hitherConfig: {
-        wait: true,
-        useClientCache: true,
-        newHitherJobMethod: true
+    hitherOpts: {
+        useClientCache: true
     },
     component: EventCount,
     isNumeric: true,

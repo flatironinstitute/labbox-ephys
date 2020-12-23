@@ -14,10 +14,9 @@ import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
 import { sleepMsec } from './extensions/common/misc';
 import './index.css';
-import './localStyles.css';
 // reducer
 import rootReducer, { RootState } from './reducers';
-import { handleHitherJobCreated, handleHitherJobCreationError, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
+import { handleHitherJobCreated, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
 import registerExtensions from './registerExtensions';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -168,9 +167,6 @@ apiConnection.onMessage(msg => {
   }
   else if (type0 === 'hitherJobCreated') {
     handleHitherJobCreated(msg);
-  }
-  else if (type0 === 'hitherJobCreationError') {
-    handleHitherJobCreationError(msg);
   }
   else {
     console.warn(`Unregognized message type from server: ${type0}`)

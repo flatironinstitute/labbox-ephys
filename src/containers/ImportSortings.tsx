@@ -154,7 +154,7 @@ const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAd
                         recording_object: recordingObject
                     },
                     {
-                        useClientCache: false
+                        useClientCache: false // todo: maybe this should be true?
                     }
                 ).wait()
                 setSortingObject(obj);
@@ -162,9 +162,7 @@ const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAd
                     'get_sorting_info',
                     { sorting_object: obj, recording_object: recordingObject },
                     {
-                        job_handler_name: 'default',
-                        auto_substitute_file_objects: true,
-                        useClientCache: false
+                        useClientCache: false // todo: maybe this should be true?
                     }
                 ).wait() as SortingInfo
                 setSortingInfo(info);

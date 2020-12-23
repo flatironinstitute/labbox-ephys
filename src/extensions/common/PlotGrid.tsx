@@ -2,6 +2,7 @@ import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
 import { CalculationPool, HitherContext, Sorting } from '../extensionInterface';
 import ClientSidePlot from './ClientSidePlot';
+import './localStyles.css';
 
 const isSelected = (query: string, selections: {[key: string]: boolean} = {}) => (selections[query] ? true : false);
 
@@ -14,8 +15,6 @@ interface Props {
     boxSize?: { width: number, height: number}
     plotComponent: React.FunctionComponent<any>
     plotComponentArgsCallback: any
-    newHitherJobMethod: boolean
-    useJobCache?: boolean
     calculationPool: CalculationPool | undefined
     hither: HitherContext
 }
@@ -24,8 +23,6 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
     dataFunctionName, dataFunctionArgsCallback, // fix this
     boxSize = { width: 200, height: 200},
     plotComponent, plotComponentArgsCallback, // fix this
-    newHitherJobMethod = false,
-    useJobCache = false,
     calculationPool = undefined,
     hither
 }) => {
@@ -59,8 +56,6 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                                         boxSize={boxSize}
                                         PlotComponent={plotComponent}
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
-                                        useJobCache={useJobCache}
-                                        newHitherJobMethod={newHitherJobMethod}
                                         calculationPool={calculationPool}
                                         title=""
                                         hither={hither}

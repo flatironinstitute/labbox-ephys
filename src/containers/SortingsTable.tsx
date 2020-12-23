@@ -53,8 +53,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
                             'createjob_get_sorting_info',
                             { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
                             {
-                                useClientCache: true,
-                                newHitherJobMethod: true
+                                useClientCache: true
                             }
                         )
                         info = await sortingInfoJob.wait() as SortingInfo;

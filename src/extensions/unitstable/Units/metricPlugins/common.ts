@@ -12,11 +12,6 @@ export interface MetricPlugin {
     metricFnParams: {[key: string]: any}
     hitherConfig: {
         useClientCache: boolean,
-        newHitherJobMethod?: boolean,
-        auto_substitute_file_objects?: boolean,
-        hither_config?: {
-            use_job_cache: boolean
-        },
         job_handler_name?: string
     }
     component: React.ComponentType<{record: any}>

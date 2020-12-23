@@ -117,12 +117,7 @@ class SpikeAmplitudesPanel {
                 unit_id: this.args.unitId
             },
             {
-                newHitherJobMethod: true,
-                useClientCache: true,
-                required_files: {
-                    sortingObject: this.args.sorting.sortingObject,
-                    recordingObject: this.args.recording.recordingObject
-                }
+                useClientCache: true
             }
         ).wait()
         this._timepoints = result.timepoints as number[]

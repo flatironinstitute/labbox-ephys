@@ -34,9 +34,6 @@ const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, un
             }}
             PlotComponent={PCAFeatures_rv}
             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
-            newHitherJobMethod={true}
-            useJobCache={true}
-            requiredFiles={sorting.sortingObject}
             calculationPool={calculationPool}
             title=""
             hither={hither}
@@ -62,9 +59,6 @@ const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: 
             }}
             PlotComponent={DriftFeatures_rv}
             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
-            newHitherJobMethod={true}
-            useJobCache={true}
-            requiredFiles={sorting.sortingObject}
             calculationPool={calculationPool}
             title=""
             hither={hither}
@@ -93,9 +87,6 @@ const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recordin
                 title="Example waveforms"
                 PlotComponent={SpikeWaveforms_rv}
                 plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
-                newHitherJobMethod={true}
-                useJobCache={true}
-                requiredFiles={sorting.sortingObject}
                 calculationPool={calculationPool}
                 // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
                 hither={hither}
@@ -190,9 +181,6 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
     //                                 }}
     //                                 PlotComponent={SpikeWaveforms_rv}
     //                                 plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
-    //                                 newHitherJobMethod={true}
-    //                                 useJobCache={true}
-    //                                 requiredFiles={sorting.sortingObject}
     //                                 calculationPool={calculationPool}
     //                                 // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
     //                                 title=""

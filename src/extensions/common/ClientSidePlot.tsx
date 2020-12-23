@@ -6,19 +6,18 @@ import { CalculationPool, HitherContext } from '../extensionInterface';
 const ClientSidePlot: FunctionComponent<{
     dataFunctionName: string,
     dataFunctionArgs: {[key: string]: any},
-    useJobCache?: boolean,
-    newHitherJobMethod?: boolean,
-    requiredFiles?: {[key: string]: any},
     calculationPool?: CalculationPool,
     boxSize: {width: number, height: number},
     PlotComponent: React.FunctionComponent<{boxSize: {width: number, height: number}, plotData: any, argsObject: {[key: string]: any}, title: string}>,
     plotComponentArgs: {[key: string]: any},
     title: string,
     hither: HitherContext
-}> = ({ dataFunctionName, dataFunctionArgs, useJobCache, newHitherJobMethod, requiredFiles,
+}> = ({
+    dataFunctionName, dataFunctionArgs,
     calculationPool,
     boxSize = { width: 200, height: 200 },
-    PlotComponent, plotComponentArgs, title, hither }) => {
+    PlotComponent, plotComponentArgs, title, hither
+}) => {
     const [calculationStatus, setCalculationStatus] = useState<string>('waitingForVisible');
     const [calculationError, setCalculationError] = useState<string | null>(null);
     const [plotData, setPlotData] = useState<any | null>(null);
@@ -35,14 +34,7 @@ const ClientSidePlot: FunctionComponent<{
                     dataFunctionName,
                     dataFunctionArgs,
                     {
-                        auto_substitute_file_objects: true,
-                        useClientCache: true,
-                        hither_config: {
-                            use_job_cache: useJobCache ? true : false
-                        },
-                        newHitherJobMethod: newHitherJobMethod ? true : false,
-                        job_handler_name: 'default',
-                        required_files: requiredFiles || {}
+                        useClientCache: true
                     }
                 ).wait()
             }

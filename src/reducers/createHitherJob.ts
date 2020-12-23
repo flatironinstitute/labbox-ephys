@@ -226,14 +226,7 @@ class ClientHitherJob {
 }
 
 interface HitherJobOpts {
-  useClientCache?: boolean,
-  newHitherJobMethod?: boolean,
-  job_handler_name?: string,
-  auto_substitute_file_objects?: boolean,
-  hither_config?: {
-    use_job_cache: boolean
-  },
-  required_files?: any
+  useClientCache?: boolean
 }
 
 const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
@@ -261,7 +254,6 @@ const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opt
     type: 'hitherCreateJob',
     functionName: J._functionName,
     kwargs: J._kwargs,
-    opts: J._opts,
     clientJobId: J._clientJobId
   })
 

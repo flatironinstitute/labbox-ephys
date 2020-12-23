@@ -234,12 +234,7 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
 ////////////////////
 
 export interface HitherJobOpts {
-    useClientCache?: boolean,
-    auto_substitute_file_objects?: boolean,
-    hither_config?: any,
-    newHitherJobMethod?: boolean,
-    job_handler_name?: string,
-    required_files?: any
+    useClientCache?: boolean
 }
 
 export interface HitherJob {
@@ -336,15 +331,8 @@ export interface SortingUnitMetricPlugin extends MetricPlugin {
     tooltip: string,
     hitherFnName: string,
     metricFnParams: {[key: string]: any},
-    hitherConfig: {
-        auto_substitute_file_objects?: boolean,
-        hither_config?: {
-            use_job_cache: boolean
-        },
-        job_handler_name?: string
-        wait?: boolean,
-        useClientCache?: boolean,
-        newHitherJobMethod?: boolean
+    hitherOpts: {
+        useClientCache?: boolean
     },
     component: (record: any) => JSX.Element,
     isNumeric: boolean,

@@ -19,9 +19,6 @@ const AutocorrelogramSortingUnitView: FunctionComponent<{sorting: Sorting, unitI
             title="Autocorrelogram"
             PlotComponent={Correlogram_rv}
             plotComponentArgs={{ id: unitId }}
-            newHitherJobMethod={true}
-            useJobCache={true}
-            requiredFiles={sorting.sortingObject}
             calculationPool={calculationPool}
             hither={hither}
         />
