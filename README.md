@@ -2,11 +2,14 @@
 
 ![labbox-ephys-install-tests](https://github.com/laboratorybox/labbox-ephys/workflows/labbox-ephys-install-tests/badge.svg?branch=master)
 
-**Under development** (and seeking helpers for this open source project)
-
 Analysis and visualization of neurophysiology recordings and spike sorting results.
 
-Experimental jupyterlab extension: [labbox_ephys_widgets_jp](doc/labbox_ephys_widgets_jp.md)
+There are three ways to use labbox-ephys:
+
+* [As a jupyterlab extension](./doc/labbox_ephys_widgets_jp.md)
+* [As a dockerized web server and local web browser](./doc/docker_instructions.md)
+
+Experimental jupyterlab extension: 
 
 ## Installation and basic usage
 
