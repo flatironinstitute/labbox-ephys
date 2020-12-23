@@ -6,8 +6,7 @@ export const getRecordingInfo = async (a: {recordingObject: any, hither: HitherC
         'createjob_get_recording_info',
         { recording_object: a.recordingObject },
         {
-            useClientCache: true,
-            newHitherJobMethod: true
+            useClientCache: true
         }
     )
     const info = await recordingInfoJob.wait();

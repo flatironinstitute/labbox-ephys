@@ -43,9 +43,7 @@ def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordin
             if msg['type'] == 'hitherCreateJob':
                 functionName = msg['functionName']
                 kwargs = msg['kwargs']
-                opts = msg['opts']
                 client_job_id = msg['clientJobId']
-                self.send(dict(type='test 2'))
                 try:
                     job: HitherJob = hi.run(functionName, **kwargs, labbox=labbox_context).wait()
                 except Exception as err:

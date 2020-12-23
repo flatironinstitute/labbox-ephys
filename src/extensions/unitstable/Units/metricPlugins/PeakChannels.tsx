@@ -14,9 +14,7 @@ const plugin: SortingUnitMetricPlugin = {
     tooltip: 'ID of channel where the peak-to-peak amplitude is maximal',
     hitherFnName: 'createjob_get_peak_channels',
     metricFnParams: {},
-    hitherConfig: {
-        wait: true,
-        newHitherJobMethod: true,
+    hitherOpts: {
         useClientCache: true
     },
     component: PeakChannels,

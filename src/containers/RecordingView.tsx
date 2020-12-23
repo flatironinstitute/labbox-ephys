@@ -8,7 +8,7 @@ import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { HitherContext, Plugins } from '../extensions/extensionInterface';
+import { filterPlugins, HitherContext, Plugins } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -103,7 +103,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
   documentInfo: state.documentInfo,
-  plugins: state.plugins,
+  plugins: filterPlugins(state.plugins),
   hither: state.hitherContext
 })
   

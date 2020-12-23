@@ -19,9 +19,6 @@ const AverageWaveformSortingUnitView: FunctionComponent<{sorting: Sorting, recor
             }}
             PlotComponent={AverageWaveform_rv}
             plotComponentArgs={{ id: unitId }}
-            newHitherJobMethod={true}
-            useJobCache={true}
-            requiredFiles={sorting.sortingObject}
             calculationPool={calculationPool}
             title=""
             hither={hither}

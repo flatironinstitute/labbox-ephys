@@ -24,7 +24,6 @@ const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = (
             plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
             })}
-            newHitherJobMethod={true}
             calculationPool={averageWaveformsCalculationPool}
             hither={hither}
         />

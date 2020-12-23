@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import './localStyles.css';
 
 interface Props {
     unitId: number

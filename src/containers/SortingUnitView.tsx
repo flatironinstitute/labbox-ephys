@@ -48,7 +48,7 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
       const sortingInfo = await hither.createHitherJob(
         'createjob_get_sorting_info',
         { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { useClientCache: true, newHitherJobMethod: true}
+        { useClientCache: true }
       ).wait() as SortingInfo;
       setSortingInfo(sortingInfo);
       setSortingInfoStatus('finished');
@@ -120,8 +120,7 @@ const SimilarUnitsView: FunctionComponent<{
             recording_object: recording.recordingObject
           },
           {
-            useClientCache: true,
-            newHitherJobMethod: true
+            useClientCache: true
           }
         ).wait()
         setSimilarUnits(x[unitId]);

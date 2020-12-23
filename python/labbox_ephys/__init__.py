@@ -3,6 +3,7 @@ __version__ = "0.4.5"
 import os
 import sys
 
+from .api._workersession import WorkerSession
 from .extensions import *
 from .extractors import (LabboxEphysRecordingExtractor,
                          LabboxEphysSortingExtractor, MdaRecordingExtractor,

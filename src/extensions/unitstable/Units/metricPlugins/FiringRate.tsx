@@ -13,12 +13,10 @@ const plugin: SortingUnitMetricPlugin = {
     columnLabel: 'Firing rate (Hz)',
     tooltip: 'Average num. events per second',
     hitherFnName: 'createjob_get_firing_data',
-    metricFnParams: {},
-    hitherConfig: {
-        wait: true,
-        useClientCache: true,
-        newHitherJobMethod: true
+    hitherOpts: {
+        useClientCache: true
     },
+    metricFnParams: {},
     component: FiringRate,
     isNumeric: true,
     getValue: (record: any) => record.count

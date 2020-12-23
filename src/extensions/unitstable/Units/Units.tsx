@@ -98,16 +98,14 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps & SizeMeProps> 
         // new request. Add state to cache, dispatch job, then update state as results come back.
         updateMetrics({metricName: metric.name, status: 'executing'})
         try {
-            const data = await hither.createHitherJob(metric.hitherFnName,
+            const data = await hither.createHitherJob(
+                metric.hitherFnName,
                 {
                     sorting_object: sorting.sortingObject,
                     recording_object: recording.recordingObject,
                     configuration: metric.metricFnParams
                 },
-                {
-                    ...metric.hitherConfig,
-                    required_files: sorting.sortingObject
-                }
+                metric.hitherOpts
             ).wait();
             updateMetrics({metricName: metric.name, status: 'completed', data})
         } catch (err) {

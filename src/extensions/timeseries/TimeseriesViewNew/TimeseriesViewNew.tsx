@@ -86,10 +86,7 @@ const TimeseriesViewNew = (props: Props) => {
                                 segment_size: info.segment_size
                             },
                             {
-                                job_handler_name: 'timeseries',
-                                useClientCache: true,
-                                auto_substitute_file_objects: false,
-                                newHitherJobMethod: true
+                                useClientCache: true
                             }
                         ).wait() as {data_b64: string}
                     }
@@ -173,13 +170,7 @@ const calculateTimeseriesInfo = async (recordingObject: RecordingObject, hither:
             'createjob_calculate_timeseries_info',
             { recording_object: recordingObject },
             {
-                hither_config: {
-                    use_job_cache: true
-                },
-                job_handler_name: 'timeseries',
-                useClientCache: true,
-                auto_substitute_file_objects: false,
-                newHitherJobMethod: true
+                useClientCache: true
             }
         ).wait() as TimeseriesInfo
     }
