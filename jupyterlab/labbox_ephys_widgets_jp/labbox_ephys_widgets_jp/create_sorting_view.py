@@ -1,5 +1,6 @@
 import os
 import sys
+from copy import deepcopy
 from typing import Dict
 
 import hither as hi
@@ -57,6 +58,18 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
             def on_msg(msg):
                 self.send(msg)
             self._worker_session.on_message(on_msg)
+        def get_selection(self):
+            return deepcopy(self.selection)
+        def set_selection(self, selection):
+            self.selection = deepcopy(selection)
+        def get_curation(self):
+            return deepcopy(self.curation)
+        def set_curation(self, curation):
+            self.curation = deepcopy(curation)
+        def get_external_unit_metrics(self):
+            return deepcopy(self.externalUnitMetrics)
+        def set_external_unit_metrics(self, external_unit_metrics):
+            self.externalUnitMetrics = deepcopy(external_unit_metrics)
         def _handle_message(self, widget, msg, buffers):
             if msg['type'] == 'iterate':
                 self._worker_session.iterate()

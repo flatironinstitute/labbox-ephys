@@ -50,7 +50,7 @@ const CrossCorrelogramsWidget: FunctionComponent<Props> = ({ sorting, unitIds, h
 
     const renderRow = ( pairs: {xkey: number, ykey: number}[], plotWidth: number ) => {
         return (
-            <Grid key={'range-'+pairs[0].ykey+'-to-'+pairs[pairs.length -1].ykey} spacing={0}>
+            <Grid key={'range-'+pairs[0].ykey+'-to-'+pairs[pairs.length -1].ykey}>
                 {
                     pairs.map((pair) => (
                         <Grid key={pair.xkey + '-' + pair.ykey + '-' + plotWidth} item>
