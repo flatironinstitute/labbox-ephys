@@ -15,7 +15,7 @@ const isAddHitherJobAction = (x: any): x is AddHitherJobAction => (
 
 interface UpdateHitherJobAction {
     type: 'UPDATE_HITHER_JOB'
-    jobId: string
+    clientJobId: string
     update: HitherJobUpdate
 }
 const isUpdateHitherJobAction = (x: any): x is UpdateHitherJobAction => (
@@ -36,7 +36,7 @@ const hitherJobs: Reducer<State, Action> = (state: State = initialState, action:
     }
     else if (isUpdateHitherJobAction(action)) {
         return state.map(hj => (
-            hj.jobId === action.jobId ? (
+            hj.clientJobId === action.clientJobId ? (
                 {...hj, ...action.update}
             ) : hj
         ))
