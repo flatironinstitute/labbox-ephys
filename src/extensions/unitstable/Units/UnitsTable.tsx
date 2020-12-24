@@ -1,42 +1,8 @@
-import { LinearProgress, TableCell } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { ExternalSortingUnitMetric, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import '../unitstable.css';
 import TableWidget, { Column, Row } from './TableWidget';
-
-const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
-    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {};
-    return labelsByUnit[unitId] || []
-}
-
-const UnitIdCell = React.memo((props: {id: number, mergeGroup: number[] | null, sortingId: string}) => {
-    const g = props.mergeGroup
-    return <TableCell><span>{props.id + ''}{g && ' (' + [...g].sort().join(', ') + ')'}</span></TableCell>
-})
-
-const UnitLabelCell = React.memo((props: {labels: string}) => (
-    <TableCell><span>{props.labels}</span></TableCell>
-));
-
-const MetricCell = React.memo((a: {title?: string, error: string, data: any, PayloadComponent: React.ComponentType<{record: any}>}) => {
-    const { error, data, PayloadComponent } = a
-    if (error !== '') {
-        return (<TableCell><span>{`Error: ${error}`}</span></TableCell>);
-    }
-    if (data === null || data === '') { // 0 is a valid value!!
-        return (<TableCell><LinearProgress style={{'width': '60%'}}/></TableCell>);
-    } else {
-        return (
-            <TableCell>
-                <span title={a.title}>
-                    <PayloadComponent record = {data} />
-                </span>
-            </TableCell>
-        );
-    }
-});
-
 
 interface Props {
     sortingUnitMetrics?: {[key: string]: SortingUnitMetricPlugin}
@@ -52,11 +18,6 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     const selectedUnitIds = ((selection || {}).selectedUnitIds || [])
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics || {})).filter(p => (!p.disabled))
     const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
-
-    const mergeGroupForUnitId = (unitId: number) => {
-        const mergeGroups = (sorting.curation || {}).mergeGroups || []
-        return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
-    }
 
     const handleSelectedRowIdsChanged = useCallback((selectedRowIds: string[]) => {
         selectionDispatch({
@@ -74,22 +35,80 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
         return (Number(a) - Number(b))
     }
     const numericElement = (x: any) => (<span>{x + ''}</span>)
+    const unitIdStyle: React.CSSProperties = {
+        color: 'black',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+    }
+    const unitIdElement = (x: any) => {
+        const {unitId, mergeGroup} = x as {unitId: number, mergeGroup: number[] | null}
+        return (
+            <span>
+                <span key="unitId" style={unitIdStyle}>
+                    {unitId + ''}
+                </span>
+                {
+                    ((mergeGroup) && (mergeGroup.length > 0)) && (
+                        <span key="mergeGroup">{` (${mergeGroup.map(id => (id + '')).join(", ")})`}</span>
+                    )
+                }
+            </span>
+        )
+    }
+
+    const alphaSort = (a: any, b: any) => {
+        return (a < b) ? -1 : (a > b) ? 1 : 0
+    }
+    const labelStyle: React.CSSProperties = {
+        color: 'gray',
+        textDecoration: 'underline',
+        cursor: 'pointer'
+    }
+    const labelsElement = (x: any) => {
+        const y = x as string[]
+        return (
+            <span>
+                {
+                    y.map(label => (
+                        <span key={label}><span style={labelStyle}>{label}</span>&nbsp;</span>
+                    ))
+                }
+            </span>
+        )
+    }
 
     const columns: Column[] = []
     
-    // first column
+    // first column (Unit ID)
     columns.push({
         columnName: '_unit_id',
         label: 'Unit ID',
         tooltip: 'Unit ID',
         sort: numericSort,
-        dataElement: numericElement
+        dataElement: unitIdElement
     })
     rows.forEach(row => {
         const unitId = Number(row.rowId)
         row.data['_unit_id'] = {
-            value: unitId,
+            value: {unitId, mergeGroup: mergeGroupForUnitId(unitId, sorting)},
             sortValue: unitId
+        }
+    })
+
+    // second column (Labels)
+    columns.push({
+        columnName: '_labels',
+        label: 'Labels',
+        tooltip: 'Curation labels',
+        sort: alphaSort,
+        dataElement: labelsElement
+    })
+    rows.forEach(row => {
+        const unitId = Number(row.rowId)
+        const labels = getLabelsForUnitId(unitId, sorting)
+        row.data['_labels'] = {
+            value: labels,
+            sortValue: labels.join(', ')
         }
     })
 
@@ -150,5 +169,42 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
         />
     )
 }
+
+const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
+    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {};
+    return labelsByUnit[unitId] || []
+}
+
+const mergeGroupForUnitId = (unitId: number, sorting: Sorting) => {
+    const mergeGroups = (sorting.curation || {}).mergeGroups || []
+    return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
+}
+
+// const UnitIdCell = React.memo((props: {id: number, mergeGroup: number[] | null, sortingId: string}) => {
+//     const g = props.mergeGroup
+//     return <TableCell><span>{props.id + ''}{g && ' (' + [...g].sort().join(', ') + ')'}</span></TableCell>
+// })
+
+// const UnitLabelCell = React.memo((props: {labels: string}) => (
+//     <TableCell><span>{props.labels}</span></TableCell>
+// ));
+
+// const MetricCell = React.memo((a: {title?: string, error: string, data: any, PayloadComponent: React.ComponentType<{record: any}>}) => {
+//     const { error, data, PayloadComponent } = a
+//     if (error !== '') {
+//         return (<TableCell><span>{`Error: ${error}`}</span></TableCell>);
+//     }
+//     if (data === null || data === '') { // 0 is a valid value!!
+//         return (<TableCell><LinearProgress style={{'width': '60%'}}/></TableCell>);
+//     } else {
+//         return (
+//             <TableCell>
+//                 <span title={a.title}>
+//                     <PayloadComponent record = {data} />
+//                 </span>
+//             </TableCell>
+//         );
+//     }
+// });
 
 export default UnitsTable
