@@ -33,7 +33,7 @@ const HeaderRow: FunctionComponent<{columns: Column[], onColumnClick: (column: C
                         return (
                             <TableCell key={column.columnName} onClick={() => onColumnClick(column)} title={tooltip} style={{cursor: 'pointer'}}>
                                 <Grid container justify="flex-start" style={{flexFlow: 'row'}}>
-                                    <Grid item>
+                                    <Grid item key="icon">
                                         <span style={{fontSize: 16, color: 'gray', paddingLeft: 3, paddingRight: 5, paddingTop: 2}}>
                                             {
                                                 (primarySortColumnName === column.columnName) && (
@@ -47,10 +47,10 @@ const HeaderRow: FunctionComponent<{columns: Column[], onColumnClick: (column: C
                                             }
                                         </span>
                                     </Grid>
-                                    <Grid item>
+                                    <Grid item key="text">
                                         <span>
-                                            {column.label}
-                                            {column.calculating && <LinearProgress />}
+                                            <span key="label">{column.label}</span>
+                                            <span key="progress">{column.calculating && <LinearProgress />}</span>
                                         </span>
                                     </Grid>
                                 </Grid>
