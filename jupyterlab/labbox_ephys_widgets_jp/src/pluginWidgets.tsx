@@ -3,7 +3,7 @@
 
 // Import the CSS
 import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyter-widgets/base';
-import React, { FunctionComponent, useEffect, useReducer, useState } from 'react';
+import React, { FunctionComponent, useEffect, useReducer, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
 import exampleSorting from './exampleSorting';
@@ -272,6 +272,33 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     }, null)
   }, [model])
 
+  const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
+  const [width, setWidth] = useState<number | undefined>(undefined)
+  const [height, setHeight] = useState<number | undefined>(undefined)
+  const [pollIndex, setPollIndex] = useState(0)
+  const divRef = React.useCallback((elmt: HTMLDivElement) => {
+      // this should get called only once after the div has been written to the DOM
+      // we set this div element so that it can be used below when we set the canvas
+      // elements to the layers
+      setDivElement(elmt)
+  }, [])
+
+  useEffect(() => {
+    if (divElement) {
+      ;(window as any)['debug_divElement'] = divElement
+      if (width !== divElement.offsetWidth) {
+        setWidth(divElement.offsetWidth)
+      }
+      if (height !== divElement.offsetHeight) {
+        setHeight(divElement.offsetHeight)
+      }
+    }
+  }, [divElement, width, height, setWidth, setHeight, pollIndex])
+
+  useInterval(() => {
+    setPollIndex(pollIndex + 1)
+  }, 1000)
+
   if (!sorting) {
     return <div>No sorting</div>
   }
@@ -280,19 +307,44 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
   }
   
   return (
-    <plugin.component
-      sorting={sorting}
-      recording={recording}
-      onUnitClicked={(unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {}}
-      curationDispatch={curationDispatch}
-      selection={selection}
-      selectionDispatch={selectionDispatch}
-      readOnly={false}
-      plugins={plugins}
-      hither={hither}
-      calculationPool={calculationPool}
-    />
+    <div ref={divRef} className="PluginComponentWrapper" style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0}}>
+      <plugin.component
+        sorting={sorting}
+        recording={recording}
+        onUnitClicked={(unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {}}
+        curationDispatch={curationDispatch}
+        selection={selection}
+        selectionDispatch={selectionDispatch}
+        readOnly={false}
+        plugins={plugins}
+        hither={hither}
+        calculationPool={calculationPool}
+        width={width}
+        height={height}
+      />
+    </div>
   )
+}
+
+// thanks: https://usehooks-typescript.com/react-hook/use-interval
+function useInterval(callback: () => void, delay: number | null) {
+  const savedCallback = useRef<() => void | null>()
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback
+  })
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      if (typeof savedCallback?.current !== 'undefined') {
+        savedCallback?.current()
+      }
+    }
+    if (delay !== null) {
+      const id = setInterval(tick, delay)
+      return () => clearInterval(id)
+    }
+  }, [delay])
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
@@ -340,9 +392,14 @@ export class SortingView extends DOMWidgetView {
     )
   }
   render() {
-    // this.el.classList.add('custom-widget');
+    const pluginName = this.model.get('pluginName')
+    const plugin = extensionContext._sortingViewPlugins[pluginName]
+    if (!plugin) throw Error(`Plugin not found: ${pluginName}`)
 
+    this.el.classList.add('plugin-' + pluginName)
     const x = this.element()
+    this.el.style.height = '100%'
+    this.el.style['min-height'] = `${plugin.notebookCellHeight || 500}px`
     ReactDOM.render(x, this.el)
   }
 }
