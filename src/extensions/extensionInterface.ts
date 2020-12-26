@@ -125,6 +125,11 @@ const simplifyMergeGroups = (mg: (number[])[]): (number[])[] => {
     return newMergeGroups.filter(g => (g.length >= 2))
 }
 
+export const mergeGroupForUnitId = (unitId: number, sorting: Sorting) => {
+    const mergeGroups = (sorting.curation || {}).mergeGroups || []
+    return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
+}
+
 // This reducer is used by the jupyter widget, but not by the web gui. That's because the web gui uses the global redux state to dispatch the curation actions.
 export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAction> = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
     if (action.type === 'SetCuration') {

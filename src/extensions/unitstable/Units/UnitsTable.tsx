@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { ExternalSortingUnitMetric, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
+import { ExternalSortingUnitMetric, mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import '../unitstable.css';
 import TableWidget, { Column, Row } from './TableWidget';
@@ -172,11 +172,6 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
 const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
     const labelsByUnit = (sorting.curation || {}).labelsByUnit || {};
     return labelsByUnit[unitId] || []
-}
-
-const mergeGroupForUnitId = (unitId: number, sorting: Sorting) => {
-    const mergeGroups = (sorting.curation || {}).mergeGroups || []
-    return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
 }
 
 // const UnitIdCell = React.memo((props: {id: number, mergeGroup: number[] | null, sortingId: string}) => {
