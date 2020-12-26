@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { ExternalSortingUnitMetric, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import '../unitstable.css';
@@ -17,7 +17,6 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, sorting } = props
     const selectedUnitIds = ((selection || {}).selectedUnitIds || [])
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics || {})).filter(p => (!p.disabled))
-    const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
 
     const handleSelectedRowIdsChanged = useCallback((selectedRowIds: string[]) => {
         selectionDispatch({

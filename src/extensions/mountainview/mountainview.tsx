@@ -11,6 +11,7 @@ export function activate(context: ExtensionContext) {
         label: 'MVSortingView',
         priority: 5000,
         defaultExpanded: true,
+        notebookCellHeight: 900,
         component: MVSortingView
     })
     context.registerSortingUnitView({

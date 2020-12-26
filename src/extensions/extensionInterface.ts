@@ -302,6 +302,7 @@ export interface SortingViewProps extends ViewProps {
 
 export interface SortingViewPlugin extends ViewPlugin {
     component: React.ComponentType<SortingViewProps>
+    notebookCellHeight?: number
 }
 
 export interface CalculationPool {
