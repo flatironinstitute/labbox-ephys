@@ -87,7 +87,6 @@ RUN apt-get update && \
     apt-get -y install docker-ce
 
 RUN pip install ipython jupyter jupyterlab
-RUN pip install pymongo dnspython
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
