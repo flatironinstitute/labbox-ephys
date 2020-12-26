@@ -114,12 +114,14 @@ const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ selection, se
                 <Grid container style={{flexFlow: 'wrap'}} spacing={0}>
                     {
                         labelChoices.map(labelChoice => (
-                            ((labelCounts[labelChoice] || 0) < selectedUnitIds.length) || (!enableApply)) ? (
-                                <Grid item key={labelChoice}>
-                                    <button style={buttonStyle} disabled={!enableApply} onClick={() => {_handleApplyLabel(labelChoice)}}>{labelChoice}</button>
-                                </Grid>
-                            ): <span />
-                        )
+                            <Grid item key={labelChoice}>
+                                {
+                                    (((labelCounts[labelChoice] || 0) < selectedUnitIds.length) || (!enableApply)) ? (
+                                        <button style={buttonStyle} disabled={!enableApply} onClick={() => {_handleApplyLabel(labelChoice)}}>{labelChoice}</button>
+                                    ): <span />
+                                }
+                            </Grid>
+                        ))
                     }
                 </Grid>
             </Paper>
