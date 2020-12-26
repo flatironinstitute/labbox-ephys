@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import createCalculationPool from '../../common/createCalculationPool';
 import PlotGrid from '../../common/PlotGrid';
 import { SortingViewProps } from '../../extensionInterface';
@@ -7,7 +7,7 @@ import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 const averageWaveformsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
 const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) => {
-    const { selection } = props
+    const { selection, selectionDispatch } = props
     // const { hither } = props
     // const [calcMode, setCalcMode] = useState('waiting')
     // const [result, setResult] = useState<any>(null)
@@ -22,11 +22,19 @@ const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) =
     // }, [hither, setResult, calcMode, setCalcMode])
     // return <div>AAAA: {calcMode} {result + ''}</div>
     const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
+    const handleUnitClicked = useCallback((unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {
+        selectionDispatch({
+            type: 'UnitClicked',
+            unitId,
+            ctrlKey: event.ctrlKey,
+            shiftKey: event.shiftKey
+        })
+    }, [selectionDispatch])
     return (
         <PlotGrid
             sorting={props.sorting}
             selections={selectedUnitIdsLookup}
-            onUnitClicked={props.onUnitClicked}
+            onUnitClicked={handleUnitClicked}
             dataFunctionName={'createjob_fetch_average_waveform_plot_data'}
             dataFunctionArgsCallback={(unitId: number) => ({
                 sorting_object: props.sorting.sortingObject,

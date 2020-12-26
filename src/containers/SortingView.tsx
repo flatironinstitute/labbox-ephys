@@ -1,5 +1,5 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { Dispatch, useCallback, useEffect, useReducer, useState } from 'react';
+import React, { Dispatch, useEffect, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
@@ -12,15 +12,15 @@ import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
 import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
 
-const intrange = (a: number, b: number) => {
-  const lower = a < b ? a : b;
-  const upper = a < b ? b : a;
-  let arr = [];
-  for (let n = lower; n <= upper; n++) {
-      arr.push(n);
-  }
-  return arr;
-}
+// const intrange = (a: number, b: number) => {
+//   const lower = a < b ? a : b;
+//   const upper = a < b ? b : a;
+//   let arr = [];
+//   for (let n = lower; n <= upper; n++) {
+//       arr.push(n);
+//   }
+//   return arr;
+// }
 
 interface StateProps {
   sorting: Sorting | undefined
@@ -128,34 +128,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   }
   useEffect(() => { effect() })
 
-  const handleUnitClicked = useCallback((unitId, event) => {
-    if (event.ctrlKey) {
-      if ((selection.selectedUnitIds || []).includes(unitId)) {
-        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: (selection.selectedUnitIds || []).filter(uid => (uid !== unitId))})
-      }
-      else {
-        selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: [...(selection.selectedUnitIds || []), unitId]})
-      }
-    }
-    else if ((event.shiftKey) && (anchorUnitId !== null)) {
-      const unitIds = intrange(anchorUnitId, unitId)
-      const newSelectedUnitIds = [...(selection.selectedUnitIds || [])]
-      const sortingInfo = sorting?.sortingInfo
-      if (sortingInfo) {
-        for (let uid of unitIds) {
-          if (sortingInfo.unit_ids.includes(uid)) {
-            if (!newSelectedUnitIds.includes(uid)) newSelectedUnitIds.push(uid)
-          }
-        }
-      }
-      selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: newSelectedUnitIds})
-    }
-    else {
-      selectionDispatch({type: 'SetSelectedUnitIds', selectedUnitIds: [unitId]})
-      setAnchorUnitId(unitId)
-    }
-  }, [selection, selectionDispatch, anchorUnitId, setAnchorUnitId, sorting]);
-
   // const sidebarWidth = '200px'
 
   // const sidebarStyle = {
@@ -220,7 +192,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             recording={recording}
             selection={selection}
             selectionDispatch={selectionDispatch}
-            onUnitClicked={handleUnitClicked}
             curationDispatch={curationDispatch}
             readOnly={readOnly}
             plugins={plugins}

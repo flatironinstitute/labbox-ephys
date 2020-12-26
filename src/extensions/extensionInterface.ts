@@ -211,7 +211,39 @@ type SetVisibleUnitIdsSortingSelectionAction = {
     visibleUnitIds: number[] | null
 }
 
-export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction
+type UnitClickedSortingSelectionAction = {
+    type: 'UnitClicked'
+    unitId: number
+    ctrlKey?: boolean
+    shiftKey?: boolean
+}
+
+export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction
+
+const unitClickedReducer = (state: SortingSelection, action: UnitClickedSortingSelectionAction): SortingSelection => {
+    const unitId = action.unitId
+    if (action.ctrlKey) {
+        if ((state.selectedUnitIds || []).includes(unitId)) {
+            return {
+                ...state,
+                selectedUnitIds: (state.selectedUnitIds || []).filter(uid => (uid !== unitId))
+            }
+        }
+        else {
+            return {
+                ...state,
+                selectedUnitIds: [...(state.selectedUnitIds || []), unitId]
+            }
+        }
+    }
+    // todo: restore anchor/shift-select behavior somewhere
+    else {
+        return {
+            ...state,
+            selectedUnitIds: [unitId]
+        }
+    }
+}
 
 export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelectionAction> = (state: SortingSelection, action: SortingSelectionAction): SortingSelection => {
     if (action.type === 'SetSelection') {
@@ -228,6 +260,9 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
             ...state,
             visibleUnitIds: action.visibleUnitIds
         }
+    }
+    else if (action.type === 'UnitClicked') {
+        return unitClickedReducer(state, action)
     }
     else return state
 }
@@ -291,7 +326,6 @@ interface ViewProps {
 export interface SortingViewProps extends ViewProps {
     sorting: Sorting
     recording: Recording
-    onUnitClicked?: (unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => void
     curationDispatch: (action: SortingCurationAction) => void
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
