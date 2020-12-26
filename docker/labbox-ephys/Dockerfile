@@ -28,10 +28,10 @@ RUN apt-get install -y nano
 RUN pip install numpy
 
 RUN pip install ipython jupyter jupyterlab
-RUN pip install pymongo dnspython
 RUN pip install python-dotenv simplejson
 
 RUN pip install scipy
+RUN pip install cython
 RUN pip install spikeextractors==0.8.4 spiketoolkit==0.6.3 spikesorters==0.3.3
 RUN pip install requests
 
