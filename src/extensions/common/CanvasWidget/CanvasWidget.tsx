@@ -275,6 +275,7 @@ const CanvasWidget = (props: Props) => {
                         style={{position: 'absolute', left: 0, top: 0}}
                         width={width}
                         height={height}
+                        onClick={() => {console.log('--- onClick')}}
                         onMouseMove={_handleMouseMove}
                         onMouseDown={_handleMouseDown}
                         onMouseUp={_handleMouseUp}

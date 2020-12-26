@@ -311,7 +311,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       <plugin.component
         sorting={sorting}
         recording={recording}
-        onUnitClicked={(unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {}}
         curationDispatch={curationDispatch}
         selection={selection}
         selectionDispatch={selectionDispatch}
