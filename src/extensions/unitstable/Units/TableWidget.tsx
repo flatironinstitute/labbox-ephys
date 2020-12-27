@@ -190,26 +190,29 @@ const TableWidget: FunctionComponent<Props> = (props) => {
                 />
                 <TableBody>
                     {
-                        sortedRows.map((row) => (
-                            <TableRow key={row.rowId}>
-                                <TableCell key="_checkbox">
-                                    <RowCheckbox
-                                        rowId={row.rowId}
-                                        selected={selectedRowIdsLookup[row.rowId] || false}
-                                        onClick = {() => toggleSelectedRowId(row.rowId)}
-                                    />
-                                </TableCell>
-                                {
-                                    columns.map(column => (
-                                        <TableCell key={column.columnName}>
-                                            <div title={column.tooltip}>
-                                                {column.dataElement(row.data[column.columnName].value)}
-                                            </div>
-                                        </TableCell>
-                                    ))
-                                }
-                            </TableRow>       
-                        ))
+                        sortedRows.map((row) => {
+                            const selected = selectedRowIdsLookup[row.rowId] || false
+                            return (
+                                <TableRow key={row.rowId}>
+                                    <TableCell key="_checkbox" className={selected ? "selectedRow" : ""}>
+                                        <RowCheckbox
+                                            rowId={row.rowId}
+                                            selected={selected}
+                                            onClick = {() => toggleSelectedRowId(row.rowId)}
+                                        />
+                                    </TableCell>
+                                    {
+                                        columns.map(column => (
+                                            <TableCell key={column.columnName} className={selected ? "selectedRow" : ""}>
+                                                <div title={column.tooltip}>
+                                                    {column.dataElement(row.data[column.columnName].value)}
+                                                </div>
+                                            </TableCell>
+                                        ))
+                                    }
+                                </TableRow>       
+                            )
+                        })
                     }
                 </TableBody>
             </Table>
