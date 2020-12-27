@@ -1,6 +1,6 @@
 import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Checkbox, Grid, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { Checkbox, Grid, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import '../unitstable.css';
 
@@ -21,12 +21,31 @@ export interface Column {
     calculating?: boolean
 }
 
-const HeaderRow: FunctionComponent<{columns: Column[], onColumnClick: (column: Column) => void, primarySortColumnName: string | undefined, primarySortColumnDirection: 'ascending' | 'descending' | undefined}> = (props) => {
-    const { columns, onColumnClick, primarySortColumnDirection, primarySortColumnName } = props
+const HeaderRow: FunctionComponent<{
+    columns: Column[],
+    onColumnClick: (column: Column) => void
+    primarySortColumnName: string | undefined
+    primarySortColumnDirection: 'ascending' | 'descending' | undefined
+    onDeselectAll?: (() => void)
+}> = (props) => {
+    const { columns, onColumnClick, primarySortColumnDirection, primarySortColumnName, onDeselectAll } = props
     return (
         <TableHead>
             <TableRow>
-                <TableCell key="_checkbox" />
+                {
+                    onDeselectAll ? (
+                        <TableCell key="_checkbox">
+                            <RowCheckbox
+                                rowId={''}
+                                selected={false}
+                                onClick={() => {onDeselectAll()}}
+                                isDeselectAll={true}
+                            />
+                        </TableCell>
+                    ) : (
+                        <TableCell key="_checkbox" />
+                    )
+                }
                 {
                     columns.map(column => {
                         const tooltip = (column.tooltip || column.label || '') + ' (click to sort)'
@@ -63,15 +82,17 @@ const HeaderRow: FunctionComponent<{columns: Column[], onColumnClick: (column: C
     )
 }
 
-const RowCheckbox = React.memo((props: {rowId: string, selected: boolean, onClick: (rowId: string) => void}) => {
-    const { rowId, selected, onClick } = props
+const RowCheckbox = React.memo((props: {rowId: string, selected: boolean, onClick: (rowId: string) => void, isDeselectAll?: boolean}) => {
+    const { rowId, selected, onClick, isDeselectAll } = props
     return (
         <Checkbox
             checked={selected}
+            indeterminate={isDeselectAll ? true : false}
             onClick={() => onClick(rowId)}
             style={{
                 padding: 1
             }}
+            title={isDeselectAll ? "Deselect all" : `Select ${rowId}`}
         />
     );
 });
@@ -82,6 +103,7 @@ interface Props {
     rows: Row[]
     columns: Column[]
     defaultSortColumnName?: string
+    height?: number
 }
 
 type sortFieldEntry = {columnName: string, keyOrder: number, sortAscending: boolean}
@@ -97,7 +119,7 @@ const interpretSortFields = (fields: string[]): sortFieldEntry[] => {
 
 const TableWidget: FunctionComponent<Props> = (props) => {
 
-    const { selectedRowIds, onSelectedRowIdsChanged, rows, columns, defaultSortColumnName } = props
+    const { selectedRowIds, onSelectedRowIdsChanged, rows, columns, defaultSortColumnName, height } = props
 
     const [sortFieldOrder, setSortFieldOrder] = useState<string[]>([])
 
@@ -139,56 +161,59 @@ const TableWidget: FunctionComponent<Props> = (props) => {
     const primarySortColumnDirection = primaryRule ? (primaryRule.sortAscending ? 'ascending' : 'descending') : undefined
     
     return (
-        <Table className="TableWidget">
-            <HeaderRow
-                columns={columns}
-                primarySortColumnName={primarySortColumnName}
-                primarySortColumnDirection={primarySortColumnDirection}
-                onColumnClick={(column) => {
-                    const columnName = column.columnName
-                    let newSortFieldOrder = [...sortFieldOrder]
-                    if (sortFieldOrder[sortFieldOrder.length - 1] === columnName) {
-                        if (sortFieldOrder[sortFieldOrder.length - 2] === columnName) {
-                            // the last two match this column, let's just remove the last one
-                            newSortFieldOrder = newSortFieldOrder.slice(0, newSortFieldOrder.length - 1)
+        <TableContainer style={height !== undefined ? {maxHeight: height} : {}}>
+            <Table stickyHeader className="TableWidget">
+                <HeaderRow
+                    columns={columns}
+                    primarySortColumnName={primarySortColumnName}
+                    primarySortColumnDirection={primarySortColumnDirection}
+                    onColumnClick={(column) => {
+                        const columnName = column.columnName
+                        let newSortFieldOrder = [...sortFieldOrder]
+                        if (sortFieldOrder[sortFieldOrder.length - 1] === columnName) {
+                            if (sortFieldOrder[sortFieldOrder.length - 2] === columnName) {
+                                // the last two match this column, let's just remove the last one
+                                newSortFieldOrder = newSortFieldOrder.slice(0, newSortFieldOrder.length - 1)
+                            }
+                            else {
+                                // the last one matches this column, let's add another one
+                                newSortFieldOrder = [...newSortFieldOrder, columnName]
+                            }
                         }
                         else {
-                            // the last one matches this column, let's add another one
-                            newSortFieldOrder = [...newSortFieldOrder, columnName]
+                            // the last one does not match this column, let's clear out all previous instances and add one
+                            newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== columnName)), columnName]
                         }
+                        setSortFieldOrder(newSortFieldOrder)
+                    }}
+                    onDeselectAll={selectedRowIds.length > 0 ? () => {onSelectedRowIdsChanged([])} : undefined}
+                />
+                <TableBody>
+                    {
+                        sortedRows.map((row) => (
+                            <TableRow key={row.rowId}>
+                                <TableCell key="_checkbox">
+                                    <RowCheckbox
+                                        rowId={row.rowId}
+                                        selected={selectedRowIdsLookup[row.rowId] || false}
+                                        onClick = {() => toggleSelectedRowId(row.rowId)}
+                                    />
+                                </TableCell>
+                                {
+                                    columns.map(column => (
+                                        <TableCell key={column.columnName}>
+                                            <div title={column.tooltip}>
+                                                {column.dataElement(row.data[column.columnName].value)}
+                                            </div>
+                                        </TableCell>
+                                    ))
+                                }
+                            </TableRow>       
+                        ))
                     }
-                    else {
-                        // the last one does not match this column, let's clear out all previous instances and add one
-                        newSortFieldOrder = [...newSortFieldOrder.filter(m => (m !== columnName)), columnName]
-                    }
-                    setSortFieldOrder(newSortFieldOrder)
-                }}
-            />
-            <TableBody>
-                {
-                    sortedRows.map((row) => (
-                        <TableRow key={row.rowId}>
-                            <TableCell key="_checkbox">
-                                <RowCheckbox
-                                    rowId={row.rowId}
-                                    selected={selectedRowIdsLookup[row.rowId] || false}
-                                    onClick = {() => toggleSelectedRowId(row.rowId)}
-                                />
-                            </TableCell>
-                            {
-                                columns.map(column => (
-                                    <TableCell key={column.columnName}>
-                                        <div title={column.tooltip}>
-                                            {column.dataElement(row.data[column.columnName].value)}
-                                        </div>
-                                    </TableCell>
-                                ))
-                            }
-                        </TableRow>       
-                    ))
-                }
-            </TableBody>
-        </Table>
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 }
 
