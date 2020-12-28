@@ -11,10 +11,11 @@ interface Props {
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
     sorting: Sorting
+    height?: number
 }
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, sorting } = props
+    const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, sorting, height } = props
     const selectedUnitIds = ((selection || {}).selectedUnitIds || [])
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics || {})).filter(p => (!p.disabled))
 
@@ -165,6 +166,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
             selectedRowIds={selectedRowIds}
             onSelectedRowIdsChanged={handleSelectedRowIdsChanged}
             defaultSortColumnName="_unit_id"
+            height={height}
         />
     )
 }
