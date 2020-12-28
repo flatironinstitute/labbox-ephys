@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import createCalculationPool from '../../common/createCalculationPool';
 import { HitherContext, RecordingInfo } from '../../extensionInterface';
-import Splitter from '../TimeWidgetNew/Splitter';
+import Splitter from '../../common/Splitter';
 import ElectrodeGeometryView from './ElectrodeGeometryView';
 import Mda from './Mda';
 import TimeseriesModelNew from './TimeseriesModelNew';

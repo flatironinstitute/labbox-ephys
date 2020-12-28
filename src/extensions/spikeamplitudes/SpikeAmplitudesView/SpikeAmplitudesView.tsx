@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react'
 import { SortingViewProps } from "../../extensionInterface"
-import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
+import Splitter from '../../common/Splitter'
 import SelectUnitsWidget from './SelectUnitsWidget'
 import SpikeAmplitudesTimeWidget from './SpikeAmplitudesTimeWidget'
 
