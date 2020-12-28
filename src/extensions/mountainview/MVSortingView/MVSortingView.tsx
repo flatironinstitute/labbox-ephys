@@ -5,7 +5,7 @@ import React, { FunctionComponent, useCallback, useEffect, useReducer } from 're
 import sizeMe, { SizeMeProps } from 'react-sizeme'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Expandable from "../../old/curation/CurationSortingView/Expandable"
-import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
+import Splitter from '../../common/Splitter'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
 import ViewContainer from './ViewContainer'

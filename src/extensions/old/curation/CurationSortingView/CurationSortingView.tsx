@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react'
 import sizeMe, { SizeMeProps } from "react-sizeme"
 import { SortingViewProps } from "../../../extensionInterface"
-import Splitter from '../../../timeseries/TimeWidgetNew/Splitter'
+import Splitter from '../../../common/Splitter'
 import ControlPanel from './ControlPanel'
 import TabsView from './TabsView'
 

@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react'
 import { SortingViewProps } from "../../extensionInterface"
 import SelectUnitsWidget from '../../spikeamplitudes/SpikeAmplitudesView/SelectUnitsWidget'
-import Splitter from '../../timeseries/TimeWidgetNew/Splitter'
+import Splitter from '../../common/Splitter'
 import CrossCorrelogramsWidget from './CrossCorrelogramsWidget'
 
 const CrossCorrelogramsView: FunctionComponent<SortingViewProps> = ({sorting, selection, selectionDispatch, hither, width, height}) => {
