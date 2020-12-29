@@ -199,10 +199,13 @@ export interface RecordingSelection {
     currentTimepoint?: number
     timeRange?: {min: number, max: number} | null
     ampScaleFactor?: number
+<<<<<<< HEAD
     animation?: {
         lastUpdateTimestamp: number
         currentTimepointVelocity: number // timepoints per second
     }
+=======
+>>>>>>> master
 }
 
 export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void
@@ -237,6 +240,7 @@ type ScaleAmpScaleFactorRecordingSelectionAction = {
     multiplier: number
 }
 
+<<<<<<< HEAD
 type SetCurrentTimepointVelocityRecordingSelectionAction = {
     type: 'SetCurrentTimepointVelocity',
     velocity: number // timepoints per second
@@ -247,6 +251,9 @@ type AnimateRecordingSelectionAction = {
 }
 
 export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | AnimateRecordingSelectionAction
+=======
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction
+>>>>>>> master
 
 export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
     if (action.type === 'SetRecordingSelection') {
