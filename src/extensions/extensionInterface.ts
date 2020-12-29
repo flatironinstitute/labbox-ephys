@@ -199,6 +199,10 @@ export interface RecordingSelection {
     currentTimepoint?: number
     timeRange?: {min: number, max: number} | null
     ampScaleFactor?: number
+    animation?: {
+        lastUpdateTimestamp: number
+        currentTimepointVelocity: number // timepoints per second
+    }
 }
 
 export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void
@@ -233,7 +237,16 @@ type ScaleAmpScaleFactorRecordingSelectionAction = {
     multiplier: number
 }
 
-export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction
+type SetCurrentTimepointVelocityRecordingSelectionAction = {
+    type: 'SetCurrentTimepointVelocity',
+    velocity: number // timepoints per second
+}
+
+type AnimateRecordingSelectionAction = {
+    type: 'Animate'
+}
+
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | AnimateRecordingSelectionAction
 
 export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
     if (action.type === 'SetRecordingSelection') {
@@ -268,6 +281,40 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
             ...state,
             ampScaleFactor: (state.ampScaleFactor || 1) * action.multiplier
         }
+    }
+    else if (action.type === 'SetCurrentTimepointVelocity') {
+        return {
+            ...state,
+            animation: {
+                ...(state.animation || {}),
+                lastUpdateTimestamp: Number(new Date()),
+                currentTimepointVelocity: action.velocity
+            }
+        }
+    }
+    else if (action.type === 'Animate') {
+        const lastUpdate = state?.animation?.lastUpdateTimestamp || Number(new Date())
+        const current = Number(new Date())
+        const elapsed = current - lastUpdate
+        if (elapsed !== 0) {
+            let state2 = {...state}
+            const currentTimepointVelocity = state?.animation?.currentTimepointVelocity || 0
+            const currentTimepoint = state.currentTimepoint
+            if ((currentTimepointVelocity) && (currentTimepoint !== undefined)) {
+               state2 = {
+                   ...state2,
+                   currentTimepoint: Math.round(currentTimepoint + currentTimepointVelocity * (elapsed / 1000))
+               } 
+            }
+            return {
+                ...state2,
+                animation: {
+                    ...(state2?.animation || {currentTimepointVelocity: 0}),
+                    lastUpdateTimestamp: current
+                }
+            }
+        }
+        else return state
     }
     else return state
 }

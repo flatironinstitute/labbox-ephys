@@ -58,6 +58,18 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, {})
   const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
+
+  const [animationFrame, setAnimationFrame] = useState(0)
+  useEffect(() => {
+    if (animationFrame === 0) {
+      selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 100})
+    }
+    setTimeout(() => {
+      selectionDispatch({type: 'Animate'})
+      setAnimationFrame(animationFrame + 1)
+    }, 100)
+  }, [selectionDispatch, animationFrame, setAnimationFrame])
+  
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
   // const effect = async () => {
