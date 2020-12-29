@@ -9,7 +9,7 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, recordingSelectionReducer, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -272,6 +272,23 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     }, null)
   }, [model])
 
+  // recording selection
+  const [recordingSelection, recordingSelectionDispatch] = useReducer(recordingSelectionReducer, model.get('recordingSelection').selectedUnitIds ? model.get('recordingSelection') : {})
+  useEffect(() => {
+    if (model.get('recordingSelection') !== recordingSelection) {
+      model.set('recordingSelection', recordingSelection)
+      model.save_changes()
+    }
+  }, [recordingSelection, model])
+  useEffect(() => {
+    model.on('change:recordingSelection', () => {
+      recordingSelectionDispatch({
+        type: 'SetRecordingSelection',
+        recordingSelection: model.get('recordingSelection')
+      })
+    }, null)
+  }, [model])
+
   const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
   const [width, setWidth] = useState<number | undefined>(undefined)
   const [height, setHeight] = useState<number | undefined>(undefined)
@@ -285,7 +302,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
 
   useEffect(() => {
     if (divElement) {
-      ;(window as any)['debug_divElement'] = divElement
       if (width !== divElement.offsetWidth) {
         setWidth(divElement.offsetWidth)
       }

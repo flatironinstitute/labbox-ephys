@@ -5,7 +5,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
+import { filterPlugins, HitherContext, Plugins, RecordingInfo, recordingSelectionReducer, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -57,6 +57,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, {})
+  const [recordingSelection, recordingSelectionDispatch] = useReducer(recordingSelectionReducer, {})
   const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
@@ -192,6 +193,8 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             recording={recording}
             selection={selection}
             selectionDispatch={selectionDispatch}
+            recordingSelection={recordingSelection}
+            recordingSelectionDispatch={recordingSelectionDispatch}
             curationDispatch={curationDispatch}
             readOnly={readOnly}
             plugins={plugins}

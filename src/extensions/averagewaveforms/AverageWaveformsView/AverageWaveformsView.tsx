@@ -6,7 +6,7 @@ import AverageWaveformView from './AverageWaveformView';
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const AverageWaveformsView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, hither}) => {
+const AverageWaveformsView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, hither, recordingSelection, recordingSelectionDispatch}) => {
     const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     const handleUnitClicked = useCallback((unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {
         selectionDispatch({
@@ -32,6 +32,10 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = ({recording, s
             plotComponent={AverageWaveformView}
             plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
+            })}
+            plotComponentPropsCallback={(unitId: number) => ({
+                selectedElectrodeIds: recordingSelection.selectedElectrodeIds,
+                onSelectedElectrodeIdsChanged: (x: number[]) => {recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})}
             })}
             calculationPool={calculationPool}
             hither={hither}

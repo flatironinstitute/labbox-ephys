@@ -15,6 +15,7 @@ interface Props {
     boxSize?: { width: number, height: number}
     plotComponent: React.FunctionComponent<any>
     plotComponentArgsCallback: any
+    plotComponentPropsCallback?: any
     calculationPool: CalculationPool | undefined
     hither: HitherContext
 }
@@ -22,7 +23,7 @@ interface Props {
 const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections,
     dataFunctionName, dataFunctionArgsCallback, // fix this
     boxSize = { width: 200, height: 200},
-    plotComponent, plotComponentArgsCallback, // fix this
+    plotComponent, plotComponentArgsCallback, plotComponentPropsCallback, // fix this
     calculationPool = undefined,
     hither
 }) => {
@@ -56,6 +57,7 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                                         boxSize={boxSize}
                                         PlotComponent={plotComponent}
                                         plotComponentArgs={plotComponentArgsCallback(unitId)}
+                                        plotComponentProps={plotComponentPropsCallback ? plotComponentPropsCallback(unitId): undefined}
                                         calculationPool={calculationPool}
                                         title=""
                                         hither={hither}

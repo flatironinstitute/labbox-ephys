@@ -14,11 +14,13 @@ type Props = {
     argsObject: {
         id: string
     },
-    title: string
+    title: string,
+    selectedElectrodeIds?: number[],
+    onSelectedElectrodeIdsChanged?: (x: number[]) => void
 }
 
-const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title }) => {
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([])
+const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title, selectedElectrodeIds, onSelectedElectrodeIdsChanged }) => {
+    const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
 
     if (!plotData.average_waveform) {
         // assume no points
@@ -32,8 +34,8 @@ const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, args
             samplingFrequency={plotData.sampling_frequency}
             width={boxSize.width}
             height={boxSize.height}
-            selectedElectrodeIds={selectedElectrodeIds}
-            onSelectedElectrodeIdsChanged={setSelectedElectrodeIds}
+            selectedElectrodeIds={selectedElectrodeIds ? selectedElectrodeIds : selectedElectrodeIdsInternal}
+            onSelectedElectrodeIdsChanged={x => {if (onSelectedElectrodeIdsChanged) onSelectedElectrodeIdsChanged(x); else setSelectedElectrodeIdsInternal(x);}}
         />
     )
 }

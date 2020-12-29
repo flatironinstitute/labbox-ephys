@@ -10,13 +10,14 @@ const ClientSidePlot: FunctionComponent<{
     boxSize: {width: number, height: number},
     PlotComponent: React.FunctionComponent<{boxSize: {width: number, height: number}, plotData: any, argsObject: {[key: string]: any}, title: string}>,
     plotComponentArgs: {[key: string]: any},
+    plotComponentProps?: {[key: string]: any},
     title: string,
     hither: HitherContext
 }> = ({
     dataFunctionName, dataFunctionArgs,
     calculationPool,
     boxSize = { width: 200, height: 200 },
-    PlotComponent, plotComponentArgs, title, hither
+    PlotComponent, plotComponentArgs, plotComponentProps, title, hither
 }) => {
     const [calculationStatus, setCalculationStatus] = useState<string>('waitingForVisible');
     const [calculationError, setCalculationError] = useState<string | null>(null);
@@ -108,7 +109,7 @@ const ClientSidePlot: FunctionComponent<{
     } else if ((calculationStatus === 'finished') && (plotData)) {
         // TODO: Follow-up on distinction b/w this and <PlotComponent arg1={} arg2={} ... />
         return <PlotComponent
-            {...{boxSize, plotData, argsObject: plotComponentArgs, title}}
+            {...{boxSize, plotData, argsObject: plotComponentArgs, ...(plotComponentProps || {}), title}}
         />
     } else {
         return (

@@ -1,11 +1,12 @@
 import React, { Fragment, FunctionComponent, useCallback } from 'react';
-import { Plugins, SortingSelection, SortingUnitViewPlugin, SortingViewPlugin } from '../../extensionInterface';
+import { Plugins, RecordingSelection, SortingSelection, SortingUnitViewPlugin, SortingViewPlugin } from '../../extensionInterface';
 
 export type ViewPluginType = 'RecordingView' | 'SortingView' | 'SortingUnitView'
 
 type Props = {
     plugins: Plugins,
     selection: SortingSelection
+    recordingSelection: RecordingSelection
     onLaunchSortingView: (plugin: SortingViewPlugin) => void
     onLaunchSortingUnitView: (plugin: SortingUnitViewPlugin, unitId: number, label: string) => void
 }
@@ -16,7 +17,7 @@ const buttonStyle: React.CSSProperties = {
     margin: 3
 }
 
-const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, onLaunchSortingUnitView, selection }) => {
+const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, onLaunchSortingUnitView, selection, recordingSelection }) => {
     const sortingUnitViewPlugin = plugins.sortingUnitViews.MVSortingUnitView
     return (
         <Fragment>

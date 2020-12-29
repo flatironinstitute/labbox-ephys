@@ -193,6 +193,51 @@ export const externalUnitMetricsReducer: Reducer<ExternalSortingUnitMetric[], Ex
 }
 ////////////////////////////////
 
+// Recording selection
+export type RecordingSelection = {
+    selectedElectrodeIds?: number[]
+    currentTimepoint?: number
+}
+
+export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void
+
+type SetRecordingSelectionRecordingSelectionAction = {
+    type: 'SetRecordingSelection',
+    recordingSelection: RecordingSelection
+}
+
+type SetSelectedElectrodeIdsRecordingSelectionAction = {
+    type: 'SetSelectedElectrodeIds',
+    selectedElectrodeIds: number[]
+}
+
+type SetCurrentTimepointRecordingSelectionAction = {
+    type: 'SetCurrentTimepoint',
+    currentTimepoint: number | null
+}
+
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction
+
+export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
+    if (action.type === 'SetRecordingSelection') {
+        return {...action.recordingSelection}
+    }
+    else if (action.type === 'SetSelectedElectrodeIds') {
+        return {
+            ...state,
+            selectedElectrodeIds: action.selectedElectrodeIds
+        }
+    }
+    else if (action.type === 'SetCurrentTimepoint') {
+        return {
+            ...state,
+            currentTimepoint: action.currentTimepoint || undefined
+        }
+    }
+    else return state
+}
+////////////////////
+
 // Sorting selection
 export type SortingSelection = {
     selectedUnitIds?: number[]
@@ -333,7 +378,9 @@ export interface SortingViewProps extends ViewProps {
     recording: Recording
     curationDispatch: (action: SortingCurationAction) => void
     selection: SortingSelection
+    recordingSelection: RecordingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
+    recordingSelectionDispatch: (a: RecordingSelectionAction) => void
     readOnly: boolean | null
     plugins: Plugins
     hither: HitherContext
@@ -360,6 +407,8 @@ export interface SortingUnitViewPlugin extends ViewPlugin {
 
 export interface RecordingViewProps extends ViewProps {
     recording: Recording
+    recordingSelection: RecordingSelection
+    recordingSelectionDispatch: RecordingSelectionDispatch
 }
 
 export interface RecordingViewPlugin extends ViewPlugin {

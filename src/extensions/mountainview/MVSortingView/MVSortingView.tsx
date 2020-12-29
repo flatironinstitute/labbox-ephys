@@ -3,9 +3,9 @@ import { faPencilAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
 import sizeMe, { SizeMeProps } from 'react-sizeme'
+import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Expandable from "../../old/curation/CurationSortingView/Expandable"
-import Splitter from '../../common/Splitter'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
 import ViewContainer from './ViewContainer'
@@ -98,7 +98,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                 })
             }
         }
-    }, [openViews, openViewsDispatch, unitsTablePlugin])
+    }, [openViews, openViewsDispatch, unitsTablePlugin, averageWaveformsPlugin])
     const handleLaunchSortingView = useCallback((plugin: SortingViewPlugin) => {
         openViewsDispatch({
             type: 'AddView',
@@ -149,6 +149,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                             onLaunchSortingView={handleLaunchSortingView}
                             onLaunchSortingUnitView={handleLaunchSortingUnitView}
                             selection={props.selection}
+                            recordingSelection={props.recordingSelection}
                         />
                     </Expandable>
                     <Expandable icon={curationIcon} label="Curation" defaultExpanded={true}>

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import createCalculationPool from '../../common/createCalculationPool';
-import { HitherContext, RecordingInfo } from '../../extensionInterface';
 import Splitter from '../../common/Splitter';
+import { HitherContext, RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface';
 import ElectrodeGeometryView from './ElectrodeGeometryView';
 import Mda from './Mda';
 import TimeseriesModelNew from './TimeseriesModelNew';
@@ -22,6 +22,8 @@ interface Props {
     opts: {
         channelSelectPanel?: boolean
     }
+    recordingSelection?: RecordingSelection
+    recordingSelectionDispatch?: RecordingSelectionDispatch
 }
 
 interface TimeseriesInfo {
@@ -45,7 +47,8 @@ const TimeseriesViewNew = (props: Props) => {
     const [timeseriesInfo, setTimeseriesInfo] = useState<TimeseriesInfo | null>(null)
     const [timeseriesModel, setTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [widgetKey, setWidgetKey] = useState<number>(0)
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([])
+    // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([])
+    const [recordingSelectionInternal, recordingSelectionInternalDispatch] = useReducer(recordingSelectionReducer, {})
     const hither = props.hither
 
     const effect = async () => {
@@ -113,6 +116,10 @@ const TimeseriesViewNew = (props: Props) => {
     }
     useEffect(() => { effect(); });
 
+    const recordingSelection = props.recordingSelection || recordingSelectionInternal
+    const recordingSelectionDispatch = props.recordingSelectionDispatch || recordingSelectionInternalDispatch
+    const selectedElectrodeIds = recordingSelection.selectedElectrodeIds || []
+
     if ((status === 'finished') && (timeseriesInfo) && (timeseriesModel)) {
         if (!timeseriesModel) throw Error('Unexpected timeseriesModel is null')
         if (!timeseriesInfo) throw Error('Unexpected timeseriesInfo is null')
@@ -130,12 +137,12 @@ const TimeseriesViewNew = (props: Props) => {
                                 width={0} // filled in above
                                 height={0} // filled in above
                                 selectedElectrodeIds={selectedElectrodeIds}
-                                onSelectedElectrodeIdsChanged={setSelectedElectrodeIds}
+                                onSelectedElectrodeIdsChanged={(x: number[]) => {recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})}}
                             />
                         )
                     }
                     {
-                        ((!opts.channelSelectPanel) || ((selectedElectrodeIds) && (selectedElectrodeIds.length > 0))) ? (
+                        ((!opts.channelSelectPanel) || (selectedElectrodeIds.length > 0)) ? (
                             <TimeseriesWidgetNew
                                 key={widgetKey}
                                 timeseriesModel={timeseriesModel}

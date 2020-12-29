@@ -5,7 +5,7 @@ import React, { FunctionComponent } from 'react';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import TimeseriesViewNew from './TimeseriesViewNew/TimeseriesViewNew';
 
-const TimeseriesSortingView: FunctionComponent<SortingViewProps> = ({recording, hither, width, height}) => {
+const TimeseriesSortingView: FunctionComponent<SortingViewProps> = ({recording, hither, width, height, recordingSelection, recordingSelectionDispatch}) => {
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
@@ -14,11 +14,13 @@ const TimeseriesSortingView: FunctionComponent<SortingViewProps> = ({recording, 
             height={height || 600}
             hither={hither}
             opts={{channelSelectPanel: true}}
+            recordingSelection={recordingSelection}
+            recordingSelectionDispatch={recordingSelectionDispatch}
         />
     )
 }
 
-const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recording, hither, width, height}) => {
+const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recording, hither, width, height, recordingSelection, recordingSelectionDispatch}) => {
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
@@ -27,6 +29,8 @@ const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recordi
             height={height || 600}
             hither={hither}
             opts={{channelSelectPanel: true}}
+            recordingSelection={recordingSelection}
+            recordingSelectionDispatch={recordingSelectionDispatch}
         />
     )
 }
