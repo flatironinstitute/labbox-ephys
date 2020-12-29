@@ -65,7 +65,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 100})
     }
     setTimeout(() => {
-      selectionDispatch({type: 'Animate'})
+      selectionDispatch({type: 'AnimateRecording'})
       setAnimationFrame(animationFrame + 1)
     }, 100)
   }, [selectionDispatch, animationFrame, setAnimationFrame])
