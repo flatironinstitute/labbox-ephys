@@ -166,6 +166,7 @@ export class SortingViewModel extends DOMWidgetModel {
       recordingObject: {},
       curation: {},
       selection: {},
+      recordingSelection: {},
       externalUnitMetrics: []
     };
   }
@@ -330,6 +331,8 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
         curationDispatch={curationDispatch}
         selection={selection}
         selectionDispatch={selectionDispatch}
+        recordingSelection={recordingSelection}
+        recordingSelectionDispatch={recordingSelectionDispatch}
         readOnly={false}
         plugins={plugins}
         hither={hither}
