@@ -1,18 +1,20 @@
 import React, { FunctionComponent } from 'react';
 import CanvasWidget from '../../common/CanvasWidget';
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
+import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface';
 import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 
 export type Props = {
     waveform: number[][]
+    noiseLevel: number
     electrodeIds: number[],
     electrodeLocations: number[][],
     samplingFrequency: number,
     width: number
     height: number
-    selectedElectrodeIds?: number[]
-    onSelectedElectrodeIdsChanged?: (ids: number[]) => void
+    selection: RecordingSelection
+    selectionDispatch: RecordingSelectionDispatch
 }
 
 export type LayerProps = Props & {

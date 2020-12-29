@@ -8,7 +8,7 @@ import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { filterPlugins, HitherContext, Plugins } from '../extensions/extensionInterface';
+import { filterPlugins, HitherContext, Plugins, RecordingSelectionAction } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -85,6 +85,8 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
                 key={'rvc-' + rv.name}
                 calculationPool={calculationPool}
                 recording={recording}
+                recordingSelection={{}}
+                recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
                 plugins={plugins}
                 hither={hither}
               />

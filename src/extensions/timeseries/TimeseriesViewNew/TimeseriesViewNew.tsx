@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import createCalculationPool from '../../common/createCalculationPool';
-import { HitherContext, RecordingInfo } from '../../extensionInterface';
 import Splitter from '../../common/Splitter';
+import { HitherContext, RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface';
 import ElectrodeGeometryView from './ElectrodeGeometryView';
 import Mda from './Mda';
 import TimeseriesModelNew from './TimeseriesModelNew';
@@ -22,6 +22,8 @@ interface Props {
     opts: {
         channelSelectPanel?: boolean
     }
+    recordingSelection?: RecordingSelection
+    recordingSelectionDispatch?: RecordingSelectionDispatch
 }
 
 interface TimeseriesInfo {
@@ -45,7 +47,8 @@ const TimeseriesViewNew = (props: Props) => {
     const [timeseriesInfo, setTimeseriesInfo] = useState<TimeseriesInfo | null>(null)
     const [timeseriesModel, setTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [widgetKey, setWidgetKey] = useState<number>(0)
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([])
+    // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([])
+    const [recordingSelectionInternal, recordingSelectionInternalDispatch] = useReducer(recordingSelectionReducer, {})
     const hither = props.hither
 
     const effect = async () => {
@@ -113,6 +116,12 @@ const TimeseriesViewNew = (props: Props) => {
     }
     useEffect(() => { effect(); });
 
+    const recordingSelection = props.recordingSelection || recordingSelectionInternal
+    const recordingSelectionDispatch = props.recordingSelectionDispatch || recordingSelectionInternalDispatch
+    const selectedElectrodeIds = recordingSelection.selectedElectrodeIds || []
+
+    const y_scale_factor = 1 / (props.recordingInfo.noise_level || 1) * 1/10
+
     if ((status === 'finished') && (timeseriesInfo) && (timeseriesModel)) {
         if (!timeseriesModel) throw Error('Unexpected timeseriesModel is null')
         if (!timeseriesInfo) throw Error('Unexpected timeseriesInfo is null')
@@ -130,12 +139,12 @@ const TimeseriesViewNew = (props: Props) => {
                                 width={0} // filled in above
                                 height={0} // filled in above
                                 selectedElectrodeIds={selectedElectrodeIds}
-                                onSelectedElectrodeIdsChanged={setSelectedElectrodeIds}
+                                onSelectedElectrodeIdsChanged={(x: number[]) => {recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})}}
                             />
                         )
                     }
                     {
-                        ((!opts.channelSelectPanel) || ((selectedElectrodeIds) && (selectedElectrodeIds.length > 0))) ? (
+                        ((!opts.channelSelectPanel) || (selectedElectrodeIds.length > 0)) ? (
                             <TimeseriesWidgetNew
                                 key={widgetKey}
                                 timeseriesModel={timeseriesModel}
@@ -143,10 +152,13 @@ const TimeseriesViewNew = (props: Props) => {
                                 channel_locations={timeseriesInfo.channel_locations}
                                 num_timepoints={timeseriesInfo.num_timepoints}
                                 y_offsets={timeseriesInfo.y_offsets}
-                                y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
+                                // y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
+                                y_scale_factor={y_scale_factor}
                                 width={props.width} // filled in above
                                 height={props.height} // filled in above
                                 visibleChannelIds={opts.channelSelectPanel ? selectedElectrodeIds : null}
+                                recordingSelection={recordingSelection}
+                                recordingSelectionDispatch={recordingSelectionDispatch}
                             />
                         ) : (
                             <div>Select one or more electrodes</div>

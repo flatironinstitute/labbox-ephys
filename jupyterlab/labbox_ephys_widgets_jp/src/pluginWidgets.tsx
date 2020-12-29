@@ -9,7 +9,7 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingSelectionAction, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -285,7 +285,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
 
   useEffect(() => {
     if (divElement) {
-      ;(window as any)['debug_divElement'] = divElement
       if (width !== divElement.offsetWidth) {
         setWidth(divElement.offsetWidth)
       }
@@ -477,6 +476,8 @@ export class RecordingView extends DOMWidgetView {
         plugins={plugins}
         hither={hitherContext}
         calculationPool={calculationPool}
+        recordingSelection={{}}
+        recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
       />
     )
     return x

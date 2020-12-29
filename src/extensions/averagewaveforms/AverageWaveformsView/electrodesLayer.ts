@@ -48,7 +48,7 @@ const defaultColors: ElectrodeColors = {
 
 const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<LayerProps, LayerState>) => {
     if (event.type !== ClickEventType.Release) return
-    const { onSelectedElectrodeIdsChanged } = layer.getProps()
+    const { selectionDispatch } = layer.getProps()
     const state = layer.getState()
     if (state === null) return
     const hitIds = state.electrodeBoxes.filter((r) => pointIsInEllipse(event.point, [r.x, r.y], state.radius)).map(r => r.id)
@@ -56,7 +56,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     if (hitIds.length === 0) {
         if (!(event.modifiers.ctrl || event.modifiers.shift || state.dragRegion)) {
             // simple-click that doesn't select anything should deselect everything. Shift- or Ctrl-clicks on empty space do nothing.
-            onSelectedElectrodeIdsChanged && onSelectedElectrodeIdsChanged([])
+            selectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: []})
         }
         return
     }
@@ -64,7 +64,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     // Since we've already handled the case where it's 0, now it must be 1.
     const hitId = hitIds[0]
     
-    const currentSelection = layer.getProps()?.selectedElectrodeIds || []
+    const currentSelection = layer.getProps().selection.selectedElectrodeIds || []
     const newSelection = event.modifiers.ctrl  // ctrl-click: toggle state of clicked item
                             ? currentSelection.includes(hitId)
                                 ? currentSelection.filter(id => id !== hitId)
@@ -72,7 +72,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
                             : event.modifiers.shift
                                 ? [...currentSelection, hitId] // shift-click: add selected item unconditionally
                                 : [hitId] // simple click: clear all selections except clicked item
-    onSelectedElectrodeIdsChanged && onSelectedElectrodeIdsChanged(newSelection)
+    selectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: newSelection})
     layer.scheduleRepaint()
 }
 
@@ -87,12 +87,12 @@ const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
 
 const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<LayerProps, LayerState>, drag: CanvasDragEvent) => {
     const state = layer.getState()
-    const { onSelectedElectrodeIdsChanged } = layer.getProps()
+    const { selectionDispatch } = layer.getProps()
     if (state === null) return // state not set; can't happen but keeps linter happy
     const hits = state.electrodeBoxes.filter((r) => rectangularRegionsIntersect(r.rect, drag.dragRect)) ?? []
     if (drag.released) {
-        const currentSelected = drag.shift ? layer.getProps()?.selectedElectrodeIds ?? [] : []
-        onSelectedElectrodeIdsChanged && onSelectedElectrodeIdsChanged([...currentSelected, ...hits.map(r => r.id)])
+        const currentSelected = drag.shift ? layer.getProps()?.selection.selectedElectrodeIds ?? [] : []
+        selectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: [...currentSelected, ...hits.map(r => r.id)]})
         layer.setState({...state, dragRegion: null, draggedElectrodeIds: []})
     } else {
         layer.setState({...state, dragRegion: drag.dragRect, draggedElectrodeIds: hits.map(r => r.id)})
@@ -108,7 +108,7 @@ export const createElectrodesLayer = () => {
         painter.wipe()
         const useLabels = state.pixelRadius > 5
         for (let e of state.electrodeBoxes) {
-            const selected = props.selectedElectrodeIds?.includes(e.id) || false
+            const selected = props.selection.selectedElectrodeIds?.includes(e.id) || false
             const hovered = state.hoveredElectrodeId === e.id
             const dragged = state.draggedElectrodeIds?.includes(e.id) || false
             const color = selected 

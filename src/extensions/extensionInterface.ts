@@ -30,7 +30,7 @@ export interface RecordingInfo {
     channel_groups: number[]
     geom: (number[])[]
     num_frames: number
-    is_local?: boolean
+    noise_level: number
 }
 
 export interface Recording {
@@ -193,8 +193,88 @@ export const externalUnitMetricsReducer: Reducer<ExternalSortingUnitMetric[], Ex
 }
 ////////////////////////////////
 
+// Recording selection
+export interface RecordingSelection {
+    selectedElectrodeIds?: number[]
+    currentTimepoint?: number
+    timeRange?: {min: number, max: number} | null
+    ampScaleFactor?: number
+}
+
+export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void
+
+type SetRecordingSelectionRecordingSelectionAction = {
+    type: 'SetRecordingSelection',
+    recordingSelection: RecordingSelection
+}
+
+type SetSelectedElectrodeIdsRecordingSelectionAction = {
+    type: 'SetSelectedElectrodeIds',
+    selectedElectrodeIds: number[]
+}
+
+type SetCurrentTimepointRecordingSelectionAction = {
+    type: 'SetCurrentTimepoint',
+    currentTimepoint: number | null
+}
+
+type SetTimeRangeRecordingSelectionAction = {
+    type: 'SetTimeRange',
+    timeRange: {min: number, max: number} | null
+}
+
+type SetAmpScaleFactorRecordingSelectionAction = {
+    type: 'SetAmpScaleFactor',
+    ampScaleFactor: number
+}
+
+type ScaleAmpScaleFactorRecordingSelectionAction = {
+    type: 'ScaleAmpScaleFactor',
+    multiplier: number
+}
+
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction
+
+export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
+    if (action.type === 'SetRecordingSelection') {
+        return {...action.recordingSelection}
+    }
+    else if (action.type === 'SetSelectedElectrodeIds') {
+        return {
+            ...state,
+            selectedElectrodeIds: action.selectedElectrodeIds
+        }
+    }
+    else if (action.type === 'SetCurrentTimepoint') {
+        return {
+            ...state,
+            currentTimepoint: action.currentTimepoint || undefined
+        }
+    }
+    else if (action.type === 'SetTimeRange') {
+        return {
+            ...state,
+            timeRange: action.timeRange
+        }
+    }
+    else if (action.type === 'SetAmpScaleFactor') {
+        return {
+            ...state,
+            ampScaleFactor: action.ampScaleFactor
+        }
+    }
+    else if (action.type === 'ScaleAmpScaleFactor') {
+        return {
+            ...state,
+            ampScaleFactor: (state.ampScaleFactor || 1) * action.multiplier
+        }
+    }
+    else return state
+}
+////////////////////
+
 // Sorting selection
-export type SortingSelection = {
+export interface SortingSelection extends RecordingSelection {
     selectedUnitIds?: number[]
     visibleUnitIds?: number[] | null // null means all are selected
 }
@@ -223,7 +303,7 @@ type UnitClickedSortingSelectionAction = {
     shiftKey?: boolean
 }
 
-export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction
+export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction | RecordingSelectionAction
 
 const unitClickedReducer = (state: SortingSelection, action: UnitClickedSortingSelectionAction): SortingSelection => {
     const unitId = action.unitId
@@ -269,7 +349,9 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
     else if (action.type === 'UnitClicked') {
         return unitClickedReducer(state, action)
     }
-    else return state
+    else {
+        return recordingSelectionReducer(state, action)
+    }
 }
 ////////////////////
 
@@ -360,6 +442,8 @@ export interface SortingUnitViewPlugin extends ViewPlugin {
 
 export interface RecordingViewProps extends ViewProps {
     recording: Recording
+    recordingSelection: RecordingSelection
+    recordingSelectionDispatch: RecordingSelectionDispatch
 }
 
 export interface RecordingViewPlugin extends ViewPlugin {

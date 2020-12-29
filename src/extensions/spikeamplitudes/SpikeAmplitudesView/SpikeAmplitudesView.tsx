@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react'
-import { SortingViewProps } from "../../extensionInterface"
 import Splitter from '../../common/Splitter'
+import { SortingViewProps } from "../../extensionInterface"
 import SelectUnitsWidget from './SelectUnitsWidget'
 import SpikeAmplitudesTimeWidget from './SpikeAmplitudesTimeWidget'
 
@@ -18,6 +18,8 @@ const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, so
                 unitIds={selection.selectedUnitIds || []}
                 hither={hither}
                 {...{width: 0, height: 0}} // filled in by splitter
+                selection={selection}
+                selectionDispatch={selectionDispatch}
             />
         </Splitter>
     )

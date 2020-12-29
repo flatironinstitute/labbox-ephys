@@ -3,7 +3,7 @@
 
 import { faThLarge } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
@@ -15,10 +15,10 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
     })
 }
 
-const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height}) => {
+const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height, recordingSelection, recordingSelectionDispatch}) => {
     const ri = recording.recordingInfo
     const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
+    // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
@@ -27,23 +27,18 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     return (
         <ElectrodeGeometryWidget
             electrodes={electrodes}
-            selectedElectrodeIds={selectedElectrodeIds}
-            onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
+            selectedElectrodeIds={recordingSelection.selectedElectrodeIds || []}
+            onSelectedElectrodeIdsChanged={(x: number[]) => {recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})}}
             width={width || 350}
             height={height || 150}
         />
     );
 }
 
-const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, plugins, hither, calculationPool, width, height}) => {
+const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, plugins, hither, calculationPool, width, height, selection, selectionDispatch}) => {
     return (
         <ElectrodeGeometryRecordingView
-            recording={recording}
-            plugins={plugins}
-            hither={hither}
-            calculationPool={calculationPool}
-            width={width}
-            height={height}
+            {...{recording, plugins, hither, calculationPool, width, height, recordingSelection: selection, recordingSelectionDispatch: selectionDispatch}}
         />
     )
 }

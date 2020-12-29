@@ -124,7 +124,7 @@ const recording: Recording = {
             ]
         ],
         "num_frames": 18000000,
-        "is_local": true
+        "noise_level": 1
     }
 }
 

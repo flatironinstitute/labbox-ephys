@@ -33,6 +33,11 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = ({recording, s
             plotComponentArgsCallback={(unitId: number) => ({
                 id: 'plot-'+unitId
             })}
+            plotComponentPropsCallback={(unitId: number) => ({
+                selection,
+                selectionDispatch,
+                noiseLevel: recording.recordingInfo?.noise_level || 1
+            })}
             calculationPool={calculationPool}
             hither={hither}
         />

@@ -129,11 +129,16 @@ export class CanvasPainter {
         }
     }
     useOffscreenCanvas(W: number, H: number) {
-        const c = new OffscreenCanvas(W, H)
-        this._offscreenCanvas = c
-        const cc = c.getContext('2d')
-        if (!cc) throw Error('Unexpected')
-        this._context2D = cc
+        try {
+            const c = new OffscreenCanvas(Math.max(W, 10), Math.max(H, 10))
+            this._offscreenCanvas = c
+            const cc = c.getContext('2d')
+            if (!cc) throw Error('Unexpected')
+            this._context2D = cc
+        }
+        catch(err) {
+            console.warn('Problem in useOffscreenCanvas', err)
+        }
     }
     transferOffscreenToPrimary() {
         const c = this._offscreenCanvas

@@ -29,7 +29,7 @@ const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
                     num_frames={ri.num_frames}
                     channel_ids={ri.channel_ids}
                     channel_groups={ri.channel_groups}
-                    is_local={ri.is_local}
+                    noise_level={ri.noise_level}
                 />
             </div>
             {
@@ -47,7 +47,7 @@ const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
     );
 }
 
-const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames, is_local }) => {
+const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames, noise_level }) => {
     return (
         <Table>
             <TableHead>
@@ -76,6 +76,10 @@ const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, n
                 <TableRow>
                     <TableCell>Channel groups</TableCell>
                     <TableCell>{channel_groups.length < 20 ? commasep(channel_groups) : commasep(channel_groups.slice(0, 20)) + ' ...'}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Noise level</TableCell>
+                    <TableCell>{noise_level}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>

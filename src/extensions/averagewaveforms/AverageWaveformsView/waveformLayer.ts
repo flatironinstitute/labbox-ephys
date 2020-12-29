@@ -22,9 +22,10 @@ export const createWaveformLayer = () => {
         const { waveform } = props
         const opts = props.waveformOpts
         const colors = opts.colors || defaultWaveformColors
-        const maxAbs = Math.max(...waveform.map(w => Math.max(...w.map(x => Math.abs(x)))))
+        // const maxAbs = Math.max(...waveform.map(w => Math.max(...w.map(x => Math.abs(x)))))
         painter.wipe()
-        const yScaleFactor = 1 / maxAbs
+        // const yScaleFactor = 1 / maxAbs
+        const yScaleFactor = (props.selection.ampScaleFactor || 1) / (props.noiseLevel || 1) * 1/10
         for (let i = 0; i < state.electrodeBoxes.length; i++) {
             const e = state.electrodeBoxes[i]
             const painter2 = painter.transform(e.transform).transform(funcToTransform(p => {
