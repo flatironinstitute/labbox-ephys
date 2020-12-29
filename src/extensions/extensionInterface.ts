@@ -1,4 +1,4 @@
-import { Reducer } from "react"
+import { Reducer, useEffect, useState } from "react"
 
 export interface Sorting {
     sortingId: string
@@ -205,6 +205,19 @@ export interface RecordingSelection {
     }
 }
 
+export const useRecordingAnimation = (selectionDispatch: RecordingSelectionDispatch) => {
+    const [animationFrame, setAnimationFrame] = useState(0)
+    useEffect(() => {
+        if (animationFrame === 0) {
+        // selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 100})
+        }
+        setTimeout(() => {
+        selectionDispatch({type: 'AnimateRecording'})
+        setAnimationFrame(animationFrame + 1)
+        }, 100)
+    }, [selectionDispatch, animationFrame, setAnimationFrame])
+}
+
 export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void
 
 type SetRecordingSelectionRecordingSelectionAction = {
@@ -300,19 +313,24 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
             let state2 = {...state}
             const currentTimepointVelocity = state?.animation?.currentTimepointVelocity || 0
             const currentTimepoint = state.currentTimepoint
+            let somethingChanged = false
             if ((currentTimepointVelocity) && (currentTimepoint !== undefined)) {
+                somethingChanged = true
                state2 = {
                    ...state2,
                    currentTimepoint: Math.round(currentTimepoint + currentTimepointVelocity * (elapsed / 1000))
                } 
             }
-            return {
-                ...state2,
-                animation: {
-                    ...(state2?.animation || {currentTimepointVelocity: 0}),
-                    lastUpdateTimestamp: current
+            if (somethingChanged) {
+                return {
+                    ...state2,
+                    animation: {
+                        ...(state2?.animation || {currentTimepointVelocity: 0}),
+                        lastUpdateTimestamp: current
+                    }
                 }
             }
+            else return state
         }
         else return state
     }

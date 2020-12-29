@@ -5,7 +5,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer } from '../extensions/extensionInterface';
+import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer, useRecordingAnimation } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -59,16 +59,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, {})
   const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
 
-  const [animationFrame, setAnimationFrame] = useState(0)
-  useEffect(() => {
-    if (animationFrame === 0) {
-      selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 100})
-    }
-    setTimeout(() => {
-      selectionDispatch({type: 'AnimateRecording'})
-      setAnimationFrame(animationFrame + 1)
-    }, 100)
-  }, [selectionDispatch, animationFrame, setAnimationFrame])
+  useRecordingAnimation(selectionDispatch)
   
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
