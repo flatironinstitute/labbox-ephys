@@ -49,7 +49,6 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
         recordingInfo = DictTrait(le.get_recording_info(recording_object=recording.object())).tag(sync=True)
         sortingInfo = DictTrait(le.get_sorting_info(sorting_object=sorting.object(), recording_object=recording.object())).tag(sync=True)
         selection = DictTrait({}).tag(sync=True)
-        recordingSelection = DictTrait({}).tag(sync=True)
         curation = DictTrait({}).tag(sync=True)
         externalUnitMetrics = ListTrait([]).tag(sync=True)
         def __init__(self) -> None:
@@ -63,10 +62,6 @@ def create_sorting_view(plugin_name: str, *, sorting: le.LabboxEphysSortingExtra
             return deepcopy(self.selection)
         def set_selection(self, selection):
             self.selection = deepcopy(selection)
-        def get_recording_selection(self):
-            return deepcopy(self.recordingSelection)
-        def set_recording_selection(self, recording_selection):
-            self.recordingSelection = deepcopy(recording_selection)
         def get_curation(self):
             return deepcopy(self.curation)
         def set_curation(self, curation):

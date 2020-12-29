@@ -120,6 +120,8 @@ const TimeseriesViewNew = (props: Props) => {
     const recordingSelectionDispatch = props.recordingSelectionDispatch || recordingSelectionInternalDispatch
     const selectedElectrodeIds = recordingSelection.selectedElectrodeIds || []
 
+    const y_scale_factor = 1 / (props.recordingInfo.noise_level || 1) * 1/10
+
     if ((status === 'finished') && (timeseriesInfo) && (timeseriesModel)) {
         if (!timeseriesModel) throw Error('Unexpected timeseriesModel is null')
         if (!timeseriesInfo) throw Error('Unexpected timeseriesInfo is null')
@@ -150,10 +152,13 @@ const TimeseriesViewNew = (props: Props) => {
                                 channel_locations={timeseriesInfo.channel_locations}
                                 num_timepoints={timeseriesInfo.num_timepoints}
                                 y_offsets={timeseriesInfo.y_offsets}
-                                y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
+                                // y_scale_factor={timeseriesInfo.y_scale_factor * (timeseriesInfo.initial_y_scale_factor || 1)}
+                                y_scale_factor={y_scale_factor}
                                 width={props.width} // filled in above
                                 height={props.height} // filled in above
                                 visibleChannelIds={opts.channelSelectPanel ? selectedElectrodeIds : null}
+                                recordingSelection={recordingSelection}
+                                recordingSelectionDispatch={recordingSelectionDispatch}
                             />
                         ) : (
                             <div>Select one or more electrodes</div>

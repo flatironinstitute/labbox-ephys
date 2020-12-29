@@ -25,8 +25,6 @@ const AllUnitsTab: FunctionComponent<SortingViewProps> = (props) => {
                                 recording={props.recording}
                                 selection={props.selection}
                                 selectionDispatch={props.selectionDispatch}
-                                recordingSelection={props.recordingSelection}
-                                recordingSelectionDispatch={props.recordingSelectionDispatch}
                                 curationDispatch={props.curationDispatch}
                                 readOnly={props.readOnly}
                                 plugins={props.plugins}

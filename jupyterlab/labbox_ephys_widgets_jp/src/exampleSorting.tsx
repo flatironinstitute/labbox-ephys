@@ -123,8 +123,7 @@ const recording: Recording = {
                 0
             ]
         ],
-        "num_frames": 18000000,
-        "is_local": true
+        "num_frames": 18000000
     }
 }
 

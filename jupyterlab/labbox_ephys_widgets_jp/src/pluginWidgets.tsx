@@ -9,7 +9,7 @@ import '../css/widget.css';
 import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingSelectionAction, recordingSelectionReducer, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingSelectionAction, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -166,7 +166,6 @@ export class SortingViewModel extends DOMWidgetModel {
       recordingObject: {},
       curation: {},
       selection: {},
-      recordingSelection: {},
       externalUnitMetrics: []
     };
   }
@@ -273,23 +272,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     }, null)
   }, [model])
 
-  // recording selection
-  const [recordingSelection, recordingSelectionDispatch] = useReducer(recordingSelectionReducer, model.get('recordingSelection').selectedUnitIds ? model.get('recordingSelection') : {})
-  useEffect(() => {
-    if (model.get('recordingSelection') !== recordingSelection) {
-      model.set('recordingSelection', recordingSelection)
-      model.save_changes()
-    }
-  }, [recordingSelection, model])
-  useEffect(() => {
-    model.on('change:recordingSelection', () => {
-      recordingSelectionDispatch({
-        type: 'SetRecordingSelection',
-        recordingSelection: model.get('recordingSelection')
-      })
-    }, null)
-  }, [model])
-
   const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
   const [width, setWidth] = useState<number | undefined>(undefined)
   const [height, setHeight] = useState<number | undefined>(undefined)
@@ -331,8 +313,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
         curationDispatch={curationDispatch}
         selection={selection}
         selectionDispatch={selectionDispatch}
-        recordingSelection={recordingSelection}
-        recordingSelectionDispatch={recordingSelectionDispatch}
         readOnly={false}
         plugins={plugins}
         hither={hither}

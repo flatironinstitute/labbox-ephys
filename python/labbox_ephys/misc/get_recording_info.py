@@ -6,9 +6,10 @@ import hither as hi
 import kachery as ka
 import labbox_ephys as le
 import numpy as np
+import spikeextractors as se
 
 
-@hi.function('createjob_get_recording_info', '0.1.1')
+@hi.function('createjob_get_recording_info', '0.1.2')
 def createjob_get_recording_info(labbox, recording_object):
     jc = labbox.get_default_job_cache()
     with hi.Config(
@@ -16,8 +17,17 @@ def createjob_get_recording_info(labbox, recording_object):
     ):
         return get_recording_info.run(recording_object=recording_object)
 
+def estimate_noise_level(recording: se.RecordingExtractor):
+    N = recording.get_num_frames()
+    samplerate = recording.get_sampling_frequency()
+    start_frame = 0
+    end_frame = int(np.minimum(samplerate * 1, N))
+    X = recording.get_traces(channel_ids=[int(id) for id in recording.get_channel_ids()], start_frame=start_frame, end_frame=end_frame)
+    est_noise_level = np.median(np.abs(X.squeeze())) / 0.6745  # median absolute deviation (MAD) estimate of stdev
+    if (est_noise_level == 0): est_noise_level = 1
+    return est_noise_level
 
-@hi.function('get_recording_info', '0.1.1')
+@hi.function('get_recording_info', '0.1.3')
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def get_recording_info(recording_object):
@@ -28,7 +38,7 @@ def get_recording_info(recording_object):
         channel_groups=recording.get_channel_groups().tolist(),
         geom=geom_from_recording(recording).tolist(),
         num_frames=recording.get_num_frames(),
-        is_local=recording.is_local()
+        noise_level=estimate_noise_level(recording)
     )
 
 @hi.function('download_recording', '0.1.0')

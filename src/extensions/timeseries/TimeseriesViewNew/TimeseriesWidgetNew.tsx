@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { PainterPath } from '../../common/CanvasWidget'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
+import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface'
 import TimeWidgetNew, { TimeWidgetAction } from '../TimeWidgetNew/TimeWidgetNew'
 import TimeseriesModelNew from './TimeseriesModelNew'
 
@@ -15,6 +16,8 @@ interface Props {
     width: number
     height: number
     visibleChannelIds?: number[] | null
+    recordingSelection: RecordingSelection
+    recordingSelectionDispatch: RecordingSelectionDispatch
 }
 
 const channelColors = [
@@ -158,34 +161,19 @@ class Panel {
     }
 }
 
-interface YScaleState {
-    yScale: number
-}
-
-interface YScaleAction {
-    scaleFactor: number
-}
-
-const yScaleReducer = (state: YScaleState, action: YScaleAction): YScaleState => {
-    return {
-        yScale: state.yScale * action.scaleFactor
-    }
-}
-
 const TimeseriesWidgetNew = (props: Props) => {
-    const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids, visibleChannelIds } = props
+    const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection, recordingSelectionDispatch } = props
     const [panels, setPanels] = useState<Panel[]>([])
     const [prevTimeseriesModel, setPrevTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
     const [prevVisibleChannelIds, setPrevVisibleChannelIds] = useState<number[] | null | undefined>(null)
-    const [yScaleState, yScaleDispatch] = useReducer(yScaleReducer, {yScale: 1})
-    const [prevYScale, setPrevYScale] = useState<number>(1)
+    
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {
-        yScaleDispatch({scaleFactor: 1.15})
-    }, [yScaleDispatch])
+        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
+    }, [recordingSelectionDispatch])
     const _handleScaleAmplitudeDown = useCallback(() => {
-        yScaleDispatch({scaleFactor: 1 / 1.15})
-    }, [yScaleDispatch])
+        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1 / 1.15})
+    }, [recordingSelectionDispatch])
 
     useEffect(() => {
         if ((timeseriesModel !== prevTimeseriesModel) || (visibleChannelIds !== prevVisibleChannelIds)) {
@@ -229,15 +217,12 @@ const TimeseriesWidgetNew = (props: Props) => {
         }
     }, [actions, setActions, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp])
     useEffect(() => {
-        if (yScaleState.yScale !== prevYScale) {
-            if (panels) {
-                panels.forEach(p => {
-                    p.setYScale(yScaleState.yScale)
-                })
-            }
-            setPrevYScale(yScaleState.yScale)
+        if (panels) {
+            panels.forEach(p => {
+                p.setYScale(recordingSelection.ampScaleFactor || 1)
+            })
         }
-    }, [yScaleState, setPrevYScale, prevYScale, panels])
+    }, [recordingSelection, recordingSelection.ampScaleFactor, panels])
 
     if (panels) {
         panels.forEach(p => {
@@ -255,6 +240,10 @@ const TimeseriesWidgetNew = (props: Props) => {
             startTimeSpan={1e7 / timeseriesModel.numChannels()}
             maxTimeSpan={1e7 / timeseriesModel.numChannels()}
             numTimepoints={timeseriesModel ? timeseriesModel.numTimepoints() : 0}
+            currentTimepoint={recordingSelection.currentTimepoint}
+            onCurrentTimepointChanged={(t: number | null) => {recordingSelectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})}}
+            timeRange={recordingSelection.timeRange}
+            onTimeRangeChanged={(r: {min: number, max: number} | null) => {recordingSelectionDispatch({type: 'SetTimeRange', timeRange: r})}}
         />
     )
 }

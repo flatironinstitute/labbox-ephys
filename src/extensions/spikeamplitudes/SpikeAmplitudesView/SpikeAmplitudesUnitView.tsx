@@ -10,6 +10,8 @@ const SpikeAmplitudesUnitView: FunctionComponent<SortingUnitViewProps> = (props)
             unitIds={[props.unitId]}
             hither={props.hither}
             {...{width: props.width || 500, height: props.height || 500}}
+            selection={props.selection}
+            selectionDispatch={props.selectionDispatch}
         />
     )
 }

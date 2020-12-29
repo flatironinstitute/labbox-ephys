@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer'
@@ -32,6 +32,10 @@ interface Props {
     maxTimeSpan: number
     startTimeSpan: number
     numTimepoints: number
+    currentTimepoint?: number | null
+    onCurrentTimepointChanged?: (t: number | null) => void
+    timeRange?: {min: number, max: number} | null
+    onTimeRangeChanged?: (r: {min: number, max: number} | null) => void
 }
 
 export interface TimeWidgetPanel {
@@ -197,13 +201,47 @@ const plotMargins = {
     bottom: 100
 }
 
+const useTimeState = (args: {
+    numTimepoints: number,
+    maxTimeSpan: number,
+    currentTimepoint?: number | null,
+    onCurrentTimepointChanged?: (t: number | null) => void,
+    timeRange?: {min: number, max: number} | null,
+    onTimeRangeChanged?: (r: {min: number, max: number} | null) => void
+}): {timeState: TimeState, timeDispatch: React.Dispatch<TimeAction>} => {
+    const { numTimepoints, maxTimeSpan, currentTimepoint, onCurrentTimepointChanged, timeRange, onTimeRangeChanged } = args
+    const [timeState, setTimeState] = useState<TimeState>({timeRange: null, currentTime: null, numTimepoints, maxTimeSpan})
+    let newTimeState = {...timeState}
+    if (currentTimepoint !== undefined) {
+        newTimeState = {...newTimeState, currentTime: currentTimepoint}
+    }
+    if (timeRange !== undefined) {
+        newTimeState = {...newTimeState, timeRange}
+    }
+    const newTimeDispatch = (a: TimeAction) => {
+        const reducedTimeState = timeReducer(newTimeState, a)
+        if (onCurrentTimepointChanged !== undefined) {
+            if (reducedTimeState.currentTime !== currentTimepoint) {
+                onCurrentTimepointChanged(reducedTimeState.currentTime)
+            }
+        }
+        if (onTimeRangeChanged !== undefined) {
+            if ((reducedTimeState.timeRange?.min !== timeRange?.min) || (reducedTimeState.timeRange?.max !== timeRange?.max)) {
+                onTimeRangeChanged(reducedTimeState.timeRange)
+            }
+        }
+        setTimeState(reducedTimeState)
+    }
+    return {timeState: newTimeState, timeDispatch: newTimeDispatch}
+}
+
 const TimeWidgetNew = (props: Props) => {
 
-    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate} = props
+    const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate, currentTimepoint, onCurrentTimepointChanged, timeRange, onTimeRangeChanged} = props
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({numTimepoints})
 
-    const [timeState, timeDispatch] = useReducer(timeReducer, {timeRange: null, currentTime: null, numTimepoints, maxTimeSpan})
+    const {timeState, timeDispatch} = useTimeState({numTimepoints, maxTimeSpan, currentTimepoint, onCurrentTimepointChanged, timeRange, onTimeRangeChanged})
     const [prevCurrentTime, setPrevCurrentTime] = useState<number | null>(null)
     const [prevTimeRange, setPrevTimeRange] = useState<{min: number, max: number} | null>(null)
     const [prevPanels, setPrevPanels] = useState<TimeWidgetPanel[] | null>(null)
@@ -305,7 +343,7 @@ const TimeWidgetNew = (props: Props) => {
             timeDispatch({type: 'setTimeRange', timeRange: {min: 0, max: tmax}})
             timeDispatch({type: 'setCurrentTime', currentTime: Math.floor(tmax / 2)})
         }
-    }, [timeState, numTimepoints, startTimeSpan])
+    }, [timeState, numTimepoints, startTimeSpan, timeDispatch])
 
     const bottomBarInfo = {
         show: true,

@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import { HitherContext, Recording, Sorting } from '../../extensionInterface';
+import { HitherContext, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';
 
@@ -10,9 +10,11 @@ type Props = {
     width: number
     height: number,
     hither: HitherContext
+    selection: SortingSelection
+    selectionDispatch: SortingSelectionDispatch
 }
 
-const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sorting, unitIds, width, height, hither }) => {
+const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sorting, unitIds, width, height, hither, selection, selectionDispatch }) => {
     const { sortingInfo } = sorting
     const { recordingInfo } = recording
 
@@ -48,6 +50,10 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sortin
             maxTimeSpan={sortingInfo.samplerate * 60 * 5}
             startTimeSpan={sortingInfo.samplerate * 60 * 1}
             numTimepoints={recordingInfo.num_frames}
+            currentTimepoint={selection.currentTimepoint}
+            onCurrentTimepointChanged={(t: number | null) => {selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})}}
+            timeRange={selection.timeRange}
+            onTimeRangeChanged={(r: {min: number, max: number} | null) => {selectionDispatch({type: 'SetTimeRange', timeRange: r})}}
         />
     )
 }

@@ -149,7 +149,6 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                             onLaunchSortingView={handleLaunchSortingView}
                             onLaunchSortingUnitView={handleLaunchSortingUnitView}
                             selection={props.selection}
-                            recordingSelection={props.recordingSelection}
                         />
                     </Expandable>
                     <Expandable icon={curationIcon} label="Curation" defaultExpanded={true}>
