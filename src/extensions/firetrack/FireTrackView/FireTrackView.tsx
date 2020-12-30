@@ -37,4 +37,5 @@ const FireTrackView: FunctionComponent<SortingViewProps> = ({recording, sorting,
     )
 }
 
+
 export default FireTrackView
