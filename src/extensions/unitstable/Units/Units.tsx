@@ -1,7 +1,7 @@
 
 import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
+import { Recording, SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
 
@@ -33,7 +33,8 @@ interface MetricDataAction {
     error?: string
 }
 
-const updateMetricData = (state: MetricDataState, action: MetricDataAction): MetricDataState => {
+const updateMetricData = (state: MetricDataState, action: MetricDataAction | 'clear'): MetricDataState => {
+    if (action === 'clear') return {}
     const { metricName, status, data, error } = action
     if (state[metricName] && state[metricName].status === 'completed') {
         console.warn(`Updating status of completed metric ${metricName}??`);
@@ -58,9 +59,16 @@ interface OwnProps {
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, hither, width, height } = props
-    const [activeOptions, setActiveOptions] = useState([]);
-    const [expandedTable, setExpandedTable] = useState(false);
-    const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState);
+    const [expandedTable, setExpandedTable] = useState(false)
+    const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState)
+    const [previousRecording, setPreviousRecording] = useState<Recording | null>(null)
+
+    useEffect(() => {
+        if (previousRecording !== recording) {
+            updateMetrics('clear')
+            setPreviousRecording(recording)
+        }
+    }, [recording, previousRecording, setPreviousRecording, updateMetrics])
     // const activeMetricPlugins = metricPlugins.filter(
     //     p => (!p.development || (extensionsConfig.enabled.development)));
 

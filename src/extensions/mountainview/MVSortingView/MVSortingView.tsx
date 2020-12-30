@@ -1,13 +1,13 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
-import { faPencilAlt } from '@fortawesome/free-solid-svg-icons'
+import { faPencilAlt, faSocks } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react'
-import sizeMe, { SizeMeProps } from 'react-sizeme'
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer } from 'react'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Expandable from "../../old/curation/CurationSortingView/Expandable"
 import '../mountainview.css'
 import CurationControl from './CurationControl'
+import FilterControl, { filterSelectionReducer } from './FilterControl'
 import ViewContainer from './ViewContainer'
 import ViewLauncher, { ViewPluginType } from './ViewLauncher'
 import ViewWidget from './ViewWidget'
@@ -72,8 +72,8 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
     else return state
 }
 
-const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
-    const {plugins, size} = props
+const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
+    const {plugins, recording} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
     const averageWaveformsPlugin = plugins.sortingViews.AverageWaveforms
@@ -131,10 +131,37 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
             area
         })
     }, [openViewsDispatch])
-    const width = props.width || size.width || 600
+    const width = props.width || 600
     const height = props.height || 900
+    const filterIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSocks} type="outline" /></span>
     const launchIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSquare} type="outline" /></span>
     const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
+
+    const [filterSelection, filterSelectionDispatch] = useReducer(filterSelectionReducer, {filterType: 'none'})
+
+    const filteredRecording = useMemo(() => {
+        if (!recording) return recording
+        if (filterSelection.filterType === 'none') {
+            return recording
+        }
+        else if (filterSelection.filterType === 'bandpass_filter') {
+            return {
+                ...recording,
+                recordingObject: {
+                    recording_format: 'filtered',
+                    data: {
+                        filters: [{type: 'bandpass_filter', freq_min: 300, freq_max: 3000, freq_wid: 1000}],
+                        recording: recording.recordingObject
+                    }
+                }
+            }
+        }
+        else {
+            throw Error(`Unexpected filter type: ${filterSelection.filterType}`)
+        }
+    }, [recording, filterSelection])
+
+    const sortingViewProps = {...props, recording: filteredRecording}
     return (
         <div className="MVSortingView">
             <Splitter
@@ -143,6 +170,12 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                 initialPosition={initialLeftPanelWidth}
             >
                 <div>
+                    <Expandable icon={filterIcon} label="Filter" defaultExpanded={true}>
+                        <FilterControl
+                            filterSelection={filterSelection}
+                            filterSelectionDispatch={filterSelectionDispatch}
+                        />
+                    </Expandable>
                     <Expandable icon={launchIcon} label="Launch" defaultExpanded={true}>
                         <ViewLauncher
                             plugins={plugins}
@@ -169,9 +202,10 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
                 >
                     {
                         openViews.map(v => (
-                            <ViewWidget key={v.viewId}
+                            <ViewWidget
+                                key={v.viewId}
                                 view={v}
-                                sortingViewProps={props}
+                                sortingViewProps={sortingViewProps}
                             />
                         ))
                     }
@@ -181,4 +215,4 @@ const MVSortingView: FunctionComponent<SortingViewProps & SizeMeProps> = (props)
     )
 }
 
-export default sizeMe()(MVSortingView)
+export default MVSortingView

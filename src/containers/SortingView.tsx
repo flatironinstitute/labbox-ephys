@@ -59,7 +59,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, {})
   const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
 
-  useRecordingAnimation(selectionDispatch)
+  useRecordingAnimation(selection, selectionDispatch)
   
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 

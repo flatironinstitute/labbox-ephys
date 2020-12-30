@@ -205,17 +205,19 @@ export interface RecordingSelection {
     }
 }
 
-export const useRecordingAnimation = (selectionDispatch: RecordingSelectionDispatch) => {
+export const useRecordingAnimation = (selection: RecordingSelection, selectionDispatch: RecordingSelectionDispatch) => {
     const [animationFrame, setAnimationFrame] = useState(0)
     useEffect(() => {
         if (animationFrame === 0) {
         // selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 100})
         }
         setTimeout(() => {
-        selectionDispatch({type: 'AnimateRecording'})
-        setAnimationFrame(animationFrame + 1)
+            if (selection?.animation?.currentTimepointVelocity) {
+                selectionDispatch({type: 'AnimateRecording'})
+            }
+            setAnimationFrame(animationFrame + 1)
         }, 20)
-    }, [selectionDispatch, animationFrame, setAnimationFrame])
+    }, [selection, selectionDispatch, animationFrame, setAnimationFrame])
 }
 
 export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void

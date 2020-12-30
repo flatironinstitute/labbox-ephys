@@ -24,35 +24,36 @@ const ClientSidePlot: FunctionComponent<{
     const [plotData, setPlotData] = useState<any | null>(null);
     const [visible, setVisible] = useState(false);
 
-    const effect = async () => {
-        if ((calculationStatus === 'waitingForVisible') && (visible)) {
-            setCalculationStatus('waiting');
-            const slot = calculationPool ? await calculationPool.requestSlot() : null;
-            setCalculationStatus('calculating');
-            let plot_data;
-            try {
-                plot_data = await hither.createHitherJob(
-                    dataFunctionName,
-                    dataFunctionArgs,
-                    {
-                        useClientCache: true
-                    }
-                ).wait()
+    useEffect(() => {
+        ;(async () => {
+            if ((calculationStatus === 'waitingForVisible') && (visible)) {
+                setCalculationStatus('waiting');
+                const slot = calculationPool ? await calculationPool.requestSlot() : null;
+                setCalculationStatus('calculating');
+                let plot_data;
+                try {
+                    plot_data = await hither.createHitherJob(
+                        dataFunctionName,
+                        dataFunctionArgs,
+                        {
+                            useClientCache: true
+                        }
+                    ).wait()
+                }
+                catch (err) {
+                    console.error(err);
+                    setCalculationError(err.message);
+                    setCalculationStatus('error');
+                    return;
+                }
+                finally {
+                    slot && slot.complete();
+                }
+                setPlotData(plot_data);
+                setCalculationStatus('finished');
             }
-            catch (err) {
-                console.error(err);
-                setCalculationError(err.message);
-                setCalculationStatus('error');
-                return;
-            }
-            finally {
-                slot && slot.complete();
-            }
-            setPlotData(plot_data);
-            setCalculationStatus('finished');
-        }
-    }
-    useEffect(() => { effect(); });
+        })()
+    }, [dataFunctionName, calculationStatus, calculationPool, dataFunctionArgs, hither, visible])
 
     if (calculationStatus === 'waitingForVisible') {
         return (
