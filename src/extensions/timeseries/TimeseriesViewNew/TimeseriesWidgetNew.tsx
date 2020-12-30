@@ -4,14 +4,15 @@ import { PainterPath } from '../../common/CanvasWidget'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
 import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface'
 import TimeWidgetNew, { TimeWidgetAction } from '../TimeWidgetNew/TimeWidgetNew'
-import TimeseriesModelNew from './TimeseriesModelNew'
+import { TimeseriesData } from './useTimeseriesModel'
+// import TimeseriesModelNew from './TimeseriesModelNew'
 
 interface Props {
-    timeseriesModel: TimeseriesModelNew
+    timeseriesData: TimeseriesData
     channel_ids: number[]
     channel_locations: (number[])[]
     num_timepoints: number
-    y_offsets: number[]
+    // y_offsets: number[]
     y_scale_factor: number
     width: number
     height: number
@@ -33,8 +34,8 @@ class Panel {
     _timeRange: {min: number, max: number} | null = null
     _yScale: number = 1
     _pixelWidth: number | null = null // for determining the downsampling factor
-    constructor(private channelIndex: number, private channelId: number, private timeseriesModel: TimeseriesModelNew, private y_offset: number, private y_scale_factor: number) {
-        timeseriesModel.onDataSegmentSet((ds_factor, t1, t2) => {
+    constructor(private channelIndex: number, private channelId: number, private timeseriesData: TimeseriesData, private y_offset: number, private y_scale_factor: number) {
+        timeseriesData.onDataSegmentSet((ds_factor, t1, t2) => {
             const timeRange = this._timeRange
             if (!timeRange) return
             if ((t1 <= timeRange.max) && (t2 >= timeRange.min)) {
@@ -70,11 +71,8 @@ class Panel {
             t1b = Math.floor(t1 / downsample_factor);
             t2b = Math.floor(t2 / downsample_factor);
 
-            data = this.timeseriesModel.getChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
-            if (data.filter(x => (isNaN(x))).length > 0) {
-                this.timeseriesModel.requestChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
-            }
-            else {
+            data = this.timeseriesData.getChannelData(this.channelIndex, t1b, t2b, downsample_factor) // todo: ds factor
+            if (data.filter(x => (isNaN(x))).length === 0) {
                 break
             }
             if ((t2b - t1b < 200) || (downsample_factor > 100)) {
@@ -135,7 +133,7 @@ class Panel {
         let timeRange = this._timeRange
         if (!timeRange) return null
         if (this._pixelWidth === null) return null
-        const numChannels = this.timeseriesModel.numChannels()
+        const numChannels = this.timeseriesData.numChannels()
         let factor0 = 1.3; // this is a tradeoff between rendering speed and appearance
         if (numChannels > 32) {
             factor0 = 0.5;
@@ -162,9 +160,9 @@ class Panel {
 }
 
 const TimeseriesWidgetNew = (props: Props) => {
-    const { timeseriesModel, width, height, y_offsets, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection, recordingSelectionDispatch } = props
+    const { timeseriesData, width, height, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection, recordingSelectionDispatch } = props
     const [panels, setPanels] = useState<Panel[]>([])
-    const [prevTimeseriesModel, setPrevTimeseriesModel] = useState<TimeseriesModelNew | null>(null)
+    const [prevTimeseriesData, setPrevTimeseriesData] = useState<TimeseriesData | null>(null)
     const [prevVisibleChannelIds, setPrevVisibleChannelIds] = useState<number[] | null | undefined>(null)
     
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
@@ -176,22 +174,22 @@ const TimeseriesWidgetNew = (props: Props) => {
     }, [recordingSelectionDispatch])
 
     useEffect(() => {
-        if ((timeseriesModel !== prevTimeseriesModel) || (visibleChannelIds !== prevVisibleChannelIds)) {
-            // we only want to do this once (as a function of the timeseries model)
+        if ((timeseriesData !== prevTimeseriesData) || (visibleChannelIds !== prevVisibleChannelIds)) {
+            // we only want to do this once (as a function of the timeseries data)
             const panels0: Panel[] = []
-            for (let ch = 0; ch < timeseriesModel.numChannels(); ch ++) {
+            for (let ch = 0; ch < timeseriesData.numChannels(); ch ++) {
                 // todo: i guess we need to redefine the panels whenever y_offsets or y_scale_factor or channel_ids change
                 const channel_id = channel_ids[ch]
                 if ((!visibleChannelIds) || (visibleChannelIds.includes(channel_id))) {
-                    const p = new Panel(ch, channel_id, timeseriesModel, y_offsets[ch], y_scale_factor)
+                    const p = new Panel(ch, channel_id, timeseriesData, 0, y_scale_factor) // y_offsets[ch] replaced with 0
                     panels0.push(p)
                 }
             }
             setPanels(panels0)
-            setPrevTimeseriesModel(timeseriesModel)
+            setPrevTimeseriesData(timeseriesData)
             setPrevVisibleChannelIds(visibleChannelIds)
         }
-    }, [channel_ids, setPanels, setPrevTimeseriesModel, timeseriesModel, prevTimeseriesModel, y_offsets, y_scale_factor, visibleChannelIds, prevVisibleChannelIds])
+    }, [channel_ids, setPanels, setPrevTimeseriesData, timeseriesData, prevTimeseriesData, y_scale_factor, visibleChannelIds, prevVisibleChannelIds])
     useEffect(() => {
         if (actions === null) {
             const a: TimeWidgetAction[] = [
@@ -236,10 +234,10 @@ const TimeseriesWidgetNew = (props: Props) => {
             customActions={actions || []}
             width={width}
             height={height}
-            samplerate={timeseriesModel.getSampleRate()}
-            startTimeSpan={1e7 / timeseriesModel.numChannels()}
-            maxTimeSpan={1e7 / timeseriesModel.numChannels()}
-            numTimepoints={timeseriesModel ? timeseriesModel.numTimepoints() : 0}
+            samplerate={timeseriesData.getSampleRate()}
+            startTimeSpan={1e7 / timeseriesData.numChannels()}
+            maxTimeSpan={1e7 / timeseriesData.numChannels()}
+            numTimepoints={timeseriesData ? timeseriesData.numTimepoints() : 0}
             currentTimepoint={recordingSelection.currentTimepoint}
             onCurrentTimepointChanged={(t: number | null) => {recordingSelectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})}}
             timeRange={recordingSelection.timeRange}

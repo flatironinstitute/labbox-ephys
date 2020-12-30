@@ -5,6 +5,8 @@ deployment.jfm.yml
 .ipynb_checkpoints
 untitled
 Untitled*.ipynb
+*copy.ipynb
+*Copy?.ipynb
 dist
 tmp
 
