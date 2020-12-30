@@ -1,3 +1,8 @@
+import { useRef } from "react"
+import createCalculationPool from "../../common/createCalculationPool"
+import { HitherContext, RecordingInfo } from "../../extensionInterface"
+import Mda from "./Mda"
+
 interface MdaInterface {
   value: (i1: number, i2: number) => number
 }
@@ -150,4 +155,73 @@ class TimeseriesModelNew {
   }
 }
 
-export default TimeseriesModelNew
+const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 4, method: 'stack'})
+
+export interface TimeseriesData {
+  getChannelData: (ch: number, t1: number, t2: number, ds_factor: number) => number[]
+  requestChannelData: (ch: number, t1: number, t2: number, ds_factor: number) => void
+  numChannels: () => number
+  numTimepoints: () => number
+  getSampleRate: () => number
+  onDataSegmentSet: (handler: (ds_factor: number, t1: number, t2: number) => void) => void
+}
+
+const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo, hither: HitherContext): TimeseriesData | null => {
+  const ref = useRef<{
+      recordingObject: any | null,
+      recordingInfo: RecordingInfo | null,
+      model: TimeseriesModelNew | null
+  }>({recordingObject: null, recordingInfo: null, model: null})
+  const x = ref.current
+  if ((!x.model) || (x.recordingObject !== recordingObject) || (x.recordingInfo !== recordingInfo)) {
+      const segment_size_times_num_channels = 100000
+      const num_channels = recordingInfo.channel_ids.length
+      const segment_size = Math.ceil(segment_size_times_num_channels / num_channels)
+      const model = new TimeseriesModelNew({
+          samplerate: recordingInfo.sampling_frequency,
+          num_channels,
+          num_timepoints: recordingInfo.num_frames,
+          segment_size
+      })
+      model.onRequestDataSegment((ds_factor: number, segment_num: number) => {
+          ;(async () => {
+              let result: {
+                  data_b64: string
+              }
+              const slot = await timeseriesCalculationPool.requestSlot();
+              try {
+                  result = await hither.createHitherJob(
+                      'createjob_get_timeseries_segment',
+                      {
+                          recording_object: recordingObject,
+                          ds_factor: ds_factor,
+                          segment_num: segment_num,
+                          segment_size: segment_size
+                      },
+                      {
+                          useClientCache: true
+                      }
+                  ).wait() as {data_b64: string}
+              }
+              catch(err) {
+                  console.error(`Error getting timeseries segment: ds=${ds_factor} num=${segment_num}`);
+                  return;
+              }
+              finally {
+                  slot.complete();
+              }
+              let X = new Mda()
+              X.setFromBase64(result.data_b64);
+              model.setDataSegment(ds_factor, segment_num, X);
+          })()
+      });
+      ref.current = {
+          recordingObject,
+          recordingInfo,
+          model
+      }
+  }
+  return ref.current.model
+}
+
+export default useTimeseriesData
