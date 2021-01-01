@@ -3,7 +3,7 @@
 
 import { faThLarge } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
@@ -17,7 +17,14 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
 
 const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height, recordingSelection, recordingSelectionDispatch}) => {
     const ri = recording.recordingInfo
-    const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
+    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
+
+    const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
+        recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
+    }, [recordingSelectionDispatch])
+
+    const selectedElectrodeIds = useMemo(() => (recordingSelection.selectedElectrodeIds || []), [recordingSelection.selectedElectrodeIds])
+
     // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
     if (!ri) {
         return (
@@ -27,8 +34,8 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     return (
         <ElectrodeGeometryWidget
             electrodes={electrodes}
-            selectedElectrodeIds={recordingSelection.selectedElectrodeIds || []}
-            onSelectedElectrodeIdsChanged={(x: number[]) => {recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})}}
+            selectedElectrodeIds={selectedElectrodeIds}
+            onSelectedElectrodeIdsChanged={handleSelectedElectrodeIdsChanged}
             width={width || 350}
             height={height || 150}
         />

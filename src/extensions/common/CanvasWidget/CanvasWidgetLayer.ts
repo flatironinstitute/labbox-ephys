@@ -159,6 +159,13 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             throw Error('Calling setProps inside onPropsChange is not allowed.')
         }
         if ((this._props === null) || (!shallowEqual(this._props, p))) {
+            // if (this._props !== null) {
+            //     for (let k in p) {
+            //         if (this._props[k] !== p[k]) {
+            //             console.log('--- prop change:', k, this._props[k], p[k])
+            //         }
+            //     }
+            // }
             this._props = p
             this._pixelWidth = p.width
             this._pixelHeight = p.height
@@ -212,8 +219,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             return;
         }
         this._repaintScheduled = true;
+        const timer = Number(new Date())
         setTimeout(() => {
-            // let elapsed = (new Date()) - timer;
+            let elapsed = Number(new Date()) - timer;
             this._repaintScheduled = false;
             this._doRepaint();
         }, refreshDelay) // this timeout controls the refresh rate

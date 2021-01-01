@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useReducer, useState } from 'react'
+import React, { FunctionComponent, useEffect, useMemo, useReducer, useState } from 'react'
 import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
 import { createElectrodeGeometryLayer, ElectrodeLayerProps } from "../../electrodegeometry/ElectrodeGeometryWidget/electrodeGeometryLayer"
@@ -52,21 +52,21 @@ const FireTrackWidget: FunctionComponent<{recording: any, timeseriesData: Timese
         }
     }, [timeseriesData, selection, selectedElectrodeIds, setData, updateIndex, updateIndexDispatch])
 
-    const scaleFactor = (selection.ampScaleFactor || 1) / (recordingInfo.noise_level || 1) * 1 / 5
-
-    const colorForElectrode = (id: number) => {
-        const val = data[id]
-        if (isNaN(val)) return 'lightgray'
-        const adjustedVal = - val * scaleFactor
-        return valToColor(adjustedVal)
-    }
-
     const ri = recording.recordingInfo
-    const electrodes = (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).map(e => ({...e, color: colorForElectrode(e.electrodeId)}))
+    const electrodes = useMemo(() => {
+        const scaleFactor = (selection.ampScaleFactor || 1) / (recordingInfo.noise_level || 1) * 1 / 5
+        const colorForElectrode = (id: number) => {
+            const val = data[id]
+            if (isNaN(val)) return 'lightgray'
+            const adjustedVal = - val * scaleFactor
+            return valToColor(adjustedVal)
+        }
+        return (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).map(e => ({...e, color: colorForElectrode(e.electrodeId)}))
+    }, [ri, data, selection.ampScaleFactor, recordingInfo.noise_level])
     const layerProps: ElectrodeLayerProps = {
         electrodes,
-        selectedElectrodeIds: selection.selectedElectrodeIds || [],
-        onSelectedElectrodeIdsChanged: (x: number[]) => {},
+        selectedElectrodeIds: useMemo(() => (selection.selectedElectrodeIds || []), [selection.selectedElectrodeIds]),
+        onSelectedElectrodeIdsChanged: useMemo(() => ((x: number[]) => {}), []),
         width,
         height
     }

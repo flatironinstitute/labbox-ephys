@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { PainterPath } from '../../common/CanvasWidget'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
@@ -228,20 +228,30 @@ const TimeseriesWidgetNew = (props: Props) => {
         })
     }
 
+    const handleTimeRangeChanged = useCallback((r: {min: number, max: number} | null) => {
+        recordingSelectionDispatch({type: 'SetTimeRange', timeRange: r})
+    }, [recordingSelectionDispatch])
+
+    const handleCurrentTimepointChanged = useCallback((t: number | null) => {
+        recordingSelectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
+    }, [recordingSelectionDispatch])
+
+    const numTimepoints = useMemo(() => (timeseriesData ? timeseriesData.numTimepoints() : 0), [timeseriesData])
+
     return (
         <TimeWidgetNew
             panels={panels}
-            customActions={actions || []}
+            customActions={actions}
             width={width}
             height={height}
             samplerate={timeseriesData.getSampleRate()}
             startTimeSpan={1e7 / timeseriesData.numChannels()}
             maxTimeSpan={1e7 / timeseriesData.numChannels()}
-            numTimepoints={timeseriesData ? timeseriesData.numTimepoints() : 0}
+            numTimepoints={numTimepoints}
             currentTimepoint={recordingSelection.currentTimepoint}
-            onCurrentTimepointChanged={(t: number | null) => {recordingSelectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})}}
+            onCurrentTimepointChanged={handleCurrentTimepointChanged}
             timeRange={recordingSelection.timeRange}
-            onTimeRangeChanged={(r: {min: number, max: number} | null) => {recordingSelectionDispatch({type: 'SetTimeRange', timeRange: r})}}
+            onTimeRangeChanged={handleTimeRangeChanged}
         />
     )
 }

@@ -1,10 +1,10 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
 import { faPencilAlt, faSocks } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer } from 'react'
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
-import Expandable from "../../old/curation/CurationSortingView/Expandable"
+import Expandable from '../../old/curation/CurationSortingView/Expandable'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
 import FilterControl, { filterSelectionReducer } from './FilterControl'
@@ -77,8 +77,20 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
     const averageWaveformsPlugin = plugins.sortingViews.AverageWaveforms
+    const electrodeGeometryPlugin = plugins.sortingViews.ElectrodeGeometrySortingView
+    const [initialized, setInitialized] = useState(false)
     useEffect(() => {
-        if (openViews.length === 0) {
+        if ((openViews.length === 0) && (!initialized)) {
+            setInitialized(true)
+            // if (electrodeGeometryPlugin) {
+            //     openViewsDispatch({
+            //         type: 'AddView',
+            //         plugin: electrodeGeometryPlugin,
+            //         pluginType: 'SortingUnitView',
+            //         label: electrodeGeometryPlugin.label,
+            //         area: 'north'
+            //     })
+            // }
             if (unitsTablePlugin) {
                 openViewsDispatch({
                     type: 'AddView',
@@ -98,7 +110,7 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                 })
             }
         }
-    }, [openViews, openViewsDispatch, unitsTablePlugin, averageWaveformsPlugin])
+    }, [openViews, openViewsDispatch, electrodeGeometryPlugin, unitsTablePlugin, averageWaveformsPlugin])
     const handleLaunchSortingView = useCallback((plugin: SortingViewPlugin) => {
         openViewsDispatch({
             type: 'AddView',

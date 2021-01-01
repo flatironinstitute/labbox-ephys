@@ -5,7 +5,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, sortingSelectionReducer, useRecordingAnimation } from '../extensions/extensionInterface';
+import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer, useRecordingAnimation } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -55,8 +55,9 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
-  // const [selection, dispatchSelection] = useReducer(updateSelections, {focusedUnitId: null, selectedUnitIds: {}});
-  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, {})
+  //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
+  const initialSortingSelection: SortingSelection = {}
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
   const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
 
   useRecordingAnimation(selection, selectionDispatch)
