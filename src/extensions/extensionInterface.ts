@@ -214,7 +214,7 @@ export const useRecordingAnimation = (selectionDispatch: RecordingSelectionDispa
         setTimeout(() => {
         selectionDispatch({type: 'AnimateRecording'})
         setAnimationFrame(animationFrame + 1)
-        }, 100)
+        }, 20)
     }, [selectionDispatch, animationFrame, setAnimationFrame])
 }
 
