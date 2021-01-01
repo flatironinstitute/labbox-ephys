@@ -1,7 +1,7 @@
-import { HitherContext } from "../extensions/extensionInterface";
+import { HitherInterface } from "../extensions/extensionInterface";
 import { RecordingInfo } from "../reducers/recordings";
 
-export const getRecordingInfo = async (a: {recordingObject: any, hither: HitherContext}): Promise<RecordingInfo> => {
+export const getRecordingInfo = async (a: {recordingObject: any, hither: HitherInterface}): Promise<RecordingInfo> => {
     const recordingInfoJob = a.hither.createHitherJob(
         'createjob_get_recording_info',
         { recording_object: a.recordingObject },

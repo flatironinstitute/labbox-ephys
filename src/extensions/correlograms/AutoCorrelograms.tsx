@@ -6,7 +6,7 @@ import Correlogram_rv from './Correlogram_ReactVis';
 
 const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selection, selectionDispatch, hither }) => {
+const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selection, selectionDispatch }) => {
     const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     const handleUnitClicked = useCallback((unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {
         selectionDispatch({
@@ -32,7 +32,6 @@ const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, 
                 id: 'plot-'+unitId
             })}
             calculationPool={autocorrelogramsCalculationPool}
-            hither={hither}
         />
     );
 }

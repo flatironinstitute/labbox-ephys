@@ -1,10 +1,10 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useEffect } from 'react';
+import React, { Dispatch, FunctionComponent, useContext, useEffect } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { deleteSortings, setSortingInfo } from '../actions';
 import NiceTable from '../components/NiceTable';
-import { HitherContext } from '../extensions/extensionInterface';
+import HitherContext from '../extensions/common/HitherContext';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -14,7 +14,6 @@ import { Sorting, SortingInfo } from '../reducers/sortings';
 
 interface StateProps {
     documentInfo: DocumentInfo
-    hither: HitherContext
 }
 
 interface DispatchProps {
@@ -28,7 +27,8 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo, hither }) => {
+const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
+    const hither = useContext(HitherContext)
     const { documentId, feedUri, readOnly } = documentInfo;
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
@@ -104,8 +104,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-    documentInfo: state.documentInfo,
-    hither: state.hitherContext
+    documentInfo: state.documentInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

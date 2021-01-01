@@ -1,10 +1,10 @@
-import React, { Dispatch, FunctionComponent, useState } from 'react';
+import React, { Dispatch, FunctionComponent, useContext, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { addRecording } from '../actions';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 import RadioChoices from '../components/RadioChoices';
-import { HitherContext } from '../extensions/extensionInterface';
+import HitherContext from '../extensions/common/HitherContext';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -14,7 +14,6 @@ import { Recording } from '../reducers/recordings';
 interface StateProps {
     extensionsConfig: ExtensionsConfig
     documentInfo: DocumentInfo
-    hither: HitherContext
 }
 
 interface DispatchProps {
@@ -26,7 +25,9 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, extensionsConfig, documentInfo, hither }) => {
+const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
+    const hither = useContext(HitherContext)
+    
     const { documentId, feedUri, readOnly } = documentInfo;
 
     const [method, setMethod] = useState('');
@@ -86,8 +87,7 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     extensionsConfig: state.extensionsConfig,
-    documentInfo: state.documentInfo,
-    hither: state.hitherContext
+    documentInfo: state.documentInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

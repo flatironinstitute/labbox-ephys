@@ -6,7 +6,7 @@ import AverageWaveform_rv from './AverageWaveform_ReactVis';
 
 const averageWaveformsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = ({ sorting, recording, selection, selectionDispatch, hither }) => {
+const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = ({ sorting, recording, selection, selectionDispatch }) => {
     const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
     const handleUnitClicked = useCallback((unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {
         selectionDispatch({
@@ -33,7 +33,6 @@ const AverageWaveformsSortingView: React.FunctionComponent<SortingViewProps> = (
                 id: 'plot-'+unitId
             })}
             calculationPool={averageWaveformsCalculationPool}
-            hither={hither}
         />
     );
 }

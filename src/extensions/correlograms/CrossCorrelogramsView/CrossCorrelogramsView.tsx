@@ -1,10 +1,10 @@
 import React, { FunctionComponent } from 'react'
+import Splitter from '../../common/Splitter'
 import { SortingViewProps } from "../../extensionInterface"
 import SelectUnitsWidget from '../../spikeamplitudes/SpikeAmplitudesView/SelectUnitsWidget'
-import Splitter from '../../common/Splitter'
 import CrossCorrelogramsWidget from './CrossCorrelogramsWidget'
 
-const CrossCorrelogramsView: FunctionComponent<SortingViewProps> = ({sorting, selection, selectionDispatch, hither, width, height}) => {
+const CrossCorrelogramsView: FunctionComponent<SortingViewProps> = ({sorting, selection, selectionDispatch, width, height}) => {
     return (
         <Splitter
             width={width || 600}
@@ -15,7 +15,6 @@ const CrossCorrelogramsView: FunctionComponent<SortingViewProps> = ({sorting, se
             <CrossCorrelogramsWidget
                 sorting={sorting}
                 unitIds={selection.selectedUnitIds || []}
-                hither={hither}
                 {...{width: 0, height: 0}} // filled in by splitter
             />
         </Splitter>

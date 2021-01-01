@@ -1,5 +1,6 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
-import { HitherContext, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import HitherContext from '../../common/HitherContext';
+import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';
 
@@ -9,12 +10,12 @@ type Props = {
     unitIds: number[]
     width: number
     height: number,
-    hither: HitherContext
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
 }
 
-const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sorting, unitIds, width, height, hither, selection, selectionDispatch }) => {
+const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sorting, unitIds, width, height, selection, selectionDispatch }) => {
+    const hither = useContext(HitherContext)
     const { sortingInfo } = sorting
     const { recordingInfo } = recording
 

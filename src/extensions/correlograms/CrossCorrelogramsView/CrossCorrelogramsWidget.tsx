@@ -2,20 +2,19 @@ import { Grid } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
 import ClientSidePlot from '../../common/ClientSidePlot';
 import createCalculationPool from '../../common/createCalculationPool';
-import { HitherContext, Sorting } from '../../extensionInterface';
+import { Sorting } from '../../extensionInterface';
 import Correlogram_rv from '../Correlogram_ReactVis';
 
 type Props = {
     sorting: Sorting
     unitIds: number[]
-    hither: HitherContext
     width: number
     height: number
 }
 
 const crossCorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const CrossCorrelogramsWidget: FunctionComponent<Props> = ({ sorting, unitIds, hither, width, height }) => {
+const CrossCorrelogramsWidget: FunctionComponent<Props> = ({ sorting, unitIds, width, height }) => {
     const plotMargin = 2 // in pixels
     const n = unitIds.length
     const N = n || 1 // don't want to divide by zero
@@ -71,7 +70,6 @@ const CrossCorrelogramsWidget: FunctionComponent<Props> = ({ sorting, unitIds, h
                                     PlotComponent={Correlogram_rv}
                                     plotComponentArgs={{id: pair.xkey+'-'+pair.ykey}}
                                     calculationPool={crossCorrelogramsCalculationPool}
-                                    hither={hither}
                                 />
                             </div>
                         </Grid>

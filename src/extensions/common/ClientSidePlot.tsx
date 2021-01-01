@@ -1,7 +1,8 @@
 import { Box, CircularProgress } from '@material-ui/core';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
-import { CalculationPool, HitherContext } from '../extensionInterface';
+import { CalculationPool } from '../extensionInterface';
+import HitherContext from './HitherContext';
 
 const ClientSidePlot: FunctionComponent<{
     dataFunctionName: string,
@@ -11,14 +12,14 @@ const ClientSidePlot: FunctionComponent<{
     PlotComponent: React.FunctionComponent<{boxSize: {width: number, height: number}, plotData: any, argsObject: {[key: string]: any}, title: string}>,
     plotComponentArgs: {[key: string]: any},
     plotComponentProps?: {[key: string]: any},
-    title: string,
-    hither: HitherContext
+    title: string
 }> = ({
     dataFunctionName, dataFunctionArgs,
     calculationPool,
     boxSize = { width: 200, height: 200 },
-    PlotComponent, plotComponentArgs, plotComponentProps, title, hither
+    PlotComponent, plotComponentArgs, plotComponentProps, title
 }) => {
+    const hither = useContext(HitherContext)
     const [calculationStatus, setCalculationStatus] = useState<string>('waitingForVisible');
     const [calculationError, setCalculationError] = useState<string | null>(null);
     const [plotData, setPlotData] = useState<any | null>(null);

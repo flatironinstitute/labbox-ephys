@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import ClientSidePlot from '../../common/ClientSidePlot';
-import { CalculationPool, HitherContext, Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
+import { CalculationPool, Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
 import DriftFeatures_rv from './DriftFeatures_rv';
 import PCAFeatures_rv from './PCAFeatures_rv';
 import SpikeWaveforms_rv from './SpikeWaveforms_rv';
@@ -13,10 +13,9 @@ interface Props {
     calculationPool: CalculationPool
     sortingInfo: SortingInfo
     plugins: Plugins
-    hither: HitherContext
 }
 
-const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void, hither: HitherContext}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged, hither }) => {
+const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
     const _handlePointClicked = ({index}: { index: number | null }) => {
         onSelectedSpikeIndexChanged(index);
     }
@@ -36,12 +35,11 @@ const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, un
             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
             calculationPool={calculationPool}
             title=""
-            hither={hither}
         />
     )
 }
 
-const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void, hither: HitherContext}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged, hither }) => {
+const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
     const _handlePointClicked = ({index}: { index: number }) => {
         onSelectedSpikeIndexChanged(index);
     }
@@ -61,12 +59,11 @@ const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: 
             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
             calculationPool={calculationPool}
             title=""
-            hither={hither}
         />
     )
 }
 
-const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, selectedSpikeIndex: number | null, onSelectedSpikeIndexChanged: (index: number | null) => void, hither: HitherContext}> = ({ sorting, recording, unitId, calculationPool, selectedSpikeIndex, onSelectedSpikeIndexChanged, hither }) => {
+const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, selectedSpikeIndex: number | null, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, selectedSpikeIndex, onSelectedSpikeIndexChanged }) => {
     const _handlePointClicked = ({index}: { index: number }) => {
         onSelectedSpikeIndexChanged(index);
     }
@@ -89,13 +86,12 @@ const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recordin
                 plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
                 calculationPool={calculationPool}
                 // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
-                hither={hither}
             />
         ) : <div>No sorting info</div>
     )
 }
 
-const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, plugins, hither }) => {
+const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, plugins }) => {
     return <div>IndividualUnit: obsolete</div>
     // const [selectedSpikeIndex, setSelectedSpikeIndex] = useState<number | null>(null);
     // const handleSelectedPointIndexChanged = useCallback(

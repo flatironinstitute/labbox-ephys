@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useReducer } from 'react';
 import Splitter from '../../common/Splitter';
-import { HitherContext, RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface';
+import { RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface';
 import ElectrodeGeometryView from './ElectrodeGeometryView';
 import TimeseriesWidgetNew from './TimeseriesWidgetNew';
 import useTimeseriesData from './useTimeseriesModel';
@@ -14,7 +14,6 @@ interface Props {
     recordingInfo: RecordingInfo
     width: number
     height: number
-    hither: HitherContext
     opts: {
         channelSelectPanel?: boolean
     }
@@ -38,7 +37,7 @@ type StatusString = 'waiting' | 'calculating' | 'error' | 'finished'
 
 const TimeseriesViewNew = (props: Props) => {
     const opts = props.opts
-    const timeseriesData = useTimeseriesData(props.recordingObject, props.recordingInfo, props.hither)
+    const timeseriesData = useTimeseriesData(props.recordingObject, props.recordingInfo)
     const [recordingSelectionInternal, recordingSelectionInternalDispatch] = useReducer(recordingSelectionReducer, {})
 
     const recordingSelection = props.recordingSelection || recordingSelectionInternal
@@ -101,7 +100,7 @@ const TimeseriesViewNew = (props: Props) => {
     }
 }
 
-// const calculateTimeseriesInfo = async (recordingObject: RecordingObject, hither: HitherContext): Promise<TimeseriesInfo> => {
+// const calculateTimeseriesInfo = async (recordingObject: RecordingObject, hither: HitherInterface): Promise<TimeseriesInfo> => {
 //     let info: TimeseriesInfo
 //     try {
 //         info = await hither.createHitherJob(

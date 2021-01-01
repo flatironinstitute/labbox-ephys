@@ -12,11 +12,13 @@ import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
+import HitherContext from './extensions/common/HitherContext';
 import { sleepMsec } from './extensions/common/misc';
+import { HitherInterface } from './extensions/extensionInterface';
 import './index.css';
 // reducer
 import rootReducer, { RootState } from './reducers';
-import { handleHitherJobCreated, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
+import createHitherJob, { handleHitherJobCreated, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
 import registerExtensions from './registerExtensions';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -193,15 +195,21 @@ const waitForDocumentInfo = async () => {
 }
 waitForDocumentInfo();
 
+const hither: HitherInterface = {
+  createHitherJob: createHitherJob
+}
+
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
-  <MuiThemeProvider theme={theme}>
-    <Provider store={theStore}>
-      <Router>
-        <AppContainer />
-      </Router>
-    </Provider>
-  </MuiThemeProvider>
+  <HitherContext.Provider value={hither}>
+    <MuiThemeProvider theme={theme}>
+      <Provider store={theStore}>
+        <Router>
+          <AppContainer />
+        </Router>
+      </Provider>
+    </MuiThemeProvider>
+  </HitherContext.Provider>
   // </React.StrictMode>
 );
 
