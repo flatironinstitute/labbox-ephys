@@ -14,6 +14,8 @@ const CrossCorrelogramsView: FunctionComponent<SortingViewProps> = ({sorting, se
             <SelectUnitsWidget sorting={sorting} selection={selection} selectionDispatch={selectionDispatch} />
             <CrossCorrelogramsWidget
                 sorting={sorting}
+                selection={selection}
+                selectionDispatch={selectionDispatch}
                 unitIds={selection.selectedUnitIds || []}
                 {...{width: 0, height: 0}} // filled in by splitter
             />

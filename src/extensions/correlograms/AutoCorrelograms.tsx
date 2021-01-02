@@ -1,39 +1,45 @@
-import React, { useCallback } from 'react';
-import createCalculationPool from '../common/createCalculationPool';
-import PlotGrid from '../common/PlotGrid';
+import React, { useMemo } from 'react';
+import SortingUnitPlotGrid from '../common/SortingUnitPlotGrid';
 import { SortingViewProps } from '../extensionInterface';
-import Correlogram_rv from './Correlogram_ReactVis';
+import CorrelogramRv2 from './Correlogram_ReactVis2';
 
-const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
+// const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
 const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selection, selectionDispatch }) => {
-    const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
-    const handleUnitClicked = useCallback((unitId: number, event: {ctrlKey?: boolean, shiftKey?: boolean}) => {
-        selectionDispatch({
-            type: 'UnitClicked',
-            unitId,
-            ctrlKey: event.ctrlKey,
-            shiftKey: event.shiftKey
-        })
-    }, [selectionDispatch])
-    return (
-        <PlotGrid
-            sorting={sorting}
-            selections={selectedUnitIdsLookup}
-            onUnitClicked={handleUnitClicked}
-            dataFunctionName={'createjob_fetch_correlogram_plot_data'}
-            dataFunctionArgsCallback={(unitId: number) => ({
-                sorting_object: sorting.sortingObject,
-                unit_x: unitId
-            })}
-            // use default boxSize
-            plotComponent={Correlogram_rv}
-            plotComponentArgsCallback={(unitId: number) => ({
-                id: 'plot-'+unitId
-            })}
-            calculationPool={autocorrelogramsCalculationPool}
+    const unitComponent = useMemo(() => (unitId: number) => (
+        <CorrelogramRv2
+            {...{sorting, unitId1: unitId, selection, selectionDispatch}}
+            width={180}
+            height={180}
         />
-    );
+    ), [sorting, selection, selectionDispatch])
+
+    return (
+        <SortingUnitPlotGrid
+            sorting={sorting}
+            selection={selection}
+            selectionDispatch={selectionDispatch}
+            unitComponent={unitComponent}
+        />
+    )
+    // return (
+    //     <PlotGrid
+    //         sorting={sorting}
+    //         selections={selectedUnitIdsLookup}
+    //         onUnitClicked={handleUnitClicked}
+    //         dataFunctionName={'createjob_fetch_correlogram_plot_data'}
+    //         dataFunctionArgsCallback={(unitId: number) => ({
+    //             sorting_object: sorting.sortingObject,
+    //             unit_x: unitId
+    //         })}
+    //         // use default boxSize
+    //         plotComponent={Correlogram_rv}
+    //         plotComponentArgsCallback={(unitId: number) => ({
+    //             id: 'plot-'+unitId
+    //         })}
+    //         calculationPool={autocorrelogramsCalculationPool}
+    //     />
+    // );
 }
 
 export default AutoCorrelograms

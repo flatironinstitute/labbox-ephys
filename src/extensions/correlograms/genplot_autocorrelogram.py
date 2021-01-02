@@ -5,7 +5,7 @@ import numpy as np
 from ._correlograms_phy import compute_correlograms
 
 
-@hi.function('fetch_correlogram_plot_data', '0.1.3')
+@hi.function('fetch_correlogram_plot_data', '0.2.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
@@ -58,4 +58,8 @@ def _get_correlogram_data(*, sorting, unit_id1, unit_id2=None, window_size_msec,
     bins = np.linspace(- window_size_msec / 2, window_size_msec / 2, C.shape[2])
     bin_counts = C[0, 0, :] if auto else C[0, 1, :]
     bin_size_sec = bin_size_msec / 1000
-    return bins.tolist(), bin_counts.tolist(), bin_size_sec
+    return {
+        'bins': bins.tolist(),
+        'bin_counts': bin_counts.tolist(),
+        'bin_size_sec': bin_size_sec
+    }

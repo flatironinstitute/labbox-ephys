@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import { SortingViewProps } from "../../extensionInterface";
 import AverageWaveformView2 from './AverageWaveformView2';
-import SortingUnitPlotGrid from './SortingUnitPlotGrid';
 
 const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
     const {recording, sorting, selection, selectionDispatch} = props
