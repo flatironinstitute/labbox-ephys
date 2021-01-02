@@ -153,7 +153,6 @@ export const handleDrag: DragHandler = (layer: CanvasWidgetLayer<TimeWidgetLayer
     else {
         layer.setState({...state, anchorTimepoint: t})
     }
-    
 }
 
 export const handleWheel: WheelEventHandler = (e: WheelEvent, layer: CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>) => {

@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { string } from 'mathjs';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import ElectrodeGeometryWidget from '../extensions/electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
 
@@ -14,7 +14,7 @@ const zipElectrodes = (locations, ids) => {
 
 const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
     const ri = recordingInfo;
-    const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
+    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
     const [selectedElectrodeIds, setSelectedElectrodeIds] = useState([]);
     if (!ri) {
         return (
@@ -37,7 +37,7 @@ const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
                     <ElectrodeGeometryWidget
                         electrodes={electrodes}
                         selectedElectrodeIds={selectedElectrodeIds}
-                        onSelectedElectrodeIdsChanged={(x) => setSelectedElectrodeIds(x)}
+                        onSelectedElectrodeIdsChanged={setSelectedElectrodeIds}
                         width={350}
                         height={150}
                     />

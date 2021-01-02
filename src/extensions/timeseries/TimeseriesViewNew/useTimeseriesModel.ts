@@ -155,7 +155,8 @@ class TimeseriesModelNew {
   }
 }
 
-const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 4, method: 'stack'})
+// it may be important to limit this to 1 at a time when using a filter
+const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 1, method: 'stack'})
 
 export interface TimeseriesData {
   getChannelData: (ch: number, t1: number, t2: number, ds_factor: number) => number[]

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import ElectrodeGeometryWidget from "../../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget";
 import { RecordingInfo } from "../../extensionInterface";
 
@@ -13,8 +13,16 @@ interface Props {
 
 const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, height, selectedElectrodeIds, onSelectedElectrodeIdsChanged}) => {
     const ri = recordingInfo
-    const electrodes = ri ? zipElectrodes(ri.geom, ri.channel_ids) : []
+    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
     const [internalSelectedElectrodeIds, setInternalSelectedElectrodeIds] = useState<number[]>([]);
+    const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
+        if (selectedElectrodeIds) {
+            if (onSelectedElectrodeIdsChanged) onSelectedElectrodeIdsChanged(x);
+        }
+        else {
+            setInternalSelectedElectrodeIds(x)
+        }
+    }, [selectedElectrodeIds, onSelectedElectrodeIdsChanged, setInternalSelectedElectrodeIds])
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
@@ -24,14 +32,7 @@ const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, 
         <ElectrodeGeometryWidget
             electrodes={electrodes}
             selectedElectrodeIds={selectedElectrodeIds ? selectedElectrodeIds : internalSelectedElectrodeIds}
-            onSelectedElectrodeIdsChanged={(x) => {
-                if (selectedElectrodeIds) {
-                    if (onSelectedElectrodeIdsChanged) onSelectedElectrodeIdsChanged(x);
-                }
-                else {
-                    setInternalSelectedElectrodeIds(x)
-                }
-            }}
+            onSelectedElectrodeIdsChanged={handleSelectedElectrodeIdsChanged}
             width={width}
             height={height}
         />

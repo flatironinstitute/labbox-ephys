@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useCallback, useMemo, useReducer } from 'react';
 import Splitter from '../../common/Splitter';
 import { HitherContext, RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface';
 import ElectrodeGeometryView from './ElectrodeGeometryView';
@@ -43,9 +43,13 @@ const TimeseriesViewNew = (props: Props) => {
 
     const recordingSelection = props.recordingSelection || recordingSelectionInternal
     const recordingSelectionDispatch = props.recordingSelectionDispatch || recordingSelectionInternalDispatch
-    const selectedElectrodeIds = recordingSelection.selectedElectrodeIds || []
+    const selectedElectrodeIds = useMemo(() => (recordingSelection.selectedElectrodeIds || []), [recordingSelection.selectedElectrodeIds])
 
     const y_scale_factor = 1 / (props.recordingInfo.noise_level || 1) * 1/10
+
+    const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
+        recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
+    }, [recordingSelectionDispatch])
 
     if (timeseriesData) {
         return (
@@ -62,7 +66,7 @@ const TimeseriesViewNew = (props: Props) => {
                                 width={0} // filled in above
                                 height={0} // filled in above
                                 selectedElectrodeIds={selectedElectrodeIds}
-                                onSelectedElectrodeIdsChanged={(x: number[]) => {recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})}}
+                                onSelectedElectrodeIdsChanged={handleSelectedElectrodeIdsChanged}
                             />
                         )
                     }

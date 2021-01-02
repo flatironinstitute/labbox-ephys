@@ -1,4 +1,6 @@
 import { Reducer, useEffect, useState } from "react"
+import { useOnce } from "./common/hooks"
+import { sleepMsec } from "./common/misc"
 
 export interface Sorting {
     sortingId: string
@@ -205,17 +207,29 @@ export interface RecordingSelection {
     }
 }
 
-export const useRecordingAnimation = (selectionDispatch: RecordingSelectionDispatch) => {
+export const useRecordingAnimation = (selection: RecordingSelection, selectionDispatch: RecordingSelectionDispatch) => {
     const [animationFrame, setAnimationFrame] = useState(0)
+    const [prevAnimationFrame, setPrevAnimationFrame] = useState(0)
     useEffect(() => {
-        if (animationFrame === 0) {
-        // selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 100})
+        if (prevAnimationFrame !== animationFrame) {
+            setPrevAnimationFrame(animationFrame)
+            if (selection?.animation?.currentTimepointVelocity) {
+                selectionDispatch({type: 'AnimateRecording'})
+            }
         }
-        setTimeout(() => {
-        selectionDispatch({type: 'AnimateRecording'})
-        setAnimationFrame(animationFrame + 1)
-        }, 20)
-    }, [selectionDispatch, animationFrame, setAnimationFrame])
+    }, [animationFrame, selection, selectionDispatch, prevAnimationFrame, setPrevAnimationFrame])
+
+    // only do this once
+    useOnce(() => {
+        ;(async () => {
+            let i = 0
+            while (true) {
+                setAnimationFrame(i)
+                i ++
+                await sleepMsec(50)
+            }
+        })()
+    })
 }
 
 export type RecordingSelectionDispatch = (action: RecordingSelectionAction) => void

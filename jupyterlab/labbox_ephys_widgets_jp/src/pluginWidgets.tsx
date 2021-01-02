@@ -257,7 +257,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
 
   // selection
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : {})
-  useRecordingAnimation(selectionDispatch)
+  useRecordingAnimation(selection, selectionDispatch)
   useEffect(() => {
     if (model.get('selection') !== selection) {
       model.set('selection', selection)

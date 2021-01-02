@@ -10,7 +10,7 @@ interface Props {
     onZoomOut: () => void
     onShiftTimeLeft: () => void
     onShiftTimeRight: () => void
-    customActions?: any[]
+    customActions?: any[] | null
 }
 
 const TimeWidgetToolbarNew: FunctionComponent<Props> = (props) => {

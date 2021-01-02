@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { CanvasWidgetLayer, ClickEventType, formClickEventFromMouseEvent, KeyEventType, MousePresenceEventType } from './CanvasWidgetLayer'
 import { Vec2, Vec4 } from './Geometry'
 
@@ -134,6 +134,25 @@ const CanvasWidget = (props: Props) => {
         dragging: false
     })
 
+    // This is very important so that we don't send out too many drag events
+    // Limits the fire rate for drag events
+    const scheduledDispatchDragAction = useRef<DragAction | null>(null)
+    const scheduleDispatchDrag = (a: DragAction) => {
+        if (scheduledDispatchDragAction.current) {
+            scheduledDispatchDragAction.current = a
+            return
+        }
+        else {
+            scheduledDispatchDragAction.current = a
+            const debug_timer = Number(new Date())
+            setTimeout(() => {
+                const a2 = scheduledDispatchDragAction.current
+                scheduledDispatchDragAction.current = null
+                if (a2) dispatchDrag(a2)
+            }, 30)
+        }
+    }
+
     // schedule repaint when width or height change
     useEffect(() => {
         layers.forEach(L => {
@@ -194,7 +213,8 @@ const CanvasWidget = (props: Props) => {
 
     const _handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
         const { point, mouseButton, modifiers } = formClickEventFromMouseEvent(e, ClickEventType.Move)
-        dispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
+        // limit the rate of drag events by scheduling the dispatch drag
+        scheduleDispatchDrag({type: COMPUTE_DRAG, mouseButton: mouseButton === 1, point: point, shift: modifiers.shift || false})
         _handleDiscreteMouseEvents(e, ClickEventType.Move)
     }, [_handleDiscreteMouseEvents])
 
