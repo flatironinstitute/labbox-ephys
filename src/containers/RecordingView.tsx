@@ -1,5 +1,5 @@
 import { Grid } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useContext, useEffect } from 'react';
+import React, { Dispatch, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -40,22 +40,23 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, plugins }) => {
   const hither = useContext(HitherContext)
   const { documentId, feedUri, readOnly } = documentInfo;
+  const [recordingInfo, setRecordingInfo] = useState<RecordingInfo | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const effect = async () => {
-    if (!recording) return;
-    const rec = recording;
-    if (!rec.recordingInfo) {
-      try {
-        const info = await getRecordingInfo({ recordingObject: rec.recordingObject, hither });
-        onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
+  useEffect(() => {
+    if ((recording) && (!recordingInfo)) {
+      if (recording.recordingInfo) {
+        setRecordingInfo(recording.recordingInfo)
+        return
       }
-      catch (err) {
-        console.error(err);
-        return;
-      }
+      getRecordingInfo({ recordingObject: recording.recordingObject, hither }).then((info: RecordingInfo) => {
+        onSetRecordingInfo({recordingId: recording.recordingId, recordingInfo: info})
+      }).catch((err: Error) => {
+        console.error(err)
+        setErrorMessage('Error getting recording info: ' + err.message)
+      })
     }
-  }
-  useEffect(() => { effect() })
+  }, [recording, recording.recordingInfo, recordingInfo, hither, setErrorMessage, onSetRecordingInfo])
 
   if (!recording) {
     return <h3>{`Recording not found: ${recordingId}`}</h3>
