@@ -1,9 +1,10 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useContext, useEffect } from 'react';
+import React, { Dispatch, FunctionComponent, useContext, useEffect, useMemo, useRef } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { deleteSortings, setSortingInfo } from '../actions';
 import NiceTable from '../components/NiceTable';
+import createCalculationPool from '../extensions/common/createCalculationPool';
 import HitherContext from '../extensions/common/HitherContext';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -27,48 +28,36 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
+
 const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
     const hither = useContext(HitherContext)
     const { documentId, feedUri, readOnly } = documentInfo;
-
-    function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
-        return array.sort(function (a, b) {
-            var x = a[key]; var y = b[key];
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-        });
-    }
-
-    const sortings2: Sorting[] = sortByKey<Sorting>(sortings, 'sortingLabel')
+    const infosInProgress = useRef(new Set<string>())
 
     useEffect(() => {
-        const thisSortings = sortings
-        ;(async () => {
-            for (const sor of sortings) {
-                if (thisSortings !== sortings) return
-                if (!sor.sortingInfo) {
-                    let info;
-                    try {
-                        // for a nice gui effect
-                        const sortingInfoJob = hither.createHitherJob(
-                            'createjob_get_sorting_info',
-                            { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
-                            {
-                                useClientCache: true
-                            }
-                        )
-                        info = await sortingInfoJob.wait() as SortingInfo;
-                        onSetSortingInfo({ sortingId: sor.sortingId, sortingInfo: info });
+        for (const sor of sortings) {
+            if ((!sor.sortingInfo) && (!infosInProgress.current.has(sor.sortingId))) {
+                infosInProgress.current.add(sor.sortingId)
+                hither.createHitherJob(
+                    'createjob_get_sorting_info',
+                    { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
+                    {
+                        useClientCache: true,
+                        calculationPool: calculationPool
                     }
-                    catch (err) {
-                        console.error(err);
-                        return;
-                    }
-                }
+                ).wait().then(sortingInfo => {
+                    onSetSortingInfo({ sortingId: sor.sortingId, sortingInfo: sortingInfo });
+                }).catch((err: Error) => {
+                    console.error(err);
+                    return;
+                })
             }
-        })()
-    }, [sortings, onSetSortingInfo, hither])
+        }
+    }, [sortings, hither, onSetSortingInfo])
 
-    const rows = sortings2.map(s => ({
+    const sortings2: Sorting[] = useMemo(() => (sortByKey<Sorting>(sortings, 'sortingLabel')), [sortings])
+    const rows = useMemo(() => (sortings2.map(s => ({
         key: s.sortingId,
         columnValues: {
             sorting: s,
@@ -78,7 +67,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
             },
             numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
         }
-    }));
+    }))), [sortings2, documentId, feedUri])
 
     const columns = [
         {
@@ -101,6 +90,13 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
             />
         </div>
     );
+}
+
+const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[] => {
+    return array.sort(function (a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
