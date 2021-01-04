@@ -1,10 +1,12 @@
-import hither as hi
-import numpy as np
-import kachery as ka
 import base64
 # import time
 import io
+
+import hither as hi
+import kachery as ka
 import labbox_ephys as le
+import numpy as np
+
 
 @hi.function('get_recording_object', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
@@ -12,3 +14,8 @@ import labbox_ephys as le
 def get_recording_object(recording_path):
     recording = le.LabboxEphysRecordingExtractor(recording_path, download=False)
     return recording.object()
+
+@hi.function('createjob_get_recording_object', '0.1.0')
+@hi.local_modules(['../../labbox_ephys'])
+def createjob_get_recording_object(labbox, recording_path):
+    return get_recording_object.run(recording_path=recording_path)

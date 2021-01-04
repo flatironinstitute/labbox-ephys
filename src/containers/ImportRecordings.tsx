@@ -43,7 +43,6 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
                 examplesMode={false}
-                hither={hither}
             />
         )
     }
@@ -53,7 +52,6 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
                 examplesMode={true}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
-                hither={hither}
             />
         )
     }
@@ -91,7 +89,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onAddRecording: (recording: Recording) => dispatch(addRecording(recording))
+    onAddRecording: (recording: Recording) => {dispatch(addRecording(recording))}
 })
 
 export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(

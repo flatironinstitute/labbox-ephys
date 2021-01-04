@@ -33,6 +33,7 @@ export interface RecordingInfo {
     geom: (number[])[]
     num_frames: number
     noise_level: number
+    is_downloaded?: boolean
 }
 
 export interface Recording {
