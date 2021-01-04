@@ -68,10 +68,10 @@ Then:
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.4.10 --docker_run_opts "--net host" --kachery $KACHERY_STORAGE_DIR
+labbox-launcher run magland/labbox-ephys:0.4.11 --docker_run_opts "--net host" --kachery $KACHERY_STORAGE_DIR
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.4.10 --docker_run_opts "-p 15310:15310 -p 15308:15308" --kachery $KACHERY_STORAGE_DIR
+labbox-launcher run magland/labbox-ephys:0.4.11 --docker_run_opts "-p 15310:15310 -p 15308:15308" --kachery $KACHERY_STORAGE_DIR
 ```
 
 NOTE: If you have chosen to [run the `kachery-p2p` daemon on a non-standard
@@ -82,10 +82,10 @@ version of the command that also passes this environment variable to the docker 
 
 ```bash
 # On Linux:
-labbox-launcher run magland/labbox-ephys:0.4.10 --docker_run_opts "--net host -e KACHERY_P2P_API_PORT=$KACHERY_P2P_API_PORT" --kachery $KACHERY_STORAGE_DIR
+labbox-launcher run magland/labbox-ephys:0.4.11 --docker_run_opts "--net host -e KACHERY_P2P_API_PORT=$KACHERY_P2P_API_PORT" --kachery $KACHERY_STORAGE_DIR
 
 # On MacOS:
-labbox-launcher run magland/labbox-ephys:0.4.10 --docker_run_opts "-p 15310:15310 -p 15308:15308 -e KACHERY_P2P_API_PORT=$KACHERY_P2P_API_PORT" --kachery $KACHERY_STORAGE_DIR
+labbox-launcher run magland/labbox-ephys:0.4.11 --docker_run_opts "-p 15310:15310 -p 15308:15308 -e KACHERY_P2P_API_PORT=$KACHERY_P2P_API_PORT" --kachery $KACHERY_STORAGE_DIR
 ```
 
 ### View in browser
