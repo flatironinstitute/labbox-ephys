@@ -1,11 +1,12 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { Dispatch, useEffect, useReducer, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { filterPlugins, HitherContext, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer, useRecordingAnimation } from '../extensions/extensionInterface';
+import HitherContext from '../extensions/common/HitherContext';
+import { filterPlugins, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer, useRecordingAnimation } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -28,7 +29,6 @@ interface StateProps {
   extensionsConfig: any
   documentInfo: DocumentInfo
   plugins: Plugins
-  hither: HitherContext
 }
 
 interface DispatchProps {
@@ -51,7 +51,8 @@ type CalcStatus = 'waiting' | 'computing' | 'finished'
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
-  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, hither, width, height } = props
+  const hither = useContext(HitherContext)
+  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, width, height } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
@@ -199,7 +200,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             curationDispatch={curationDispatch}
             readOnly={readOnly}
             plugins={plugins}
-            hither={hither}
             calculationPool={calculationPool}
             width={W}
             height={H - headingHeight}
@@ -238,8 +238,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
   extensionsConfig: state.extensionsConfig,
-  documentInfo: state.documentInfo,
-  hither: state.hitherContext
+  documentInfo: state.documentInfo
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {

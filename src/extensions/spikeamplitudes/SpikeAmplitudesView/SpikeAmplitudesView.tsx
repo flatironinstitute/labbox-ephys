@@ -4,7 +4,7 @@ import { SortingViewProps } from "../../extensionInterface"
 import SelectUnitsWidget from './SelectUnitsWidget'
 import SpikeAmplitudesTimeWidget from './SpikeAmplitudesTimeWidget'
 
-const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, hither, width, height}) => {
+const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, width, height}) => {
     return (
         <Splitter
             width={width || 600}
@@ -16,7 +16,6 @@ const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, so
                 recording={recording}
                 sorting={sorting}
                 unitIds={selection.selectedUnitIds || []}
-                hither={hither}
                 {...{width: 0, height: 0}} // filled in by splitter
                 selection={selection}
                 selectionDispatch={selectionDispatch}

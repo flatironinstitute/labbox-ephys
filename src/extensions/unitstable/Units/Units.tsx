@@ -1,6 +1,7 @@
 
 import { Button, Paper } from '@material-ui/core';
-import React, { useCallback, useEffect, useReducer, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react';
+import HitherContext from '../../common/HitherContext';
 import { Recording, SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
@@ -58,7 +59,8 @@ interface OwnProps {
 }
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
-    const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, hither, width, height } = props
+    const hither = useContext(HitherContext)
+    const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, width, height } = props
     const [expandedTable, setExpandedTable] = useState(false)
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState)
     const [previousRecording, setPreviousRecording] = useState<Recording | null>(null)

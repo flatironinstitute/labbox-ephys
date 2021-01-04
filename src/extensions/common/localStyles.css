@@ -34,10 +34,10 @@
     font-weight: bold;
 }
 
-.plotWrapperStyle {
+/* .plotWrapperStyle {
     min-height: 228px;
     min-width: 206px;
-}
+} */
 
 .plotWrapperStyleButton {
     padding-top: 100px;

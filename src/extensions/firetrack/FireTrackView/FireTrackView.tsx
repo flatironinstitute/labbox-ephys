@@ -4,7 +4,7 @@ import { SortingViewProps } from "../../extensionInterface"
 import useTimeseriesData from '../../timeseries/TimeseriesViewNew/useTimeseriesModel'
 import FireTrackWidget from './FireTrackWidget'
 
-const FireTrackView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, hither, width, height}) => {
+const FireTrackView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, width, height}) => {
     const handleStopAnimation = useCallback(( args) => {
         selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 0})
     }, [ selectionDispatch ])
@@ -12,7 +12,7 @@ const FireTrackView: FunctionComponent<SortingViewProps> = ({recording, sorting,
         selectionDispatch({type: 'SetCurrentTimepointVelocity', velocity: 50})
     }, [ selectionDispatch ])
 
-    const timeseriesData = useTimeseriesData(recording.recordingObject, recording.recordingInfo, hither)
+    const timeseriesData = useTimeseriesData(recording.recordingObject, recording.recordingInfo)
     return (
         <Splitter
             width={width || 400}

@@ -47,7 +47,6 @@ const AverageWaveformsNew: React.FunctionComponent<SortingViewProps> = (props) =
                 id: 'plot-'+unitId
             })}
             calculationPool={averageWaveformsCalculationPool}
-            hither={props.hither}
         />
     );
 }

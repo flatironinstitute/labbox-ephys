@@ -1,6 +1,7 @@
-import { useRef } from "react"
+import { useContext, useRef } from "react"
 import createCalculationPool from "../../common/createCalculationPool"
-import { HitherContext, RecordingInfo } from "../../extensionInterface"
+import HitherContext from "../../common/HitherContext"
+import { RecordingInfo } from "../../extensionInterface"
 import Mda from "./Mda"
 
 interface MdaInterface {
@@ -167,7 +168,8 @@ export interface TimeseriesData {
   onDataSegmentSet: (handler: (ds_factor: number, t1: number, t2: number) => void) => void
 }
 
-const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo, hither: HitherContext): TimeseriesData | null => {
+const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): TimeseriesData | null => {
+  const hither = useContext(HitherContext)
   const ref = useRef<{
       recordingObject: any | null,
       recordingInfo: RecordingInfo | null,

@@ -5,7 +5,7 @@ import kachery as ka
 import numpy as np
 
 
-@hi.function('createjob_fetch_average_waveform_2', '0.1.0')
+@hi.function('createjob_fetch_average_waveform_2', '0.1.1')
 def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition2')
@@ -21,7 +21,7 @@ def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object,
             unit_id=unit_id
         )
 
-@hi.function('fetch_average_waveform_2', '0.2.5')
+@hi.function('fetch_average_waveform_2', '0.2.6')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
 def fetch_average_waveform_2(snippets_h5, unit_id):

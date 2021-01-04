@@ -1,6 +1,6 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
-import { CalculationPool, HitherContext, Sorting } from '../extensionInterface';
+import { CalculationPool, Sorting } from '../extensionInterface';
 import ClientSidePlot from './ClientSidePlot';
 import './localStyles.css';
 
@@ -17,15 +17,13 @@ interface Props {
     plotComponentArgsCallback: any
     plotComponentPropsCallback?: any
     calculationPool: CalculationPool | undefined
-    hither: HitherContext
 }
 
 const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections,
     dataFunctionName, dataFunctionArgsCallback, // fix this
     boxSize = { width: 200, height: 200},
     plotComponent, plotComponentArgsCallback, plotComponentPropsCallback, // fix this
-    calculationPool = undefined,
-    hither
+    calculationPool = undefined
 }) => {
         const maxUnitsVisibleIncrement = 60;
         const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
@@ -60,7 +58,6 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
                                         plotComponentProps={plotComponentPropsCallback ? plotComponentPropsCallback(unitId): undefined}
                                         calculationPool={calculationPool}
                                         title=""
-                                        hither={hither}
                                     />
                                 </div>
                             </div>

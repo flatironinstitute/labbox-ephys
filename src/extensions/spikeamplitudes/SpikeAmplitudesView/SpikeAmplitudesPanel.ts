@@ -1,5 +1,5 @@
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
-import { HitherContext, Recording, Sorting } from "../../extensionInterface"
+import { HitherInterface, Recording, Sorting } from "../../extensionInterface"
 
 // const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
@@ -26,7 +26,7 @@ class SpikeAmplitudesPanel {
     _yrange: {min: number, max: number} | null = null
     _panelGroup: SpikeAmplitudesPanel[] | null = null
     _includeZero = true
-    constructor(private args: {recording: Recording, sorting: Sorting, unitId: number, hither: HitherContext}) {
+    constructor(private args: {recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
     }
     setTimeRange(timeRange: {min: number, max: number}) {
         this._timeRange = timeRange

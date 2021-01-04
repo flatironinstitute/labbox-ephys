@@ -1,10 +1,10 @@
 import { Button, CircularProgress, FormControl, FormControlLabel, FormGroup, FormLabel, Input, InputLabel, makeStyles, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
-import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } from 'react';
+import React, { Dispatch, Fragment, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { addSorting, sleep } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import { HitherContext } from '../extensions/extensionInterface';
+import HitherContext from '../extensions/common/HitherContext';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -13,8 +13,7 @@ import { Sorting, SortingInfo } from '../reducers/sortings';
 
 interface StateProps {
     recordings: Recording[],
-    documentInfo: DocumentInfo,
-    hither: HitherContext
+    documentInfo: DocumentInfo
 }
 
 interface DispatchProps {
@@ -27,7 +26,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting, hither }) => {
+const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting }) => {
     const { documentId, feedUri, readOnly } = documentInfo;
     const [method, setMethod] = useState('examples');
 
@@ -52,7 +51,6 @@ const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, record
                 recordingObject={recordingObject}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
-                hither={hither}
             />
         )
     }
@@ -65,7 +63,6 @@ const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, record
                 recordingObject={recordingObject}
                 onAddSorting={onAddSorting}
                 onDone={handleDone}
-                hither={hither}
             />
         )
     }
@@ -134,7 +131,8 @@ const RadioChoices: FunctionComponent<{ label: string, value: any, onSetValue: (
     );
 }
 
-const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAddSorting: (sorting: Sorting) => void, examplesMode: boolean, recordingId: string, recordingPath: string, recordingObject: any, hither: HitherContext }> = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject, hither }) => {
+const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAddSorting: (sorting: Sorting) => void, examplesMode: boolean, recordingId: string, recordingPath: string, recordingObject: any }> = ({ onDone, onAddSorting, examplesMode, recordingId, recordingPath, recordingObject }) => {
+    const hither = useContext(HitherContext)
     const [sortingPath, setSortingPath] = useState('');
     const [sortingObject, setSortingObject] = useState<any | null>(null);
     const [sortingLabel, setSortingLabel] = useState('');
@@ -417,8 +415,7 @@ function isEmptyObject(x: {[key: string]: any}) {
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     recordings: state.recordings,
-    documentInfo: state.documentInfo,
-    hither: state.hitherContext
+    documentInfo: state.documentInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

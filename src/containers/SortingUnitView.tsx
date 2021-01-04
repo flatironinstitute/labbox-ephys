@@ -1,13 +1,14 @@
 import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useEffect, useState } from 'react';
+import React, { Dispatch, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SimilarUnit from '../components/SimilarUnit';
 import createCalculationPool from '../extensions/common/createCalculationPool';
+import HitherContext from '../extensions/common/HitherContext';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { CalculationPool, filterPlugins, HitherContext, Plugins } from '../extensions/extensionInterface';
+import { CalculationPool, filterPlugins, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -21,7 +22,6 @@ interface StateProps {
   extensionsConfig: ExtensionsConfig,
   documentInfo: DocumentInfo
   plugins: Plugins
-  hither: HitherContext
 }
 
 interface DispatchProps {
@@ -36,7 +36,8 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, documentInfo, size, hither }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, documentInfo, size }) => {
+  const hither = useContext(HitherContext)
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
@@ -79,7 +80,6 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
             width={width}
             sortingInfo={sortingInfo}
             plugins={plugins}
-            hither={hither}
           />
         </Grid>
         <Grid item key={2}>
@@ -90,7 +90,6 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
               unitId={unitId}
               width={width}
               calculationPool={calculationPool}
-              hither={hither}
             />
           </Expandable>
         </Grid>
@@ -100,8 +99,9 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
 }
 
 const SimilarUnitsView: FunctionComponent<{
-  sorting: Sorting, recording: Recording, unitId: number, width: number, calculationPool: CalculationPool, hither: HitherContext
-}> = ({ sorting, recording, unitId, width, calculationPool, hither }) => {
+  sorting: Sorting, recording: Recording, unitId: number, width: number, calculationPool: CalculationPool
+}> = ({ sorting, recording, unitId, width, calculationPool }) => {
+  const hither = useContext(HitherContext)
   const [calculationStatus, setCalculationStatus] = useState('pending');
   const [similarUnits, setSimilarUnits] = useState<{unit_id: number}[] | null>(null);
   const [calculationError, setCalculationError] = useState('');
@@ -171,7 +171,6 @@ const SimilarUnitsView: FunctionComponent<{
               compareUnitId={unitId}
               calculationPool={calculationPool}
               width={width}
-              hither={hither}
             />
           </Grid>
         ))
@@ -217,8 +216,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
     documentInfo: state.documentInfo,
-    plugins: filterPlugins(state.plugins),
-    hither: state.hitherContext
+    plugins: filterPlugins(state.plugins)
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

@@ -4,14 +4,14 @@ import ClientSidePlot from '../extensions/common/ClientSidePlot';
 import Correlogram_rv from '../extensions/correlograms/Correlogram_ReactVis';
 import DriftFeatures_rv from '../extensions/devel/IndividualUnits/DriftFeatures_rv';
 import PCAFeatures_rv from '../extensions/devel/IndividualUnits/PCAFeatures_rv';
-import { CalculationPool, HitherContext } from '../extensions/extensionInterface';
+import { CalculationPool } from '../extensions/extensionInterface';
 import AverageWaveform_rv from '../extensions/old/averagewaveformsold/AverageWaveform_ReactVis';
 import { Recording } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
 
 const SimilarUnit: FunctionComponent<{
-    sorting: Sorting, recording: Recording, unitId: number, compareUnitId: number, width: number, calculationPool: CalculationPool, hither: HitherContext
-}> = ({sorting, recording, unitId, compareUnitId, width, calculationPool, hither}) => {
+    sorting: Sorting, recording: Recording, unitId: number, compareUnitId: number, width: number, calculationPool: CalculationPool
+}> = ({sorting, recording, unitId, compareUnitId, width, calculationPool}) => {
     return (
         <div style={{width}}>
             <div>
@@ -32,7 +32,6 @@ const SimilarUnit: FunctionComponent<{
                             PlotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId}}
                             calculationPool={calculationPool}
-                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -52,7 +51,6 @@ const SimilarUnit: FunctionComponent<{
                             PlotComponent={Correlogram_rv}
                             plotComponentArgs={{id: unitId+'-'+compareUnitId}}
                             calculationPool={calculationPool}
-                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -72,7 +70,6 @@ const SimilarUnit: FunctionComponent<{
                             plotComponentArgs={{id: unitId}}
                             calculationPool={calculationPool}
                             title=""
-                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -92,7 +89,6 @@ const SimilarUnit: FunctionComponent<{
                             plotComponentArgs={{id: unitId}}
                             calculationPool={calculationPool}
                             title=""
-                            hither={hither}
                         />
                     </Grid>
                     <Grid item>
@@ -112,7 +108,6 @@ const SimilarUnit: FunctionComponent<{
                             plotComponentArgs={{id: unitId}}
                             calculationPool={calculationPool}
                             title=""
-                            hither={hither}
                         />
                     </Grid>
                 </Grid>

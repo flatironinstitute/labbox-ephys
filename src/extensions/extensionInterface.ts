@@ -202,31 +202,36 @@ export interface RecordingSelection {
     timeRange?: {min: number, max: number} | null
     ampScaleFactor?: number
     animation?: {
-        lastUpdateTimestamp: number
         currentTimepointVelocity: number // timepoints per second
     }
 }
 
 export const useRecordingAnimation = (selection: RecordingSelection, selectionDispatch: RecordingSelectionDispatch) => {
+    const [lastUpdateTimestamp, setLastUpdateTimestamp] = useState(Number(new Date()))
     const [animationFrame, setAnimationFrame] = useState(0)
-    const [prevAnimationFrame, setPrevAnimationFrame] = useState(0)
+
     useEffect(() => {
-        if (prevAnimationFrame !== animationFrame) {
-            setPrevAnimationFrame(animationFrame)
-            if (selection?.animation?.currentTimepointVelocity) {
-                selectionDispatch({type: 'AnimateRecording'})
+        const lastUpdate = lastUpdateTimestamp || Number(new Date())
+        const current = Number(new Date())
+        const elapsed = current - lastUpdate
+        if (elapsed !== 0) {
+            const currentTimepointVelocity = selection.animation?.currentTimepointVelocity || 0
+            const currentTimepoint = selection.currentTimepoint
+            if ((currentTimepointVelocity) && (currentTimepoint !== undefined)) {
+                const t = Math.round(currentTimepoint + currentTimepointVelocity * (elapsed / 1000))
+                selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
             }
         }
-    }, [animationFrame, selection, selectionDispatch, prevAnimationFrame, setPrevAnimationFrame])
+        setLastUpdateTimestamp(Number(new Date()))
+    }, [animationFrame]) // only call this if the animation frame has changed
+
 
     // only do this once
     useOnce(() => {
         ;(async () => {
-            let i = 0
             while (true) {
-                setAnimationFrame(i)
-                i ++
-                await sleepMsec(50)
+                await sleepMsec(500)
+                setAnimationFrame((prevAnimationFrame) => (prevAnimationFrame + 1))
             }
         })()
     })
@@ -269,11 +274,7 @@ type SetCurrentTimepointVelocityRecordingSelectionAction = {
     velocity: number // timepoints per second
 }
 
-type AnimateRecordingSelectionAction = {
-    type: 'AnimateRecording'
-}
-
-export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | AnimateRecordingSelectionAction
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction
 
 export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
     if (action.type === 'SetRecordingSelection') {
@@ -314,39 +315,9 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
             ...state,
             animation: {
                 ...(state.animation || {}),
-                lastUpdateTimestamp: Number(new Date()),
                 currentTimepointVelocity: action.velocity
             }
         }
-    }
-    else if (action.type === 'AnimateRecording') {
-        const lastUpdate = state?.animation?.lastUpdateTimestamp || Number(new Date())
-        const current = Number(new Date())
-        const elapsed = current - lastUpdate
-        if (elapsed !== 0) {
-            let state2 = {...state}
-            const currentTimepointVelocity = state?.animation?.currentTimepointVelocity || 0
-            const currentTimepoint = state.currentTimepoint
-            let somethingChanged = false
-            if ((currentTimepointVelocity) && (currentTimepoint !== undefined)) {
-                somethingChanged = true
-               state2 = {
-                   ...state2,
-                   currentTimepoint: Math.round(currentTimepoint + currentTimepointVelocity * (elapsed / 1000))
-               } 
-            }
-            if (somethingChanged) {
-                return {
-                    ...state2,
-                    animation: {
-                        ...(state2?.animation || {currentTimepointVelocity: 0}),
-                        lastUpdateTimestamp: current
-                    }
-                }
-            }
-            else return state
-        }
-        else return state
     }
     else return state
 }
@@ -436,6 +407,7 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
 
 export interface HitherJobOpts {
     useClientCache?: boolean
+    calculationPool?: CalculationPool
 }
 
 export interface HitherJob {
@@ -450,11 +422,34 @@ export interface HitherJob {
     status: string
     timestampStarted: number
     timestampFinished: number | null
+    clientCancelled: boolean
     wait: () => Promise<any>
+    cancel: () => void
 }
 
-export interface HitherContext {
+export const dummyHitherJob: HitherJob = {
+    jobId: null,
+    functionName: '',
+    kwargs: {},
+    opts: {},
+    clientJobId: '',
+    result: null,
+    runtime_info: {},
+    error_message: null,
+    status: '',
+    timestampStarted: 0,
+    timestampFinished: null,
+    clientCancelled: false,
+    wait: async () => {},
+    cancel: () => {}
+}
+
+export interface HitherInterface {
     createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => HitherJob
+}
+
+export const dummyHitherInterface: HitherInterface = {
+    createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => (dummyHitherJob)
 }
 
 export interface Plugins {
@@ -483,7 +478,6 @@ export const filterPlugins = (plugins: Plugins): Plugins => {
 }
 interface ViewProps {
     plugins: Plugins
-    hither: HitherContext
     calculationPool: CalculationPool
     width?: number
     height?: number
@@ -497,7 +491,6 @@ export interface SortingViewProps extends ViewProps {
     selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null
     plugins: Plugins
-    hither: HitherContext
 }
 
 export interface SortingViewPlugin extends ViewPlugin {

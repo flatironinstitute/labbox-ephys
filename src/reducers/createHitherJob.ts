@@ -1,6 +1,7 @@
 import { Dispatch } from 'react';
 import { addHitherJob, updateHitherJob } from '../actions/hitherJobs';
-import { HitherJob } from '../extensions/extensionInterface';
+import createCalculationPool from '../extensions/common/createCalculationPool';
+import { CalculationPool, HitherJob } from '../extensions/extensionInterface';
 import { RootAction } from '../reducers';
 import { HitherJobUpdate } from '../reducers/hitherJobs';
 
@@ -47,7 +48,7 @@ export const handleHitherJobCreationError = (msg: any) => {
     return;
   }
   const job = globalData.hitherJobs[msg.client_job_id];
-  const errorString = `Error creating job ${job._functionName}: ${msg.error}`;
+  const errorString = `Error creating job ${job._object.functionName}: ${msg.error}`;
   job._handleHitherJobError({
     errorString,
     runtime_info: null
@@ -61,7 +62,7 @@ export const handleHitherJobFinished = (msg: any) => {
     console.warn(`job not found (handleHitherJobFinished): ${msg.job_id} ${msg.client_job_id}`);
     return;
   }
-  if (!job._jobId) {
+  if (!job._object.jobId) {
     console.warn(`No _jobId for job`);
     return;
   }
@@ -113,51 +114,46 @@ export const setApiConnection = (apiConnection: ApiConnection) => {
 
 
 class ClientHitherJob {
-  _functionName: string
-  _kwargs: {[key: string]: any}
-  _opts: HitherJobOpts
-  _clientJobId: string
-  _jobId: string | null
-  _result: any | null
-  _runtime_info: any | null
-  _error_message: any | null
-  _status: string
+  _object: {
+    functionName: string
+    kwargs: {[key: string]: any}
+    opts: HitherJobOpts
+    clientJobId: string
+    jobId: string | null
+    result: any | null
+    runtime_info: any | null
+    error_message: any | null
+    status: string
+    timestampStarted: number
+    timestampFinished: number | null
+    clientCancelled: boolean
+    wait: () => Promise<any>
+    cancel: () => void
+  }
   _onFinishedCallbacks: ((result: any) => void)[]
   _onErrorCallbacks: ((err: Error) => void)[]
-  _timestampStarted: number
-  _timestampFinished: number | null
-  _wait = async () => {return await this.wait()}
   constructor(args: {functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts}) {
-    this._functionName = args.functionName;
-    this._kwargs = args.kwargs;
-    this._opts = args.opts
-    this._clientJobId = randomString(10) + '-client';
-    this._jobId = null; // not known yet
-    this._result = null;
-    this._runtime_info = null;
-    this._error_message = null;
-    this._status = 'pending';
+    this._object = {
+      functionName: args.functionName,
+      kwargs: args.kwargs,
+      opts: args.opts,
+      clientJobId: randomString(10) + '-client',
+      jobId: null,
+      result: null,
+      runtime_info: null,
+      error_message: null,
+      status: 'pending',
+      timestampStarted: Number(new Date()),
+      timestampFinished: null,
+      clientCancelled: false,
+      wait: async () => {return await this.wait()},
+      cancel: () => {this.cancel()}
+    }
     this._onFinishedCallbacks = [];
     this._onErrorCallbacks = [];
-    this._timestampStarted = Number(new Date())
-    this._timestampFinished = null
   }
-  object() {
-    const ret: HitherJob = {
-      jobId: this._jobId,
-      functionName: this._functionName,
-      kwargs: this._kwargs,
-      opts: this._opts,
-      clientJobId: this._clientJobId,
-      result: this._result,
-      runtime_info: this._runtime_info,
-      error_message: this._error_message,
-      status: this._status,
-      timestampStarted: this._timestampStarted,
-      timestampFinished: this._timestampFinished,
-      wait: this._wait
-    }
-    return ret
+  object(): HitherJob {
+    return this._object
   }
   async wait(): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -170,10 +166,10 @@ class ClientHitherJob {
     });
   }
   clientJobId() {
-    return this._clientJobId
+    return this._object.clientJobId
   }
   cancel() {
-    if (!this._jobId) {
+    if (!this._object.jobId) {
       console.warn('Cannot cancel job that has not yet been created on the server.');
       return;
     }
@@ -181,53 +177,56 @@ class ClientHitherJob {
     if (!apiConnection) return
     apiConnection.sendMessage({
       type: 'hitherCancelJob',
-      job_id: this._jobId
+      job_id: this._object.jobId
     });
   }
   onFinished(cb: (result: any) => void) {
-    this._timestampFinished = Number(new Date())
+    this._object.timestampFinished = Number(new Date())
     this._onFinishedCallbacks.push(cb);
-    if (this._status === 'finished') {
-      cb(this._result);
+    if (this._object.status === 'finished') {
+      cb(this._object.result);
     }
   }
   onError(cb: (err: Error) => void) {
-    this._timestampFinished = Number(new Date())
+    this._object.timestampFinished = Number(new Date())
     this._onErrorCallbacks.push(cb);
-    if (this._status === 'error') {
-      cb(new Error(this._error_message));
+    if (this._object.status === 'error') {
+      cb(new Error(this._object.error_message));
     }
   }
   _handleHitherJobCreated(a: {jobId: string}) {
-    this._jobId = a.jobId;
-    if (this._status === 'pending') {
-      this._status = 'running'; // not really running, but okay for now
-      globalData.runningJobIds[this._jobId] = true;
+    this._object.jobId = a.jobId;
+    if (this._object.status === 'pending') {
+      this._object.status = 'running'; // not really running, but okay for now
+      globalData.runningJobIds[this._object.jobId] = true;
     }
   }
   _handleHitherJobError(args: {errorString: string, runtime_info: any | null}) {
-    this._status = 'error';
-    this._error_message = args.errorString;
-    this._runtime_info = args.runtime_info
-    this._onErrorCallbacks.forEach(cb => cb(new Error(this._error_message)));
-    if ((this._jobId) && (this._jobId in globalData.runningJobIds)) {
-      delete globalData.runningJobIds[this._jobId];
+    this._object.status = 'error';
+    this._object.error_message = args.errorString;
+    this._object.runtime_info = args.runtime_info
+    this._onErrorCallbacks.forEach(cb => cb(new Error(this._object.error_message)));
+    if ((this._object.jobId) && (this._object.jobId in globalData.runningJobIds)) {
+      delete globalData.runningJobIds[this._object.jobId];
     }
   }
   _handleHitherJobFinished(a: {result: any, runtime_info: any}) {
-    this._result = a.result;
-    this._runtime_info = a.runtime_info;
-    this._status = 'finished';
-    if ((this._jobId) && (this._jobId in globalData.runningJobIds)) {
-      delete globalData.runningJobIds[this._jobId];
+    this._object.result = a.result;
+    this._object.runtime_info = a.runtime_info;
+    this._object.status = 'finished';
+    if ((this._object.jobId) && (this._object.jobId in globalData.runningJobIds)) {
+      delete globalData.runningJobIds[this._object.jobId];
     }
-    this._onFinishedCallbacks.forEach(cb => cb(this._result));
+    this._onFinishedCallbacks.forEach(cb => cb(this._object.result));
   }
 }
 
 interface HitherJobOpts {
   useClientCache?: boolean
+  calculationPool?: CalculationPool
 }
+
+const defaultCalculationPool = createCalculationPool({maxSimultaneous: 20})
 
 const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
   const jobHash = objectHash({
@@ -240,7 +239,7 @@ const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opt
     if (existingJob) return existingJob.object()
   }
   const J = new ClientHitherJob({functionName, kwargs, opts});
-  globalData.hitherJobs[J._clientJobId] = J;
+  globalData.hitherJobs[J._object.clientJobId] = J;
 
   if (opts.useClientCache) {
     globalData.hitherClientJobCache[jobHash] = J;
@@ -250,11 +249,15 @@ const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opt
     throw Error('Cannot create hither job with no API connection')
   }
 
-  apiConnection.sendMessage({
-    type: 'hitherCreateJob',
-    functionName: J._functionName,
-    kwargs: J._kwargs,
-    clientJobId: J._clientJobId
+  (opts.calculationPool || defaultCalculationPool).requestSlot().then(({complete}) => {
+    J.onError(() => {complete()})
+    J.onFinished(() => {complete()})
+    apiConnection.sendMessage({
+      type: 'hitherCreateJob',
+      functionName: J._object.functionName,
+      kwargs: J._object.kwargs,
+      clientJobId: J._object.clientJobId
+    })
   })
 
   return J.object()

@@ -1,5 +1,5 @@
 import { Grid } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useEffect } from 'react';
+import React, { Dispatch, FunctionComponent, useContext, useEffect } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,8 @@ import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
 import createCalculationPool from '../extensions/common/createCalculationPool';
-import { filterPlugins, HitherContext, Plugins, RecordingSelectionAction } from '../extensions/extensionInterface';
+import HitherContext from '../extensions/common/HitherContext';
+import { filterPlugins, Plugins, RecordingSelectionAction } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -21,8 +22,7 @@ interface StateProps {
   recording: Recording,
   sortings: Sorting[],
   documentInfo: DocumentInfo,
-  plugins: Plugins,
-  hither: HitherContext
+  plugins: Plugins
 }
 
 interface DispatchProps {
@@ -37,7 +37,8 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, plugins, hither }) => {
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, plugins }) => {
+  const hither = useContext(HitherContext)
   const { documentId, feedUri, readOnly } = documentInfo;
 
   const effect = async () => {
@@ -88,7 +89,6 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
                 recordingSelection={{}}
                 recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
                 plugins={plugins}
-                hither={hither}
               />
             </Expandable>
           ))
@@ -105,8 +105,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
   documentInfo: state.documentInfo,
-  plugins: filterPlugins(state.plugins),
-  hither: state.hitherContext
+  plugins: filterPlugins(state.plugins)
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

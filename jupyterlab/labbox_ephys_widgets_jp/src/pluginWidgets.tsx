@@ -6,10 +6,10 @@ import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyt
 import React, { FunctionComponent, useEffect, useReducer, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
-import exampleSorting from './exampleSorting';
 import createCalculationPool from './extensions/common/createCalculationPool';
+import HitherContext from './extensions/common/HitherContext';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherContext, HitherJob, HitherJobOpts, Plugins, Recording, RecordingSelectionAction, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherInterface, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -93,7 +93,9 @@ class HitherJobManager {
       status: '',
       timestampStarted: 0,
       timestampFinished: null,
-      wait: async () => {} // this will be replaced below
+      clientCancelled: false,
+      wait: async () => {}, // this will be replaced below
+      cancel: () => {} // replaced below
     }
     let localOnFinished: ((result: any) => void) | null = null
     let localOnError: ((error_message: string) => void) | null = null
@@ -127,6 +129,7 @@ class HitherJobManager {
       })
     }
     localJob.wait = _wait
+    localJob.cancel = () => {localJob.clientCancelled = true} // todo - do more than this?
     this._activeJobs[clientJobId] = localJob
     this._startIterating()
     return localJob
@@ -185,7 +188,6 @@ export class SortingViewModel extends DOMWidgetModel {
 
 interface PluginComponentWrapperProps {
   plugin: SortingViewPlugin
-  hither: HitherContext
   sortingObject: any
   recordingObject: any
   sortingInfo: any
@@ -195,7 +197,7 @@ interface PluginComponentWrapperProps {
   model: WidgetModel
 }
 
-const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, hither, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool, model}) => {
+const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool, model}) => {
   const [sorting, setSorting] = useState<Sorting | null>(null)
   const [recording, setRecording] = useState<Recording | null>(null)
 
@@ -316,7 +318,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
         selectionDispatch={selectionDispatch}
         readOnly={false}
         plugins={plugins}
-        hither={hither}
         calculationPool={calculationPool}
         width={width}
         height={height}
@@ -363,7 +364,7 @@ export class SortingView extends DOMWidgetView {
     
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-    const hither: HitherContext = {
+    const hither: HitherInterface = {
       createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
         return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
       }
@@ -377,17 +378,18 @@ export class SortingView extends DOMWidgetView {
     }
 
     return (
-      <PluginComponentWrapper
-        plugin={plugin}
-        hither={hither}
-        sortingObject={sortingObject}
-        recordingObject={recordingObject}
-        sortingInfo={sortingInfo}
-        recordingInfo={recordingInfo}
-        plugins={filterPlugins(plugins)}
-        calculationPool={calculationPool}
-        model={this.model}
-      />
+      <HitherContext.Provider value={hither}>
+        <PluginComponentWrapper
+          plugin={plugin}
+          sortingObject={sortingObject}
+          recordingObject={recordingObject}
+          sortingInfo={sortingInfo}
+          recordingInfo={recordingInfo}
+          plugins={filterPlugins(plugins)}
+          calculationPool={calculationPool}
+          model={this.model}
+        />
+      </HitherContext.Provider>
     )
   }
   render() {
@@ -403,93 +405,92 @@ export class SortingView extends DOMWidgetView {
   }
 }
 
-export class RecordingViewModel extends DOMWidgetModel {
-  initialize(attributes: any, options: any) {
-    super.initialize(attributes, options);
-  }
+// export class RecordingViewModel extends DOMWidgetModel {
+//   initialize(attributes: any, options: any) {
+//     super.initialize(attributes, options);
+//   }
 
-  defaults() {
-    return {
-      ...super.defaults(),
-      _model_name: RecordingViewModel.model_name,
-      _model_module: RecordingViewModel.model_module,
-      _model_module_version: RecordingViewModel.model_module_version,
-      _view_name: RecordingViewModel.view_name,
-      _view_module: RecordingViewModel.view_module,
-      _view_module_version: RecordingViewModel.view_module_version,
-      pluginName: '',
-      recordingObject: {}
-    };
-  }
+//   defaults() {
+//     return {
+//       ...super.defaults(),
+//       _model_name: RecordingViewModel.model_name,
+//       _model_module: RecordingViewModel.model_module,
+//       _model_module_version: RecordingViewModel.model_module_version,
+//       _view_name: RecordingViewModel.view_name,
+//       _view_module: RecordingViewModel.view_module,
+//       _view_module_version: RecordingViewModel.view_module_version,
+//       pluginName: '',
+//       recordingObject: {}
+//     };
+//   }
 
-  static serializers: ISerializers = {
-    ...DOMWidgetModel.serializers,
-    // Add any extra serializers here
-  };
+//   static serializers: ISerializers = {
+//     ...DOMWidgetModel.serializers,
+//     // Add any extra serializers here
+//   };
 
-  static model_name = 'RecordingViewModel';
-  static model_module = MODULE_NAME;
-  static model_module_version = MODULE_VERSION;
-  static view_name = 'RecordingView'; // Set to null if no view
-  static view_module = MODULE_NAME; // Set to null if no view
-  static view_module_version = MODULE_VERSION;
-}
+//   static model_name = 'RecordingViewModel';
+//   static model_module = MODULE_NAME;
+//   static model_module_version = MODULE_VERSION;
+//   static view_name = 'RecordingView'; // Set to null if no view
+//   static view_module = MODULE_NAME; // Set to null if no view
+//   static view_module_version = MODULE_VERSION;
+// }
 
-export class RecordingView extends DOMWidgetView {
-  _hitherJobManager: HitherJobManager
-  initialize() {
-    this._hitherJobManager = new HitherJobManager(this.model)
-  }
-  element() {
-    const pluginName = this.model.get('pluginName')
-    const recordingObject = this.model.get('recordingObject')
-    const recordingInfo = this.model.get('recordingInfo')
-    const plugin = extensionContext._recordingViewPlugins[pluginName]
-    if (!plugin) return <div>Plugin not found: {pluginName}</div>
+// export class RecordingView extends DOMWidgetView {
+//   _hitherJobManager: HitherJobManager
+//   initialize() {
+//     this._hitherJobManager = new HitherJobManager(this.model)
+//   }
+//   element() {
+//     const pluginName = this.model.get('pluginName')
+//     const recordingObject = this.model.get('recordingObject')
+//     const recordingInfo = this.model.get('recordingInfo')
+//     const plugin = extensionContext._recordingViewPlugins[pluginName]
+//     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-    const example = exampleSorting()
+//     const example = exampleSorting()
 
-    const hitherContext: HitherContext = {
-      createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
-        return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
-      }
-    }
+//     const HitherInterface: HitherInterface = {
+//       createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
+//         return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
+//       }
+//     }
 
-    const recording = {
-      recordingId: '',
-      recordingLabel: '',
-      recordingObject,
-      recordingPath: '',
-      recordingInfo
-    }
+//     const recording = {
+//       recordingId: '',
+//       recordingLabel: '',
+//       recordingObject,
+//       recordingPath: '',
+//       recordingInfo
+//     }
 
-    const plugins: Plugins = {
-      recordingViews: extensionContext._recordingViewPlugins,
-      sortingViews: extensionContext._sortingViewPlugins,
-      sortingUnitViews: extensionContext._sortingUnitViewPlugins,
-      sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
-    }
+//     const plugins: Plugins = {
+//       recordingViews: extensionContext._recordingViewPlugins,
+//       sortingViews: extensionContext._sortingViewPlugins,
+//       sortingUnitViews: extensionContext._sortingUnitViewPlugins,
+//       sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
+//     }
 
-    // this.el.textContent = this.model.get('value') + ' --- test9';
-    const x = (
-      <plugin.component
-        recording={recording}
-        plugins={plugins}
-        hither={hitherContext}
-        calculationPool={calculationPool}
-        recordingSelection={{}}
-        recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
-      />
-    )
-    return x
-  }
-  render() {
-    // this.el.classList.add('custom-widget');
+//     // this.el.textContent = this.model.get('value') + ' --- test9';
+//     const x = (
+//       <plugin.component
+//         recording={recording}
+//         plugins={plugins}
+//         calculationPool={calculationPool}
+//         recordingSelection={{}}
+//         recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
+//       />
+//     )
+//     return x
+//   }
+//   render() {
+//     // this.el.classList.add('custom-widget');
 
-    const x = this.element()
-    ReactDOM.render(x, this.el)
-  }
-}
+//     const x = this.element()
+//     ReactDOM.render(x, this.el)
+//   }
+// }
 
 function randomAlphaId() {
   const num_chars = 10;
