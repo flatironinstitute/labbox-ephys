@@ -1,5 +1,6 @@
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
-import { HitherInterface, Recording, Sorting } from "../../extensionInterface"
+import { HitherInterface } from "../../common/hither"
+import { Recording, Sorting } from "../../extensionInterface"
 
 // const calculationPool = createCalculationPool({maxSimultaneous: 6})
 

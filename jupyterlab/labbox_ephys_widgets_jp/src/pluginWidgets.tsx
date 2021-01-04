@@ -6,10 +6,9 @@ import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyt
 import React, { FunctionComponent, useEffect, useReducer, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
-import createCalculationPool from './extensions/common/createCalculationPool';
-import HitherContext from './extensions/common/HitherContext';
+import { CalculationPool, createCalculationPool, HitherContext, HitherInterface, HitherJob, HitherJobOpts } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
-import { CalculationPool, externalUnitMetricsReducer, filterPlugins, HitherInterface, HitherJob, HitherJobOpts, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 

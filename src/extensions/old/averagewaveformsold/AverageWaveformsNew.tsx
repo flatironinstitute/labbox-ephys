@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import createCalculationPool from '../../common/createCalculationPool';
+import { createCalculationPool } from '../../common/hither';
 import PlotGrid from '../../common/PlotGrid';
 import { SortingViewProps } from '../../extensionInterface';
 import AverageWaveformPlotNew from './AverageWaveformPlotNew';

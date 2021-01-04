@@ -1,8 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { VerticalBarSeries, XAxis, XYPlot, YAxis } from 'react-vis';
-import createCalculationPool from '../common/createCalculationPool';
-import HitherJobStatusView from '../common/HitherJobStatusView';
-import useHitherJob from '../common/useHitherJob';
+import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../common/hither';
 import { Sorting, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
 
 type PlotData = {
