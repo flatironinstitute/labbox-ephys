@@ -27,7 +27,7 @@ def estimate_noise_level(recording: se.RecordingExtractor):
     if (est_noise_level == 0): est_noise_level = 1
     return est_noise_level
 
-@hi.function('get_recording_info', '0.1.3')
+@hi.function('get_recording_info', '0.1.6')
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def get_recording_info(recording_object):
@@ -41,12 +41,30 @@ def get_recording_info(recording_object):
         noise_level=estimate_noise_level(recording)
     )
 
+@hi.function('recording_is_downloaded', '0.1.0')
+@hi.local_modules(['../../labbox_ephys'])
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
+def recording_is_downloaded(recording_object):
+    recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
+    return recording.is_local()
+
 @hi.function('download_recording', '0.1.0')
 @hi.local_modules(['../../labbox_ephys'])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def download_recording(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     recording.download()
+
+@hi.function('createjob_download_recording', '0.1.0')
+@hi.local_modules(['../../labbox_ephys'])
+def createjob_download_recording(labbox, recording_object):
+    return download_recording.run(recording_object=recording_object)
+
+@hi.function('createjob_recording_is_downloaded', '0.1.0')
+@hi.local_modules(['../../labbox_ephys'])
+def createjob_recording_is_downloaded(labbox, recording_object):
+    return recording_is_downloaded.run(recording_object=recording_object)
+
 
 def geom_from_recording(recording):
     channel_ids = recording.get_channel_ids()

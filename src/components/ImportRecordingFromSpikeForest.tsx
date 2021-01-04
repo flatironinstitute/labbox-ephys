@@ -1,18 +1,28 @@
 import { Button, CircularProgress, FormControl, FormGroup, Input, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { sleep } from '../actions';
-import RecordingInfoView from '../components/RecordingInfoView';
 import HitherContext from '../extensions/common/HitherContext';
+import { Recording, RecordingInfo } from '../reducers/recordings';
+import RecordingInfoView from './RecordingInfoView';
 
-const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }) => {
+interface Props {
+    onDone: () => void
+    onAddRecording: (recording: Recording) => void
+    examplesMode: boolean
+}
+
+type Errors = {recordingLabel?: {type: string}, recordingPath?: {type: string}}
+
+const ImportRecordingFromSpikeForest: FunctionComponent<Props> = ({ onDone, onAddRecording, examplesMode }) => {
     const hither = useContext(HitherContext)
-    const [recordingPath, setRecordingPath] = useState('');
-    const [recordingObject, setRecordingObject] = useState(null);
-    const [recordingInfo, setRecordingInfo] = useState(null);
-    const [recordingInfoStatus, setRecordingInfoStatus] = useState('');
-    const [downloadStatus, setDownloadStatus] = useState('');
-    const [recordingLabel, setRecordingLabel] = useState('');
-    const [errors, setErrors] = useState({});
+    const [recordingPath, setRecordingPath] = useState<string>('');
+    const [recordingObject, setRecordingObject] = useState<any | null>(null);
+    const [recordingInfo, setRecordingInfo] = useState<RecordingInfo | null>(null);
+    const [recordingInfoStatus, setRecordingInfoStatus] = useState<string>('');
+    const [downloadStatus, setDownloadStatus] = useState<string>('');
+    const [recordingLabel, setRecordingLabel] = useState<string>('');
+    const [recordingIsDownloaded, setRecordingIsDownloaded] = useState<boolean | undefined>(undefined)
+    const [errors, setErrors] = useState<Errors>({});
 
     const effect = async () => {
         if ((!recordingInfoStatus) && (recordingPath)) {
@@ -25,7 +35,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
             try {
                 await sleep(500);
                 const obj = await hither.createHitherJob(
-                    'get_recording_object',
+                    'createjob_get_recording_object',
                     {
                         recording_path: recordingPath
                     },
@@ -35,21 +45,23 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
                 ).wait()
                 setRecordingObject(obj);
                 const info = await hither.createHitherJob(
-                    'get_recording_info',
+                    'createjob_get_recording_info',
                     { recording_object: obj },
                     {
-                        kachery_config: {},
-                        hither_config: {
-                        },
-                        job_handler_name: 'default',
-                        // if we do not substitute file objects, then it does not get downloaded
-                        auto_substitute_file_objects: false,
+                        useClientCache: false
+                    }
+                ).wait()
+                const downloadedResult = await hither.createHitherJob(
+                    'createjob_recording_is_downloaded',
+                    {recording_object: obj},
+                    {
                         useClientCache: false
                     }
                 ).wait()
                 
                 setRecordingInfo(info);
                 setRecordingInfoStatus('calculated');
+                setRecordingIsDownloaded(downloadedResult ? true : false)
             }
             catch (err) {
                 console.error(err);
@@ -62,13 +74,9 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
             setDownloadStatus('downloading');
             try {
                 await hither.createHitherJob(
-                    'download_recording',
+                    'createjob_download_recording',
                     { recording_object: recordingObject },
                     {
-                        kachery_config: {},
-                        hither_config: {},
-                        auto_substitute_file_objects: false,
-                        wait: true,
                         useClientCache: false
                     }
                 ).wait()
@@ -90,23 +98,23 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
     }
 
     const handleImport = () => {
-        let newErrors = {};
+        let newErrors: Errors = {};
         let recordingLabel2 = recordingLabel === '<>' ? autoDetermineRecordingLabelFromPath(recordingPath) : recordingLabel;
         if (!recordingLabel2) {
-            newErrors.recordingLabel = { type: 'required' };
+            newErrors = {recordingLabel: { type: 'required' }}
         }
         if (!recordingPath) {
-            newErrors.recordingPath = { type: 'required' };
+            newErrors = {recordingPath: { type: 'required' }}
         }
         setErrors(newErrors);
-        if (!isEmptyObject(newErrors)) {
-            return;
-        }
+        if (Object.keys(newErrors).length > 0) return
+        if (!recordingInfo) throw Error('Unexpected: recordingInfo is null in handleImport')
         const recording = {
             recordingId: randomString(10),
             recordingLabel: recordingLabel2,
             recordingPath,
-            recordingObject
+            recordingObject,
+            recordingInfo
         }
         onAddRecording(recording);
         onDone && onDone();
@@ -119,7 +127,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
     let showImportButton = false;
     let showDownloadButton = false;
     if (recordingInfoStatus === 'calculated') {
-        if (recordingInfo.is_local) {
+        if (recordingIsDownloaded) {
             showImportButton = true;
         }
         else {
@@ -193,7 +201,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
                     recordingInfoStatus === 'calculating' ? (
                         <CircularProgress />
                     ) : (
-                        recordingInfo && <RecordingInfoView recordingInfo={recordingInfo} />
+                        recordingInfo && <RecordingInfoView recordingInfo={recordingInfo} hideElectrodeGeometry={false} />
                     )
                 }
             </form >
@@ -201,7 +209,7 @@ const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }
     )
 }
 
-function autoDetermineRecordingLabelFromPath(path) {
+function autoDetermineRecordingLabelFromPath(path: string) {
     if (path.startsWith('sha1://') || (path.startsWith('sha1dir://'))) {
         let x = path.split('/').slice(2);
         let y = x[0].split('.');
@@ -225,8 +233,8 @@ const formGroupStyle = {
 const required = "This field is required";
 const maxLength = "Your input exceeds maximum length";
 
-const errorMessage = error => {
-    return <div className="invalid-feedback">{error}</div>;
+const errorMessage = (errorMsg: string) => {
+    return <div className="invalid-feedback">{errorMsg}</div>;
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -239,7 +247,13 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SelectExampleRecordingPath = ({ value, onChange, disabled=false }) => {
+interface SelectExampleRecordingPath {
+    value: string
+    onChange: (v: string) => void
+    disabled?: boolean
+}
+
+const SelectExampleRecordingPath: FunctionComponent<SelectExampleRecordingPath> = ({ value, onChange, disabled=false }) => {
     const examplePaths = [
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",
@@ -257,7 +271,7 @@ const SelectExampleRecordingPath = ({ value, onChange, disabled=false }) => {
                 id="select-example"
                 disabled={disabled}
                 value={value}
-                onChange={evt => { onChange(evt.target.value) }}
+                onChange={evt => { onChange(evt.target.value as string) }}
             >
                 {
                     examplePaths.map((path, ii) => (
@@ -269,10 +283,18 @@ const SelectExampleRecordingPath = ({ value, onChange, disabled=false }) => {
     )
 }
 
-const RecordingPathControl = ({ value, onChange, errors, examplesMode, disabled=false }) => {
+interface RecordingPathControlProps {
+    value: string
+    onChange: (v: string) => void
+    errors: Errors
+    examplesMode: boolean
+    disabled?: boolean
+}
+
+const RecordingPathControl: FunctionComponent<RecordingPathControlProps> = ({ value, onChange, errors, examplesMode, disabled=false }) => {
     const [internalValue, setInternalValue] = useState(value);
 
-    const e = errors.recordingPath || {};
+    const e = errors.recordingPath || {type: ''};
     return (
         <div>
             {
@@ -315,7 +337,7 @@ const RecordingPathControl = ({ value, onChange, errors, examplesMode, disabled=
     );
 }
 
-function randomString(num_chars) {
+function randomString(num_chars: number) {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (var i = 0; i < num_chars; i++)
@@ -323,8 +345,15 @@ function randomString(num_chars) {
     return text;
 }
 
-const RecordingLabelControl = ({ value, onChange, errors, disabled=false }) => {
-    const e = errors.recordingLabel || {};
+interface RecordingLabelControlProps {
+    value: string
+    onChange: (v: string) => void
+    errors: Errors
+    disabled?: boolean
+}
+
+const RecordingLabelControl: FunctionComponent<RecordingLabelControlProps> = ({ value, onChange, errors, disabled=false }) => {
+    const e = errors.recordingLabel || {type: ''};
     return (
         <FormGroup style={formGroupStyle}>
             <FormControl>
@@ -341,10 +370,6 @@ const RecordingLabelControl = ({ value, onChange, errors, disabled=false }) => {
             {e.type === "maxLength" && errorMessage(maxLength)}
         </FormGroup>
     );
-}
-
-function isEmptyObject(x) {
-    return Object.keys(x).length === 0;
 }
 
 export default ImportRecordingFromSpikeForest

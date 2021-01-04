@@ -89,7 +89,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onAddRecording: (recording: Recording) => dispatch(addRecording(recording))
+    onAddRecording: (recording: Recording) => {dispatch(addRecording(recording))}
 })
 
 export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(

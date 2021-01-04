@@ -146,7 +146,7 @@ const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAd
             try {
                 await sleep(500);
                 const obj = await hither.createHitherJob(
-                    'get_sorting_object',
+                    'createjob_get_sorting_object',
                     {
                         sorting_path: sortingPath,
                         recording_object: recordingObject
@@ -157,7 +157,7 @@ const ImportSortingFromSpikeForest: FunctionComponent<{ onDone: () => void, onAd
                 ).wait()
                 setSortingObject(obj);
                 const info = await hither.createHitherJob(
-                    'get_sorting_info',
+                    'createjob_get_sorting_info',
                     { sorting_object: obj, recording_object: recordingObject },
                     {
                         useClientCache: false // todo: maybe this should be true?
