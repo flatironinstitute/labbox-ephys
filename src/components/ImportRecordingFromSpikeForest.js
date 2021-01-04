@@ -1,9 +1,11 @@
 import { Button, CircularProgress, FormControl, FormGroup, Input, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { sleep } from '../actions';
 import RecordingInfoView from '../components/RecordingInfoView';
+import HitherContext from '../extensions/common/HitherContext';
 
-const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode, hither }) => {
+const ImportRecordingFromSpikeForest = ({ onDone, onAddRecording, examplesMode }) => {
+    const hither = useContext(HitherContext)
     const [recordingPath, setRecordingPath] = useState('');
     const [recordingObject, setRecordingObject] = useState(null);
     const [recordingInfo, setRecordingInfo] = useState(null);

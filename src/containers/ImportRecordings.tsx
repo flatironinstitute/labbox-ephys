@@ -43,7 +43,6 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
                 examplesMode={false}
-                hither={hither}
             />
         )
     }
@@ -53,7 +52,6 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
                 examplesMode={true}
                 onAddRecording={onAddRecording}
                 onDone={handleDone}
-                hither={hither}
             />
         )
     }
