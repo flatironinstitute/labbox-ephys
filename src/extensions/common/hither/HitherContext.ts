@@ -1,5 +1,5 @@
 import React from 'react'
-import { dummyHitherInterface, HitherInterface } from '../extensionInterface'
+import { dummyHitherInterface, HitherInterface } from './HitherInterface'
 
 const HitherContext = React.createContext<HitherInterface>(dummyHitherInterface)
 

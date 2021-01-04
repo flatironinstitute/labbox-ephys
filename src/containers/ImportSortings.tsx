@@ -4,7 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { addSorting, sleep } from '../actions';
 import SortingInfoView from '../components/SortingInfoView';
-import HitherContext from '../extensions/common/HitherContext';
+import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';

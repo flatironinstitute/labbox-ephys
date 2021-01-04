@@ -1,7 +1,6 @@
 import { Dispatch } from 'react';
 import { addHitherJob, updateHitherJob } from '../actions/hitherJobs';
-import createCalculationPool from '../extensions/common/createCalculationPool';
-import { CalculationPool, HitherJob } from '../extensions/extensionInterface';
+import { CalculationPool, createCalculationPool, HitherJob } from '../extensions/common/hither';
 import { RootAction } from '../reducers';
 import { HitherJobUpdate } from '../reducers/hitherJobs';
 

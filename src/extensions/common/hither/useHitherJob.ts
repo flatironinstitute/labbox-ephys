@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import { HitherJob, HitherJobOpts } from "../extensionInterface";
 import HitherContext from "./HitherContext";
+import { HitherJob, HitherJobOpts } from "./HitherInterface";
 
 const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any}, hitherJobOpts: HitherJobOpts): {result: T | undefined, job: HitherJob} => {
     const hither = useContext(HitherContext)

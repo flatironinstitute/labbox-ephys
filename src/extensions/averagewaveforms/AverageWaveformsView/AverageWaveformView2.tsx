@@ -1,7 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import createCalculationPool from '../../common/createCalculationPool';
-import HitherJobStatusView from '../../common/HitherJobStatusView';
-import useHitherJob from '../../common/useHitherJob';
+import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import AverageWaveformWidget from './AverageWaveformWidget';
 

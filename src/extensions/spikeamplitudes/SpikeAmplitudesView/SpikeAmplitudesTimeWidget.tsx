@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
-import HitherContext from '../../common/HitherContext';
+import { HitherContext } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';

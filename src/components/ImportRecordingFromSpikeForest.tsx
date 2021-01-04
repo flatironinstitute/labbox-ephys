@@ -1,7 +1,7 @@
 import { Button, CircularProgress, FormControl, FormGroup, Input, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { sleep } from '../actions';
-import HitherContext from '../extensions/common/HitherContext';
+import { HitherContext } from '../extensions/common/hither';
 import { Recording, RecordingInfo } from '../reducers/recordings';
 import RecordingInfoView from './RecordingInfoView';
 

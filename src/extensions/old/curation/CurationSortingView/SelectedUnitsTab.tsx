@@ -1,5 +1,5 @@
 import React, { Fragment, FunctionComponent } from 'react';
-import createCalculationPool from '../../../common/createCalculationPool';
+import { createCalculationPool } from '../../../common/hither';
 import { SortingViewProps } from '../../../extensionInterface';
 import sortByPriority from '../../../sortByPriority';
 import Expandable from './Expandable';

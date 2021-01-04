@@ -1,6 +1,5 @@
 import { useContext, useRef } from "react"
-import createCalculationPool from "../../common/createCalculationPool"
-import HitherContext from "../../common/HitherContext"
+import { createCalculationPool, HitherContext } from "../../common/hither"
 import { RecordingInfo } from "../../extensionInterface"
 import Mda from "./Mda"
 

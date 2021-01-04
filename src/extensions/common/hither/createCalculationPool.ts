@@ -1,5 +1,9 @@
-const createCalculationPool = ({maxSimultaneous, method}: {maxSimultaneous: number, method?: 'stack' | 'queue'}) => {
-    return new CalculationPool({maxSimultaneous, method})
+export interface CalculationPool {
+    requestSlot: () => Promise<{complete: () => void}>
+}
+
+const createCalculationPool = ({maxSimultaneous, method}: {maxSimultaneous: number, method?: 'stack' | 'queue'}): CalculationPool => {
+    return new CalculationPoolImpl({maxSimultaneous, method})
 }
 
 interface Slot {
@@ -7,7 +11,7 @@ interface Slot {
     complete: () => void
 }
 
-class CalculationPool {
+class CalculationPoolImpl {
     _maxSimultaneous: number
     _method: 'stack' | 'queue'
     _activeSlots: {[key: string]: Slot}

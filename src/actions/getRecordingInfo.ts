@@ -1,4 +1,4 @@
-import { HitherInterface } from "../extensions/extensionInterface";
+import { HitherInterface } from "../extensions/common/hither";
 import { RecordingInfo } from "../reducers/recordings";
 
 export const getRecordingInfo = async (a: {recordingObject: any, hither: HitherInterface}): Promise<RecordingInfo> => {

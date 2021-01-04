@@ -12,9 +12,8 @@ import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
-import HitherContext from './extensions/common/HitherContext';
+import { HitherContext, HitherInterface } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
-import { HitherInterface } from './extensions/extensionInterface';
 import './index.css';
 // reducer
 import rootReducer, { RootState } from './reducers';

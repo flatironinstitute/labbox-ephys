@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { deleteRecordings, setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import NiceTable from '../components/NiceTable';
-import HitherContext from '../extensions/common/HitherContext';
+import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';

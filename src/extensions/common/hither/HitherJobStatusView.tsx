@@ -2,7 +2,7 @@ import { faWater } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, CircularProgress } from '@material-ui/core'
 import React, { FunctionComponent } from 'react'
-import { HitherJob } from '../extensionInterface'
+import { HitherJob } from './HitherInterface'
 
 
 const HitherJobStatusView: FunctionComponent<{job?: HitherJob, width?: number, height?: number}> = ({job, width=200, height=200}) => {

@@ -4,7 +4,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { addRecording } from '../actions';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 import RadioChoices from '../components/RadioChoices';
-import HitherContext from '../extensions/common/HitherContext';
+import { HitherContext } from '../extensions/common/hither';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';

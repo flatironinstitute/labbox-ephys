@@ -1,9 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import ClientSidePlot from '../../common/ClientSidePlot';
-import { CalculationPool, Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
-import DriftFeatures_rv from './DriftFeatures_rv';
-import PCAFeatures_rv from './PCAFeatures_rv';
-import SpikeWaveforms_rv from './SpikeWaveforms_rv';
+import { CalculationPool } from '../../common/hither';
+import { Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
 
 interface Props {
     sorting: Sorting
@@ -15,81 +12,81 @@ interface Props {
     plugins: Plugins
 }
 
-const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
-    const _handlePointClicked = ({index}: { index: number | null }) => {
-        onSelectedSpikeIndexChanged(index);
-    }
-    return (
-        <ClientSidePlot
-            dataFunctionName={'createjob_fetch_pca_features'}
-            dataFunctionArgs={{
-                sorting_object: sorting.sortingObject,
-                recording_object: recording.recordingObject,
-                unit_ids: [unitId]
-            }}
-            boxSize={{
-                width: 300,
-                height: 300
-            }}
-            PlotComponent={PCAFeatures_rv}
-            plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
-            calculationPool={calculationPool}
-            title=""
-        />
-    )
-}
+// const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
+//     const _handlePointClicked = ({index}: { index: number | null }) => {
+//         onSelectedSpikeIndexChanged(index);
+//     }
+//     return (
+//         <ClientSidePlot
+//             dataFunctionName={'createjob_fetch_pca_features'}
+//             dataFunctionArgs={{
+//                 sorting_object: sorting.sortingObject,
+//                 recording_object: recording.recordingObject,
+//                 unit_ids: [unitId]
+//             }}
+//             boxSize={{
+//                 width: 300,
+//                 height: 300
+//             }}
+//             PlotComponent={PCAFeatures_rv}
+//             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
+//             calculationPool={calculationPool}
+//             title=""
+//         />
+//     )
+// }
 
-const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
-    const _handlePointClicked = ({index}: { index: number }) => {
-        onSelectedSpikeIndexChanged(index);
-    }
-    return (
-        <ClientSidePlot
-            dataFunctionName={'createjob_fetch_pca_features'}
-            dataFunctionArgs={{
-                sorting_object: sorting.sortingObject,
-                recording_object: recording.recordingObject,
-                unit_ids: [unitId]
-            }}
-            boxSize={{
-                width: 600,
-                height: 300
-            }}
-            PlotComponent={DriftFeatures_rv}
-            plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
-            calculationPool={calculationPool}
-            title=""
-        />
-    )
-}
+// const Drift: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
+//     const _handlePointClicked = ({index}: { index: number }) => {
+//         onSelectedSpikeIndexChanged(index);
+//     }
+//     return (
+//         <ClientSidePlot
+//             dataFunctionName={'createjob_fetch_pca_features'}
+//             dataFunctionArgs={{
+//                 sorting_object: sorting.sortingObject,
+//                 recording_object: recording.recordingObject,
+//                 unit_ids: [unitId]
+//             }}
+//             boxSize={{
+//                 width: 600,
+//                 height: 300
+//             }}
+//             PlotComponent={DriftFeatures_rv}
+//             plotComponentArgs={{ id: unitId, onPointClicked: ({index}: { index: number }) => _handlePointClicked({ index }) }}
+//             calculationPool={calculationPool}
+//             title=""
+//         />
+//     )
+// }
 
-const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, selectedSpikeIndex: number | null, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, selectedSpikeIndex, onSelectedSpikeIndexChanged }) => {
-    const _handlePointClicked = ({index}: { index: number }) => {
-        onSelectedSpikeIndexChanged(index);
-    }
-    return (
-        sorting.sortingInfo ? (
-            <ClientSidePlot
-                dataFunctionName={'createjob_fetch_spike_waveforms'}
-                dataFunctionArgs={{
-                    sorting_object: sorting.sortingObject,
-                    recording_object: recording.recordingObject,
-                    unit_ids: [unitId],
-                    spike_indices: [spikeIndexSubset(sorting.sortingInfo.unit_ids.length, 20)]
-                }}
-                boxSize={{
-                    width: 300,
-                    height: 300
-                }}
-                title="Example waveforms"
-                PlotComponent={SpikeWaveforms_rv}
-                plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
-                calculationPool={calculationPool}
-                // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
-            />
-        ) : <div>No sorting info</div>
-    )
-}
+// const ExampleWaveforms: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, selectedSpikeIndex: number | null, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, selectedSpikeIndex, onSelectedSpikeIndexChanged }) => {
+//     const _handlePointClicked = ({index}: { index: number }) => {
+//         onSelectedSpikeIndexChanged(index);
+//     }
+//     return (
+//         sorting.sortingInfo ? (
+//             <ClientSidePlot
+//                 dataFunctionName={'createjob_fetch_spike_waveforms'}
+//                 dataFunctionArgs={{
+//                     sorting_object: sorting.sortingObject,
+//                     recording_object: recording.recordingObject,
+//                     unit_ids: [unitId],
+//                     spike_indices: [spikeIndexSubset(sorting.sortingInfo.unit_ids.length, 20)]
+//                 }}
+//                 boxSize={{
+//                     width: 300,
+//                     height: 300
+//                 }}
+//                 title="Example waveforms"
+//                 PlotComponent={SpikeWaveforms_rv}
+//                 plotComponentArgs={{ id: unitId + '-' + selectedSpikeIndex }}
+//                 calculationPool={calculationPool}
+//                 // selectedSpikeIndex={selectedSpikeIndex} /* To force rerender */
+//             />
+//         ) : <div>No sorting info</div>
+//     )
+// }
 
 const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, plugins }) => {
     return <div>IndividualUnit: obsolete</div>
