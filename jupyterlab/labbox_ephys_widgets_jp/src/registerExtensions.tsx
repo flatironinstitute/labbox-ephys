@@ -14,6 +14,7 @@ import { activate as activatefiretrack } from './extensions/firetrack/firetrack'
 import { activate as activatemountainview } from './extensions/mountainview/mountainview'
 import { activate as activatecuration } from './extensions/old/curation/curation'
 import { activate as activateaveragewaveformsold } from './extensions/old/averagewaveformsold/averagewaveformsold'
+import { activate as activatesnippets } from './extensions/snippets/snippets'
 // !end-code-generation!
 
 const registerExtensions = (context: ExtensionContext) => {
@@ -30,6 +31,7 @@ const registerExtensions = (context: ExtensionContext) => {
     activatemountainview(context)
     activatecuration(context)
     activateaveragewaveformsold(context)
+    activatesnippets(context)
     // !end-code-generation!
 }
 

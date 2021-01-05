@@ -170,8 +170,12 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             this._pixelWidth = p.width
             this._pixelHeight = p.height
             this._runningOnPropsChange = true
-            this._onPropsChange(this, p)
-            this._runningOnPropsChange = false
+            try {
+                this._onPropsChange(this, p)
+            }
+            finally {
+                this._runningOnPropsChange = false
+            }
         }
     }
     getState() {
@@ -185,7 +189,14 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
     }
     setTransformMatrix(t: TransformationMatrix) {
         this._transformMatrix = t
-        this._inverseMatrix = getInverseTransformationMatrix(t)
+        try {
+            this._inverseMatrix = getInverseTransformationMatrix(t)
+        }
+        catch(err) {
+            console.warn(err)
+            console.warn('WARNING: problem getting inverse transformation matrix')
+            this._inverseMatrix = t
+        }
     }
     pixelWidth() {
         if (this._pixelWidth === null) throw Error('Cannot get pixelWidth before it is set')

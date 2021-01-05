@@ -54,7 +54,7 @@ const waveformOpts = {
     waveformWidth: 2
 }
 
-const AverageWaveformWidget: FunctionComponent<Props> = (props) => {
+const WaveformWidget: FunctionComponent<Props> = (props) => {
     const layerProps = {
         ...props,
         electrodeOpts,
@@ -71,4 +71,4 @@ const AverageWaveformWidget: FunctionComponent<Props> = (props) => {
     )
 }
 
-export default AverageWaveformWidget
+export default WaveformWidget

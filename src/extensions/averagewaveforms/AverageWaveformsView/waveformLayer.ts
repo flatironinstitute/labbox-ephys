@@ -1,7 +1,7 @@
 import { funcToTransform } from '../../common/CanvasWidget';
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer } from "../../common/CanvasWidget/CanvasWidgetLayer";
-import { LayerProps } from './AverageWaveformWidget';
+import { LayerProps } from './WaveformWidget';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
 
 export type WaveformColors = {

@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-import AverageWaveformWidget from './AverageWaveformWidget';
+import AverageWaveformWidget from './WaveformWidget';
 
 type PlotData = {
     average_waveform: number[][]
