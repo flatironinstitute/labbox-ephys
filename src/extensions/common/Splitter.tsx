@@ -6,8 +6,8 @@ interface Props {
     height: number
     initialPosition: number
     onChange?: (newPosition: number) => void
-    gripWidth?: number
-    gripInnerWidth?: number
+    gripThickness?: number
+    gripInnerThickness?: number
     gripMargin?: number
 }
 
@@ -31,11 +31,11 @@ const Splitter: FunctionComponent<Props> = (props) => {
         return <child1.type {...child1.props} width={width} height={height} />
     }
 
-    const gripWidth = props.gripWidth ?? 12
-    const gripInnerWidth = props.gripInnerWidth ?? 4
+    const gripThickness = props.gripThickness ?? 12
+    const gripInnerThickness = props.gripInnerThickness ?? 4
     const gripMargin = props.gripMargin ?? 4
-    const width1 = gripPosition - gripWidth / 2 - gripMargin
-    const width2 = width - width1 - gripWidth - 2 * gripMargin;
+    const width1 = gripPosition - gripThickness / 2 - gripMargin
+    const width2 = width - width1 - gripThickness - 2 * gripMargin;
 
     let style0: React.CSSProperties = {
         top: 0,
@@ -53,7 +53,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
         overflowX: 'hidden'
     };
     let style2: React.CSSProperties = {
-        left: width1 + gripWidth + 2 * gripMargin,
+        left: width1 + gripThickness + 2 * gripMargin,
         top: 0,
         width: width2,
         height: height,
@@ -64,7 +64,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
     let styleGripOuter: React.CSSProperties = {
         left: 0,
         top: 0,
-        width: gripWidth + 2 * gripMargin,
+        width: gripThickness + 2 * gripMargin,
         height: height,
         backgroundColor: 'transparent',
         cursor: 'col-resize',
@@ -73,15 +73,15 @@ const Splitter: FunctionComponent<Props> = (props) => {
     let styleGrip: React.CSSProperties = {
         left: gripMargin,
         top: 0,
-        width: gripWidth,
+        width: gripThickness,
         height: height,
         background: 'rgb(230, 230, 230)',
         cursor: 'col-resize'
     };
     let styleGripInner: React.CSSProperties = {
         top: 0,
-        left: (gripWidth - gripInnerWidth) / 2,
-        width: gripInnerWidth,
+        left: (gripThickness - gripInnerThickness) / 2,
+        width: gripInnerThickness,
         height: height,
         background: 'gray',
         cursor: 'col-resize'
@@ -103,7 +103,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
             </div>
             <Draggable
                 key="drag"
-                position={{ x: gripPosition - gripWidth / 2 - gripMargin, y: 0 }}
+                position={{ x: gripPosition - gripThickness / 2 - gripMargin, y: 0 }}
                 axis="x"
                 onDrag={(evt: DraggableEvent, ui: DraggableData) => _handleGripDrag(evt, ui)}
                 onStop={(evt: DraggableEvent, ui: DraggableData) => _handleGripDragStop(evt, ui)}
