@@ -50,34 +50,24 @@ const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any
         })
         return {result: undefined, job}
     }
-    else if (state.status === 'running') {
-        if (!state.job) throw Error('Unexpected: job is not defined')
-        return {
-            result: undefined,
-            job: state.job
-        }
+    // functionMatch() is true, i.e. the job is already being tracked. Return the record for it.
+    if (!state.job) throw Error('Unexpected: job is not defined')
+    let retrievedJob = {
+        result: undefined,
+        job: state.job
     }
-    else if (state.status === 'error') {
-        if (!state.job) throw Error('Unexpected: job is not defined')
-        return {
-            result: undefined,
-            job: state.job
-        }
+    switch (state.status) {
+        case 'finished':
+            retrievedJob.result = state.job?.result
+        // As of right now, for any other case we return the default set above.
+        // Anticipate this might be more customized in the future.
+        // eslint-disable-next-line no-fallthrough
+        case 'running':
+        case 'error':
+        default:
+            break;
     }
-    else if (state.status === 'finished') {
-        if (!state.job) throw Error('Unexpected: job is not defined')
-        return {
-            result: state.job?.result,
-            job: state.job
-        }
-    }
-    else {
-        if (!state.job) throw Error('Unexpected: job is not defined')
-        return {
-            result: undefined,
-            job: state.job
-        }
-    }
+    return retrievedJob
 }
 
 function deepCompare(x: any, y: any) {
