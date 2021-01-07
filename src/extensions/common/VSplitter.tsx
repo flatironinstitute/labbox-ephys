@@ -6,8 +6,8 @@ interface Props {
     height: number
     initialPosition: number
     onChange?: (newPosition: number) => void
-    gripWidth?: number
-    gripInnerWidth?: number
+    gripThickness?: number
+    gripInnerThickness?: number
     gripMargin?: number
 }
 
@@ -31,11 +31,11 @@ const VSplitter: FunctionComponent<Props> = (props) => {
         return <child1.type {...child1.props} width={width} height={height} />
     }
 
-    const gripWidth = props.gripWidth ?? 12
-    const gripInnerWidth = props.gripInnerWidth ?? 4
+    const gripThickness = props.gripThickness ?? 12
+    const gripInnerThickness = props.gripInnerThickness ?? 4
     const gripMargin = props.gripMargin ?? 4
-    const height1 = gripPosition - gripWidth / 2 - gripMargin
-    const height2 = height - height1 - gripWidth - 2 * gripMargin;
+    const height1 = gripPosition - gripThickness / 2 - gripMargin
+    const height2 = height - height1 - gripThickness - 2 * gripMargin;
 
     let style0: React.CSSProperties = {
         top: 0,
@@ -54,7 +54,7 @@ const VSplitter: FunctionComponent<Props> = (props) => {
     };
     let style2: React.CSSProperties = {
         left: 0,
-        top: height1 + gripWidth + 2 * gripMargin,
+        top: height1 + gripThickness + 2 * gripMargin,
         width: width,
         height: height2,
         zIndex: 0,
@@ -65,7 +65,7 @@ const VSplitter: FunctionComponent<Props> = (props) => {
         left: 0,
         top: 0,
         width: width,
-        height: gripWidth + 2 * gripMargin,
+        height: gripThickness + 2 * gripMargin,
         backgroundColor: 'transparent',
         cursor: 'row-resize',
         zIndex: 9999
@@ -74,15 +74,15 @@ const VSplitter: FunctionComponent<Props> = (props) => {
         left: 0,
         top: gripMargin,
         width: width,
-        height: gripWidth,
+        height: gripThickness,
         background: 'rgb(230, 230, 230)',
         cursor: 'row-resize'
     };
     let styleGripInner: React.CSSProperties = {
-        top: (gripWidth - gripInnerWidth) / 2,
+        top: (gripThickness - gripInnerThickness) / 2,
         left: 0,
         width: width,
-        height: gripInnerWidth,
+        height: gripInnerThickness,
         background: 'gray',
         cursor: 'row-resize'
     };
@@ -103,7 +103,7 @@ const VSplitter: FunctionComponent<Props> = (props) => {
             </div>
             <Draggable
                 key="drag"
-                position={{ x: 0, y: gripPosition - gripWidth / 2 - gripMargin }}
+                position={{ x: 0, y: gripPosition - gripThickness / 2 - gripMargin }}
                 axis="y"
                 onDrag={(evt: DraggableEvent, ui: DraggableData) => _handleGripDrag(evt, ui)}
                 onStop={(evt: DraggableEvent, ui: DraggableData) => _handleGripDragStop(evt, ui)}
