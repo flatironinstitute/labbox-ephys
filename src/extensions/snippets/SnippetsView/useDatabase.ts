@@ -1,9 +1,8 @@
 import objectHash from 'object-hash'
-import { useMemo, useReducer } from "react"
+import { useEffect, useMemo, useReducer, useRef } from "react"
 
 type Database<QueryType> = {
     get: (query: QueryType) => any | undefined
-    fetch: (query: QueryType) => void
 }
 
 type DatabaseState = {
@@ -65,9 +64,14 @@ const queryHash = <QueryType>(query: QueryType) => {
 
 const useDatabase = <QueryType>(fetchFunction: (query: QueryType) => Promise<any>): Database<QueryType> => {
     const [state, dispatch] = useReducer(databaseReducer, initialDatabaseState)
+    const queriesToFetch = useRef<{[key: string]: QueryType}>({})
     const get = useMemo(() => ((query: QueryType) => {
         const h = queryHash(query)
-        return state.data[h] || undefined
+        const v = state.data[h]
+        if (v === undefined) {
+            queriesToFetch.current[h] = query
+        }
+        return v
     }), [state.data])
     const fetch = useMemo(() => ((query: QueryType) => {
         const h = queryHash(query)
@@ -83,9 +87,16 @@ const useDatabase = <QueryType>(fetchFunction: (query: QueryType) => Promise<any
             // note: we intentionally do not unset the active fetch here
         })
     }), [state.data, state.activeFetches, fetchFunction])
+    useEffect(() => { // run this every time
+        const keys = Object.keys(queriesToFetch.current)
+        if (keys.length === 0) return
+        for (let k of keys) {
+            fetch(queriesToFetch.current[k])
+        }
+        queriesToFetch.current = {}
+    })
     return {
-        get,
-        fetch
+        get
     }
 }
 

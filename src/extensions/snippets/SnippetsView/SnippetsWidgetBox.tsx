@@ -1,5 +1,5 @@
 import { GridList, GridListTile } from '@material-ui/core';
-import React, { FunctionComponent, useContext, useEffect, useMemo } from 'react';
+import React, { FunctionComponent, useContext, useMemo } from 'react';
 import { createCalculationPool, HitherContext, HitherInterface } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import SnippetBox from './SnippetBox';
@@ -146,24 +146,6 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, unitId: numb
     const snippetsInRange = snippets ? (
         snippets.filter((s) => ((timeRange) && (timeRange.min <= s.timepoint) && (s.timepoint < timeRange.max)))
     ) : undefined
-    useEffect(() => {
-        if (!info) {
-            data.fetch(infoQuery)
-            return
-        }
-        for (let i = 0; i < timeSegments.length; i++) {
-            if (!snippetsList[i]) {
-                const snippetsQuery: SnippetsQuery = {
-                    type: 'snippets',
-                    recording,
-                    sorting,
-                    unitId,
-                    timeRange: timeSegments[i]
-                }
-                data.fetch(snippetsQuery)
-            }
-        }
-    }, [data, info, infoQuery, recording, snippetsList, sorting, timeSegments, unitId])
     return {
         info,
         snippets: snippetsInRange
