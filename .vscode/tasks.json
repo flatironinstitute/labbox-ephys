@@ -31,11 +31,6 @@
             ]
         },
         {
-            "label": "start nginx",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_nginx.sh"
-        },
-        {
             "label": "start test prod api",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/start_test_prod_api.sh"
@@ -68,11 +63,6 @@
             "label": "yarn install",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/yarn_install.sh"
-        },
-        {
-            "label": "build docker deploy",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/build_docker_deploy.sh"
         },
         {
             "label": "start jupyter lab",
