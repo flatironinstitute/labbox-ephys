@@ -232,7 +232,7 @@ export const useRecordingAnimation = (selection: RecordingSelection, selectionDi
     useOnce(() => {
         ;(async () => {
             while (true) {
-                await sleepMsec(500)
+                await sleepMsec(50)
                 setAnimationFrame((prevAnimationFrame) => (prevAnimationFrame + 1))
             }
         })()

@@ -1,8 +1,8 @@
 import { funcToTransform } from '../../common/CanvasWidget';
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer } from "../../common/CanvasWidget/CanvasWidgetLayer";
-import { LayerProps } from './WaveformWidget';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
+import { LayerProps } from './WaveformWidget';
 
 export type WaveformColors = {
     base: string
@@ -20,6 +20,7 @@ const initialLayerState = {
 export const createWaveformLayer = () => {
     const onPaint = (painter: CanvasPainter, props: LayerProps, state: LayerState) => {
         const { waveform } = props
+        if (!waveform) return
         const opts = props.waveformOpts
         const colors = opts.colors || defaultWaveformColors
         // const maxAbs = Math.max(...waveform.map(w => Math.max(...w.map(x => Math.abs(x)))))

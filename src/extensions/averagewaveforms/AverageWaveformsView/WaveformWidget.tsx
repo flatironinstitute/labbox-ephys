@@ -6,7 +6,7 @@ import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 
 export type Props = {
-    waveform: number[][]
+    waveform?: number[][]
     noiseLevel: number
     electrodeIds: number[],
     electrodeLocations: number[][],

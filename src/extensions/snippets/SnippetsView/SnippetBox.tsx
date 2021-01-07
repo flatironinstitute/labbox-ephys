@@ -5,7 +5,7 @@ import { SortingSelection, SortingSelectionDispatch } from '../../extensionInter
 import { Snippet } from './SnippetsWidgetBox';
 
 type Props = {
-    snippet: Snippet
+    snippet: Snippet | null
     noiseLevel: number
     samplingFrequency: number
     electrodeIds: number[]
@@ -24,7 +24,7 @@ const SnippetBox: FunctionComponent<Props> = ({ snippet, noiseLevel, samplingFre
     return (
         <VisibilitySensor onChange={handleVisibilityChange} partialVisibility={true}>
             {
-                hasBeenVisible ? (
+                hasBeenVisible && snippet ? (
                     <WaveformWidget
                         waveform={snippet.waveform}
                         {...{selection, selectionDispatch, noiseLevel, samplingFrequency, electrodeIds, electrodeLocations, width, height}}
