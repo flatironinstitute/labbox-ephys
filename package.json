@@ -18,7 +18,7 @@
     "@types/react-router-dom": "^5.1.6",
     "@types/react-syntax-highlighter": "^13.5.0",
     "@types/react-vis": "^1.11.5",
-    "axios": ">=0.21",
+    "axios": "^0.21.1",
     "github-markdown-css": "^4.0.0",
     "global": "^4.4.0",
     "js-sha1": "^0.6.0",
