@@ -59,6 +59,7 @@ const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any
     switch (state.status) {
         case 'finished':
             retrievedJob.result = state.job?.result
+            break;
         // As of right now, for any other case we return the default set above.
         // Anticipate this might be more customized in the future.
         // eslint-disable-next-line no-fallthrough
