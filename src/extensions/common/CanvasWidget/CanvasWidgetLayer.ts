@@ -219,9 +219,9 @@ export class CanvasWidgetLayer<LayerProps extends BaseLayerProps, State extends 
             return;
         }
         this._repaintScheduled = true;
-        const timer = Number(new Date())
+        // const timer = Number(new Date())                 // unused
         setTimeout(() => {
-            let elapsed = Number(new Date()) - timer;
+            // let elapsed = Number(new Date()) - timer;    // unused
             this._repaintScheduled = false;
             this._doRepaint();
         }, refreshDelay) // this timeout controls the refresh rate
