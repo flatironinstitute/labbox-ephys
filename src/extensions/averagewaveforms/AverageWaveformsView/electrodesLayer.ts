@@ -1,7 +1,7 @@
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from "../../common/CanvasWidget/CanvasWidgetLayer";
 import { pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect } from '../../common/CanvasWidget/Geometry';
-import { LayerProps } from './AverageWaveformWidget';
+import { LayerProps } from './WaveformWidget';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
 
 export type ElectrodeColors = {

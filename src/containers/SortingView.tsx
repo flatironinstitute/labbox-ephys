@@ -1,5 +1,5 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { Dispatch, useContext, useEffect, useReducer, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
@@ -58,7 +58,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
-  const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
+  // const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
 
   useRecordingAnimation(selection, selectionDispatch)
   
@@ -127,10 +127,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       }
     }
   }, [recording, hither, onSetRecordingInfo, recordingInfoStatus, setRecordingInfoStatus])
-  const effect = async () => {
-    
-  }
-  useEffect(() => { effect() })
 
   // const sidebarWidth = '200px'
 
@@ -151,22 +147,26 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
 
   const headingHeight = 70
 
-  const headingStyle: React.CSSProperties = {
+  const headingStyle = useMemo<React.CSSProperties>(() => ({
     position: 'absolute',
     left: 0,
     top: 0,
     width: W,
     height: headingHeight,
     overflow: 'auto'
-  }
+  }), [W, headingHeight])
 
-  const contentWrapperStyle: React.CSSProperties = {
+  const contentWrapperStyle = useMemo<React.CSSProperties>(() => ({
     position: 'absolute',
     left: 0,
     top: headingHeight,
     width: W,
     height: H - headingHeight
-  }
+  }), [headingHeight, W, H])
+
+  const sv = plugins.sortingViews['MVSortingView']
+  if (!sv) throw Error('Missing sorting view: MVSortingView')
+  const svProps = useMemo(() => (sv.props || {}), [sv.props])
 
   if (!sorting) {
     return <h3>{`Sorting not found: ${sortingId}`}</h3>
@@ -174,9 +174,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   if (!recording) {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
-
-  const sv = plugins.sortingViews['MVSortingView']
-  if (!sv) throw Error('Missing sorting view: MVSortingView')
 
   // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
@@ -191,7 +188,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       </div>
       <div style={contentWrapperStyle}>
           <sv.component
-            {...sv.props || {}}
+            {...svProps}
             sorting={sorting}
             recording={recording}
             selection={selection}

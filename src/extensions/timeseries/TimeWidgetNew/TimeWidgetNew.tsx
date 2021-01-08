@@ -42,7 +42,6 @@ export interface TimeWidgetPanel {
     setTimeRange: (timeRange: {min: number, max: number}) => void
     paint: (painter: CanvasPainter, completenessFactor: number) => void
     label: () => string
-    register: (onUpdate: () => void) => void
 }
 
 const toolbarWidth = 50
@@ -271,15 +270,11 @@ const TimeWidgetNew = (props: Props) => {
 
     const allLayers = useLayers([mainLayer, timeAxisLayer, panelLabelLayer, cursorLayer])
 
-    // register the panels when they change
+    // schedule repaint when panels change
     useEffect(() => {
-        panels.forEach(p => {
-            p.register(() => {
-                if (mainLayer) {
-                    mainLayer.scheduleRepaint()
-                }
-            })
-        })
+        if (mainLayer) {
+            mainLayer.scheduleRepaint()
+        }
     }, [panels, mainLayer])
 
     // when current time or time range changes, update the span widget info

@@ -1,6 +1,6 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-import AverageWaveformWidget from './AverageWaveformWidget';
+import WaveformWidget from './WaveformWidget';
 
 type PlotData = {
     average_waveform: number[][]
@@ -22,14 +22,14 @@ type Props = {
 }
 
 const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title, noiseLevel, selection, selectionDispatch }) => {
-    const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
+    // const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
 
     if (!plotData.average_waveform) {
         // assume no points
         return <div>No avg waveform</div>
     }
     return (
-        <AverageWaveformWidget
+        <WaveformWidget
             waveform={plotData.average_waveform}
             noiseLevel={noiseLevel}
             electrodeIds={plotData.channel_ids}

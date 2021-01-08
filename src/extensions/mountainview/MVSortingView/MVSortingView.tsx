@@ -1,7 +1,8 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
 import { faPencilAlt, faSocks } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import React, { FunctionComponent, useCallback, useMemo, useReducer } from 'react'
+import { useOnce } from '../../common/hooks'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Expandable from '../../old/curation/CurationSortingView/Expandable'
@@ -73,44 +74,32 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
 }
 
 const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
+    // useCheckForChanges('MVSortingView', props)
     const {plugins, recording} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
     const averageWaveformsPlugin = plugins.sortingViews.AverageWaveforms
-    const electrodeGeometryPlugin = plugins.sortingViews.ElectrodeGeometrySortingView
-    const [initialized, setInitialized] = useState(false)
-    useEffect(() => {
-        if ((openViews.length === 0) && (!initialized)) {
-            setInitialized(true)
-            // if (electrodeGeometryPlugin) {
-            //     openViewsDispatch({
-            //         type: 'AddView',
-            //         plugin: electrodeGeometryPlugin,
-            //         pluginType: 'SortingUnitView',
-            //         label: electrodeGeometryPlugin.label,
-            //         area: 'north'
-            //     })
-            // }
-            if (unitsTablePlugin) {
-                openViewsDispatch({
-                    type: 'AddView',
-                    plugin: unitsTablePlugin,
-                    pluginType: 'SortingUnitView',
-                    label: unitsTablePlugin.label,
-                    area: 'north'
-                })
-            }
-            if (averageWaveformsPlugin) {
-                openViewsDispatch({
-                    type: 'AddView',
-                    plugin: averageWaveformsPlugin,
-                    pluginType: 'SortingUnitView',
-                    label: averageWaveformsPlugin.label,
-                    area: 'south'
-                })
-            }
+    // const electrodeGeometryPlugin = plugins.sortingViews.ElectrodeGeometrySortingView
+    useOnce(() => {
+        if (unitsTablePlugin) {
+            openViewsDispatch({
+                type: 'AddView',
+                plugin: unitsTablePlugin,
+                pluginType: 'SortingUnitView',
+                label: unitsTablePlugin.label,
+                area: 'north'
+            })
         }
-    }, [openViews, openViewsDispatch, electrodeGeometryPlugin, unitsTablePlugin, averageWaveformsPlugin])
+        if (averageWaveformsPlugin) {
+            openViewsDispatch({
+                type: 'AddView',
+                plugin: averageWaveformsPlugin,
+                pluginType: 'SortingUnitView',
+                label: averageWaveformsPlugin.label,
+                area: 'south'
+            })
+        }
+    })
     const handleLaunchSortingView = useCallback((plugin: SortingViewPlugin) => {
         openViewsDispatch({
             type: 'AddView',

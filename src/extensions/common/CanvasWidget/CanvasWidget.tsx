@@ -144,7 +144,6 @@ const CanvasWidget = (props: Props) => {
         }
         else {
             scheduledDispatchDragAction.current = a
-            const debug_timer = Number(new Date())
             setTimeout(() => {
                 const a2 = scheduledDispatchDragAction.current
                 scheduledDispatchDragAction.current = null

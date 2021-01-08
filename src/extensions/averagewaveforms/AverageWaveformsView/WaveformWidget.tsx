@@ -6,7 +6,7 @@ import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 
 export type Props = {
-    waveform: number[][]
+    waveform?: number[][]
     noiseLevel: number
     electrodeIds: number[],
     electrodeLocations: number[][],
@@ -54,7 +54,7 @@ const waveformOpts = {
     waveformWidth: 2
 }
 
-const AverageWaveformWidget: FunctionComponent<Props> = (props) => {
+const WaveformWidget: FunctionComponent<Props> = (props) => {
     const layerProps = {
         ...props,
         electrodeOpts,
@@ -71,4 +71,4 @@ const AverageWaveformWidget: FunctionComponent<Props> = (props) => {
     )
 }
 
-export default AverageWaveformWidget
+export default WaveformWidget
