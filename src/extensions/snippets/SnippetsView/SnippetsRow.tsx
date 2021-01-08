@@ -36,17 +36,17 @@ type InfoType = {
 }
 
 type InfoQuery = {
-    type: 'info',
-    recording: Recording,
-    sorting: Sorting,
+    type: 'info'
+    recording: Recording
+    sorting: Sorting
     unitId: number
 }
 
 type SnippetsQuery = {
-    type: 'snippets',
-    recording: Recording,
-    sorting: Sorting,
-    unitId: number,
+    type: 'snippets'
+    recording: Recording
+    sorting: Sorting
+    unitId: number
     timeRange: {min: number, max: number}
 }
 
@@ -85,7 +85,8 @@ const getSnippets = async (args: {recording: Recording, sorting: Sorting, unitId
             recording_object: recording.recordingObject,
             sorting_object: sorting.sortingObject,
             unit_id: unitId,
-            time_range: timeRange
+            time_range: timeRange,
+            max_num_snippets: 1000
         },
         {
             useClientCache: true,
@@ -101,12 +102,12 @@ const getSnippets = async (args: {recording: Recording, sorting: Sorting, unitId
 }
 
 const segmentSize = 30000 * 10
-const createTimeSegments = (timeRange: {min: number, max: number} | null) => {
+const createTimeSegments = (timeRange: {min: number, max: number} | null, opts: {maxNumSegments: number}) => {
     const ret = [] as {min: number, max: number}[]
     if (!timeRange) return ret
     const i1 = Math.floor(timeRange.min / segmentSize)
     const i2 = Math.ceil(timeRange.max / segmentSize)
-    for (let i = i1; i <= i2; i++) {
+    for (let i = i1; i <= Math.min(i2, i1 + opts.maxNumSegments -1); i++) {
         ret.push({min: i * segmentSize, max: (i+1) * segmentSize})
     }
     return ret
@@ -128,7 +129,7 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, unitId: numb
         const infoQuery: InfoQuery = {type: 'info', recording, sorting, unitId}
         // const snippetsQuery: SnippetsQuery = {type: 'snippets', recording, sorting, unitId}
         const info = data.get(infoQuery) as InfoType | undefined
-        const timeSegments: {min: number, max: number}[] = createTimeSegments(timeRange)
+        const timeSegments: {min: number, max: number}[] = createTimeSegments(timeRange, {maxNumSegments: 6})
         const snippetsList: (Snippet[] | undefined)[] = timeSegments.map(timeSegment => {
             const snippetsQuery: SnippetsQuery = {
                 type: 'snippets',
@@ -154,31 +155,38 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, unitId: numb
     }, [data, recording, sorting, timeRange, unitId])
 }
 
-const SnippetsWidgetBox: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {
+const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {
     const {snippets, info} = useSnippets({recording, sorting, unitId, timeRange: selection.timeRange || null})
-    if (!info) return <div>Waiting...</div>
-    if (!snippets) return <div>Waiting...</div>
     return (
-        <GridList style={{flexWrap: 'nowrap'}}>
-            {
-                snippets.map((snippet) => (
-                    <GridListTile key={snippet.timepoint} style={{width: 80}}>
-                        <SnippetBox
-                            snippet={snippet}
-                            noiseLevel={noiseLevel}
-                            samplingFrequency={info.sampling_frequency}
-                            electrodeIds={info.channel_ids}
-                            electrodeLocations={info.channel_locations}
-                            selection={selection}
-                            selectionDispatch={selectionDispatch}
-                            width={80}
-                            height={height}
-                        />
-                    </GridListTile>
-                ))
-            }
-        </GridList>
+        <div>
+            <h3>Unit {unitId}</h3>
+            <GridList style={{flexWrap: 'nowrap'}}>
+                {
+                    info && snippets ? (
+                        snippets.map((snippet) => (
+                            <GridListTile key={snippet.timepoint} style={{width: 80}}>
+                                <SnippetBox
+                                    snippet={snippet}
+                                    noiseLevel={noiseLevel}
+                                    samplingFrequency={info.sampling_frequency}
+                                    electrodeIds={info.channel_ids}
+                                    electrodeLocations={info.channel_locations}
+                                    selection={selection}
+                                    selectionDispatch={selectionDispatch}
+                                    width={80}
+                                    height={height}
+                                />
+                            </GridListTile>
+                        ))
+                    ) : (
+                        <GridListTile style={{width: 180}}>
+                            <div style={{whiteSpace: 'nowrap'}}>Retrieving snippets...</div>
+                        </GridListTile>
+                    )
+                }
+            </GridList>
+        </div>
     )
 }
 
-export default SnippetsWidgetBox
+export default SnippetsRow

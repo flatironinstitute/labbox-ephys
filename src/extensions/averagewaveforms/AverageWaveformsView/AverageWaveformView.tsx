@@ -39,6 +39,7 @@ const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, args
             height={boxSize.height}
             selection={selection}
             selectionDispatch={selectionDispatch}
+            electrodeOpts={{disableSelection: true}}
         />
     )
 }
