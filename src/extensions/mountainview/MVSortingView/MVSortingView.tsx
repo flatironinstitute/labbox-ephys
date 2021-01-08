@@ -2,7 +2,7 @@ import { faSquare } from '@fortawesome/free-regular-svg-icons'
 import { faPencilAlt, faSocks } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FunctionComponent, useCallback, useMemo, useReducer } from 'react'
-import { useCheckForChanges, useOnce } from '../../common/hooks'
+import { useOnce } from '../../common/hooks'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Expandable from '../../old/curation/CurationSortingView/Expandable'
@@ -74,7 +74,7 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
 }
 
 const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
-    useCheckForChanges('MVSortingView', props)
+    // useCheckForChanges('MVSortingView', props)
     const {plugins, recording} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
