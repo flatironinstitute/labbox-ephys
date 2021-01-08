@@ -1,4 +1,4 @@
-import { Reducer, useEffect, useState } from "react"
+import { Reducer, useRef } from "react"
 import { CalculationPool } from "./common/hither"
 import { useOnce } from "./common/hooks"
 import { sleepMsec } from "./common/misc"
@@ -209,31 +209,35 @@ export interface RecordingSelection {
 }
 
 export const useRecordingAnimation = (selection: RecordingSelection, selectionDispatch: RecordingSelectionDispatch) => {
-    const [lastUpdateTimestamp, setLastUpdateTimestamp] = useState(Number(new Date()))
-    const [animationFrame, setAnimationFrame] = useState(0)
+    const ref = useRef({
+        lastUpdateTimestamp: Number(new Date()),
+        selection,
+        selectionDispatch
+    })
+    ref.current.selection = selection
+    ref.current.selectionDispatch = selectionDispatch
 
-    useEffect(() => {
-        const lastUpdate = lastUpdateTimestamp || Number(new Date())
+    const animationFrame = () => {
+        const lastUpdate = ref.current.lastUpdateTimestamp
         const current = Number(new Date())
         const elapsed = current - lastUpdate
         if (elapsed !== 0) {
-            const currentTimepointVelocity = selection.animation?.currentTimepointVelocity || 0
-            const currentTimepoint = selection.currentTimepoint
+            const currentTimepointVelocity = ref.current.selection.animation?.currentTimepointVelocity || 0
+            const currentTimepoint = ref.current.selection.currentTimepoint
             if ((currentTimepointVelocity) && (currentTimepoint !== undefined)) {
                 const t = Math.round(currentTimepoint + currentTimepointVelocity * (elapsed / 1000))
-                selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
+                ref.current.selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
             }
         }
-        setLastUpdateTimestamp(Number(new Date()))
-    }, [animationFrame]) // only call this if the animation frame has changed
-
+        ref.current.lastUpdateTimestamp = Number(new Date())
+    }
 
     // only do this once
     useOnce(() => {
         ;(async () => {
             while (true) {
                 await sleepMsec(50)
-                setAnimationFrame((prevAnimationFrame) => (prevAnimationFrame + 1))
+                animationFrame()
             }
         })()
     })

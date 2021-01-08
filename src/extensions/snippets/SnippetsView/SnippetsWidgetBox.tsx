@@ -1,9 +1,9 @@
 import { GridList, GridListTile } from '@material-ui/core';
 import React, { FunctionComponent, useContext, useMemo } from 'react';
 import { createCalculationPool, HitherContext, HitherInterface } from '../../common/hither';
+import useFetchCache from '../../common/useFetchCache';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import SnippetBox from './SnippetBox';
-import useDatabase from './useDatabase';
 
 
 type Props = {
@@ -123,33 +123,35 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, unitId: numb
             }
         }
     ), [hither])
-    const data = useDatabase<QueryType>(fetchFunction)
-    const infoQuery: InfoQuery = {type: 'info', recording, sorting, unitId}
-    // const snippetsQuery: SnippetsQuery = {type: 'snippets', recording, sorting, unitId}
-    const info = data.get(infoQuery) as InfoType | undefined
-    const timeSegments: {min: number, max: number}[] = createTimeSegments(timeRange)
-    const snippetsList: (Snippet[] | undefined)[] = timeSegments.map(timeSegment => {
-        const snippetsQuery: SnippetsQuery = {
-            type: 'snippets',
-            recording,
-            sorting,
-            unitId,
-            timeRange: timeSegment
+    const data = useFetchCache<QueryType>(fetchFunction)
+    return useMemo(() => {
+        const infoQuery: InfoQuery = {type: 'info', recording, sorting, unitId}
+        // const snippetsQuery: SnippetsQuery = {type: 'snippets', recording, sorting, unitId}
+        const info = data.get(infoQuery) as InfoType | undefined
+        const timeSegments: {min: number, max: number}[] = createTimeSegments(timeRange)
+        const snippetsList: (Snippet[] | undefined)[] = timeSegments.map(timeSegment => {
+            const snippetsQuery: SnippetsQuery = {
+                type: 'snippets',
+                recording,
+                sorting,
+                unitId,
+                timeRange: timeSegment
+            }
+            return data.get(snippetsQuery)
+        })
+        const snippets = snippetsList.filter(s => (s === undefined)).length === 0 ? (
+            snippetsList.reduce((acc, val) => (
+                val !== undefined ? acc?.concat(val) : acc
+            ), [] as Snippet[])
+        ) : undefined
+        const snippetsInRange = snippets ? (
+            snippets.filter((s) => ((timeRange) && (timeRange.min <= s.timepoint) && (s.timepoint < timeRange.max)))
+        ) : undefined
+        return {
+            info,
+            snippets: snippetsInRange
         }
-        return data.get(snippetsQuery)
-    })
-    const snippets = snippetsList.filter(s => (s === undefined)).length === 0 ? (
-        snippetsList.reduce((acc, val) => (
-            val !== undefined ? acc?.concat(val) : acc
-        ), [] as Snippet[])
-    ) : undefined
-    const snippetsInRange = snippets ? (
-        snippets.filter((s) => ((timeRange) && (timeRange.min <= s.timepoint) && (s.timepoint < timeRange.max)))
-    ) : undefined
-    return {
-        info,
-        snippets: snippetsInRange
-    }
+    }, [data, recording, sorting, timeRange, unitId])
 }
 
 const SnippetsWidgetBox: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {

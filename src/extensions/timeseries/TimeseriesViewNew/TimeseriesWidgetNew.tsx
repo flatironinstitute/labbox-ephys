@@ -30,18 +30,18 @@ const channelColors = [
 
 
 class Panel {
-    _updateHandler: (() => void) | null = null
+    // _updateHandler: (() => void) | null = null
     _timeRange: {min: number, max: number} | null = null
     _yScale: number = 1
     _pixelWidth: number | null = null // for determining the downsampling factor
     constructor(private channelIndex: number, private channelId: number, private timeseriesData: TimeseriesData, private y_offset: number, private y_scale_factor: number) {
-        timeseriesData.onDataSegmentSet((ds_factor, t1, t2) => {
-            const timeRange = this._timeRange
-            if (!timeRange) return
-            if ((t1 <= timeRange.max) && (t2 >= timeRange.min)) {
-                this._updateHandler && this._updateHandler()
-            }
-        })
+        // timeseriesData.onDataSegmentSet((ds_factor, t1, t2) => {
+        //     const timeRange = this._timeRange
+        //     if (!timeRange) return
+        //     if ((t1 <= timeRange.max) && (t2 >= timeRange.min)) {
+        //         this._updateHandler && this._updateHandler()
+        //     }
+        // })
     }
     setTimeRange(timeRange: {min: number, max: number}) {
         this._timeRange = timeRange
@@ -49,12 +49,12 @@ class Panel {
     setYScale(s: number) {
         if (this._yScale === s) return
         this._yScale = s
-        this._updateHandler && this._updateHandler()
+        // this._updateHandler && this._updateHandler()
     }
     setPixelWidth(w: number) {
         if (this._pixelWidth === w) return
         this._pixelWidth = w
-        this._updateHandler && this._updateHandler()
+        // this._updateHandler && this._updateHandler()
     }
     paint(painter: CanvasPainter, completenessFactor: number) {
         const timeRange = this._timeRange
@@ -154,16 +154,14 @@ class Panel {
     label() {
         return this.channelId + ''
     }
-    register(onUpdate: () => void) {
-        this._updateHandler = onUpdate
-    }
+    // register(onUpdate: () => void) {
+    //     this._updateHandler = onUpdate
+    // }
 }
 
 const TimeseriesWidgetNew = (props: Props) => {
     const { timeseriesData, width, height, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection, recordingSelectionDispatch } = props
     const [panels, setPanels] = useState<Panel[]>([])
-    const [prevTimeseriesData, setPrevTimeseriesData] = useState<TimeseriesData | null>(null)
-    const [prevVisibleChannelIds, setPrevVisibleChannelIds] = useState<number[] | null | undefined>(null)
     
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {
@@ -174,22 +172,19 @@ const TimeseriesWidgetNew = (props: Props) => {
     }, [recordingSelectionDispatch])
 
     useEffect(() => {
-        if ((timeseriesData !== prevTimeseriesData) || (visibleChannelIds !== prevVisibleChannelIds)) {
-            // we only want to do this once (as a function of the timeseries data)
-            const panels0: Panel[] = []
-            for (let ch = 0; ch < timeseriesData.numChannels(); ch ++) {
-                // todo: i guess we need to redefine the panels whenever y_offsets or y_scale_factor or channel_ids change
-                const channel_id = channel_ids[ch]
-                if ((!visibleChannelIds) || (visibleChannelIds.includes(channel_id))) {
-                    const p = new Panel(ch, channel_id, timeseriesData, 0, y_scale_factor) // y_offsets[ch] replaced with 0
-                    panels0.push(p)
-                }
+        const panels0: Panel[] = []
+        for (let ch = 0; ch < timeseriesData.numChannels(); ch ++) {
+            // todo: i guess we need to redefine the panels whenever y_offsets or y_scale_factor or channel_ids change
+            const channel_id = channel_ids[ch]
+            if ((!visibleChannelIds) || (visibleChannelIds.includes(channel_id))) {
+                const p = new Panel(ch, channel_id, timeseriesData, 0, y_scale_factor) // y_offsets[ch] replaced with 0
+                p.setPixelWidth(width)
+                p.setYScale(recordingSelection.ampScaleFactor || 1)
+                panels0.push(p)
             }
-            setPanels(panels0)
-            setPrevTimeseriesData(timeseriesData)
-            setPrevVisibleChannelIds(visibleChannelIds)
         }
-    }, [channel_ids, setPanels, setPrevTimeseriesData, timeseriesData, prevTimeseriesData, y_scale_factor, visibleChannelIds, prevVisibleChannelIds])
+        setPanels(panels0)
+    }, [channel_ids, setPanels, timeseriesData, y_scale_factor, visibleChannelIds, width, recordingSelection.ampScaleFactor, recordingSelection.timeRange])
     useEffect(() => {
         if (actions === null) {
             const a: TimeWidgetAction[] = [
@@ -213,20 +208,7 @@ const TimeseriesWidgetNew = (props: Props) => {
             ]
             setActions(a)
         }
-    }, [actions, setActions, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp])
-    useEffect(() => {
-        if (panels) {
-            panels.forEach(p => {
-                p.setYScale(recordingSelection.ampScaleFactor || 1)
-            })
-        }
-    }, [recordingSelection, recordingSelection.ampScaleFactor, panels])
-
-    if (panels) {
-        panels.forEach(p => {
-            p.setPixelWidth(width)
-        })
-    }
+    }, [actions, setActions, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp, recordingSelection.ampScaleFactor, width])
 
     const handleTimeRangeChanged = useCallback((r: {min: number, max: number} | null) => {
         recordingSelectionDispatch({type: 'SetTimeRange', timeRange: r})

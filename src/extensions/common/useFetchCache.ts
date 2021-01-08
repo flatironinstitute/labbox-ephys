@@ -1,16 +1,16 @@
 import objectHash from 'object-hash'
 import { useEffect, useMemo, useReducer, useRef } from "react"
 
-type Database<QueryType> = {
+type FetchCache<QueryType> = {
     get: (query: QueryType) => any | undefined
 }
 
-type DatabaseState = {
+type FetchCacheState = {
     data: {[key: string]: any}
     activeFetches: {[key: string]: boolean}
 }
 
-const initialDatabaseState = {
+const initialFetchCacheState = {
     data: {},
     activeFetches: {}
 }
@@ -26,9 +26,9 @@ type SetDataAction = {
     data: any
 }
 
-type DatabaseAction = StartFetchAction | SetDataAction
+type FetchCacheAction = StartFetchAction | SetDataAction
 
-const databaseReducer = (state: DatabaseState, action: DatabaseAction): DatabaseState => {
+const fetchCacheReducer = (state: FetchCacheState, action: FetchCacheAction): FetchCacheState => {
     switch(action.type) {
         case 'startFetch': {
             return {
@@ -53,7 +53,7 @@ const databaseReducer = (state: DatabaseState, action: DatabaseAction): Database
             }
         }
         default: {
-            throw Error('Unexpected action in databaseReducer')
+            throw Error('Unexpected action in fetchCacheReducer')
         }
     }
 }
@@ -62,8 +62,8 @@ const queryHash = <QueryType>(query: QueryType) => {
     return objectHash(query)
 }
 
-const useDatabase = <QueryType>(fetchFunction: (query: QueryType) => Promise<any>): Database<QueryType> => {
-    const [state, dispatch] = useReducer(databaseReducer, initialDatabaseState)
+const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<any>): FetchCache<QueryType> => {
+    const [state, dispatch] = useReducer(fetchCacheReducer, initialFetchCacheState)
     const queriesToFetch = useRef<{[key: string]: QueryType}>({})
     const get = useMemo(() => ((query: QueryType) => {
         const h = queryHash(query)
@@ -100,4 +100,4 @@ const useDatabase = <QueryType>(fetchFunction: (query: QueryType) => Promise<any
     }
 }
 
-export default useDatabase
+export default useFetchCache
