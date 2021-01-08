@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-import AverageWaveformWidget from './WaveformWidget';
+import WaveformWidget from './WaveformWidget';
 
 type PlotData = {
     average_waveform: number[][]
@@ -22,6 +22,7 @@ type Props = {
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
+const electrodeOpts = {}
 
 const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel }) => {
     const {result: plotData, job} = useHitherJob<PlotData>(
@@ -38,7 +39,7 @@ const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, un
         return <HitherJobStatusView job={job} width={width} height={height} />
     }
     return (
-        <AverageWaveformWidget
+        <WaveformWidget
             waveform={plotData.average_waveform}
             noiseLevel={noiseLevel}
             electrodeIds={plotData.channel_ids}
@@ -48,6 +49,7 @@ const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, un
             height={height}
             selection={selection}
             selectionDispatch={selectionDispatch}
+            electrodeOpts={electrodeOpts}
         />
     )
 }

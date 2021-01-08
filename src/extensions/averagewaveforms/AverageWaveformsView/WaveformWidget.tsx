@@ -15,13 +15,17 @@ export type Props = {
     height: number
     selection: RecordingSelection
     selectionDispatch: RecordingSelectionDispatch
+    electrodeOpts: ElectrodeOpts
+}
+
+export type ElectrodeOpts = {
+    colors?: ElectrodeColors
+    showLabels?: boolean,
+    disableSelection?: boolean
 }
 
 export type LayerProps = Props & {
-    electrodeOpts: {
-        colors?: ElectrodeColors
-        showLabels?: boolean
-    },
+    electrodeOpts: ElectrodeOpts,
     waveformOpts: {
         colors?: WaveformColors,
         waveformWidth: number
@@ -44,12 +48,12 @@ const waveformColors: WaveformColors = {
     base: 'black'
 }
 
-const electrodeOpts = {
+const defaultElectrodeOpts = {
     colors: electrodeColors,
     showLabels: false
 }
 
-const waveformOpts = {
+const defaultWaveformOpts = {
     colors: waveformColors,
     waveformWidth: 2
 }
@@ -57,8 +61,8 @@ const waveformOpts = {
 const WaveformWidget: FunctionComponent<Props> = (props) => {
     const layerProps = {
         ...props,
-        electrodeOpts,
-        waveformOpts
+        electrodeOpts: {...defaultElectrodeOpts, ...props.electrodeOpts},
+        waveformOpts: defaultWaveformOpts
     }
     const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
     const waveformLayer = useLayer(createWaveformLayer, layerProps)

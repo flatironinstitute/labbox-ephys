@@ -1,8 +1,8 @@
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from "../../common/CanvasWidget/CanvasWidgetLayer";
 import { pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect } from '../../common/CanvasWidget/Geometry';
-import { LayerProps } from './WaveformWidget';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
+import { LayerProps } from './WaveformWidget';
 
 export type ElectrodeColors = {
     border: string,
@@ -48,7 +48,8 @@ const defaultColors: ElectrodeColors = {
 
 const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<LayerProps, LayerState>) => {
     if (event.type !== ClickEventType.Release) return
-    const { selectionDispatch } = layer.getProps()
+    const { selectionDispatch, electrodeOpts: opts } = layer.getProps()
+    if (opts.disableSelection) return
     const state = layer.getState()
     if (state === null) return
     const hitIds = state.electrodeBoxes.filter((r) => pointIsInEllipse(event.point, [r.x, r.y], state.radius)).map(r => r.id)
@@ -87,7 +88,8 @@ const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
 
 const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<LayerProps, LayerState>, drag: CanvasDragEvent) => {
     const state = layer.getState()
-    const { selectionDispatch } = layer.getProps()
+    const { selectionDispatch, electrodeOpts: opts } = layer.getProps()
+    if (opts.disableSelection) return
     if (state === null) return // state not set; can't happen but keeps linter happy
     const hits = state.electrodeBoxes.filter((r) => rectangularRegionsIntersect(r.rect, drag.dragRect)) ?? []
     if (drag.released) {
@@ -108,9 +110,9 @@ export const createElectrodesLayer = () => {
         painter.wipe()
         const useLabels = state.pixelRadius > 5
         for (let e of state.electrodeBoxes) {
-            const selected = props.selection.selectedElectrodeIds?.includes(e.id) || false
-            const hovered = state.hoveredElectrodeId === e.id
-            const dragged = state.draggedElectrodeIds?.includes(e.id) || false
+            const selected = (!opts.disableSelection) && (props.selection.selectedElectrodeIds?.includes(e.id) || false)
+            const hovered = (!opts.disableSelection) && (state.hoveredElectrodeId === e.id)
+            const dragged = (!opts.disableSelection) && (state.draggedElectrodeIds?.includes(e.id) || false)
             const color = selected 
                             ? dragged
                                 ? colors.draggedSelected

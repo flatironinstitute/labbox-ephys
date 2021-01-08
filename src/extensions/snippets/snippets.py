@@ -10,7 +10,7 @@ def SnippetsView(*, sorting: le.LabboxEphysSortingExtractor, recording: le.Labbo
     return lew.create_sorting_view('SnippetsView', sorting=sorting, recording=recording)
 
 @hi.function('createjob_get_sorting_unit_snippets', '0.1.0')
-def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object, unit_id, time_range):
+def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object, unit_id, time_range, max_num_snippets):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition2')
     jc = labbox.get_default_job_cache()
@@ -23,13 +23,14 @@ def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object
         return get_sorting_unit_snippets.run(
             snippets_h5=snippets_h5,
             unit_id=unit_id,
-            time_range=time_range
+            time_range=time_range,
+            max_num_snippets=max_num_snippets
         )
 
-@hi.function('get_sorting_unit_snippets', '0.1.4')
+@hi.function('get_sorting_unit_snippets', '0.1.6')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
-def get_sorting_unit_snippets(snippets_h5, unit_id, time_range):
+def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets):
     import h5py
     h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
@@ -64,7 +65,7 @@ def get_sorting_unit_snippets(snippets_h5, unit_id, time_range):
         channel_ids=unit_waveforms_channel_ids.astype(int).tolist(),
         channel_locations=channel_locations0,
         sampling_frequency=sampling_frequency,
-        snippets=snippets
+        snippets=snippets[:max_num_snippets]
     )
 
 @hi.function('createjob_get_sorting_unit_info', '0.1.0')

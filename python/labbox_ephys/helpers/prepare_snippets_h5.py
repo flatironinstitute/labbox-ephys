@@ -6,7 +6,7 @@ import numpy as np
 import spikeextractors as se
 
 
-@hi.function('prepare_snippets_h5', '0.2.5')
+@hi.function('prepare_snippets_h5', '0.2.6')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../labbox_ephys'])
 def prepare_snippets_h5(
@@ -14,7 +14,7 @@ def prepare_snippets_h5(
     sorting_object,
     start_frame=None,
     end_frame=None,
-    max_events_per_unit=1000,
+    max_events_per_unit=None,
     max_neighborhood_size=15
 ):
     if recording_object['recording_format'] == 'snippets1':
