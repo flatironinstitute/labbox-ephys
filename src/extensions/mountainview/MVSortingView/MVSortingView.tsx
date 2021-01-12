@@ -176,7 +176,7 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
             >
                 <div>
                     {/* Launch */}
-                    <Expandable icon={launchIcon} label="Launch" defaultExpanded={true}>
+                    <Expandable icon={launchIcon} label="Launch" defaultExpanded={true} unmountOnExit={false}>
                         <ViewLauncher
                             plugins={plugins}
                             onLaunchSortingView={handleLaunchSortingView}
@@ -186,17 +186,17 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                     </Expandable>
 
                     {/* Visible units */}
-                    <Expandable icon={visibleUnitsIcon} label="Visible units" defaultExpanded={false}>
-                        <VisibleUnitsControl sorting={sorting} selection={selection} selectionDispatch={selectionDispatch} />
+                    <Expandable icon={visibleUnitsIcon} label="Visible units" defaultExpanded={false} unmountOnExit={false}>
+                        <VisibleUnitsControl sorting={sorting} recording={recording} selection={selection} selectionDispatch={selectionDispatch} />
                     </Expandable>
 
                     {/* Visible electrodes */}
-                    <Expandable icon={visibleElectrodesIcon} label="Visible electrodes" defaultExpanded={false}>
+                    <Expandable icon={visibleElectrodesIcon} label="Visible electrodes" defaultExpanded={false} unmountOnExit={false}>
                         <VisibleElectrodesControl recordingInfo={recording.recordingInfo} selection={selection} selectionDispatch={selectionDispatch} />
                     </Expandable>
 
                     {/* Preprocessing */}
-                    <Expandable icon={preprocessingIcon} label="Preprocessing" defaultExpanded={false}>
+                    <Expandable icon={preprocessingIcon} label="Preprocessing" defaultExpanded={false} unmountOnExit={false}>
                         <PreprocessingControl
                             preprocessingSelection={preprocessingSelection}
                             preprocessingSelectionDispatch={preprocessingSelectionDispatch}
@@ -204,7 +204,7 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                     </Expandable>
                     
                     {/* Curation */}
-                    <Expandable icon={curationIcon} label="Curation" defaultExpanded={false}>
+                    <Expandable icon={curationIcon} label="Curation" defaultExpanded={false} unmountOnExit={false}>
                         <CurationControl
                             curation={props.sorting.curation || {}}
                             curationDispatch={props.curationDispatch}

@@ -62,7 +62,7 @@ const WaveformWidget: FunctionComponent<Props> = (props) => {
     const layerProps = {
         ...props,
         electrodeOpts: {...defaultElectrodeOpts, ...props.electrodeOpts},
-        waveformOpts: defaultWaveformOpts
+        waveformOpts: defaultWaveformOpts,
     }
     const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
     const waveformLayer = useLayer(createWaveformLayer, layerProps)

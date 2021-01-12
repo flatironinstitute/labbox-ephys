@@ -13,7 +13,8 @@ const SortingUnitPlotGrid: FunctionComponent<Props> = ({ sorting, selection, sel
     const maxUnitsVisibleIncrement = 60;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
 
-    let unit_ids: number[] = sorting.sortingInfo ? sorting.sortingInfo.unit_ids : [];
+    const visibleUnitIds = selection.visibleUnitIds
+    let unit_ids: number[] = (sorting.sortingInfo ? sorting.sortingInfo.unit_ids : []).filter(uid => ((!visibleUnitIds) || (visibleUnitIds.includes(uid))));
     let showExpandButton = false;
     if (unit_ids.length > maxUnitsVisible) {
         unit_ids = unit_ids.slice(0, maxUnitsVisible);

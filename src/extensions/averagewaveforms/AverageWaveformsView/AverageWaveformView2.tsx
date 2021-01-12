@@ -30,7 +30,8 @@ const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, un
         {
             sorting_object: sorting.sortingObject,
             recording_object: recording.recordingObject,
-            unit_id: unitId
+            unit_id: unitId,
+            visible_channel_ids: selection.visibleElectrodeIds ? selection.visibleElectrodeIds : null
         },
         {useClientCache: true, calculationPool}
     )
