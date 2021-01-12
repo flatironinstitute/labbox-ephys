@@ -25,23 +25,24 @@ type Props = {
     preprocessingSelectionDispatch: (a: PreprocessingSelectionAction) => void
 }
 
+const choices: {preprocessingSelection: PreprocessingSelection, label: string}[] = [
+    {
+        preprocessingSelection: {filterType: 'none'},
+        label: 'No filter'
+    },
+    {
+        preprocessingSelection: {filterType: 'bandpass_filter'},
+        label: 'Bandpass filter'
+    }
+]
+
 const PreprocessingControl: FunctionComponent<Props & SizeMeProps> = ({ preprocessingSelection, preprocessingSelectionDispatch }) => {
-    const choices: {preprocessingSelection: PreprocessingSelection, label: string}[] = [
-        {
-            preprocessingSelection: {filterType: 'none'},
-            label: 'No filter'
-        },
-        {
-            preprocessingSelection: {filterType: 'bandpass_filter'},
-            label: 'Bandpass filter'
-        }
-    ]
     const handleChoice = useCallback((event: React.ChangeEvent<{value: any}>) => {
         const preprocessingSelectionForValue = (val: string) => {
             return choices.filter(choice => (choice.preprocessingSelection.filterType === val))[0].preprocessingSelection
         }
         preprocessingSelectionDispatch({type: 'SetPreprocessingSelection', preprocessingSelection: preprocessingSelectionForValue(event.target.value)})
-    }, [choices, preprocessingSelectionDispatch])
+    }, [preprocessingSelectionDispatch])
     return (
         <Select
             value={preprocessingSelection.filterType}

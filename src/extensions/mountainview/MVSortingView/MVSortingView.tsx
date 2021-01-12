@@ -1,5 +1,5 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
-import { faEllipsisH, faEnvelope, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FunctionComponent, useCallback, useMemo, useReducer } from 'react'
 import { useOnce } from '../../common/hooks'

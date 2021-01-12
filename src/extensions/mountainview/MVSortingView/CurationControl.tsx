@@ -1,5 +1,5 @@
 import { Grid, Paper } from '@material-ui/core';
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { SortingCuration, SortingCurationDispatch, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 
@@ -16,7 +16,7 @@ const buttonStyle = {
 
 const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ selection, selectionDispatch, curation, curationDispatch, size }) => {
     const width = size.width || 300
-    const selectedUnitIds = selection.selectedUnitIds || []
+    const selectedUnitIds = useMemo(() => (selection.selectedUnitIds || []), [selection.selectedUnitIds])
     const _handleApplyLabel = useCallback(
         (label: string) => {
             for (let unitId of selectedUnitIds) {
