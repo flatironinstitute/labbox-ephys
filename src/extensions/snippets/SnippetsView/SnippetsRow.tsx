@@ -109,9 +109,9 @@ const createTimeSegments = (timeRange: {min: number, max: number} | null, opts: 
     return ret
 }
 
-const useSnippets = (args: {recording: Recording, sorting: Sorting, unitId: number, timeRange: {min: number, max: number} | null}) => {
+const useSnippets = (args: {recording: Recording, sorting: Sorting, visibleElectrodeIds: number[] | undefined, unitId: number, timeRange: {min: number, max: number} | null}) => {
     const hither = useContext(HitherContext)
-    const { recording, sorting, unitId, timeRange } = args
+    const { recording, sorting, visibleElectrodeIds, unitId, timeRange } = args
     const fetchFunction = useMemo(() => (
         async (query: QueryType) => {
             switch(query.type) {
@@ -140,19 +140,32 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, unitId: numb
             snippetsList.reduce((acc, val) => (
                 val !== undefined ? acc?.concat(val) : acc
             ), [] as Snippet[])
-        ) : undefined
+        )?.map(s => (filterSnippetVisibleElectrodes(s, info?.channel_ids, visibleElectrodeIds))) : undefined
         const snippetsInRange = snippets ? (
             snippets.filter((s) => ((timeRange) && (timeRange.min <= s.timepoint) && (s.timepoint < timeRange.max)))
         ) : undefined
         return {
-            info,
+            info: info ? {
+                ...info,
+                channel_ids: info.channel_ids.filter((eid, ii) => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(info.channel_ids[ii])))),
+                channel_locations: info.channel_locations.filter((loc, ii) => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(info.channel_ids[ii])))),
+            } : undefined,
             snippets: snippetsInRange
         }
-    }, [data, recording, sorting, timeRange, unitId])
+    }, [data, recording, sorting, timeRange, unitId, visibleElectrodeIds])
+}
+
+const filterSnippetVisibleElectrodes = (s: Snippet, electrodeIds: number[] | undefined, visibleElectrodeIds: number[] | undefined) => {
+    if (!electrodeIds) return s
+    if (!visibleElectrodeIds) return s
+    return {
+        ...s,
+        waveform: s.waveform?.filter((x, i) => (visibleElectrodeIds.includes(electrodeIds[i])))
+    }
 }
 
 const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {
-    const {snippets, info} = useSnippets({recording, sorting, unitId, timeRange: selection.timeRange || null})
+    const {snippets, info} = useSnippets({recording, sorting, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
     return (
         <div>
             <h3>Unit {unitId}</h3>
