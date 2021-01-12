@@ -25,7 +25,7 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps
 
 const HitherJobMonitorControl: FunctionComponent<Props> = ({ allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs, documentInfo, websocketStatus }) => {
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { documentId, feedUri } = documentInfo;
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;
     const numErrored = erroredJobs.length;

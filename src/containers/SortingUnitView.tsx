@@ -37,7 +37,7 @@ const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
 const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, documentInfo, size }) => {
   const hither = useContext(HitherContext)
-  const { documentId, feedUri, readOnly } = documentInfo;
+  const { documentId, feedUri } = documentInfo;
 
   const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
   const [sortingInfo, setSortingInfo] = useState<SortingInfo | null>(null);

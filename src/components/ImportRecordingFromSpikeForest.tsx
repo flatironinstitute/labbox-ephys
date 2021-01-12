@@ -247,13 +247,13 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-interface SelectExampleRecordingPath {
+interface SelectExampleRecordingPathProps {
     value: string
     onChange: (v: string) => void
     disabled?: boolean
 }
 
-const SelectExampleRecordingPath: FunctionComponent<SelectExampleRecordingPath> = ({ value, onChange, disabled=false }) => {
+const SelectExampleRecordingPath: FunctionComponent<SelectExampleRecordingPathProps> = ({ value, onChange, disabled=false }) => {
     const examplePaths = [
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_7",
         "sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/419_1_8",

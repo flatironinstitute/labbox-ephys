@@ -1,10 +1,9 @@
-import React, { Dispatch, FunctionComponent, useContext, useState } from 'react';
+import React, { Dispatch, FunctionComponent, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { addRecording } from '../actions';
 import ImportRecordingFromSpikeForest from '../components/ImportRecordingFromSpikeForest';
 import RadioChoices from '../components/RadioChoices';
-import { HitherContext } from '../extensions/common/hither';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
@@ -26,9 +25,7 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
 const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
-    const hither = useContext(HitherContext)
-    
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { documentId, feedUri } = documentInfo;
 
     const [method, setMethod] = useState('');
 

@@ -51,7 +51,7 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics, width, height } = props
+  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
   const { documentId, feedUri, readOnly } = documentInfo;
   const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');

@@ -4,10 +4,6 @@ import useFetchCache from "../../common/useFetchCache"
 import { RecordingInfo } from "../../extensionInterface"
 import Mda from "./Mda"
 
-interface MdaInterface {
-  value: (i1: number, i2: number) => number
-}
-
 // it may be important to limit this to 1 at a time when using a filter
 const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 1, method: 'stack'})
 

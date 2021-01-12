@@ -188,13 +188,13 @@ const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, 
     // )
 }
 
-const spikeIndexSubset = (n: number, maxNum: number) => {
-    const ret = [];
-    const incr = Math.ceil(n / maxNum);
-    for (let i = 0; i < n; i+= incr) {
-        ret.push(i);
-    }
-    return ret;
-}
+// const spikeIndexSubset = (n: number, maxNum: number) => {
+//     const ret = [];
+//     const incr = Math.ceil(n / maxNum);
+//     for (let i = 0; i < n; i+= incr) {
+//         ret.push(i);
+//     }
+//     return ret;
+// }
 
 export default IndividualUnit;

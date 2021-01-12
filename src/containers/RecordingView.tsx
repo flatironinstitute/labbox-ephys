@@ -71,6 +71,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
         <Grid item xs={12} lg={6}>
           <h2>{recording.recordingLabel}</h2>
           <div>{recording.recordingPath}</div>
+          { errorMessage && <div>{errorMessage}</div> }
           <RecordingInfoView recordingInfo={recording.recordingInfo} hideElectrodeGeometry={true} />
         </Grid>
 

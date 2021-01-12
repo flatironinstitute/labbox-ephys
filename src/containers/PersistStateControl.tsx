@@ -60,23 +60,21 @@ const PersistStateControl: FunctionComponent<Props> = ({ persistStatus, onSetPer
             else if (persistStatus === 'saving') {
             }
             else if (persistStatus === 'saved') {
-                if (false) {
-                    onSetPersistStatus('pending');
-                    // save here
-                    const newSavedState = {
-                    }
-                    // TODO: IMPORTANT!! handle case where state has changed while we are saving to disk
-                    onSetPersistStatus('saving');
-                    // const ret = await createHitherJob('save_state_to_disk', { state: newSavedState }, {wait: true, useClientCache: false});
-                    // the gui experience is better when we slow things down a bit
-                    await sleep(500);
-                    // if (ret) {
-                    onSetPersistStatus('saved');
-                    //}
-                    // else {
-                    //     onSetPersistStatus('error');
-                    // }
-                }
+                // onSetPersistStatus('pending');
+                // // save here
+                // const newSavedState = {
+                // }
+                // // TODO: IMPORTANT!! handle case where state has changed while we are saving to disk
+                // onSetPersistStatus('saving');
+                // // const ret = await createHitherJob('save_state_to_disk', { state: newSavedState }, {wait: true, useClientCache: false});
+                // // the gui experience is better when we slow things down a bit
+                // await sleep(500);
+                // // if (ret) {
+                // onSetPersistStatus('saved');
+                // //}
+                // // else {
+                // //     onSetPersistStatus('error');
+                // // }
             }
             else {
             }

@@ -3,8 +3,6 @@ import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE
 import { ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer, SortingInfo } from '../extensions/extensionInterface'
 export type { ExternalSortingUnitMetric, Label, Sorting, SortingInfo } from '../extensions/extensionInterface'
 
-type Label = string
-
 export interface AddSortingAction {
     type: 'ADD_SORTING'
     sorting: Sorting
@@ -152,8 +150,6 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
         return state
     }
 }
-
-type Curation = {[key: string]: {labels: string[]}}
 
 const unitCurationReducer = (curation: SortingCuration, action: Action): SortingCuration => {
     // returns object corresponding to the value of the 'unitCuration' key of a sorting.

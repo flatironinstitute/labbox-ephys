@@ -33,8 +33,6 @@ interface Props {
 //     initial_y_scale_factor: number
 // }
 
-type StatusString = 'waiting' | 'calculating' | 'error' | 'finished'
-
 const TimeseriesViewNew = (props: Props) => {
     const opts = props.opts
     const recordingInfo = props.recordingInfo
