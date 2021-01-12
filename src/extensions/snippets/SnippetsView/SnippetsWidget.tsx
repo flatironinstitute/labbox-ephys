@@ -28,14 +28,16 @@ const WhenVisible: FunctionComponent<{width: number, height: number}> = ({width,
 
 const SnippetsWidget: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitIds, width, height }) => {
     const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
+    const rowHeight = 250
     return (
         <div style={{position: 'absolute', width, height, overflow: 'auto'}}>
             <Grid container direction="column">
                 {
                     (unitIds || []).map(unitId => (
                         <Grid item key={unitId}>
-                            <WhenVisible width={width} height={150}>
-                                <SnippetsRow {...{recording, sorting, selection, selectionDispatch, unitId, height: 150, noiseLevel}} />
+                            <h3 style={{paddingTop: 0, paddingBottom: 0, marginTop: 0, marginBottom: 0}}>Unit {unitId}</h3>
+                            <WhenVisible width={width} height={rowHeight}>
+                                <SnippetsRow {...{recording, sorting, selection, selectionDispatch, unitId, height: rowHeight, noiseLevel}} />
                             </WhenVisible>
                         </Grid>
                     ))

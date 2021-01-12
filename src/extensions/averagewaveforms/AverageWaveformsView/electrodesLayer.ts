@@ -124,8 +124,14 @@ export const createElectrodesLayer = () => {
                                 : hovered
                                     ? colors.hover
                                     : colors.base
-            painter.fillEllipse(e.rect, {color: color})
-            painter.drawEllipse(e.rect, {color: colors.border})
+            const layoutMode = props.layoutMode
+            if (layoutMode === 'geom') {
+                painter.fillEllipse(e.rect, {color: color})
+                painter.drawEllipse(e.rect, {color: colors.border})
+            }
+            else if (layoutMode === 'vertical') {
+                painter.drawLine(e.rect.xmin, (e.rect.ymin + e.rect.ymax) / 2, e.rect.xmax, (e.rect.ymin + e.rect.ymax) / 2, {color: colors.border})
+            }
             if (useLabels) {
                 const fontColor = ([colors.selected, colors.draggedSelected, colors.hover, colors.selectedHover].includes(color)) ? colors.textDark : colors.textLight
                 if (showLabels) {
@@ -142,8 +148,8 @@ export const createElectrodesLayer = () => {
     }
     const onPropsChange = (layer: CanvasWidgetLayer<LayerProps, LayerState>, props: LayerProps) => {
         const state = layer.getState()
-        const { width, height, electrodeLocations, electrodeIds } = props
-        const { electrodeBoxes, transform, radius, pixelRadius } = setupElectrodes({width, height, electrodeLocations, electrodeIds})
+        const { width, height, electrodeLocations, electrodeIds, layoutMode } = props
+        const { electrodeBoxes, transform, radius, pixelRadius } = setupElectrodes({width, height, electrodeLocations, electrodeIds, layoutMode})
         layer.setTransformMatrix(transform)
         layer.setState({...state, electrodeBoxes, radius, pixelRadius})
         layer.scheduleRepaint()

@@ -7,10 +7,11 @@ import { createWaveformLayer, WaveformColors } from './waveformLayer';
 
 export type Props = {
     waveform?: number[][]
+    layoutMode: 'geom' | 'vertical'
     noiseLevel: number
-    electrodeIds: number[],
-    electrodeLocations: number[][],
-    samplingFrequency: number,
+    electrodeIds: number[]
+    electrodeLocations: number[][]
+    samplingFrequency: number
     width: number
     height: number
     selection: RecordingSelection
@@ -20,14 +21,15 @@ export type Props = {
 
 export type ElectrodeOpts = {
     colors?: ElectrodeColors
-    showLabels?: boolean,
+    showLabels?: boolean
     disableSelection?: boolean
 }
 
 export type LayerProps = Props & {
-    electrodeOpts: ElectrodeOpts,
+    layoutMode: 'geom' | 'vertical'
+    electrodeOpts: ElectrodeOpts
     waveformOpts: {
-        colors?: WaveformColors,
+        colors?: WaveformColors
         waveformWidth: number
     }
 }
@@ -59,10 +61,10 @@ const defaultWaveformOpts = {
 }
 
 const WaveformWidget: FunctionComponent<Props> = (props) => {
-    const layerProps = {
+    const layerProps: LayerProps = {
         ...props,
         electrodeOpts: {...defaultElectrodeOpts, ...props.electrodeOpts},
-        waveformOpts: defaultWaveformOpts,
+        waveformOpts: defaultWaveformOpts
     }
     const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
     const waveformLayer = useLayer(createWaveformLayer, layerProps)

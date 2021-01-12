@@ -31,6 +31,7 @@ const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, args
     return (
         <WaveformWidget
             waveform={plotData.average_waveform}
+            layoutMode={selection.waveformsMode || 'geom'}
             noiseLevel={noiseLevel}
             electrodeIds={plotData.channel_ids}
             electrodeLocations={plotData.channel_locations}

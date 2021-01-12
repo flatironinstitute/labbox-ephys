@@ -8,6 +8,7 @@ import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin 
 import Expandable from '../../old/curation/CurationSortingView/Expandable'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
+import OptionsControl from './OptionsControl'
 import PreprocessingControl, { preprocessingSelectionReducer } from './PreprocessingControl'
 import ViewContainer from './ViewContainer'
 import ViewLauncher, { ViewPluginType } from './ViewLauncher'
@@ -211,6 +212,11 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                             selection={props.selection}
                             selectionDispatch={props.selectionDispatch}
                         />
+                    </Expandable>
+
+                    {/* Options */}
+                    <Expandable icon={visibleElectrodesIcon} label="Options" defaultExpanded={false} unmountOnExit={false}>
+                        <OptionsControl selection={selection} selectionDispatch={selectionDispatch} />
                     </Expandable>
                 </div>
                 <ViewContainer
