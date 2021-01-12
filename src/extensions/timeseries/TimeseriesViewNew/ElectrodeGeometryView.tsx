@@ -8,12 +8,13 @@ interface Props {
     width: number
     height: number
     selectedElectrodeIds?: number[]
+    visibleElectrodeIds: number[]
     onSelectedElectrodeIdsChanged?: (s: number[]) => void
 }
 
-const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, height, selectedElectrodeIds, onSelectedElectrodeIdsChanged}) => {
+const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, height, selectedElectrodeIds, visibleElectrodeIds, onSelectedElectrodeIdsChanged}) => {
     const ri = recordingInfo
-    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
+    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).filter(a => (visibleElectrodeIds.includes(a.id))), [ri, visibleElectrodeIds])
     const [internalSelectedElectrodeIds, setInternalSelectedElectrodeIds] = useState<number[]>([]);
     const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
         if (selectedElectrodeIds) {
@@ -43,7 +44,7 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
     if (locations && ids && ids.length !== locations.length) throw Error('Electrode ID count does not match location count.')
     return ids.map((x, index) => {
         const loc = locations[index]
-        return { label: x + '', x: loc[0], y: loc[1] }
+        return { label: x + '', id: x, x: loc[0], y: loc[1] }
     })
 }
 

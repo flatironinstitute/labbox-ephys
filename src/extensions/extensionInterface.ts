@@ -200,6 +200,7 @@ export const externalUnitMetricsReducer: Reducer<ExternalSortingUnitMetric[], Ex
 // Recording selection
 export interface RecordingSelection {
     selectedElectrodeIds?: number[]
+    visibleElectrodeIds?: number[]
     currentTimepoint?: number
     timeRange?: {min: number, max: number} | null
     ampScaleFactor?: number
@@ -255,6 +256,11 @@ type SetSelectedElectrodeIdsRecordingSelectionAction = {
     selectedElectrodeIds: number[]
 }
 
+type SetVisibleElectrodeIdsRecordingSelectionAction = {
+    type: 'SetVisibleElectrodeIds',
+    visibleElectrodeIds: number[]
+}
+
 type SetCurrentTimepointRecordingSelectionAction = {
     type: 'SetCurrentTimepoint',
     currentTimepoint: number | null
@@ -280,7 +286,7 @@ type SetCurrentTimepointVelocityRecordingSelectionAction = {
     velocity: number // timepoints per second
 }
 
-export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetVisibleElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction
 
 export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
     if (action.type === 'SetRecordingSelection') {
@@ -289,7 +295,14 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
     else if (action.type === 'SetSelectedElectrodeIds') {
         return {
             ...state,
-            selectedElectrodeIds: action.selectedElectrodeIds
+            selectedElectrodeIds: action.selectedElectrodeIds.filter(eid => ((!state.visibleElectrodeIds) || (state.visibleElectrodeIds.includes(eid))))
+        }
+    }
+    else if (action.type === 'SetVisibleElectrodeIds') {
+        return {
+            ...state,
+            visibleElectrodeIds: action.visibleElectrodeIds,
+            selectedElectrodeIds: state.selectedElectrodeIds ? state.selectedElectrodeIds.filter(eid => (action.visibleElectrodeIds.includes(eid))) : undefined
         }
     }
     else if (action.type === 'SetCurrentTimepoint') {
@@ -393,12 +406,13 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
     else if (action.type === 'SetSelectedUnitIds') {
         return {
             ...state,
-            selectedUnitIds: action.selectedUnitIds
+            selectedUnitIds: action.selectedUnitIds.filter(uid => ((!state.visibleUnitIds) || (state.visibleUnitIds?.includes(uid))))
         }
     }
     else if (action.type === 'SetVisibleUnitIds') {
         return {
             ...state,
+            selectedUnitIds: state.selectedUnitIds ? state.selectedUnitIds.filter(uid => action.visibleUnitIds?.includes(uid)) : undefined,
             visibleUnitIds: action.visibleUnitIds
         }
     }

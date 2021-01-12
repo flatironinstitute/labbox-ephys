@@ -11,13 +11,14 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
     if (locations && ids && ids.length !== locations.length) throw Error('Electrode ID count does not match location count.')
     return ids.map((x, index) => {
         const loc = locations[index]
-        return { label: x + '', x: loc[0], y: loc[1] }
+        return { label: x + '', id: x, x: loc[0], y: loc[1] }
     })
 }
 
 const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height, recordingSelection, recordingSelectionDispatch}) => {
     const ri = recording.recordingInfo
-    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
+    const visibleElectrodeIds = recordingSelection.visibleElectrodeIds
+    const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).filter(a => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(a.id)))), [ri, visibleElectrodeIds])
 
     const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
         recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
