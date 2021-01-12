@@ -25,10 +25,6 @@ export type Snippet = {
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-interface SnippetsModelInterface {
-    getSnippets: (args: {timeRange?: {min: number, max: number} | null}) => Snippet[]
-}
-
 type InfoType = {
     sampling_frequency: number
     channel_ids: number[]

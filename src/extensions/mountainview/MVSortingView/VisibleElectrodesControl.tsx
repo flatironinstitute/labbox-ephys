@@ -1,6 +1,6 @@
-import { Button, Checkbox, Radio } from '@material-ui/core';
+import { Button, Radio } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
-import { RecordingInfo, Sorting, SortingCuration, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { RecordingInfo, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 
 type Props = {
     recordingInfo: RecordingInfo

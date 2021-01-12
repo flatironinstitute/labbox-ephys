@@ -66,18 +66,18 @@ interface HelperPlotState {
     
 }
 
-const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, layerProps: HelperPlotProps) => {
+// const setCanvasFromProps = (layer: CanvasWidgetLayer<HelperPlotProps, any>, layerProps: HelperPlotProps) => {
     
-    // layer.setBasePixelTransformationMatrix(optimalBoundingRectangle)
-    // Optional: If you want to set a margin, just bump up the coordinate range of the drawing area by some small amount,
-    // e.g. 5% on each side or something.
+//     // layer.setBasePixelTransformationMatrix(optimalBoundingRectangle)
+//     // Optional: If you want to set a margin, just bump up the coordinate range of the drawing area by some small amount,
+//     // e.g. 5% on each side or something.
 
-    // This is what you would do if for some reason you had to set it to a default coordinate system first:
-    // const newTransform = getUpdatedTransformationMatrix(optimalBoundingRectangle, layer.getCoordRange(), layer.getTransformMatrix())
-    // layer.setTransformMatrix(newTransform)
-    // layer.setCoordRange(optimalBoundingRectangle)
-    // (Note that that could certainly be simplified. But it's even simpler to do it right the first time...)
-}
+//     // This is what you would do if for some reason you had to set it to a default coordinate system first:
+//     // const newTransform = getUpdatedTransformationMatrix(optimalBoundingRectangle, layer.getCoordRange(), layer.getTransformMatrix())
+//     // layer.setTransformMatrix(newTransform)
+//     // layer.setCoordRange(optimalBoundingRectangle)
+//     // (Note that that could certainly be simplified. But it's even simpler to do it right the first time...)
+// }
 
 const createPlotWaveformLayer = () => {
 

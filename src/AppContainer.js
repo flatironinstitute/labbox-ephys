@@ -17,7 +17,7 @@ import Routes from './Routes';
 
 
 const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { documentId, feedUri } = documentInfo;
     return (
         <Fragment>
             <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
@@ -78,7 +78,7 @@ function useWindowDimensions() {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig, size }) => {
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { documentId } = documentInfo;
 
     const { width, height } = useWindowDimensions()
 

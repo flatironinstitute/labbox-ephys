@@ -27,7 +27,7 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
 const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting }) => {
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { documentId, feedUri  } = documentInfo;
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];

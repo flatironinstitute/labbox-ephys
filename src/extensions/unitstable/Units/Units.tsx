@@ -6,7 +6,7 @@ import { Recording, SortingUnitMetricPlugin, SortingViewProps } from '../../exte
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
 
-const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
+// const defaultLabelOptions = ['noise', 'MUA', 'artifact', 'accept', 'reject'];
 
 // const metricPlugins: MetricPlugin[] = Object.values(pluginComponents)
 //                             .filter(plugin => {
@@ -51,8 +51,6 @@ const updateMetricData = (state: MetricDataState, action: MetricDataAction | 'cl
     }
 }
 
-type Label = string
-
 interface OwnProps {
     maxHeight?: number
     width?: number
@@ -60,7 +58,7 @@ interface OwnProps {
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     const hither = useContext(HitherContext)
-    const { sorting, recording, selection, selectionDispatch, curationDispatch, plugins, width, height } = props
+    const { sorting, recording, selection, selectionDispatch, plugins, width, height } = props
     const [expandedTable, setExpandedTable] = useState(false)
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState)
     const [previousRecording, setPreviousRecording] = useState<Recording | null>(null)
@@ -74,27 +72,27 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     // const activeMetricPlugins = metricPlugins.filter(
     //     p => (!p.development || (extensionsConfig.enabled.development)));
 
-    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {}
-    const labelOptions = [...new Set(
-        defaultLabelOptions.concat(
-            Object.keys(labelsByUnit || {})
-                .reduce(
-                    (allLabels: Label[], unitId: string) => {
-                        const labels = labelsByUnit[unitId] || []
-                        return allLabels.concat(labels)
-                    }, [])
-        )
-    )].sort((a, b) => {
-        // note this will sort numbers like strings. If that's a problem, we
-        // might need a more sophisticated solution.
-        const aUpper = a.toUpperCase();
-        const bUpper = b.toUpperCase();
-        if (aUpper < bUpper) return -1;
-        if (aUpper > bUpper) return 1;
-        if (a < b) return -1;
-        if (b > a) return 1;
-        return 0;
-    });
+    // const labelsByUnit = (sorting.curation || {}).labelsByUnit || {}
+    // const labelOptions = [...new Set(
+    //     defaultLabelOptions.concat(
+    //         Object.keys(labelsByUnit || {})
+    //             .reduce(
+    //                 (allLabels: Label[], unitId: string) => {
+    //                     const labels = labelsByUnit[unitId] || []
+    //                     return allLabels.concat(labels)
+    //                 }, [])
+    //     )
+    // )].sort((a, b) => {
+    //     // note this will sort numbers like strings. If that's a problem, we
+    //     // might need a more sophisticated solution.
+    //     const aUpper = a.toUpperCase();
+    //     const bUpper = b.toUpperCase();
+    //     if (aUpper < bUpper) return -1;
+    //     if (aUpper > bUpper) return 1;
+    //     if (a < b) return -1;
+    //     if (b > a) return 1;
+    //     return 0;
+    // });
 
     const fetchMetric = useCallback(async (metric: SortingUnitMetricPlugin) => {
         const name = metric.name;

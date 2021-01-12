@@ -13,7 +13,7 @@ interface LayerState {
 const initialLayerState = {}
 
 const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state: LayerState) => {
-    const { panels, width, height, margins } = layerProps
+    const { panels, height, margins } = layerProps
     if (panels.length === 0) return
 
     painter.wipe()

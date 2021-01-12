@@ -18,7 +18,7 @@ interface Props {
 }
 
 const TimeWidgetBottomBar: FunctionComponent<Props> = (props) => {
-    const { info, width, height, onCurrentTimeChanged } = props;
+    const { info, height, onCurrentTimeChanged } = props;
     // const style0 = {
     //     position: 'relative',
     //     width: this.props.width,
