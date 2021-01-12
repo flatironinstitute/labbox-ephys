@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
@@ -8,9 +9,9 @@ import AverageWaveformsToolbar from './AverageWaveformsToolbar';
 import AverageWaveformView2 from './AverageWaveformView2';
 
 export type AverageWaveformAction = ActionItem | DividerItem
+
+
 const TOOLBAR_INITIAL_WIDTH = 75
-
-
 
 const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
     const {recording, sorting, selection, selectionDispatch} = props
@@ -25,15 +26,34 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
             noiseLevel={noiseLevel}
         />
     ), [sorting, recording, selection, selectionDispatch, noiseLevel])
+    const [scalingActions, setScalingActions] = useState<AverageWaveformAction[] | null>(null)
 
     const width = props.size.width;
     const height = 650 // hard-coded as per TimeseriesForRecordingView.tsx
 
-    if (!width) return <div>No width</div>
+    useEffect(() => {
+        if (scalingActions === null) {
+            const actions: AverageWaveformAction[] = [
+                {
+                    type: 'button',
+                    callback: () => null,
+                    title: 'Scale amplitude up [up arrow]',
+                    icon: <FaArrowUp />,
+                    keyCode: 38
+                },
+                {
+                    type: 'button',
+                    callback: () => null,
+                    title: 'Scale amplitude down [down arrow]',
+                    icon: <FaArrowDown />,
+                    keyCode: 40
+                }
+            ]
+            setScalingActions(actions)
+        }
+    }, [scalingActions, setScalingActions])
 
-    const customActions: AverageWaveformAction[] = []
-
-    return (
+    return width ? (
         <div>
             <Splitter
                 width={width}
@@ -44,7 +64,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
                     <AverageWaveformsToolbar
                         width={TOOLBAR_INITIAL_WIDTH}
                         height={height}
-                        customActions={customActions}
+                        customActions={scalingActions}
                     />
                 }
                 {
@@ -55,10 +75,10 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
                         unitComponent={unitComponent}
                     />
                 }
-
             </Splitter>
         </div>
-    );
+    )
+    : (<div>No width</div>);
 }
 
 export default sizeMe()(AverageWaveformsView)
