@@ -37,12 +37,14 @@ type StatusString = 'waiting' | 'calculating' | 'error' | 'finished'
 
 const TimeseriesViewNew = (props: Props) => {
     const opts = props.opts
+    const recordingInfo = props.recordingInfo
     const timeseriesData = useTimeseriesData(props.recordingObject, props.recordingInfo)
     const [recordingSelectionInternal, recordingSelectionInternalDispatch] = useReducer(recordingSelectionReducer, {})
 
     const recordingSelection = props.recordingSelection || recordingSelectionInternal
     const recordingSelectionDispatch = props.recordingSelectionDispatch || recordingSelectionInternalDispatch
     const selectedElectrodeIds = useMemo(() => (recordingSelection.selectedElectrodeIds || []), [recordingSelection.selectedElectrodeIds])
+    const visibleElectrodeIds = useMemo(() => (recordingSelection.visibleElectrodeIds || recordingInfo.channel_ids), [recordingSelection.visibleElectrodeIds, recordingInfo.channel_ids])
 
     const y_scale_factor = 1 / (props.recordingInfo.noise_level || 1) * 1/10
 
@@ -64,13 +66,14 @@ const TimeseriesViewNew = (props: Props) => {
                                 recordingInfo={props.recordingInfo}
                                 width={0} // filled in above
                                 height={0} // filled in above
+                                visibleElectrodeIds={visibleElectrodeIds}
                                 selectedElectrodeIds={selectedElectrodeIds}
                                 onSelectedElectrodeIdsChanged={handleSelectedElectrodeIdsChanged}
                             />
                         )
                     }
                     {
-                        ((!opts.channelSelectPanel) || (selectedElectrodeIds.length > 0)) ? (
+                        ((!opts.channelSelectPanel) || (selectedElectrodeIds.length > 0) || (visibleElectrodeIds.length <= 12)) ? (
                             <TimeseriesWidgetNew
                                 timeseriesData={timeseriesData}
                                 channel_ids={props.recordingInfo.channel_ids}
@@ -81,7 +84,7 @@ const TimeseriesViewNew = (props: Props) => {
                                 y_scale_factor={y_scale_factor}
                                 width={props.width} // filled in above
                                 height={props.height} // filled in above
-                                visibleChannelIds={opts.channelSelectPanel ? selectedElectrodeIds : null}
+                                visibleChannelIds={opts.channelSelectPanel ? (selectedElectrodeIds.length > 0 ? selectedElectrodeIds : visibleElectrodeIds) : null}
                                 recordingSelection={recordingSelection}
                                 recordingSelectionDispatch={recordingSelectionDispatch}
                             />

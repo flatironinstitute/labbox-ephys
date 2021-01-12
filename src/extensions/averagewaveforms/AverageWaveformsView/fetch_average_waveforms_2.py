@@ -6,7 +6,7 @@ import numpy as np
 
 
 @hi.function('createjob_fetch_average_waveform_2', '0.1.1')
-def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object, unit_id):
+def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object, unit_id, visible_channel_ids):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition2')
     jc = labbox.get_default_job_cache()
@@ -18,13 +18,14 @@ def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object,
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return fetch_average_waveform_2.run(
             snippets_h5=snippets_h5,
-            unit_id=unit_id
+            unit_id=unit_id,
+            visible_channel_ids=visible_channel_ids
         )
 
 @hi.function('fetch_average_waveform_2', '0.2.6')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules(['../../../python/labbox_ephys'])
-def fetch_average_waveform_2(snippets_h5, unit_id):
+def fetch_average_waveform_2(snippets_h5, unit_id, visible_channel_ids):
     import h5py
     h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
@@ -38,6 +39,12 @@ def fetch_average_waveform_2(snippets_h5, unit_id):
         unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
         unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms'))
         unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
+
+        if visible_channel_ids is not None:
+            inds = [ii for ii in range(len(unit_waveforms_channel_ids)) if unit_waveforms_channel_ids[ii] in visible_channel_ids]
+            unit_waveforms_channel_ids = unit_waveforms_channel_ids[inds]
+            unit_waveforms = unit_waveforms[:, inds, :]
+
         print(unit_waveforms_channel_ids)
     
     average_waveform = np.mean(unit_waveforms, axis=0)

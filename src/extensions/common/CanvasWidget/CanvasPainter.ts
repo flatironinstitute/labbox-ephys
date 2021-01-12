@@ -142,7 +142,10 @@ export class CanvasPainter {
     }
     transferOffscreenToPrimary() {
         const c = this._offscreenCanvas
-        if (!c) throw Error('No offscreen canvas')
+        if (!c) {
+            console.warn('No offscreen canvas')
+            return
+        }
         const image = c.transferToImageBitmap()
         this._context2D = this._primaryContext2D
         this._context2D.clearRect(0, 0, image.width, image.height)

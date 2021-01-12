@@ -147,7 +147,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     //         : {});
     // };
 
-    let units = sortingInfo.unit_ids;
+    let units = selection.visibleUnitIds || sortingInfo.unit_ids;
     let showExpandButton = false;
     if ((!expandedTable) && (units.length > 30)) {
         units = units.slice(0, 30);

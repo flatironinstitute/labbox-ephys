@@ -1,5 +1,5 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
-import { faPencilAlt, faSocks } from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FunctionComponent, useCallback, useMemo, useReducer } from 'react'
 import { useOnce } from '../../common/hooks'
@@ -8,10 +8,12 @@ import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin 
 import Expandable from '../../old/curation/CurationSortingView/Expandable'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
-import FilterControl, { filterSelectionReducer } from './FilterControl'
+import PreprocessingControl, { preprocessingSelectionReducer } from './PreprocessingControl'
 import ViewContainer from './ViewContainer'
 import ViewLauncher, { ViewPluginType } from './ViewLauncher'
 import ViewWidget from './ViewWidget'
+import VisibleElectrodesControl from './VisibleElectrodesControl'
+import VisibleUnitsControl from './VisibleUnitsControl'
 
 const initialLeftPanelWidth = 320
 
@@ -75,7 +77,7 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
 
 const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {plugins, recording} = props
+    const {plugins, recording, sorting, selection, selectionDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const unitsTablePlugin = plugins.sortingViews.UnitsTable
     const averageWaveformsPlugin = plugins.sortingViews.AverageWaveforms
@@ -134,18 +136,20 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
     }, [openViewsDispatch])
     const width = props.width || 600
     const height = props.height || 900
-    const filterIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSocks} type="outline" /></span>
+    const preprocessingIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSocks} type="outline" /></span>
+    const visibleUnitsIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faVials} type="outline" /></span>
+    const visibleElectrodesIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faEnvelope} type="outline" /></span>
     const launchIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSquare} type="outline" /></span>
     const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
 
-    const [filterSelection, filterSelectionDispatch] = useReducer(filterSelectionReducer, {filterType: 'none'})
+    const [preprocessingSelection, preprocessingSelectionDispatch] = useReducer(preprocessingSelectionReducer, {filterType: 'none'})
 
-    const filteredRecording = useMemo(() => {
+    const preprocessedRecording = useMemo(() => {
         if (!recording) return recording
-        if (filterSelection.filterType === 'none') {
+        if (preprocessingSelection.filterType === 'none') {
             return recording
         }
-        else if (filterSelection.filterType === 'bandpass_filter') {
+        else if (preprocessingSelection.filterType === 'bandpass_filter') {
             return {
                 ...recording,
                 recordingObject: {
@@ -158,11 +162,11 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
             }
         }
         else {
-            throw Error(`Unexpected filter type: ${filterSelection.filterType}`)
+            throw Error(`Unexpected filter type: ${preprocessingSelection.filterType}`)
         }
-    }, [recording, filterSelection])
+    }, [recording, preprocessingSelection])
 
-    const sortingViewProps = {...props, recording: filteredRecording}
+    const sortingViewProps = {...props, recording: preprocessedRecording}
     return (
         <div className="MVSortingView">
             <Splitter
@@ -171,13 +175,8 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                 initialPosition={initialLeftPanelWidth}
             >
                 <div>
-                    <Expandable icon={filterIcon} label="Filter" defaultExpanded={true}>
-                        <FilterControl
-                            filterSelection={filterSelection}
-                            filterSelectionDispatch={filterSelectionDispatch}
-                        />
-                    </Expandable>
-                    <Expandable icon={launchIcon} label="Launch" defaultExpanded={true}>
+                    {/* Launch */}
+                    <Expandable icon={launchIcon} label="Launch" defaultExpanded={true} unmountOnExit={false}>
                         <ViewLauncher
                             plugins={plugins}
                             onLaunchSortingView={handleLaunchSortingView}
@@ -185,7 +184,27 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                             selection={props.selection}
                         />
                     </Expandable>
-                    <Expandable icon={curationIcon} label="Curation" defaultExpanded={true}>
+
+                    {/* Visible units */}
+                    <Expandable icon={visibleUnitsIcon} label="Visible units" defaultExpanded={false} unmountOnExit={false}>
+                        <VisibleUnitsControl sorting={sorting} recording={recording} selection={selection} selectionDispatch={selectionDispatch} />
+                    </Expandable>
+
+                    {/* Visible electrodes */}
+                    <Expandable icon={visibleElectrodesIcon} label="Visible electrodes" defaultExpanded={false} unmountOnExit={false}>
+                        <VisibleElectrodesControl recordingInfo={recording.recordingInfo} selection={selection} selectionDispatch={selectionDispatch} />
+                    </Expandable>
+
+                    {/* Preprocessing */}
+                    <Expandable icon={preprocessingIcon} label="Preprocessing" defaultExpanded={false} unmountOnExit={false}>
+                        <PreprocessingControl
+                            preprocessingSelection={preprocessingSelection}
+                            preprocessingSelectionDispatch={preprocessingSelectionDispatch}
+                        />
+                    </Expandable>
+                    
+                    {/* Curation */}
+                    <Expandable icon={curationIcon} label="Curation" defaultExpanded={false} unmountOnExit={false}>
                         <CurationControl
                             curation={props.sorting.curation || {}}
                             curationDispatch={props.curationDispatch}

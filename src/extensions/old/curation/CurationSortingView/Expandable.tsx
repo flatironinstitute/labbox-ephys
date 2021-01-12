@@ -5,11 +5,12 @@ interface Props {
     label: string
     defaultExpanded?: boolean
     icon?: JSX.Element
+    unmountOnExit?: boolean // default is true
 }
 
 export const Expandable: FunctionComponent<Props> = (props) => {
     return (
-      <Accordion TransitionProps={{ unmountOnExit: true }} defaultExpanded={props.defaultExpanded}>
+      <Accordion TransitionProps={{ unmountOnExit: props.unmountOnExit !== undefined ? props.unmountOnExit : true }} defaultExpanded={props.defaultExpanded}>
         <AccordionSummary>
           {props.icon && <span style={{paddingRight: 10}}>{props.icon}</span>}{props.label}
         </AccordionSummary>
