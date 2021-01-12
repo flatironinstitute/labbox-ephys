@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
 import WaveformWidget from '../../averagewaveforms/AverageWaveformsView/WaveformWidget';
 import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
@@ -21,15 +21,25 @@ const SnippetBox: FunctionComponent<Props> = ({ snippet, noiseLevel, samplingFre
     const handleVisibilityChange = useCallback((isVisible: boolean) => {
         if ((isVisible) && (!hasBeenVisible)) setHasBeenVisible(true)
     }, [hasBeenVisible, setHasBeenVisible])
+    const snippetTimepoint = snippet?.timepoint || 0
+    const currentTimepoint = selection.currentTimepoint || 0
+    const selected = useMemo(() => (
+        Math.abs(snippetTimepoint - currentTimepoint) < 20
+    ), [snippetTimepoint, currentTimepoint])
+    const handleClick = useCallback(() => {
+        snippet && selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: snippet.timepoint})
+    }, [snippet, selectionDispatch])
     return (
         <VisibilitySensor onChange={handleVisibilityChange} partialVisibility={true}>
             {
                 hasBeenVisible && snippet ? (
-                    <WaveformWidget
-                        waveform={snippet.waveform}
-                        {...{selection, selectionDispatch, noiseLevel, samplingFrequency, electrodeIds, electrodeLocations, width, height}}
-                        electrodeOpts={{disableSelection: true}}
-                    />
+                    <div className={selected ? "plotSelectedStyle" : ""} onClick={handleClick}>
+                        <WaveformWidget
+                            waveform={snippet.waveform}
+                            {...{selection, selectionDispatch, noiseLevel, samplingFrequency, electrodeIds, electrodeLocations, width, height}}
+                            electrodeOpts={{disableSelection: true}}
+                        />
+                    </div>
                 ) : (
                     <div style={{position: 'absolute', width, height}} />
                 )
