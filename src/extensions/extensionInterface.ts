@@ -264,7 +264,8 @@ type SetVisibleElectrodeIdsRecordingSelectionAction = {
 
 type SetCurrentTimepointRecordingSelectionAction = {
     type: 'SetCurrentTimepoint',
-    currentTimepoint: number | null
+    currentTimepoint: number | null,
+    ensureInRange?: boolean
 }
 
 type SetTimeRangeRecordingSelectionAction = {
@@ -294,6 +295,14 @@ type SetWaveformsModeRecordingSelectionAction = {
 
 export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetVisibleElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | SetWaveformsModeRecordingSelectionAction
 
+const adjustTimeRangeToIncludeTimepoint = (timeRange: {min: number, max: number}, timepoint: number) => {
+    if ((timeRange.min <= timepoint) && (timepoint < timeRange.max)) return timeRange
+    const span = timeRange.max - timeRange.min
+    const t1 = Math.max(0, Math.floor(timepoint - span / 2))
+    const t2 = t1 + span
+    return {min: t1, max: t2}
+}
+
 export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
     if (action.type === 'SetRecordingSelection') {
         return {...action.recordingSelection}
@@ -314,7 +323,8 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
     else if (action.type === 'SetCurrentTimepoint') {
         return {
             ...state,
-            currentTimepoint: action.currentTimepoint || undefined
+            currentTimepoint: action.currentTimepoint || undefined,
+            timeRange: action.ensureInRange && (state.timeRange) && (action.currentTimepoint !== null) ? adjustTimeRangeToIncludeTimepoint(state.timeRange, action.currentTimepoint) : state.timeRange
         }
     }
     else if (action.type === 'SetTimeRange') {

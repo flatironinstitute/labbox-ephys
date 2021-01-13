@@ -1,5 +1,5 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
-import { faEnvelope, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope, faGrinHearts, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FunctionComponent, useCallback, useMemo, useReducer } from 'react'
 import { useOnce } from '../../common/hooks'
@@ -142,6 +142,7 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
     const visibleElectrodesIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faEnvelope} type="outline" /></span>
     const launchIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSquare} type="outline" /></span>
     const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
+    const optionsIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faGrinHearts} /></span>
 
     const [preprocessingSelection, preprocessingSelectionDispatch] = useReducer(preprocessingSelectionReducer, {filterType: 'none'})
 
@@ -215,7 +216,7 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
                     </Expandable>
 
                     {/* Options */}
-                    <Expandable icon={visibleElectrodesIcon} label="Options" defaultExpanded={false} unmountOnExit={false}>
+                    <Expandable icon={optionsIcon} label="Options" defaultExpanded={false} unmountOnExit={false}>
                         <OptionsControl selection={selection} selectionDispatch={selectionDispatch} />
                     </Expandable>
                 </div>

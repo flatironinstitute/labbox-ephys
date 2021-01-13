@@ -1,5 +1,6 @@
 import React, { Fragment, FunctionComponent, useCallback } from 'react';
 import { Plugins, SortingSelection, SortingUnitViewPlugin, SortingViewPlugin } from '../../extensionInterface';
+import sortByPriority from '../../sortByPriority';
 
 export type ViewPluginType = 'RecordingView' | 'SortingView' | 'SortingUnitView'
 
@@ -22,7 +23,7 @@ const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, 
         <Fragment>
             <div key="sortingViews" style={{flexFlow: 'wrap'}}>
                 {
-                    Object.values(plugins.sortingViews).filter(p => (p.name !== 'MVSortingView')).map(sv => (
+                    sortByPriority(plugins.sortingViews).filter(p => (p.name !== 'MVSortingView')).map(sv => (
                         <LaunchSortingViewButton key={sv.name} plugin={sv} onLaunch={onLaunchSortingView} />
                     ))
                 }
