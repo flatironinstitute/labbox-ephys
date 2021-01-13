@@ -15,14 +15,17 @@ def sync_extensions_code():
 
     def check_identical_dir_content(d1: str, d2: str):
         if not os.path.isdir(d1):
+            print(f'Directories not equal: Not a directory: {d1}')
             return False
         if not os.path.isdir(d2):
+            print(f'Directories not equal: Not a directory: {d2}')
             return False
 
         excludes = '__pycache__'
         f1 = [a for a in os.listdir(d1) if a not in excludes]
         f2 = [a for a in os.listdir(d2) if a not in excludes]
         if len(f1) != len(f2):
+            print(f'Directories not equal: in {d1} and {d2}')
             return False
         for a in f1:
             if a not in f2:
@@ -31,11 +34,14 @@ def sync_extensions_code():
             path2 = d2 + '/' + a
             if os.path.isfile(path1):
                 if not os.path.isfile(path2):
+                    print(f'Directories not equal: Missing file: {path2}')
                     return False
                 if not check_identical_file_content(path1, path2):
+                    print(f'Directories not equal: files are not the same: {path1} {path2}')
                     return False
             elif os.path.isdir(path1):
                 if not os.path.isdir(path2):
+                    print(f'Directories not equal: not a directory: {path2}')
                     return False
                 if not check_identical_dir_content(path1, path2):
                     return False
