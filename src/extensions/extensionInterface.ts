@@ -207,6 +207,7 @@ export interface RecordingSelection {
     animation?: {
         currentTimepointVelocity: number // timepoints per second
     }
+    waveformsMode?: 'geom' | 'vertical'
 }
 
 export const useRecordingAnimation = (selection: RecordingSelection, selectionDispatch: RecordingSelectionDispatch) => {
@@ -286,7 +287,12 @@ type SetCurrentTimepointVelocityRecordingSelectionAction = {
     velocity: number // timepoints per second
 }
 
-export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetVisibleElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction
+type SetWaveformsModeRecordingSelectionAction = {
+    type: 'SetWaveformsMode',
+    waveformsMode: 'geom' | 'vertical'
+}
+
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetVisibleElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | SetWaveformsModeRecordingSelectionAction
 
 export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSelectionAction> = (state: RecordingSelection, action: RecordingSelectionAction): RecordingSelection => {
     if (action.type === 'SetRecordingSelection') {
@@ -336,6 +342,12 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
                 ...(state.animation || {}),
                 currentTimepointVelocity: action.velocity
             }
+        }
+    }
+    else if (action.type === 'SetWaveformsMode') {
+        return {
+            ...state,
+            waveformsMode: action.waveformsMode
         }
     }
     else return state

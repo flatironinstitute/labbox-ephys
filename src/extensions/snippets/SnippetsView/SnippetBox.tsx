@@ -36,6 +36,7 @@ const SnippetBox: FunctionComponent<Props> = ({ snippet, noiseLevel, samplingFre
                     <div className={selected ? "plotSelectedStyle" : ""} onClick={handleClick}>
                         <WaveformWidget
                             waveform={snippet.waveform}
+                            layoutMode={selection.waveformsMode || 'geom'}
                             {...{selection, selectionDispatch, noiseLevel, samplingFrequency, electrodeIds, electrodeLocations, width, height}}
                             electrodeOpts={{disableSelection: true}}
                         />

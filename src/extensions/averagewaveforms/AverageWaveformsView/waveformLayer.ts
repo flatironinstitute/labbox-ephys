@@ -41,7 +41,7 @@ export const createWaveformLayer = () => {
     }
     const onPropsChange = (layer: CanvasWidgetLayer<LayerProps, LayerState>, props: LayerProps) => {
         const { width, height, electrodeLocations, electrodeIds } = props
-        const { electrodeBoxes, transform } = setupElectrodes({width, height, electrodeLocations, electrodeIds})
+        const { electrodeBoxes, transform } = setupElectrodes({width, height, electrodeLocations, electrodeIds, layoutMode: props.layoutMode})
         layer.setTransformMatrix(transform)
         layer.setState({electrodeBoxes})
         layer.scheduleRepaint()

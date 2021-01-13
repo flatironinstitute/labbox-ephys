@@ -44,8 +44,61 @@ const getElectrodesBoundingBox = (electrodeLocations: number[][], radius: number
     }
 }
 
-const setupElectrodes = (args: {width: number, height: number, electrodeLocations: Vec2[], electrodeIds: number[]}) => {
-    const { width, height, electrodeLocations, electrodeIds } = args
+export const getElectrodesAspectRatio = (electrodeLocations: Vec2[]) => {
+    const radius = computeRadius(electrodeLocations)
+    let boundingBox = getElectrodesBoundingBox(electrodeLocations, radius)
+    let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+    return boxAspect
+}
+
+const setupVerticalElectrodes = ({width, height, electrodeIds}: {width: number, height: number, electrodeIds: number[]}) => {
+    const xMargin = 10
+    const yMargin = 10
+    const n = electrodeIds.length
+    
+    const transform = funcToTransform((p: Vec2): Vec2 => {
+        const x = xMargin + p[0] * ( width - 2 * xMargin )
+        const y = yMargin + p[1] * ( height - 2 * yMargin )
+        return [x, y]
+    })
+
+    const electrodeBoxes: ElectrodeBox[] = electrodeIds.map((eid, ii) => {
+        const y = (0.5 + ii) / (n + 1)
+        const rect = {xmin: 0, xmax: 1, ymin: y - 0.5 / (n + 1), ymax: y + 0.5 / (n + 1)}
+        const transform0 = funcToTransform((p: Vec2): Vec2 => {
+            const a = rect.xmin + p[0] * (rect.xmax - rect.xmin)
+            const b = rect.ymin + p[1] * (rect.ymax - rect.ymin)
+            return [a, b]
+        })
+        return {
+            label: eid + '',
+            id: eid,
+            x: 0.5,
+            y,
+            rect,
+            transform: transform0
+        }
+    })
+
+    
+    return {
+        electrodeBoxes,
+        transform,
+        radius: 1 / (n + 1),
+        pixelRadius: height / (n + 1)
+    }
+}
+
+const setupElectrodes = (args: {width: number, height: number, electrodeLocations: Vec2[], electrodeIds: number[], layoutMode: 'geom' | 'vertical'}): {
+    electrodeBoxes: ElectrodeBox[],
+    transform: TransformationMatrix,
+    radius: number,
+    pixelRadius: number
+} => {
+    const { width, height, electrodeLocations, electrodeIds, layoutMode } = args
+    if (layoutMode === 'vertical') {
+        return setupVerticalElectrodes({width, height, electrodeIds})
+    }
     const W = width - 10 * 2
     const H = height - 10 * 2
     const canvasAspect = W / H

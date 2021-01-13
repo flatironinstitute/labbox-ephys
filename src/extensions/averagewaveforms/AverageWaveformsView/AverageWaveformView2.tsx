@@ -1,7 +1,7 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-import WaveformWidget from './WaveformWidget';
+import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
 type PlotData = {
     average_waveform: number[][]
@@ -22,7 +22,6 @@ type Props = {
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
-const electrodeOpts = {}
 
 const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel }) => {
     const {result: plotData, job} = useHitherJob<PlotData>(
@@ -36,12 +35,15 @@ const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, un
         {useClientCache: true, calculationPool}
     )
 
+    const electrodeOpts: ElectrodeOpts = useMemo(() => ({}), [])
+
     if (!plotData) {
         return <HitherJobStatusView job={job} width={width} height={height} />
     }
     return (
         <WaveformWidget
             waveform={plotData.average_waveform}
+            layoutMode={selection.waveformsMode || 'geom'}
             noiseLevel={noiseLevel}
             electrodeIds={plotData.channel_ids}
             electrodeLocations={plotData.channel_locations}

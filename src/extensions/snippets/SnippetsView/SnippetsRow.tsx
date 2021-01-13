@@ -1,5 +1,6 @@
 import { GridList, GridListTile } from '@material-ui/core';
 import React, { FunctionComponent, useContext, useMemo } from 'react';
+import { getElectrodesAspectRatio } from '../../averagewaveforms/AverageWaveformsView/setupElectrodes';
 import { createCalculationPool, HitherContext, HitherInterface } from '../../common/hither';
 import useFetchCache from '../../common/useFetchCache';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
@@ -166,35 +167,37 @@ const filterSnippetVisibleElectrodes = (s: Snippet, electrodeIds: number[] | und
 
 const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {
     const {snippets, info} = useSnippets({recording, sorting, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
+    const electrodeLocations = info?.channel_locations
+    const boxWidth = useMemo(() => {
+        const boxAspect = (electrodeLocations ? getElectrodesAspectRatio(electrodeLocations) : 1) || 1
+        return (boxAspect > 1 ? height / boxAspect : height * boxAspect)
+    }, [electrodeLocations, height])
     return (
-        <div>
-            <h3>Unit {unitId}</h3>
-            <GridList style={{flexWrap: 'nowrap'}}>
-                {
-                    info && snippets ? (
-                        snippets.map((snippet) => (
-                            <GridListTile key={snippet.timepoint} style={{width: 80}}>
-                                <SnippetBox
-                                    snippet={snippet}
-                                    noiseLevel={noiseLevel}
-                                    samplingFrequency={info.sampling_frequency}
-                                    electrodeIds={info.channel_ids}
-                                    electrodeLocations={info.channel_locations}
-                                    selection={selection}
-                                    selectionDispatch={selectionDispatch}
-                                    width={80}
-                                    height={height}
-                                />
-                            </GridListTile>
-                        ))
-                    ) : (
-                        <GridListTile style={{width: 180}}>
-                            <div style={{whiteSpace: 'nowrap'}}>Retrieving snippets...</div>
+        <GridList style={{flexWrap: 'nowrap', height: height + 15}}>
+            {
+                info && electrodeLocations && snippets ? (
+                    snippets.map((snippet) => (
+                        <GridListTile key={snippet.timepoint} style={{width: boxWidth + 5, height: height + 15}}>
+                            <SnippetBox
+                                snippet={snippet}
+                                noiseLevel={noiseLevel}
+                                samplingFrequency={info.sampling_frequency}
+                                electrodeIds={info.channel_ids}
+                                electrodeLocations={electrodeLocations}
+                                selection={selection}
+                                selectionDispatch={selectionDispatch}
+                                width={boxWidth}
+                                height={height}
+                            />
                         </GridListTile>
-                    )
-                }
-            </GridList>
-        </div>
+                    ))
+                ) : (
+                    <GridListTile style={{width: 180}}>
+                        <div style={{whiteSpace: 'nowrap'}}>Retrieving snippets...</div>
+                    </GridListTile>
+                )
+            }
+        </GridList>
     )
 }
 
