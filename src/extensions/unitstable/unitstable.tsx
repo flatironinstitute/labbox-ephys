@@ -15,7 +15,7 @@ export function activate(context: ExtensionContext) {
         name: 'UnitsTable',
         label: 'Units Table',
         icon: <FontAwesomeIcon icon={faTable} />,
-        priority: 1000,
+        priority: 200,
         component: Units,
         props: {
             maxHeight: 300

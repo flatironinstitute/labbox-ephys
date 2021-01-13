@@ -23,7 +23,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'AverageWaveformsOld',
         label: 'Average waveforms old',
-        priority: 90,
+        priority: 50,
         development: true,
         component: AverageWaveforms,
         singleton: true

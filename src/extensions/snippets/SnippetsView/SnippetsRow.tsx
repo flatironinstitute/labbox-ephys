@@ -169,9 +169,14 @@ const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, 
     const {snippets, info} = useSnippets({recording, sorting, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
     const electrodeLocations = info?.channel_locations
     const boxWidth = useMemo(() => {
-        const boxAspect = (electrodeLocations ? getElectrodesAspectRatio(electrodeLocations) : 1) || 1
-        return (boxAspect > 1 ? height / boxAspect : height * boxAspect)
-    }, [electrodeLocations, height])
+        if (selection.waveformsMode === 'geom') {
+            const boxAspect = (electrodeLocations ? getElectrodesAspectRatio(electrodeLocations) : 1) || 1
+            return (boxAspect > 1 ? height / boxAspect : height * boxAspect)
+        }
+        else {
+            return 100
+        }
+    }, [electrodeLocations, height, selection.waveformsMode])
     return (
         <GridList style={{flexWrap: 'nowrap', height: height + 15}}>
             {

@@ -10,7 +10,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'SpikeAmplitudes',
         label: 'Spike amplitudes',
-        priority: 500,
+        priority: 50,
         defaultExpanded: false,
         component: SpikeAmplitudesView,
         singleton: false
@@ -18,7 +18,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingUnitView({
         name: 'SpikeAmplitudes',
         label: 'Spike amplitudes',
-        priority: 0,
+        priority: 50,
         fullWidth: true,
         component: SpikeAmplitudesUnitView
     })

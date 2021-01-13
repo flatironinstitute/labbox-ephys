@@ -9,7 +9,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'Autocorrelograms',
         label: 'Autocorrelograms',
-        priority: 100,
+        priority: 50,
         component: AutoCorrelograms,
         singleton: true
     })

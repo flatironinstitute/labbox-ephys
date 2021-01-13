@@ -8,7 +8,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'LoadSortingInPython',
         label: 'Load sorting in Python',
-        priority: 10,
+        priority: 0,
         component: LoadSortingPythonSnippet,
         singleton: true
     })
