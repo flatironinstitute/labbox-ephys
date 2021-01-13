@@ -2,13 +2,13 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import { ExtensionContext } from '../extensionInterface';
-import SingleClustersView from './SingleClustersView/SingleClustersView';
+import IndividualClustersView from './IndividualClustersView/IndividualClustersView';
 
 export function activate(context: ExtensionContext) {
     context.registerSortingView({
-        name: 'SingleClustersView',
+        name: 'IndividualClustersView',
         label: 'Clusters',
         priority: 50,
-        component: SingleClustersView
+        component: IndividualClustersView
     })
 }

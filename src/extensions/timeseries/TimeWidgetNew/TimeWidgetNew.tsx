@@ -194,10 +194,10 @@ const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
 }
 
 const plotMargins = {
-    left: 100,
-    top: 50,
-    right: 50,
-    bottom: 100
+    left: 40,
+    top: 20,
+    right: 40,
+    bottom: 30
 }
 
 // const useTimeState = (args: {
@@ -390,6 +390,7 @@ const TimeWidgetNew = (props: Props) => {
 
     return (
         <div
+            className="TimeWidget"
             style={{position: 'relative', left: 0, top: 0, width, height}}
         >
             <TimeWidgetToolbarNew
