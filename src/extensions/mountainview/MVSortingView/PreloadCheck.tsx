@@ -23,7 +23,6 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children }
     const [status, setStatus] = useState<'waiting' | 'running' | 'finished'>('waiting')
     const [message, setMessage] = useState<string>('')
     const runningState = useRef<{sortingObject: any, recordingObject: any}>({sortingObject: sorting.sortingObject, recordingObject: recording.recordingObject})
-    const [lastLoadedData, setLastLoadedData] = useState<{recordingObject: any, sortingObject: any} | null>(null)
 
     const matchesRunningState = useMemo(() => ((x: {recordingObject: any, sortingObject: any}) => (
         (runningState.current.sortingObject === x.sortingObject) && (runningState.current.recordingObject === x.recordingObject)
@@ -69,7 +68,6 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children }
                         return
                     }
                     setStatus('finished')
-                    setLastLoadedData({recordingObject, sortingObject})
                 }
                 catch(err) {
                     setError(err)
@@ -81,7 +79,7 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children }
                 setStatus('waiting')
             }
         }
-    }, [sortingObject, recordingObject, status, matchesRunningState])
+    }, [sortingObject, recordingObject, status, matchesRunningState, hither])
 
     const child = useMemo(() => {
         return React.cloneElement(
