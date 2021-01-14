@@ -5,20 +5,20 @@ import React, { FunctionComponent } from 'react'
 import { HitherJob } from './HitherInterface'
 
 
-const HitherJobStatusView: FunctionComponent<{job?: HitherJob, width?: number, height?: number}> = ({job, width=200, height=200}) => {
+const HitherJobStatusView: FunctionComponent<{job?: HitherJob, message?: string, width?: number, height?: number}> = ({job, message='', width=200, height=200}) => {
     if (!job) return <div>No job</div>
     return (
         <Box display="flex" width={width} height={height}>
             <Box m="auto">
                 {
                     job.status === 'running' ? (
-                        <CircularProgress />
+                        <span>[{message}] <CircularProgress /></span>
                     ): job.status === 'error' ? (
-                        <span>Error: {job.error_message}</span>
+                        <span>Error: {job.error_message} [{message}]</span>
                     ) : job.status === 'pending' ? (
-                        <FontAwesomeIcon icon={faWater} />
+                        <span>[{message}]<FontAwesomeIcon icon={faWater} /></span>
                     ) : (
-                        <span>{job.status}</span>
+                        <span>[{message}] {job.status}</span>
                     )
                 }
             </Box>

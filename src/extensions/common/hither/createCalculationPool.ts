@@ -1,5 +1,8 @@
 export interface CalculationPool {
     requestSlot: () => Promise<{complete: () => void}>
+    pause: () => void
+    resume: () => void
+    isPaused: () => boolean
 }
 
 const createCalculationPool = ({maxSimultaneous, method}: {maxSimultaneous: number, method?: 'stack' | 'queue'}): CalculationPool => {
@@ -11,22 +14,31 @@ interface Slot {
     complete: () => void
 }
 
+const _allCalculationPools: CalculationPool[] = []
+export const allCalculationPools = () => {return [..._allCalculationPools]}
+
 class CalculationPoolImpl {
     _maxSimultaneous: number
     _method: 'stack' | 'queue'
-    _activeSlots: {[key: string]: Slot}
-    _numActiveSlots: number
-    _lastSlotId: number
-    _pendingRequestCallbacks: ((slot: Slot) => void)[]
+    _activeSlots: {[key: string]: Slot} = {}
+    _numActiveSlots: number = 0
+    _lastSlotId: number = -1
+    _pendingRequestCallbacks: ((slot: Slot) => void)[] = []
+    _paused: boolean = false
+    _resumeCallbacks: (() => void)[] = []
     constructor({maxSimultaneous, method}: {maxSimultaneous: number, method?: 'stack' | 'queue'}) {
         this._maxSimultaneous = maxSimultaneous;
         this._method = method || 'queue'; // stack or queue
-        this._activeSlots = {};
-        this._numActiveSlots = 0;
-        this._lastSlotId = -1;
-        this._pendingRequestCallbacks = [];
+        _allCalculationPools.push(this)
     }
     async requestSlot(): Promise<Slot> {
+        if (this._paused) {
+            return new Promise((resolve, reject) => {
+                this._resumeCallbacks.push(() => {
+                    this.requestSlot().then(resolve).catch(reject)
+                })
+            })
+        }
         if (this._numActiveSlots < this._maxSimultaneous) {
             const slot = this._createNewSlot();
             return slot;
@@ -36,6 +48,19 @@ class CalculationPoolImpl {
                 resolve(slot);
             });
         });
+    }
+    isPaused() {
+        return this._paused
+    }
+    pause() {
+        if (this._paused) return
+        this._paused = true
+        this._resumeCallbacks = []
+    }
+    resume() {
+        if (!this._paused) return
+        this._paused = false
+        this._resumeCallbacks.forEach(cb => {cb()})
     }
     _createNewSlot() {
         const slotId = this._lastSlotId + 1;

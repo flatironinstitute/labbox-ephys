@@ -2,11 +2,11 @@ import { MenuItem, Select } from '@material-ui/core';
 import React, { FunctionComponent, useCallback } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 
-type PreprocessingSelection = {
+export type PreprocessingSelection = {
     filterType: 'none' | 'bandpass_filter'
 }
 
-type PreprocessingSelectionAction = {
+export type PreprocessingSelectionAction = {
     type: 'SetPreprocessingSelection',
     preprocessingSelection: PreprocessingSelection
 }

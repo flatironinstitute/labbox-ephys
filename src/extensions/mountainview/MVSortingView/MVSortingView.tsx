@@ -1,15 +1,15 @@
 import { faSquare } from '@fortawesome/free-regular-svg-icons'
 import { faEnvelope, faGrinHearts, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { FunctionComponent, useCallback, useMemo, useReducer } from 'react'
-import { useOnce } from '../../common/hooks'
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
 import Expandable from '../../old/curation/CurationSortingView/Expandable'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
 import OptionsControl from './OptionsControl'
-import PreprocessingControl, { preprocessingSelectionReducer } from './PreprocessingControl'
+import PreloadCheck from './PreloadCheck'
+import PreprocessingControl, { PreprocessingSelection, PreprocessingSelectionAction, preprocessingSelectionReducer } from './PreprocessingControl'
 import ViewContainer from './ViewContainer'
 import ViewLauncher, { ViewPluginType } from './ViewLauncher'
 import ViewWidget from './ViewWidget'
@@ -76,33 +76,77 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
     else return state
 }
 
-const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
+const area = (a: 'north' | 'south') => {
+    return a
+}
+
+const MVSortingViewWithCheck: FunctionComponent<SortingViewProps> = (props) => {
+    const {recording, sorting} = props
+
+    const [preprocessingSelection, preprocessingSelectionDispatch] = useReducer(preprocessingSelectionReducer, {filterType: 'none'})
+
+    const preprocessedRecording = useMemo(() => {
+        if (!recording) return recording
+        if (preprocessingSelection.filterType === 'none') {
+            return recording
+        }
+        else if (preprocessingSelection.filterType === 'bandpass_filter') {
+            return {
+                ...recording,
+                recordingObject: {
+                    recording_format: 'filtered',
+                    data: {
+                        filters: [{type: 'bandpass_filter', freq_min: 300, freq_max: 3000, freq_wid: 1000}],
+                        recording: recording.recordingObject
+                    }
+                }
+            }
+        }
+        else {
+            throw Error(`Unexpected filter type: ${preprocessingSelection.filterType}`)
+        }
+    }, [recording, preprocessingSelection])
+
+    return (
+        <PreloadCheck recording={preprocessedRecording} sorting={sorting}>
+            <MVSortingView
+                {...props}
+                {...{preprocessingSelection, preprocessingSelectionDispatch}}
+                recording={preprocessedRecording}
+            />
+        </PreloadCheck>
+    )
+}
+
+interface PreprocessingProps {
+    preprocessingSelection: PreprocessingSelection
+    preprocessingSelectionDispatch: (a: PreprocessingSelectionAction) => void
+}
+
+const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'waiting' | 'running' | 'finished'} & PreprocessingProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {plugins, recording, sorting, selection, selectionDispatch} = props
+    const {plugins, recording, sorting, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
-    const unitsTablePlugin = plugins.sortingViews.UnitsTable
-    const averageWaveformsPlugin = plugins.sortingViews.AverageWaveforms
+    const [initializedViews, setInitializedViews] = useState(false)
+    const initialPluginViews = useMemo(() => ([
+        {plugin: plugins.sortingViews.UnitsTable, area: area('north')},
+        {plugin: plugins.sortingViews.AverageWaveforms, area: area('south')}
+    ]).filter(x => (x.plugin !== undefined)), [plugins])
     // const electrodeGeometryPlugin = plugins.sortingViews.ElectrodeGeometrySortingView
-    useOnce(() => {
-        if (unitsTablePlugin) {
-            openViewsDispatch({
-                type: 'AddView',
-                plugin: unitsTablePlugin,
-                pluginType: 'SortingUnitView',
-                label: unitsTablePlugin.label,
-                area: 'north'
+    useEffect(() => {
+        if ((preloadStatus === 'finished') && (openViews.length === 0) && (!initializedViews)) {
+            setInitializedViews(true)
+            initialPluginViews.forEach(x => {
+                openViewsDispatch({
+                    type: 'AddView',
+                    plugin: x.plugin,
+                    pluginType: 'SortingView',
+                    label: x.plugin.label,
+                    area: x.area
+                })
             })
         }
-        if (averageWaveformsPlugin) {
-            openViewsDispatch({
-                type: 'AddView',
-                plugin: averageWaveformsPlugin,
-                pluginType: 'SortingUnitView',
-                label: averageWaveformsPlugin.label,
-                area: 'south'
-            })
-        }
-    })
+    }, [preloadStatus, initializedViews, initialPluginViews, openViews.length])
     const handleLaunchSortingView = useCallback((plugin: SortingViewPlugin) => {
         openViewsDispatch({
             type: 'AddView',
@@ -144,31 +188,7 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
     const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
     const optionsIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faGrinHearts} /></span>
 
-    const [preprocessingSelection, preprocessingSelectionDispatch] = useReducer(preprocessingSelectionReducer, {filterType: 'none'})
-
-    const preprocessedRecording = useMemo(() => {
-        if (!recording) return recording
-        if (preprocessingSelection.filterType === 'none') {
-            return recording
-        }
-        else if (preprocessingSelection.filterType === 'bandpass_filter') {
-            return {
-                ...recording,
-                recordingObject: {
-                    recording_format: 'filtered',
-                    data: {
-                        filters: [{type: 'bandpass_filter', freq_min: 300, freq_max: 3000, freq_wid: 1000}],
-                        recording: recording.recordingObject
-                    }
-                }
-            }
-        }
-        else {
-            throw Error(`Unexpected filter type: ${preprocessingSelection.filterType}`)
-        }
-    }, [recording, preprocessingSelection])
-
-    const sortingViewProps = {...props, recording: preprocessedRecording}
+    const sortingViewProps = {...props}
     return (
         <div className="MVSortingView">
             <Splitter
@@ -242,4 +262,4 @@ const MVSortingView: FunctionComponent<SortingViewProps> = (props) => {
     )
 }
 
-export default MVSortingView
+export default MVSortingViewWithCheck
