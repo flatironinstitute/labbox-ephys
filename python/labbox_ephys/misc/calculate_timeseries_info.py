@@ -10,7 +10,7 @@ from .get_recording_info import geom_from_recording
 @hi.function('createjob_calculate_timeseries_info', '0.1.2')
 def createjob_calculate_timeseries_info(labbox, recording_object):
     jh = labbox.get_job_handler('timeseries')
-    jc = labbox.get_default_job_cache()
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,

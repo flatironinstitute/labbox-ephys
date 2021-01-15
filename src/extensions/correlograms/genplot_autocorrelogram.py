@@ -1,3 +1,4 @@
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -7,7 +8,7 @@ from ._correlograms_phy import compute_correlograms
 
 @hi.function('fetch_correlogram_plot_data', '0.2.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
     import labbox_ephys as le
     S = le.LabboxEphysSortingExtractor(sorting_object)
@@ -18,9 +19,9 @@ def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
 @hi.function('createjob_fetch_correlogram_plot_data', '')
 def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y=None):
     jh = labbox.get_job_handler('partition1')
-    jc = labbox.get_default_job_cache()
+    # jc = labbox.get_job_cache()
     with hi.Config(
-        job_cache=jc,
+        job_cache=None, # jc,
         job_handler=jh,
         container=jh.is_remote
     ):

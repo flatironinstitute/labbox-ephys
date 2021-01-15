@@ -17,7 +17,7 @@ import { sleepMsec } from './extensions/common/misc';
 import './index.css';
 // reducer
 import rootReducer, { RootState } from './reducers';
-import createHitherJob, { handleHitherJobCreated, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
+import createHitherJob, { handleHitherJobCreated, handleHitherJobError, handleHitherJobFinished, setApiConnection } from './reducers/createHitherJob';
 import registerExtensions from './registerExtensions';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -64,7 +64,7 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
 // thunk allows asynchronous actions
 const theStore = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 const extensionContext = extensionContextDispatch(theStore.dispatch)
-setDispatch(theStore.dispatch)
+// setDispatch(theStore.dispatch)
 registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)
@@ -161,6 +161,7 @@ apiConnection.onMessage(msg => {
     });
   }
   else if (type0 === 'hitherJobFinished') {
+    const timer0 = Number(new Date())
     handleHitherJobFinished(msg);
   }
   else if (type0 === 'hitherJobError') {

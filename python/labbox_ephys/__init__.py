@@ -19,13 +19,13 @@ from .register_views import (recording_views, register_recording_view,
                              register_sorting_view, sorting_views)
 from .sorters import sorters
 
-# this is how the python functions in the extensions get registered
-thisdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, f'{thisdir}/../../src')
-import extensions
+# # this is how the python functions in the extensions get registered
+# thisdir = os.path.dirname(os.path.realpath(__file__))
+# sys.path.insert(0, f'{thisdir}/../../src')
+# import extensions
 
-extensions # just keep the linter happy - we only need to import extensions to register the hither functions
-# remove the prepended path so we don't have side-effects
-sys.path.remove(f'{thisdir}/../../src')
+# extensions # just keep the linter happy - we only need to import extensions to register the hither functions
+# # remove the prepended path so we don't have side-effects
+# sys.path.remove(f'{thisdir}/../../src')
 
 dummy = 0

@@ -1,8 +1,4 @@
-import { Dispatch } from 'react';
-import { addHitherJob, updateHitherJob } from '../actions/hitherJobs';
 import { CalculationPool, createCalculationPool, HitherJob } from '../extensions/common/hither';
-import { RootAction } from '../reducers';
-import { HitherJobUpdate } from '../reducers/hitherJobs';
 
 const objectHash = require('object-hash');
 
@@ -11,13 +7,13 @@ interface ApiConnection {
 }
 
 const globalData: {
-  dispatch: Dispatch<RootAction> | null,
+  // dispatch: Dispatch<RootAction> | null,
   apiConnection: ApiConnection | null,
   hitherClientJobCache: {[key: string]: ClientHitherJob},
   hitherJobs: {[key: string]: ClientHitherJob}
   runningJobIds: {[key: string]: boolean}
 } = {
-  dispatch: null,
+  // dispatch: null,
   apiConnection: null,
   hitherClientJobCache:{},
   hitherJobs: {},
@@ -38,7 +34,7 @@ export const handleHitherJobCreated = (msg: HitherJobCreatedMessageFromServer) =
   job._handleHitherJobCreated({jobId: msg.job_id});
   globalData.hitherJobs[msg.job_id] = job;
   delete globalData.hitherJobs[job.clientJobId()];
-  dispatchAddHitherJob(job.object());
+  // dispatchAddHitherJob(job.object());
 }
 
 export const handleHitherJobCreationError = (msg: any) => {
@@ -69,7 +65,7 @@ export const handleHitherJobFinished = (msg: any) => {
     result: msg.result,
     runtime_info: msg.runtime_info
   })
-  dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
+  // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
 }
 
 export const handleHitherJobError = (msg: any) => {
@@ -87,25 +83,25 @@ export const handleHitherJobError = (msg: any) => {
     errorString: msg.error_message,
     runtime_info: msg.runtime_info
   })
-  dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
+  // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
 }
 
-const dispatchAddHitherJob = (job: HitherJob) => {
-  if (!globalData.dispatch) {
-    console.warn(`Unexpected: globalData.dispatch has not been set.`)
-    return;
-  }
-  globalData.dispatch(addHitherJob(job));
-}
+// const dispatchAddHitherJob = (job: HitherJob) => {
+//   if (!globalData.dispatch) {
+//     console.warn(`Unexpected: globalData.dispatch has not been set.`)
+//     return;
+//   }
+//   globalData.dispatch(addHitherJob(job));
+// }
 
-const dispatchUpdateHitherJob = (args: { clientJobId: string, update: HitherJobUpdate} ) => {
-  if (!globalData.dispatch) return;
-  globalData.dispatch(updateHitherJob(args));
-}
+// const dispatchUpdateHitherJob = (args: { clientJobId: string, update: HitherJobUpdate} ) => {
+//   if (!globalData.dispatch) return;
+//   globalData.dispatch(updateHitherJob(args));
+// }
 
-export const setDispatch = (dispatch: Dispatch<RootAction>) => {
-  globalData.dispatch = dispatch;
-}
+// export const setDispatch = (dispatch: Dispatch<RootAction>) => {
+//   globalData.dispatch = dispatch;
+// }
 
 export const setApiConnection = (apiConnection: ApiConnection) => {
   globalData.apiConnection = apiConnection;
@@ -228,11 +224,7 @@ interface HitherJobOpts {
 const defaultCalculationPool = createCalculationPool({maxSimultaneous: 20})
 
 const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
-  const jobHash = objectHash({
-    functionName: functionName,
-    kwargs,
-    opts: opts
-  });
+  const jobHash = objectHash({ functionName, kwargs, opts: {useClientCache: opts.useClientCache} }); // important: we exclude calculationPool in this hash
   if (opts.useClientCache) {
     const existingJob = globalData.hitherClientJobCache[jobHash];
     if (existingJob) return existingJob.object()
@@ -250,7 +242,9 @@ const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opt
 
   (opts.calculationPool || defaultCalculationPool).requestSlot().then(({complete}) => {
     J.onError(() => {complete()})
-    J.onFinished(() => {complete()})
+    J.onFinished(() => {
+      complete()
+    })
     apiConnection.sendMessage({
       type: 'hitherCreateJob',
       functionName: J._object.functionName,

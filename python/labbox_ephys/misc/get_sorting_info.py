@@ -6,9 +6,12 @@ import numpy as np
 
 @hi.function('createjob_get_sorting_info', '0.1.0')
 def createjob_get_sorting_info(labbox, sorting_object, recording_object):
-    jc = labbox.get_default_job_cache()
+    jc = labbox.get_job_cache()
+    jh = labbox.get_job_handler('partition1')
     with hi.Config(
-        job_cache=jc
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
     ):
         return get_sorting_info.run(sorting_object=sorting_object, recording_object=recording_object)
 

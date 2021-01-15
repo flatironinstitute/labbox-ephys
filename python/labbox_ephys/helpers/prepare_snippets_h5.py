@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -8,7 +9,7 @@ import spikeextractors as se
 
 @hi.function('prepare_snippets_h5', '0.2.6')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.environ.get('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def prepare_snippets_h5(
     recording_object,
     sorting_object,

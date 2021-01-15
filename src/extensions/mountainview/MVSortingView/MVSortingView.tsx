@@ -128,7 +128,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
     const {plugins, recording, sorting, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const [initializedViews, setInitializedViews] = useState(false)
-    const initialPluginViews = useMemo(() => ([
+    const initialPluginViews: {plugin: SortingViewPlugin, area: 'north' | 'south'}[] = useMemo(() => ([
         {plugin: plugins.sortingViews.UnitsTable, area: area('north')},
         {plugin: plugins.sortingViews.AverageWaveforms, area: area('south')}
     ]).filter(x => (x.plugin !== undefined)), [plugins])
@@ -137,13 +137,13 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
         if ((preloadStatus === 'finished') && (openViews.length === 0) && (!initializedViews)) {
             setInitializedViews(true)
             initialPluginViews.forEach(x => {
-                openViewsDispatch({
-                    type: 'AddView',
-                    plugin: x.plugin,
-                    pluginType: 'SortingView',
-                    label: x.plugin.label,
-                    area: x.area
-                })
+                // openViewsDispatch({
+                //     type: 'AddView',
+                //     plugin: x.plugin,
+                //     pluginType: 'SortingView',
+                //     label: x.plugin.label,
+                //     area: x.area
+                // })
             })
         }
     }, [preloadStatus, initializedViews, initialPluginViews, openViews.length])

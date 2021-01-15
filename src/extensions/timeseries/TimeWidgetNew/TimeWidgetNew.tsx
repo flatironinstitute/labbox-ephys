@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer'
@@ -222,36 +222,55 @@ const plotMargins = {
 //         setTimeState(reducedTimeState)
 //     }), [currentTimepoint, ])
 //     return {timeState: newTimeState, timeDispatch: newTimeDispatch}
-// }
+// }\
 
 const TimeWidgetNew = (props: Props) => {
-
     const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate, currentTimepoint, onCurrentTimepointChanged, timeRange, onTimeRangeChanged} = props
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({numTimepoints})
 
-    // const [timeState, timeDispatch] = useReducer(timeReducer, {})|
+    const [timeState, timeDispatch0] = useReducer(timeReducer, {timeRange: timeRange || {min: 0, max: 3000}, currentTime: currentTimepoint !== undefined ? currentTimepoint : 0, numTimepoints, maxTimeSpan})
+
+    const timeDispatch = useMemo(() => ((a: TimeAction) => {
+        timeDispatch0(a)
+        const t2 = timeReducer(timeState, a)
+        onCurrentTimepointChanged && onCurrentTimepointChanged(t2.currentTime)
+        onTimeRangeChanged && onTimeRangeChanged(t2.timeRange)
+    }), [onCurrentTimepointChanged, onTimeRangeChanged, timeState])
+
+    useEffect(() => {
+        currentTimepoint !== undefined && timeDispatch0({type: 'setCurrentTime', currentTime: currentTimepoint})
+    }, [currentTimepoint])
+    useEffect(() => {
+        timeRange && timeDispatch0({type: 'setTimeRange', timeRange})
+    }, [timeRange])
+
     // const {timeState, timeDispatch} = useTimeState({numTimepoints, maxTimeSpan, currentTimepoint, onCurrentTimepointChanged, timeRange, onTimeRangeChanged})
 
-    const [timeStateInternal, setTimeStateInternal] = useState<TimeState>({timeRange: null, currentTime: null, numTimepoints, maxTimeSpan})
-    const timeState = useMemo(() => ({
-        timeRange: timeRange !== undefined ? timeRange : timeStateInternal.timeRange,
-        currentTime: currentTimepoint !== undefined ? currentTimepoint : timeStateInternal.currentTime,
-        numTimepoints,
-        maxTimeSpan
-    }), [timeRange, timeStateInternal, currentTimepoint, numTimepoints, maxTimeSpan])
-    const timeDispatch = useMemo(() => (
-        (a: TimeAction) => {
-            const newTimeState = timeReducer(timeState, a)
-            if ((newTimeState.timeRange?.min !== timeState.timeRange?.min) || (newTimeState.timeRange?.max !== timeState.timeRange?.max)) {
-                if (onTimeRangeChanged) onTimeRangeChanged(newTimeState.timeRange)
-            }
-            if (newTimeState.currentTime !== timeState.currentTime) {
-                if (onCurrentTimepointChanged) onCurrentTimepointChanged(newTimeState.currentTime)
-            }
-            setTimeStateInternal(newTimeState)
-        }
-    ), [onCurrentTimepointChanged, onTimeRangeChanged, timeState, setTimeStateInternal])
+    // const [timeStateInternal, setTimeStateInternal] = useState<TimeState>({timeRange: {min: 0, max: 3000}, currentTime: 0, numTimepoints, maxTimeSpan})
+    // // const timeState = useMemo(() => {
+    // //     return {
+    // //         timeRange: timeRange !== undefined ? timeRange : timeStateInternal.timeRange,
+    // //         currentTime: currentTimepoint !== undefined ? currentTimepoint : timeStateInternal.currentTime,
+    // //         numTimepoints,
+    // //         maxTimeSpan
+    // //     }
+    // // }, [timeRange, timeStateInternal, currentTimepoint, numTimepoints, maxTimeSpan])
+    // const timeState = timeStateInternal
+    // const timeDispatch = useMemo(() => (
+    //     (a: TimeAction) => {
+    //         const newTimeState = timeReducer(timeState, a)
+    //         if ((newTimeState.timeRange?.min !== timeState.timeRange?.min) || (newTimeState.timeRange?.max !== timeState.timeRange?.max)) {
+    //             if (onTimeRangeChanged) onTimeRangeChanged(newTimeState.timeRange)
+    //         }
+    //         if (newTimeState.currentTime !== timeState.currentTime) {
+    //             if (onCurrentTimepointChanged) {
+    //                 onCurrentTimepointChanged(newTimeState.currentTime)
+    //             }
+    //         }
+    //         setTimeStateInternal(newTimeState)
+    //     }
+    // ), [onCurrentTimepointChanged, onTimeRangeChanged, timeState, setTimeStateInternal])
 
     const mainLayer = useLayer(createMainLayer)
     const timeAxisLayer = useLayer(createTimeAxisLayer)

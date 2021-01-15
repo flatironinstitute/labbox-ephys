@@ -30,7 +30,7 @@ const Correlogram_rv2: FunctionComponent<Props> = ({ sorting, unitId1, unitId2, 
             unit_x: unitId1,
             unit_y: unitId2 !== undefined ? unitId2 : null
         },
-        {useClientCache: true, calculationPool}
+        {useClientCache: false, calculationPool}
     )
 
     if (!plotData) {
@@ -38,7 +38,7 @@ const Correlogram_rv2: FunctionComponent<Props> = ({ sorting, unitId1, unitId2, 
     }
     const data = plotData.bins.map((item: number, index: number) => {
         return { x: item, y: plotData.bin_counts[index] };
-    });
+    })
 
     const xAxisLabel = 'dt (msec)'
 

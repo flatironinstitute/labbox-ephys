@@ -1,6 +1,7 @@
 import base64
 import io
 
+import os
 import hither as hi
 # import time
 import labbox_ephys as le
@@ -10,7 +11,7 @@ import numpy as np
 @hi.function('createjob_get_timeseries_segment', '0.1.0')
 def createjob_get_timeseries_segment(labbox, recording_object, ds_factor, segment_num, segment_size):
     jh = labbox.get_job_handler('timeseries')
-    jc = labbox.get_default_job_cache()
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -19,7 +20,7 @@ def createjob_get_timeseries_segment(labbox, recording_object, ds_factor, segmen
         return get_timeseries_segment.run(recording_object=recording_object, ds_factor=ds_factor, segment_num=segment_num, segment_size=segment_size)
 
 @hi.function('get_timeseries_segment', '0.1.0')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_size):
     import time

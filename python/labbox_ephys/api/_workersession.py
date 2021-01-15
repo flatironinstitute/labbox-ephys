@@ -13,7 +13,7 @@ job_cache=hi.JobCache(path=job_cache_path)
 class LabboxContext:
     def __init__(self, worker_session):
         self._worker_session = worker_session
-    def get_default_job_cache(self):
+    def get_job_cache(self):
         return job_cache
     def get_job_handler(self, job_handler_name):
         return self._worker_session._get_job_handler_from_name(job_handler_name)
@@ -201,10 +201,11 @@ class WorkerSession:
     def _get_job_handler_from_name(self, job_handler_name):
         assert job_handler_name in self._labbox_config['job_handlers'], f'Job handler not found in config: {job_handler_name}'
         a = self._labbox_config['job_handlers'][job_handler_name]
+        compute_resource_uri = self._labbox_config.get('compute_resource_uri', '')
         if a['type'] == 'local':
             jh = self._local_job_handlers[job_handler_name]
         elif a['type'] == 'remote':
-            jh = self._get_remote_job_handler(job_handler_name=job_handler_name, uri=a['uri'])
+            jh = self._get_remote_job_handler(job_handler_name=job_handler_name, uri=compute_resource_uri)
         else:
             raise Exception(f'Unexpected job handler type: {a["type"]}')
         return jh

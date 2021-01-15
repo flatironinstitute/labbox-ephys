@@ -1,3 +1,4 @@
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -6,8 +7,8 @@ from labbox_ephys import prepare_snippets_h5
 
 @hi.function('createjob_fetch_pca_features', '0.1.0')
 def createjob_fetch_pca_features(labbox, recording_object, sorting_object, unit_ids):
-    jh = labbox.get_job_handler('partition2')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -29,7 +30,7 @@ def createjob_fetch_pca_features(labbox, recording_object, sorting_object, unit_
 
 @hi.function('fetch_pca_features', '0.3.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_pca_features(snippets_h5, unit_ids):
     import h5py
     h5_path = ka.load_file(snippets_h5)
@@ -84,8 +85,8 @@ def fetch_pca_features(snippets_h5, unit_ids):
 
 @hi.function('createjob_fetch_spike_waveforms', '0.1.0')
 def createjob_fetch_spike_waveforms(labbox, recording_object, sorting_object, unit_ids, spike_indices):
-    jh = labbox.get_job_handler('partition2')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -100,7 +101,7 @@ def createjob_fetch_spike_waveforms(labbox, recording_object, sorting_object, un
 
 @hi.function('fetch_spike_waveforms', '0.1.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_spike_waveforms(snippets_h5, unit_ids, spike_indices):
     import h5py
     h5_path = ka.load_file(snippets_h5)

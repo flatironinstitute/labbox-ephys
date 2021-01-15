@@ -1,8 +1,9 @@
+import os
 import hither as hi
 
 @hi.function('get_firing_data', '0.1.2')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def get_firing_data(sorting_object, recording_object, configuration):
     from decimal import Decimal
     S, R = get_structure(sorting_object, recording_object)
@@ -17,8 +18,8 @@ def get_firing_data(sorting_object, recording_object, configuration):
 
 @hi.function('createjob_get_firing_data', '')
 def createjob_get_firing_data(labbox, sorting_object, recording_object, configuration):
-    jh = labbox.get_job_handler('partition3')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,

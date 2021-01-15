@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import React, { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { HitherContext } from '../../common/hither';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
@@ -40,11 +40,23 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sortin
         spikeAmplitudesPanels.forEach(p => p.setPanelGroup(spikeAmplitudesPanels))
     }
 
+    const handleCurrentTimepointChanged = useCallback((t: number | null) => {
+        selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
+    }, [selectionDispatch])
+
+    const handleTimeRangeChanged = useCallback((r: {min: number, max: number} | null) => {
+        selectionDispatch({type: 'SetTimeRange', timeRange: r})
+    }, [selectionDispatch])
+
+    const panels = useMemo(() => (
+        spikeAmplitudesPanels ? [combinePanels(spikeAmplitudesPanels, '')] : [] as SpikeAmplitudesPanel[]
+    ), [spikeAmplitudesPanels])
+
     if (!sortingInfo) return <div>No sorting info</div>
     if (!recordingInfo) return <div>No recording info</div>
     return (
         <TimeWidgetNew
-            panels={spikeAmplitudesPanels ? [combinePanels(spikeAmplitudesPanels, '')] : [] as SpikeAmplitudesPanel[]}
+            panels={panels}
             width={width}
             height={height}
             samplerate={sortingInfo.samplerate}
@@ -52,9 +64,9 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sortin
             startTimeSpan={sortingInfo.samplerate * 60 * 1}
             numTimepoints={recordingInfo.num_frames}
             currentTimepoint={selection.currentTimepoint}
-            onCurrentTimepointChanged={(t: number | null) => {selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})}}
+            onCurrentTimepointChanged={handleCurrentTimepointChanged}
             timeRange={selection.timeRange}
-            onTimeRangeChanged={(r: {min: number, max: number} | null) => {selectionDispatch({type: 'SetTimeRange', timeRange: r})}}
+            onTimeRangeChanged={handleTimeRangeChanged}
         />
     )
 }
