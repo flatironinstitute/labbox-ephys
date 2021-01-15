@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer'
+import { ActionItem, DividerItem } from '../../common/Toolbars'
 import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface'
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
@@ -10,7 +11,6 @@ import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar from './TimeWidgetBottomBar'
 import TimeWidgetToolbarNew from './TimeWidgetToolbarNew'
-import { ActionItem, DividerItem } from '../../common/Toolbars'
 
 export type TimeWidgetAction = ActionItem | DividerItem
 
