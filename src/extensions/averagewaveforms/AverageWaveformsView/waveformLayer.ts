@@ -1,6 +1,7 @@
 import { funcToTransform } from '../../common/CanvasWidget';
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
-import { CanvasWidgetLayer } from "../../common/CanvasWidget/CanvasWidgetLayer";
+import { CanvasWidgetLayer, KeyboardEvent, KeyboardEventHandler } from "../../common/CanvasWidget/CanvasWidgetLayer";
+import { ActionItem, DividerItem } from '../../common/Toolbars';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
 import { LayerProps } from './WaveformWidget';
 
@@ -15,6 +16,24 @@ type LayerState = {
 }
 const initialLayerState = {
     electrodeBoxes: []
+}
+
+type LocalLayerProps = LayerProps & { customActions: (ActionItem | DividerItem)[] }
+
+// If any custom actions have been set (that is, something a user of this component wants to happen in response to a key press)
+// expect them to have been passed in with the key 'customActions' & call them here.
+export const handleKeyboardEvent: KeyboardEventHandler = (e: KeyboardEvent, layer: CanvasWidgetLayer<LocalLayerProps, LayerState>): boolean => {
+    const props = layer.getProps()
+    if (!props) return true
+    for (let a of props.customActions || []) {
+        if (a.type === 'button') {
+            if (a.keyCode === e.keyCode) {
+                a.callback()
+                return false
+            }
+        }
+    }
+    return true
 }
 
 export const createWaveformLayer = () => {
@@ -49,6 +68,9 @@ export const createWaveformLayer = () => {
     return new CanvasWidgetLayer<LayerProps, LayerState>(
         onPaint,
         onPropsChange,
-        initialLayerState
+        initialLayerState,
+        {
+            keyboardEventHandlers: [handleKeyboardEvent]
+        }
     )
 }

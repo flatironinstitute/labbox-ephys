@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
+import { ActionItem, DividerItem } from '../../common/Toolbars';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
@@ -19,11 +20,12 @@ type Props = {
     width: number
     height: number
     noiseLevel: number
+    customActions?: (ActionItem | DividerItem)[]
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel }) => {
+const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel, customActions }) => {
     const {result: plotData, job} = useHitherJob<PlotData>(
         'createjob_fetch_average_waveform_2',
         {
@@ -51,6 +53,7 @@ const AverageWaveformView2: FunctionComponent<Props> = ({ sorting, recording, un
             width={width}
             height={height}
             selection={selection}
+            customActions={customActions}
             selectionDispatch={selectionDispatch}
             electrodeOpts={electrodeOpts}
         />

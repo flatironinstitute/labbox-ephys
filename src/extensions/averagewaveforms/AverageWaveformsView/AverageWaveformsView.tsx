@@ -1,10 +1,10 @@
-import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
-import { SortingViewProps } from "../../extensionInterface";
+import { RecordingSelectionDispatch, SortingViewProps } from "../../extensionInterface";
 import AverageWaveformsToolbar from './AverageWaveformsToolbar';
 import AverageWaveformView2 from './AverageWaveformView2';
 
@@ -13,37 +13,45 @@ export type AverageWaveformAction = ActionItem | DividerItem
 
 const TOOLBAR_INITIAL_WIDTH = 75
 
-const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
-    const {recording, sorting, selection, selectionDispatch} = props
+const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps & {recordingSelectionDispatch: RecordingSelectionDispatch}> = (props) => {
+    const {recording, sorting, selection, selectionDispatch, recordingSelectionDispatch} = props
     const boxHeight = 250
     const boxWidth = 180
     const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
+    const [scalingActions, setScalingActions] = useState<AverageWaveformAction[] | null>(null)
     const unitComponent = useMemo(() => (unitId: number) => (
         <AverageWaveformView2
             {...{sorting, recording, unitId, selection, selectionDispatch}}
             width={boxWidth}
             height={boxHeight}
             noiseLevel={noiseLevel}
+            customActions={scalingActions || []}
         />
-    ), [sorting, recording, selection, selectionDispatch, noiseLevel])
-    const [scalingActions, setScalingActions] = useState<AverageWaveformAction[] | null>(null)
+    ), [sorting, recording, selection, selectionDispatch, noiseLevel, scalingActions])
 
     const width = props.size.width;
     const height = 650 // hard-coded as per TimeseriesForRecordingView.tsx
+
+    const _handleScaleAmplitudeUp = useCallback(() => {
+        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
+    }, [recordingSelectionDispatch])
+    const _handleScaleAmplitudeDown = useCallback(() => {
+        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1 / 1.15})
+    }, [recordingSelectionDispatch])
 
     useEffect(() => {
         if (scalingActions === null) {
             const actions: AverageWaveformAction[] = [
                 {
                     type: 'button',
-                    callback: () => null,
+                    callback: _handleScaleAmplitudeUp,
                     title: 'Scale amplitude up [up arrow]',
                     icon: <FaArrowUp />,
                     keyCode: 38
                 },
                 {
                     type: 'button',
-                    callback: () => null,
+                    callback: _handleScaleAmplitudeDown,
                     title: 'Scale amplitude down [down arrow]',
                     icon: <FaArrowDown />,
                     keyCode: 40
@@ -51,7 +59,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
             ]
             setScalingActions(actions)
         }
-    }, [scalingActions, setScalingActions])
+    }, [scalingActions, setScalingActions, _handleScaleAmplitudeUp, _handleScaleAmplitudeDown])
 
     return width ? (
         <div>

@@ -1,48 +1,51 @@
-import React, { FunctionComponent } from 'react';
-import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-import WaveformWidget from './WaveformWidget';
+// Pretty sure this whole component is deprecated, so I'm commenting it out to see if anything breaks.
+export { }; // because linter
 
-type PlotData = {
-    average_waveform: number[][]
-    channel_ids: number[]
-    channel_locations: number[][]
-    sampling_frequency: number
-}
+// import React, { FunctionComponent } from 'react';
+// import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+// import WaveformWidget from './WaveformWidget';
 
-type Props = {
-    boxSize: {width: number, height: number}
-    plotData: PlotData
-    argsObject: {
-        id: string
-    }
-    title: string
-    noiseLevel: number
-    selection: SortingSelection
-    selectionDispatch: SortingSelectionDispatch
-}
+// type PlotData = {
+//     average_waveform: number[][]
+//     channel_ids: number[]
+//     channel_locations: number[][]
+//     sampling_frequency: number
+// }
 
-const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title, noiseLevel, selection, selectionDispatch }) => {
-    // const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
+// type Props = {
+//     boxSize: {width: number, height: number}
+//     plotData: PlotData
+//     argsObject: {
+//         id: string
+//     }
+//     title: string
+//     noiseLevel: number
+//     selection: SortingSelection
+//     selectionDispatch: SortingSelectionDispatch
+// }
 
-    if (!plotData.average_waveform) {
-        // assume no points
-        return <div>No avg waveform</div>
-    }
-    return (
-        <WaveformWidget
-            waveform={plotData.average_waveform}
-            layoutMode={selection.waveformsMode || 'geom'}
-            noiseLevel={noiseLevel}
-            electrodeIds={plotData.channel_ids}
-            electrodeLocations={plotData.channel_locations}
-            samplingFrequency={plotData.sampling_frequency}
-            width={boxSize.width}
-            height={boxSize.height}
-            selection={selection}
-            selectionDispatch={selectionDispatch}
-            electrodeOpts={{disableSelection: true}}
-        />
-    )
-}
+// const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title, noiseLevel, selection, selectionDispatch }) => {
+//     // const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
 
-export default AverageWaveformView
+//     if (!plotData.average_waveform) {
+//         // assume no points
+//         return <div>No avg waveform</div>
+//     }
+//     return (
+//         <WaveformWidget
+//             waveform={plotData.average_waveform}
+//             layoutMode={selection.waveformsMode || 'geom'}
+//             noiseLevel={noiseLevel}
+//             electrodeIds={plotData.channel_ids}
+//             electrodeLocations={plotData.channel_locations}
+//             samplingFrequency={plotData.sampling_frequency}
+//             width={boxSize.width}
+//             height={boxSize.height}
+//             selection={selection}
+//             selectionDispatch={selectionDispatch}
+//             electrodeOpts={{disableSelection: true}}
+//         />
+//     )
+// }
+
+// export default AverageWaveformView
