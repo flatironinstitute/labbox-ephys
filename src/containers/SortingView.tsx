@@ -1,5 +1,5 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useMemo, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics } from '../actions';
