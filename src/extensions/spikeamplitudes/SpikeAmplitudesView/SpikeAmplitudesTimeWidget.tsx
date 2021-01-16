@@ -1,10 +1,13 @@
-import React, { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import { HitherContext } from '../../common/hither';
-import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import useBufferedDispatch from '../../common/useBufferedDispatch';
+import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';
+import { SpikeAmplitudesData } from './useSpikeAmplitudesData';
 
 type Props = {
+    spikeAmplitudesData: SpikeAmplitudesData
     recording: Recording
     sorting: Sorting
     unitIds: number[]
@@ -14,39 +17,27 @@ type Props = {
     selectionDispatch: SortingSelectionDispatch
 }
 
-const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sorting, unitIds, width, height, selection, selectionDispatch }) => {
+const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesData, recording, sorting, unitIds, width, height, selection: externalSelection, selectionDispatch: externalSelectionDispatch }) => {
     const hither = useContext(HitherContext)
     const { sortingInfo } = sorting
     const { recordingInfo } = recording
 
+    const [selection, selectionDispatch] = useBufferedDispatch(sortingSelectionReducer, externalSelection, useMemo(() => ((state: SortingSelection) => {externalSelectionDispatch({type: 'Set', state})}), [externalSelectionDispatch]), 1000)
+
     const [spikeAmplitudesPanels, setSpikeAmplitudesPanels] = useState<SpikeAmplitudesPanel[] | null>(null)
-    const [prevUnitIds, setPrevUnitIds] = useState<number[] | null>(null)
-    const [prevSorting, setPrevSorting] = useState<Sorting | null>(null)
 
     useEffect(() => {
-        if ((!spikeAmplitudesPanels) || (unitIds !== prevUnitIds) || (sorting !== prevSorting)) {
-            const panels: SpikeAmplitudesPanel[] = []
-            unitIds.forEach(unitId => {
-                const p = new SpikeAmplitudesPanel({recording, sorting, unitId, hither})
-                panels.push(p)
-            })
-            setSpikeAmplitudesPanels(panels)
-            setPrevUnitIds(unitIds)
-            setPrevSorting(sorting)
-        }
-    }, [spikeAmplitudesPanels, setSpikeAmplitudesPanels, unitIds, prevUnitIds, sorting, prevSorting, hither, recording])
+        const panels: SpikeAmplitudesPanel[] = []
+        unitIds.forEach(unitId => {
+            const p = new SpikeAmplitudesPanel({spikeAmplitudesData, recording, sorting, unitId, hither})
+            panels.push(p)
+        })
+        setSpikeAmplitudesPanels(panels)
+    }, [unitIds, sorting, hither, recording, spikeAmplitudesData, selection]) // important that this depends on selection so that we refresh when time range changes
 
     if (spikeAmplitudesPanels) {
         spikeAmplitudesPanels.forEach(p => p.setPanelGroup(spikeAmplitudesPanels))
     }
-
-    const handleCurrentTimepointChanged = useCallback((t: number | null) => {
-        selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
-    }, [selectionDispatch])
-
-    const handleTimeRangeChanged = useCallback((r: {min: number, max: number} | null) => {
-        selectionDispatch({type: 'SetTimeRange', timeRange: r})
-    }, [selectionDispatch])
 
     const panels = useMemo(() => (
         spikeAmplitudesPanels ? [combinePanels(spikeAmplitudesPanels, '')] : [] as SpikeAmplitudesPanel[]
@@ -63,10 +54,8 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ recording, sortin
             maxTimeSpan={sortingInfo.samplerate * 60 * 5}
             startTimeSpan={sortingInfo.samplerate * 60 * 1}
             numTimepoints={recordingInfo.num_frames}
-            currentTimepoint={selection.currentTimepoint}
-            onCurrentTimepointChanged={handleCurrentTimepointChanged}
-            timeRange={selection.timeRange}
-            onTimeRangeChanged={handleTimeRangeChanged}
+            selection={selection}
+            selectionDispatch={selectionDispatch}
         />
     )
 }

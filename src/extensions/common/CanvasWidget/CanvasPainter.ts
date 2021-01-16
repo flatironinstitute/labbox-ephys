@@ -340,8 +340,8 @@ export class CanvasPainter {
 
 interface PainterPathAction {
     name: 'moveTo' | 'lineTo'
-    x: number
-    y: number
+    x: number | undefined
+    y: number | undefined
 }
 
 export class PainterPath {
@@ -378,10 +378,10 @@ export class PainterPath {
     }
     _applyAction(ctx: Context2D, a: PainterPathAction) {
         if (a.name === 'moveTo') {
-            ctx.moveTo(a.x, a.y);
+            a.x !== undefined && a.y !== undefined && ctx.moveTo(a.x, a.y);
         }
         else if (a.name === 'lineTo') {
-            ctx.lineTo(a.x, a.y);
+            a.x !== undefined && a.y !== undefined && ctx.lineTo(a.x, a.y);
         }
     }
     _transformPathPoints(tmatrix: TransformationMatrix): PainterPathAction[] {
@@ -389,9 +389,14 @@ export class PainterPath {
         // if the paths were long it might be more efficient to make the vectors a wide matrix
         // ...but honestly it's probably so small a thing for what we do that it matters not
         return this._actions.map((a) => {
-            const x = matrix([a.x, a.y, 1])
-            const b = multiply(A, x).toArray() as number[]
-            return {...a, x: b[0], y: b[1] }
+            if ((a.x !== undefined) && (a.y !== undefined)) {
+                const x = matrix([a.x, a.y, 1])
+                const b = multiply(A, x).toArray() as number[]
+                return {...a, x: b[0], y: b[1] }
+            }
+            else {
+                return a
+            }
         })
     }
 }

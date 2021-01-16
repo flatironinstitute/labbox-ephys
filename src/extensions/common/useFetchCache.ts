@@ -1,5 +1,5 @@
 import objectHash from 'object-hash'
-import { useEffect, useMemo, useReducer, useRef } from "react"
+import { useEffect, useMemo, useReducer, useRef, useState } from "react"
 
 type FetchCache<QueryType> = {
     get: (query: QueryType) => any | undefined
@@ -63,6 +63,7 @@ const queryHash = <QueryType>(query: QueryType) => {
 }
 
 const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<any>): FetchCache<QueryType> => {
+    const [count, setCount] = useState(0)
     const [state, dispatch] = useReducer(fetchCacheReducer, initialFetchCacheState)
     const queriesToFetch = useRef<{[key: string]: QueryType}>({})
     const get = useMemo(() => ((query: QueryType) => {
@@ -70,6 +71,7 @@ const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<a
         const v = state.data[h]
         if (v === undefined) {
             queriesToFetch.current[h] = query
+            setCount((c) => (c + 1)) // make sure we trigger a state change so we go to the useEffect below
         }
         return v
     }), [state.data])

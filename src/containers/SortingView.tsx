@@ -1,5 +1,5 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { Dispatch, useContext, useEffect, useMemo, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
@@ -11,7 +11,6 @@ import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
 import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
-import useBufferedReducer from './useBufferedReducer';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -57,7 +56,15 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
-  const [selection, selectionDispatch] = useBufferedReducer(sortingSelectionReducer, initialSortingSelection, 500)
+  const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
+  useEffect(() => {
+    if (recording?.recordingInfo) {
+      if (!selection.timeRange) {
+        const newTimeRange = {min: 0, max: Math.min(recording.recordingInfo.num_frames, Math.floor(recording.recordingInfo.sampling_frequency / 10))}
+        selectionDispatch({type: 'SetTimeRange', timeRange: newTimeRange})
+      }
+    }
+  }, [recording?.recordingInfo, selection.timeRange])
   // const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
   
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)

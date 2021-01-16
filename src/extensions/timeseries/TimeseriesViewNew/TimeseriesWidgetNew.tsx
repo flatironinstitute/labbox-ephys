@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { PainterPath } from '../../common/CanvasWidget'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
-import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface'
+import useBufferedDispatch from '../../common/useBufferedDispatch'
+import { RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface'
 import TimeWidgetNew, { TimeWidgetAction } from '../TimeWidgetNew/TimeWidgetNew'
 import { TimeseriesData } from './useTimeseriesModel'
 // import TimeseriesModelNew from './TimeseriesModelNew'
@@ -160,8 +161,9 @@ class Panel {
 }
 
 const TimeseriesWidgetNew = (props: Props) => {
-    const { timeseriesData, width, height, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection, recordingSelectionDispatch } = props
+    const { timeseriesData, width, height, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection: externalSelection, recordingSelectionDispatch: externalSelectionDispatch } = props
     const [panels, setPanels] = useState<Panel[]>([])
+    const [recordingSelection, recordingSelectionDispatch] = useBufferedDispatch(recordingSelectionReducer, externalSelection, useMemo(() => ((state: RecordingSelection) => {externalSelectionDispatch({type: 'Set', state})}), [externalSelectionDispatch]), 1000)
     
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {
@@ -210,14 +212,6 @@ const TimeseriesWidgetNew = (props: Props) => {
         }
     }, [actions, setActions, _handleScaleAmplitudeDown, _handleScaleAmplitudeUp, recordingSelection.ampScaleFactor, width])
 
-    const handleTimeRangeChanged = useCallback((r: {min: number, max: number} | null) => {
-        recordingSelectionDispatch({type: 'SetTimeRange', timeRange: r})
-    }, [recordingSelectionDispatch])
-
-    const handleCurrentTimepointChanged = useCallback((t: number | null) => {
-        recordingSelectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
-    }, [recordingSelectionDispatch])
-
     const numTimepoints = useMemo(() => (timeseriesData ? timeseriesData.numTimepoints() : 0), [timeseriesData])
 
     return (
@@ -230,10 +224,8 @@ const TimeseriesWidgetNew = (props: Props) => {
             startTimeSpan={1e7 / timeseriesData.numChannels()}
             maxTimeSpan={1e7 / timeseriesData.numChannels()}
             numTimepoints={numTimepoints}
-            currentTimepoint={recordingSelection.currentTimepoint}
-            onCurrentTimepointChanged={handleCurrentTimepointChanged}
-            timeRange={recordingSelection.timeRange}
-            onTimeRangeChanged={handleTimeRangeChanged}
+            selection={recordingSelection}
+            selectionDispatch={recordingSelectionDispatch}
         />
     )
 }

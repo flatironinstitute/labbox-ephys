@@ -1,6 +1,7 @@
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
 import { HitherInterface } from "../../common/hither"
 import { Recording, Sorting } from "../../extensionInterface"
+import { SpikeAmplitudesData } from "./useSpikeAmplitudesData"
 
 // const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
@@ -19,15 +20,13 @@ const colorForUnitId = (unitId: number) => {
 class SpikeAmplitudesPanel {
     _updateHandler: (() => void) | null = null
     _timeRange: {min: number, max: number} | null = null
-    _timepoints: number[] | null = null
-    _amplitudes: number[] | null = null
-    _maxAmplitude: number | null = null
     _calculationScheduled: boolean = false
     _calculationError: Error | null = null
     _yrange: {min: number, max: number} | null = null
     _panelGroup: SpikeAmplitudesPanel[] | null = null
     _includeZero = true
-    constructor(private args: {recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
+    _amplitudes: number[] | undefined = undefined
+    constructor(private args: {spikeAmplitudesData: SpikeAmplitudesData, recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
     }
     setTimeRange(timeRange: {min: number, max: number}) {
         this._timeRange = timeRange
@@ -39,29 +38,28 @@ class SpikeAmplitudesPanel {
         const color = colorForUnitId(this.args.unitId)
         const pen: Pen = {color: 'black'}
         const brush: Brush = {color}
-        if ((this._timepoints) && (this._amplitudes) && (this._maxAmplitude)) {
+        const result = this.args.spikeAmplitudesData.getSpikeAmplitudes(this.args.unitId)
+        if ((result) && (result.timepoints) && (result.amplitudes)) {
+            const { timepoints, amplitudes } = result
+            this._amplitudes = amplitudes
             let yrange = this._yrange || this.autoYRange()
             if (!yrange) return
             if (this._includeZero) {
                 yrange = {min: Math.min(0, yrange.min), max: Math.max(0, yrange.max)}
             }
             painter.drawLine(timeRange.min, 0, timeRange.max, 0, {color: 'gray'})
-            const N = this._timepoints.length
+            const N = timepoints.length
             for (let i = 0; i < N; i++) {
-                const t = this._timepoints[i]
-                const a = this._amplitudes[i]
+                const t = timepoints[i]
+                const a = amplitudes[i]
                 const y = (a - yrange.min) / (yrange.max - yrange.min)
                 if ((timeRange.min <= t) && (t <= timeRange.max)) {
                     painter.drawMarker([t, y], {radius: 3, pen, brush})
                 }
             }
         }
-        else if (this._calculationError) {
-            painter.drawText({xmin: timeRange.min, xmax: timeRange.max, ymin: 0, ymax: 1}, {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, font, pen, brush, this._calculationError.message)
-        }
         else {
             painter.drawText({xmin: timeRange.min, xmax: timeRange.max, ymin: 0, ymax: 1}, {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, font, pen, brush, 'calculating')
-            this._scheduleCalculation()
         }
     }
     label() {
@@ -92,36 +90,6 @@ class SpikeAmplitudesPanel {
     }
     register(onUpdate: () => void) {
         this._updateHandler = onUpdate
-    }
-    _scheduleCalculation() {
-        if (this._calculationScheduled) return
-        this._calculationScheduled = true
-        setTimeout(async () => {
-            try {
-                await this._doCalculation()
-            }
-            catch(err) {
-                this._calculationError = err
-            }
-            this._updateHandler && this._updateHandler()
-            this._calculationScheduled = false
-        }, 10)
-    }
-    async _doCalculation() {
-        const result = await this.args.hither.createHitherJob(
-            'createjob_fetch_spike_amplitudes',
-            {
-                recording_object: this.args.recording.recordingObject,
-                sorting_object: this.args.sorting.sortingObject,
-                unit_id: this.args.unitId
-            },
-            {
-                useClientCache: true
-            }
-        ).wait()
-        this._timepoints = result.timepoints as number[]
-        this._amplitudes = result.amplitudes as number[]
-        this._maxAmplitude = Math.max(...this._amplitudes)
     }
 }
 
