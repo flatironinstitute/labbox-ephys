@@ -163,7 +163,7 @@ class Panel {
 const TimeseriesWidgetNew = (props: Props) => {
     const { timeseriesData, width, height, y_scale_factor, channel_ids, visibleChannelIds, recordingSelection: externalSelection, recordingSelectionDispatch: externalSelectionDispatch } = props
     const [panels, setPanels] = useState<Panel[]>([])
-    const [recordingSelection, recordingSelectionDispatch] = useBufferedDispatch(recordingSelectionReducer, externalSelection, useMemo(() => ((state: RecordingSelection) => {externalSelectionDispatch({type: 'Set', state})}), [externalSelectionDispatch]), 1000)
+    const [recordingSelection, recordingSelectionDispatch] = useBufferedDispatch(recordingSelectionReducer, externalSelection, useMemo(() => ((state: RecordingSelection) => {externalSelectionDispatch({type: 'Set', state})}), [externalSelectionDispatch]), 400)
     
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {

@@ -5,30 +5,35 @@ const useBufferedDispatch = <State, Action>(reducer: (s: State, a: Action) => St
     const ref = useRef<{
         internalState: State,
         internalStateDispatched: boolean,
-        externalState: State,
+        internalStateHistory: {timestamp: number, state: State}[],
+        // externalState: State,
         lastInternalDispatchTimestamp: number,
-        externalStateTimestamp: number,
-        dispatchScheduled: boolean,
-        updateInternalStateScheduled: boolean
+        // externalStateTimestamp: number,
+        dispatchScheduled: boolean
+        // updateInternalStateScheduled: boolean
     }>({
         internalState: state,
         internalStateDispatched: true,
-        externalState: state,
+        internalStateHistory: [],
+        // externalState: state,
         lastInternalDispatchTimestamp: Number(new Date()),
-        externalStateTimestamp: Number(new Date()),
-        dispatchScheduled: false,
-        updateInternalStateScheduled: false
+        // externalStateTimestamp: Number(new Date()),
+        dispatchScheduled: false
+        // updateInternalStateScheduled: false
     })
 
     const update = useCallback(() => {
         if (!ref.current.internalStateDispatched) {
+            // the internal state has not yet been dispatched to the external
             const now = Number(new Date())
             const elapsedSinceLastInternalDispatch = now - ref.current.lastInternalDispatchTimestamp
             if (elapsedSinceLastInternalDispatch > t) {
+                // it's been long enough since the last internal action... dispatch to external
                 setState(ref.current.internalState)
                 ref.current.internalStateDispatched = true
             }
             else {
+                // hasn't been long enough, schedule to return to update
                 if (!ref.current.dispatchScheduled) {
                     ref.current.dispatchScheduled = true
                     setTimeout(() => {
@@ -38,30 +43,21 @@ const useBufferedDispatch = <State, Action>(reducer: (s: State, a: Action) => St
                 }
             }
         }
-        if ((ref.current.externalState !== ref.current.internalState) && (ref.current.externalStateTimestamp > ref.current.lastInternalDispatchTimestamp)) {
-            const now = Number(new Date())
-            const elapsedSinceLastInternalDispatch = now - ref.current.lastInternalDispatchTimestamp
-            if (elapsedSinceLastInternalDispatch > t) {
-                ref.current.internalState = ref.current.externalState
-                setCount((c) => (c + 1)) // triggers state change and calling this hook again to return the new internal state
-            }
-            else {
-                if (!ref.current.updateInternalStateScheduled) {
-                    ref.current.updateInternalStateScheduled = true
-                    setTimeout(() => {
-                        ref.current.updateInternalStateScheduled = false
-                        update()
-                    }, t- elapsedSinceLastInternalDispatch + 1)
-                }
-            }
-        }
     }, [t, setState])
 
     useEffect(() => {
-        if (ref.current.externalState !== state) {
-            ref.current.externalState = state
-            ref.current.externalStateTimestamp = Number(new Date())
-            update()
+        if (state !== ref.current.internalState) {
+            // the external state is not equal to the current internal state. Let's see if it is in the history
+            if (ref.current.internalStateHistory.filter(x => (x.state === state)).length > 0) {
+                // it's in the history, so ignore it
+                return
+            }
+            // not in the history...
+            ref.current.internalState = state
+            ref.current.internalStateHistory.push({state, timestamp: Number(new Date())})
+            const now = Number(new Date())
+            ref.current.internalStateHistory = ref.current.internalStateHistory.filter(x => (now - x.timestamp < 10000))
+            setCount((c) => (c + 1)) // triggers state change and calling this hook again to return the new internal state
         }
     }, [state, update])
 
@@ -70,6 +66,9 @@ const useBufferedDispatch = <State, Action>(reducer: (s: State, a: Action) => St
         const newInternalState = reducer(ref.current.internalState, a)
         if (newInternalState !== ref.current.internalState) {
             ref.current.internalState = newInternalState
+            ref.current.internalStateHistory.push({timestamp: Number(new Date()), state: newInternalState})
+            const now = Number(new Date())
+            ref.current.internalStateHistory = ref.current.internalStateHistory.filter(x => (now - x.timestamp < 10000))
             ref.current.lastInternalDispatchTimestamp = Number(new Date())
             ref.current.internalStateDispatched = false
             update()
