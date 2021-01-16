@@ -97,9 +97,9 @@ const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<a
         }
         queriesToFetch.current = {}
     })
-    return {
+    return useMemo(() => ({
         get
-    }
+    }), [get])
 }
 
 export default useFetchCache
