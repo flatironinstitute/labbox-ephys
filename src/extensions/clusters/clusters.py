@@ -56,7 +56,7 @@ def individual_cluster_features(snippets_h5, unit_id):
     features = pca.transform(X) # L x nf
 
     return dict(
-        timepoints=unit_spike_train.tolist(),
-        x=features[:, 0].squeeze().tolist(),
-        y=features[:, 1].squeeze().tolist(),
+        timepoints=unit_spike_train.astype(np.float32),
+        x=features[:, 0].squeeze().astype(np.float32),
+        y=features[:, 1].squeeze().astype(np.float32)
     )

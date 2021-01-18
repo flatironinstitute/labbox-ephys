@@ -23,7 +23,7 @@ def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object,
             visible_channel_ids=visible_channel_ids
         )
 
-@hi.function('fetch_average_waveform_2', '0.2.6')
+@hi.function('fetch_average_waveform_2', '0.2.8')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_average_waveform_2(snippets_h5, unit_id, visible_channel_ids):
@@ -55,8 +55,8 @@ def fetch_average_waveform_2(snippets_h5, unit_id, visible_channel_ids):
         channel_locations0.append(channel_locations[ind, :].ravel().tolist())
 
     return dict(
-        average_waveform=average_waveform.astype(float).tolist(),
-        channel_ids=unit_waveforms_channel_ids.astype(int).tolist(),
+        average_waveform=average_waveform.astype(np.float32),
+        channel_ids=unit_waveforms_channel_ids.astype(np.int32),
         channel_locations=channel_locations0,
         sampling_frequency=sampling_frequency
     )

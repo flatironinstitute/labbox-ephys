@@ -28,7 +28,7 @@ def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object
             max_num_snippets=max_num_snippets
         )
 
-@hi.function('get_sorting_unit_snippets', '0.1.6')
+@hi.function('get_sorting_unit_snippets', '0.1.7')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets):
@@ -51,7 +51,7 @@ def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets
         {
             'index': j,
             'unitId': unit_id,
-            'waveform': unit_waveforms[j, :, :].astype(float).tolist(),
+            'waveform': unit_waveforms[j, :, :].astype(np.float32),
             'timepoint': float(unit_spike_train[j])
         }
         for j in range(unit_waveforms.shape[0])
@@ -63,7 +63,7 @@ def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets
         channel_locations0.append(channel_locations[ind, :].ravel().tolist())
 
     return dict(
-        channel_ids=unit_waveforms_channel_ids.astype(int).tolist(),
+        channel_ids=unit_waveforms_channel_ids.astype(np.int32),
         channel_locations=channel_locations0,
         sampling_frequency=sampling_frequency,
         snippets=snippets[:max_num_snippets]
@@ -108,7 +108,7 @@ def get_sorting_unit_info(snippets_h5, unit_id):
         channel_locations0.append(channel_locations[ind, :].ravel().tolist())
 
     return dict(
-        channel_ids=unit_waveforms_channel_ids.astype(int).tolist(),
+        channel_ids=unit_waveforms_channel_ids.astype(np.int32),
         channel_locations=channel_locations0,
         sampling_frequency=sampling_frequency
     )

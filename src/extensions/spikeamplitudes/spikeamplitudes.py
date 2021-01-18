@@ -29,7 +29,7 @@ def _compute_peak_channel_index_from_average_waveform(average_waveform):
     peak_channel_index = np.argmax(channel_amplitudes)
     return peak_channel_index
 
-@hi.function('fetch_spike_amplitudes', '0.1.3')
+@hi.function('fetch_spike_amplitudes', '0.1.4')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_spike_amplitudes(snippets_h5, unit_id):
@@ -42,9 +42,9 @@ def fetch_spike_amplitudes(snippets_h5, unit_id):
         peak_channel_index = _compute_peak_channel_index_from_average_waveform(average_waveform)
         maxs = [np.max(unit_waveforms[i][peak_channel_index, :]) for i in range(unit_waveforms.shape[0])]
         mins = [np.min(unit_waveforms[i][peak_channel_index, :]) for i in range(unit_waveforms.shape[0])]
-        peak_amplitudes = [maxs[i] - mins[i] for i in range(len(mins))]
+        peak_amplitudes = np.array([maxs[i] - mins[i] for i in range(len(mins))])
     
     return dict(
-        timepoints=[float(t) for t in unit_spike_train],
-        amplitudes=[float(a) for a in peak_amplitudes]
+        timepoints=unit_spike_train.astype(np.float32),
+        amplitudes=peak_amplitudes.astype(np.float32)
     )

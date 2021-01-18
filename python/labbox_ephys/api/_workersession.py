@@ -2,8 +2,10 @@ import os
 import time
 
 import hither as hi
+import kachery as ka
 import kachery_p2p as kp
 import numpy as np
+import base64
 
 job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
 if not os.path.exists(job_cache_path):
@@ -139,7 +141,8 @@ class WorkerSession:
                     'type': 'hitherJobFinished',
                     'client_job_id': client_job_id,
                     'job_id': client_job_id,
-                    'result': _make_json_safe(result),
+                    # 'result': _make_json_safe(result),
+                    'result_sha1': ka.get_file_hash(ka.store_object(_make_json_safe(result))),
                     'runtime_info': outer_job.get_runtime_info()
                 }
         elif type0 == 'hitherCancelJob':
@@ -177,7 +180,8 @@ class WorkerSession:
                     'type': 'hitherJobFinished',
                     'client_job_id': job._client_job_id,
                     'job_id': job_id,
-                    'result': _make_json_safe(result),
+                    # 'result': _make_json_safe(result),
+                    'result_sha1': ka.get_file_hash(ka.store_object(_make_json_safe(result))),
                     'runtime_info': runtime_info
                 }
                 self._send_message(msg)
@@ -227,6 +231,13 @@ def _make_json_safe(x):
     elif (type(x) == list) or (type(x) == tuple):
         return [_make_json_safe(val) for val in x]
     elif isinstance(x, np.ndarray):
+        # todo: worry about byte order and data type here
+        return {
+            '_type': 'ndarray',
+            'shape': _make_json_safe(x.shape),
+            'dtype': str(x.dtype),
+            'data_b64': base64.b64encode(x.ravel()).decode()
+        }
         raise Exception('Cannot make ndarray json safe')
     else:
         if _is_jsonable(x):

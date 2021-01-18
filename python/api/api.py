@@ -1,6 +1,9 @@
 
 import os
 import sys
+from aiohttp import web
+import aiohttp_cors
+import kachery as ka
 thisdir = os.path.dirname(os.path.realpath(__file__))
 os.environ['LABBOX_EPHYS_PYTHON_MODULE_DIR'] = f'{thisdir}/../labbox_ephys'
 
@@ -139,7 +142,40 @@ def main():
     start_server = websockets.serve(connection_handler, '0.0.0.0', 15308)
 
     asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()
+
+
+    routes = web.RouteTableDef()
+
+    async def sha1_handler(request):
+        sha1 = str(request.rel_url).split('/')[2]
+        uri = 'sha1://' + sha1
+        txt = ka.load_text(uri)
+        if txt is not None:
+            return web.Response(text=txt)
+        else:
+            raise Exception(f'Not found: {uri}')
+    app = web.Application()
+    cors = aiohttp_cors.setup(app, defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                    allow_credentials=True,
+                    expose_headers="*",
+                    allow_headers="*",
+                )
+        })
+    sha1_resource = cors.add(app.router.add_resource('/sha1/{sha1}'))
+    sha1_route = cors.add(
+        sha1_resource.add_route("GET", sha1_handler), {
+            "http://client.example.org": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers=("X-Custom-Server-Header",),
+                allow_headers=("X-Requested-With", "Content-Type"),
+                max_age=3600,
+            )
+        })
+    # app.add_routes(routes)
+    web.run_app(app, port=15309)
+
+    # asyncio.get_event_loop().run_forever()
 
 def cache_bust(url):
     r = random_string(8)
