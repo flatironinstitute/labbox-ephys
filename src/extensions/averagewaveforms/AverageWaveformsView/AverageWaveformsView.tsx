@@ -6,7 +6,7 @@ import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
 import { SortingViewProps } from "../../extensionInterface";
 import AverageWaveformsToolbar from './AverageWaveformsToolbar';
-import AverageWaveformView2 from './AverageWaveformView2';
+import AverageWaveformView from './AverageWaveformView';
 
 export type AverageWaveformAction = ActionItem | DividerItem
 
@@ -20,7 +20,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
     const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
     const [scalingActions, setScalingActions] = useState<AverageWaveformAction[] | null>(null)
     const unitComponent = useMemo(() => (unitId: number) => (
-        <AverageWaveformView2
+        <AverageWaveformView
             {...{sorting, recording, unitId, selection, selectionDispatch}}
             width={boxWidth}
             height={boxHeight}
@@ -40,26 +40,24 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
     }, [selectionDispatch])
 
     useEffect(() => {
-        if (scalingActions === null) {
-            const actions: AverageWaveformAction[] = [
-                {
-                    type: 'button',
-                    callback: _handleScaleAmplitudeUp,
-                    title: 'Scale amplitude up [up arrow]',
-                    icon: <FaArrowUp />,
-                    keyCode: 38
-                },
-                {
-                    type: 'button',
-                    callback: _handleScaleAmplitudeDown,
-                    title: 'Scale amplitude down [down arrow]',
-                    icon: <FaArrowDown />,
-                    keyCode: 40
-                }
-            ]
-            setScalingActions(actions)
-        }
-    }, [scalingActions, setScalingActions, _handleScaleAmplitudeUp, _handleScaleAmplitudeDown])
+        const actions: AverageWaveformAction[] = [
+            {
+                type: 'button',
+                callback: _handleScaleAmplitudeUp,
+                title: 'Scale amplitude up [up arrow]',
+                icon: <FaArrowUp />,
+                keyCode: 38
+            },
+            {
+                type: 'button',
+                callback: _handleScaleAmplitudeDown,
+                title: 'Scale amplitude down [down arrow]',
+                icon: <FaArrowDown />,
+                keyCode: 40
+            }
+        ]
+        setScalingActions(actions)
+    }, [_handleScaleAmplitudeUp, _handleScaleAmplitudeDown])
 
     return width ? (
         <div>

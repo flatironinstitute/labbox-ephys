@@ -1,51 +1,63 @@
-// Pretty sure this whole component is deprecated, so I'm commenting it out to see if anything breaks.
-export { }; // because linter
+import React, { FunctionComponent, useMemo } from 'react';
+import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
+import { ActionItem, DividerItem } from '../../common/Toolbars';
+import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
-// import React, { FunctionComponent } from 'react';
-// import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-// import WaveformWidget from './WaveformWidget';
+type PlotData = {
+    average_waveform: number[][]
+    channel_ids: number[]
+    channel_locations: number[][]
+    sampling_frequency: number
+}
 
-// type PlotData = {
-//     average_waveform: number[][]
-//     channel_ids: number[]
-//     channel_locations: number[][]
-//     sampling_frequency: number
-// }
+type Props = {
+    sorting: Sorting
+    recording: Recording
+    unitId: number
+    selection: SortingSelection
+    selectionDispatch: SortingSelectionDispatch
+    width: number
+    height: number
+    noiseLevel: number
+    customActions?: (ActionItem | DividerItem)[]
+}
 
-// type Props = {
-//     boxSize: {width: number, height: number}
-//     plotData: PlotData
-//     argsObject: {
-//         id: string
-//     }
-//     title: string
-//     noiseLevel: number
-//     selection: SortingSelection
-//     selectionDispatch: SortingSelectionDispatch
-// }
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-// const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title, noiseLevel, selection, selectionDispatch }) => {
-//     // const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
+const AverageWaveformView: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel, customActions }) => {
+    const {result: plotData, job} = useHitherJob<PlotData>(
+        'createjob_fetch_average_waveform_2',
+        {
+            sorting_object: sorting.sortingObject,
+            recording_object: recording.recordingObject,
+            unit_id: unitId,
+            visible_channel_ids: selection.visibleElectrodeIds ? selection.visibleElectrodeIds : null
+        },
+        {useClientCache: true, calculationPool}
+    )
 
-//     if (!plotData.average_waveform) {
-//         // assume no points
-//         return <div>No avg waveform</div>
-//     }
-//     return (
-//         <WaveformWidget
-//             waveform={plotData.average_waveform}
-//             layoutMode={selection.waveformsMode || 'geom'}
-//             noiseLevel={noiseLevel}
-//             electrodeIds={plotData.channel_ids}
-//             electrodeLocations={plotData.channel_locations}
-//             samplingFrequency={plotData.sampling_frequency}
-//             width={boxSize.width}
-//             height={boxSize.height}
-//             selection={selection}
-//             selectionDispatch={selectionDispatch}
-//             electrodeOpts={{disableSelection: true}}
-//         />
-//     )
-// }
+    const electrodeOpts: ElectrodeOpts = useMemo(() => ({}), [])
 
-// export default AverageWaveformView
+    if (!plotData) {
+        return <HitherJobStatusView job={job} width={width} height={height} />
+    }
+    return (
+        <WaveformWidget
+            waveform={plotData.average_waveform}
+            layoutMode={selection.waveformsMode || 'geom'}
+            noiseLevel={noiseLevel}
+            electrodeIds={plotData.channel_ids}
+            electrodeLocations={plotData.channel_locations}
+            samplingFrequency={plotData.sampling_frequency}
+            width={width}
+            height={height}
+            selection={selection}
+            customActions={customActions}
+            selectionDispatch={selectionDispatch}
+            electrodeOpts={electrodeOpts}
+        />
+    )
+}
+
+export default AverageWaveformView
