@@ -3,12 +3,14 @@
 
 // Import the CSS
 import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyter-widgets/base';
+import axios from 'axios';
 import React, { FunctionComponent, useEffect, useReducer, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
-import { CalculationPool, createCalculationPool, HitherContext, HitherInterface, HitherJob, HitherJobOpts } from './extensions/common/hither';
+import { CalculationPool, createCalculationPool, HitherContext, HitherJob, HitherJobOpts } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import initializeHitherInterface from './extensions/initializeHitherInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -58,16 +60,26 @@ class HitherJobManager {
       if (msg.type === 'hitherJobFinished') {
         const clientJobId = msg.client_job_id
         if (this._activeJobs[clientJobId]) {
-          const cb = this._jobFinishedCallbacks[clientJobId]
-          if (cb) {
-            cb(msg.result, msg.runtime_info)
-          }
           delete this._activeJobs[clientJobId]
+          const url = `/sha1/${msg.result_sha1}`
+          axios.get(url).then((result) => {
+            const x = processHitherJobResult(result.data)
+            const cb = this._jobFinishedCallbacks[clientJobId]
+            if (cb) {
+              cb(x, msg.runtime_info)
+            }
+          })
+          .catch((err: Error) => {
+            const cb = this._jobErrorCallbacks[clientJobId]
+            if (cb) {
+              cb(`Problem retrieving result: ${err.message}`, msg.runtime_info)
+            }
+          })
         }
       }
       else if (msg.type === 'hitherJobError') {
         const clientJobId = msg.client_job_id
-        const cb = this._jobFinishedCallbacks[msg.client_job_id]
+        const cb = this._jobErrorCallbacks[msg.client_job_id]
         if (cb) {
           cb(msg.error_message, msg.runtime_info)
         }
@@ -77,6 +89,9 @@ class HitherJobManager {
         console.info('DEBUG MESSAGE', msg)
       }
     })
+  }
+  sendMessage(msg: {[key: string]: any}) {
+    this.model.send(msg, {})
   }
   createHitherJob(functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) {
     const clientJobId: string = randomAlphaId()
@@ -147,6 +162,73 @@ class HitherJobManager {
       }
     })()
   }
+}
+
+// todo: this is duplicated code
+const processHitherJobResult = (x: any): any => {
+  if (typeof(x) === 'object') {
+    if (Array.isArray(x)) {
+      return x.map(a => processHitherJobResult(a))
+    }
+    else if (x._type === 'ndarray') {
+      const shape = x.shape as number[]
+      const dtype = x.dtype as string
+      const data_b64 = x.data_b64 as string
+      const dataBuffer = _base64ToArrayBuffer(data_b64)
+      if (dtype === 'float32') { 
+        return applyShape(new Float32Array(dataBuffer), shape)
+      }
+      else if (dtype === 'int32') { 
+        return applyShape(new Int32Array(dataBuffer), shape)
+      }
+      else if (dtype === 'int16') {
+        return applyShape(new Int16Array(dataBuffer), shape)
+      }
+      else {
+        throw Error(`Datatype not yet implemented for ndarray: ${dtype}`)
+      }
+    }
+    else {
+      const ret: {[key: string]: any} = {}
+      for (let k in x) {
+        ret[k] = processHitherJobResult(x[k])
+      }
+      return ret
+    }
+  }
+  else return x
+}
+
+// todo: this is duplicated code
+const applyShape = (x: Float32Array | Int32Array | Int16Array, shape: number[]): number[] | number[][] => {
+  if (shape.length === 1) {
+    if (shape[0] !== x.length) throw Error('Unexpected length of array')
+    return Array.from(x)
+  }
+  else if (shape.length === 2) {
+    const n1 = shape[0]
+    const n2 = shape[1]
+    if (n1 * n2 !== x.length) throw Error('Unexpected length of array')
+    const ret: number[][] = []
+    for (let i1 = 0; i1 < n1; i1++) {
+      ret.push(Array.from(x.slice(i1 * n2, (i1 + 1) * n2)))
+    }
+    return ret
+  }
+  else {
+    throw Error('Not yet implemented')
+  }
+}
+
+// todo: this is duplicated code
+const _base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+	var binary_string = window.atob(base64)
+	var len = binary_string.length
+	var bytes = new Uint8Array(len)
+	for (var i = 0; i < len; i++) {
+		bytes[i] = binary_string.charCodeAt(i)
+	}
+	return bytes.buffer
 }
 
 export class SortingViewModel extends DOMWidgetModel {
@@ -349,9 +431,9 @@ function useInterval(callback: () => void, delay: number | null) {
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 export class SortingView extends DOMWidgetView {
-  _hitherJobManager: HitherJobManager
+  // _hitherJobManager: HitherJobManager
   initialize() {
-    this._hitherJobManager = new HitherJobManager(this.model)
+    // this._hitherJobManager = new HitherJobManager(this.model)
   }
   element() {
     const pluginName = this.model.get('pluginName')
@@ -363,10 +445,39 @@ export class SortingView extends DOMWidgetView {
     
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-    const hither: HitherInterface = {
-      createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
-        return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
+    const baseSha1Url = `/sha1`
+    const hither = initializeHitherInterface(msg => {
+      if (msg.type === 'hitherCreateJob') _startIterating()
+      this.model.send(msg, {})
+    }, baseSha1Url)
+    this.model.on('msg:custom', (msg: any) => {
+      if (msg.type === 'hitherJobCreated') {
+        hither.handleHitherJobCreated(msg)
       }
+      else if (msg.type === 'hitherJobFinished') {
+        hither.handleHitherJobFinished(msg)
+      }
+      else if (msg.type === 'hitherJobError') {
+        hither.handleHitherJobError(msg)
+      }
+      else if (msg.type === 'debug') {
+        console.info('DEBUG MESSAGE', msg)
+      }
+    })
+    let _iterating = false
+    const _startIterating = () => {
+      if (_iterating) return
+      _iterating = true
+      ;(async () => {
+        while (true) {
+          if (hither.getNumActiveJobs() === 0) {
+            _iterating = false
+            return
+          }
+          this.model.send({type: 'iterate'}, {})
+          await sleepMsec(3000)
+        }
+      })()
     }
 
     const plugins: Plugins = {
