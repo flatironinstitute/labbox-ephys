@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import CanvasWidget from '../../common/CanvasWidget';
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
+import { ActionItem, DividerItem } from '../../common/Toolbars';
 import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface';
 import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
@@ -17,6 +18,7 @@ export type Props = {
     selection: RecordingSelection
     selectionDispatch: RecordingSelectionDispatch
     electrodeOpts: ElectrodeOpts
+    customActions?: (ActionItem | DividerItem)[]
 }
 
 export type ElectrodeOpts = {
@@ -64,7 +66,7 @@ const WaveformWidget: FunctionComponent<Props> = (props) => {
     const layerProps: LayerProps = {
         ...props,
         electrodeOpts: {...defaultElectrodeOpts, ...props.electrodeOpts},
-        waveformOpts: defaultWaveformOpts
+        waveformOpts: defaultWaveformOpts,
     }
     const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
     const waveformLayer = useLayer(createWaveformLayer, layerProps)

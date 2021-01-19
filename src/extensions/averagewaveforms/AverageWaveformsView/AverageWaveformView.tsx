@@ -1,6 +1,8 @@
-import React, { FunctionComponent } from 'react';
-import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
-import WaveformWidget from './WaveformWidget';
+import React, { FunctionComponent, useMemo } from 'react';
+import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
+import { ActionItem, DividerItem } from '../../common/Toolbars';
+import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
 type PlotData = {
     average_waveform: number[][]
@@ -10,23 +12,35 @@ type PlotData = {
 }
 
 type Props = {
-    boxSize: {width: number, height: number}
-    plotData: PlotData
-    argsObject: {
-        id: string
-    }
-    title: string
-    noiseLevel: number
+    sorting: Sorting
+    recording: Recording
+    unitId: number
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
+    width: number
+    height: number
+    noiseLevel: number
+    customActions?: (ActionItem | DividerItem)[]
 }
 
-const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, argsObject, title, noiseLevel, selection, selectionDispatch }) => {
-    // const [selectedElectrodeIdsInternal, setSelectedElectrodeIdsInternal] = useState<number[]>([])
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-    if (!plotData.average_waveform) {
-        // assume no points
-        return <div>No avg waveform</div>
+const AverageWaveformView: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel, customActions }) => {
+    const {result: plotData, job} = useHitherJob<PlotData>(
+        'createjob_fetch_average_waveform_2',
+        {
+            sorting_object: sorting.sortingObject,
+            recording_object: recording.recordingObject,
+            unit_id: unitId,
+            visible_channel_ids: selection.visibleElectrodeIds ? selection.visibleElectrodeIds : null
+        },
+        {useClientCache: true, calculationPool}
+    )
+
+    const electrodeOpts: ElectrodeOpts = useMemo(() => ({}), [])
+
+    if (!plotData) {
+        return <HitherJobStatusView job={job} width={width} height={height} />
     }
     return (
         <WaveformWidget
@@ -36,11 +50,12 @@ const AverageWaveformView: FunctionComponent<Props> = ({ boxSize, plotData, args
             electrodeIds={plotData.channel_ids}
             electrodeLocations={plotData.channel_locations}
             samplingFrequency={plotData.sampling_frequency}
-            width={boxSize.width}
-            height={boxSize.height}
+            width={width}
+            height={height}
             selection={selection}
+            customActions={customActions}
             selectionDispatch={selectionDispatch}
-            electrodeOpts={{disableSelection: true}}
+            electrodeOpts={electrodeOpts}
         />
     )
 }

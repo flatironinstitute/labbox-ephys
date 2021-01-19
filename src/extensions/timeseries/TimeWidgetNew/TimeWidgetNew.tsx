@@ -9,17 +9,7 @@ import { createTimeAxisLayer } from './timeAxisLayer'
 import TimeSpanWidget, { SpanWidgetInfo } from './TimeSpanWidget'
 import TimeWidgetBottomBar from './TimeWidgetBottomBar'
 import TimeWidgetToolbarNew from './TimeWidgetToolbarNew'
-
-interface ActionItem {
-    type: 'button'
-    callback: () => void
-    title: string
-    icon: any
-    keyCode: number
-}
-interface DividerItem {
-    type: 'divider'
-}
+import { ActionItem, DividerItem } from '../../common/Toolbars'
 
 export type TimeWidgetAction = ActionItem | DividerItem
 

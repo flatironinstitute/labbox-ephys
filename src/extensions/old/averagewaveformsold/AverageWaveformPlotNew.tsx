@@ -26,7 +26,6 @@ const AverageWaveformPlotNew = (props: Props) => {
     //     return { x: item, y: plotData[1][index] };
     // });
 
-    // console.log(plotData);
     if (!props.plotData.average_waveform) {
         // assume no events
         return <div />;
