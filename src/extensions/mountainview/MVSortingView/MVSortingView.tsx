@@ -108,7 +108,7 @@ const MVSortingViewWithCheck: FunctionComponent<SortingViewProps> = (props) => {
     }, [recording, preprocessingSelection])
 
     return (
-        <PreloadCheck recording={preprocessedRecording} sorting={sorting}>
+        <PreloadCheck recording={preprocessedRecording} sorting={sorting} width={props.width || 0} height={props.height || 0}>
             <MVSortingView
                 {...props}
                 {...{preprocessingSelection, preprocessingSelectionDispatch}}
