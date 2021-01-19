@@ -25,7 +25,7 @@ interface HitherJobCreatedMessageFromServer {
   job_id: string
 }
 
-export const handleHitherJobCreated = (msg: HitherJobCreatedMessageFromServer) => {
+const handleHitherJobCreated = (msg: HitherJobCreatedMessageFromServer) => {
   if (!(msg.client_job_id in globalData.hitherJobs)) {
     console.warn(`Unable to find job with clientJobId: ${msg.client_job_id}.`);
     return;
@@ -37,7 +37,7 @@ export const handleHitherJobCreated = (msg: HitherJobCreatedMessageFromServer) =
   // dispatchAddHitherJob(job.object());
 }
 
-export const handleHitherJobCreationError = (msg: any) => {
+const handleHitherJobCreationError = (msg: any) => {
   if (!(msg.client_job_id in globalData.hitherJobs)) {
     console.warn('Unable to find job with clientJobId (hitherJobCreationError).');
     return;
@@ -51,7 +51,7 @@ export const handleHitherJobCreationError = (msg: any) => {
   delete globalData.hitherJobs[job.clientJobId()];
 }
 
-export const handleHitherJobFinished = (msg: any) => {
+const handleHitherJobFinished = (msg: any) => {
   const job = globalData.hitherJobs[msg.job_id] || globalData.hitherJobs[msg.client_job_id];
   if (!job) {
     console.warn(`job not found (handleHitherJobFinished): ${msg.job_id} ${msg.client_job_id}`);
@@ -68,7 +68,7 @@ export const handleHitherJobFinished = (msg: any) => {
   // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
 }
 
-export const handleHitherJobError = (msg: any) => {
+const handleHitherJobError = (msg: any) => {
   const job = globalData.hitherJobs[msg.job_id] || globalData.hitherJobs[msg.client_job_id];
   if (!job) {
     console.warn(`job not found (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
@@ -103,7 +103,7 @@ export const handleHitherJobError = (msg: any) => {
 //   globalData.dispatch = dispatch;
 // }
 
-export const setApiConnection = (apiConnection: ApiConnection) => {
+const setApiConnection = (apiConnection: ApiConnection) => {
   globalData.apiConnection = apiConnection;
 }
 
@@ -264,4 +264,4 @@ function randomString(num_chars: number) {
   return text;
 }
 
-export default createHitherJob;
+// export default createHitherJob;
