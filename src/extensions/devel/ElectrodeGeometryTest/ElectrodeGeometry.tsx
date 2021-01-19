@@ -62,7 +62,6 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
         ymax: electrodeRanges.ymin + side + margin
     }
 
-    // console.log(`Ranges: ${JSON.stringify(scaledCoordinates)} from ${JSON.stringify(electrodeRanges)}`)
     return {scaledCoordinates: scaledCoordinates, electrodeRect: electrodeRect}
 }
 

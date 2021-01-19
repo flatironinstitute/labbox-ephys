@@ -170,7 +170,7 @@ export class CanvasPainter {
     exportingFigure() {
         return this._exportingFigure
     }
-    // This is basically just for debugging purposes.
+    // This is a log function, basically just for debugging purposes.
     fillWholeCanvas(color: Color): void {
         console.log(`Pixel dimensions: 0 to ${this._pixelWidth} and 0 to ${this._pixelHeight}`)
         this._context2D.save()

@@ -4,7 +4,7 @@ import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
-import { RecordingSelectionDispatch, SortingViewProps } from "../../extensionInterface";
+import { SortingViewProps } from "../../extensionInterface";
 import AverageWaveformsToolbar from './AverageWaveformsToolbar';
 import AverageWaveformView2 from './AverageWaveformView2';
 
@@ -13,8 +13,8 @@ export type AverageWaveformAction = ActionItem | DividerItem
 
 const TOOLBAR_INITIAL_WIDTH = 75
 
-const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps & {recordingSelectionDispatch: RecordingSelectionDispatch}> = (props) => {
-    const {recording, sorting, selection, selectionDispatch, recordingSelectionDispatch} = props
+const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
+    const {recording, sorting, selection, selectionDispatch} = props
     const boxHeight = 250
     const boxWidth = 180
     const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
@@ -33,11 +33,11 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps & {
     const height = 650 // hard-coded as per TimeseriesForRecordingView.tsx
 
     const _handleScaleAmplitudeUp = useCallback(() => {
-        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
-    }, [recordingSelectionDispatch])
+        selectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
+    }, [selectionDispatch])
     const _handleScaleAmplitudeDown = useCallback(() => {
-        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1 / 1.15})
-    }, [recordingSelectionDispatch])
+        selectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1 / 1.15})
+    }, [selectionDispatch])
 
     useEffect(() => {
         if (scalingActions === null) {
