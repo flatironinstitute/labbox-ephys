@@ -11,7 +11,7 @@ import AverageWaveformView2 from './AverageWaveformView2';
 export type AverageWaveformAction = ActionItem | DividerItem
 
 
-const TOOLBAR_INITIAL_WIDTH = 75
+const TOOLBAR_INITIAL_WIDTH = 55
 
 const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
     const {recording, sorting, selection, selectionDispatch} = props
