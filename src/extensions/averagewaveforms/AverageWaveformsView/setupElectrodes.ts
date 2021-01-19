@@ -46,8 +46,8 @@ const getElectrodesBoundingBox = (electrodeLocations: number[][], radius: number
 
 export const getElectrodesAspectRatio = (electrodeLocations: Vec2[]) => {
     const radius = computeRadius(electrodeLocations)
-    let boundingBox = getElectrodesBoundingBox(electrodeLocations, radius)
-    let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
+    const boundingBox = getElectrodesBoundingBox(electrodeLocations, radius)
+    const boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
     return boxAspect
 }
 
