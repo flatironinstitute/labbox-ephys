@@ -22,7 +22,7 @@ def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y
     jh = labbox.get_job_handler('partition1')
     jc = labbox.get_job_cache()
     with hi.Config(
-        job_cache=None, # jc,
+        job_cache=jc,
         job_handler=jh,
         container=jh.is_remote
     ):
