@@ -4,6 +4,7 @@ import os
 import hither as hi
 import kachery as ka
 import numpy as np
+import labbox_ephys as le
 
 
 @hi.function('createjob_fetch_spike_amplitudes', '0.1.1')
@@ -32,6 +33,7 @@ def _compute_peak_channel_index_from_average_waveform(average_waveform):
 @hi.function('fetch_spike_amplitudes', '0.1.4')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@le.serialize
 def fetch_spike_amplitudes(snippets_h5, unit_id):
     import h5py
     h5_path = ka.load_file(snippets_h5)
