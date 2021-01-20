@@ -4,6 +4,7 @@ import os
 import hither as hi
 import kachery as ka
 import numpy as np
+import labbox_ephys as le
 
 
 @hi.function('createjob_fetch_average_waveform_2', '0.1.1')

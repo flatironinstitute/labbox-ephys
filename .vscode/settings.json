@@ -1,7 +1,4 @@
 {
-    "cSpell.ignoreWords": [
-        "magland"
-    ],
     "githubIssues.ignoreUserCompletionTrigger": [],
     "githubIssues.ignoreCompletionTrigger": [],
     "jshint.options": {
@@ -10,6 +7,5 @@
     "cSpell.enableFiletypes": [
         "!javascript",
         "!python"
-    ],
-    "python.pythonPath": "/home/magland/miniconda3/envs/dev/bin/python"
+    ]
 }
