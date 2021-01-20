@@ -1,4 +1,4 @@
-import { CalculationPool, createCalculationPool, HitherJob } from '../extensions/common/hither';
+import { CalculationPool, HitherJob } from '../extensions/common/hither';
 
 const objectHash = require('object-hash');
 
@@ -219,41 +219,6 @@ class ClientHitherJob {
 interface HitherJobOpts {
   useClientCache?: boolean
   calculationPool?: CalculationPool
-}
-
-const defaultCalculationPool = createCalculationPool({maxSimultaneous: 20})
-
-const createHitherJob = (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
-  const jobHash = objectHash({ functionName, kwargs, opts: {useClientCache: opts.useClientCache} }); // important: we exclude calculationPool in this hash
-  if (opts.useClientCache) {
-    const existingJob = globalData.hitherClientJobCache[jobHash];
-    if (existingJob) return existingJob.object()
-  }
-  const J = new ClientHitherJob({functionName, kwargs, opts});
-  globalData.hitherJobs[J._object.clientJobId] = J;
-
-  if (opts.useClientCache) {
-    globalData.hitherClientJobCache[jobHash] = J;
-  }
-  const apiConnection = globalData.apiConnection
-  if (!apiConnection) {
-    throw Error('Cannot create hither job with no API connection')
-  }
-
-  (opts.calculationPool || defaultCalculationPool).requestSlot().then(({complete}) => {
-    J.onError(() => {complete()})
-    J.onFinished(() => {
-      complete()
-    })
-    apiConnection.sendMessage({
-      type: 'hitherCreateJob',
-      functionName: J._object.functionName,
-      kwargs: J._object.kwargs,
-      clientJobId: J._object.clientJobId
-    })
-  })
-
-  return J.object()
 }
 
 function randomString(num_chars: number) {
