@@ -288,6 +288,16 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     }, null)
   }, [model])
 
+  // default time range
+  useEffect(() => {
+    if (recordingInfo) {
+      if (!selection.timeRange) {
+        const newTimeRange = {min: 0, max: Math.min(recordingInfo.num_frames, Math.floor(recordingInfo.sampling_frequency / 10))}
+        selectionDispatch({type: 'SetTimeRange', timeRange: newTimeRange})
+      }
+    }
+  }, [recordingInfo, selection.timeRange])
+
   const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
   const [width, setWidth] = useState<number | undefined>(undefined)
   const [height, setHeight] = useState<number | undefined>(undefined)
