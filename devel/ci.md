@@ -65,6 +65,7 @@ jobs:
       - run: pip install -e ./python
       - run: pip --version && python --version && pip install -e jupyterlab/labbox_ephys_widgets_jp
       - run: conda list
+      - run: jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
       - run: jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
       - run: jupyter labextension install jupyterlab/labbox_ephys_widgets_jp
       - run: jupyter labextension list

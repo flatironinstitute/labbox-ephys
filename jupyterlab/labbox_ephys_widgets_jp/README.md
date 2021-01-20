@@ -14,6 +14,7 @@ pip install -e .
 Manually enable the jupyter lab extensions via:
 
 ```
+jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
 jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
 jupyter labextension install .
 ```
@@ -22,7 +23,7 @@ For classic notebook, you can run:
 
 ```
 jupyter nbextension install --sys-prefix --symlink --overwrite --py labbox_ephys_widgets_jp
-jupyter nbextension enable --sys-prefix --py labbox_ephys_widgets_jp
+jupyter serverextension enable --sys-prefix --py labbox_ephys_widgets_jp
 ```
 
 ### How to see your changes
