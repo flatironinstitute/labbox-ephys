@@ -24,16 +24,10 @@ def createjob_fetch_average_waveform_2(labbox, recording_object, sorting_object,
             visible_channel_ids=visible_channel_ids
         )
 
-<<<<<<< HEAD
 @hi.function('fetch_average_waveform_2', '0.2.10')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @le.serialize
-=======
-@hi.function('fetch_average_waveform_2', '0.2.8')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
->>>>>>> master
 def fetch_average_waveform_2(snippets_h5, unit_id, visible_channel_ids):
     import h5py
     h5_path = ka.load_file(snippets_h5)
