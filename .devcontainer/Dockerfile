@@ -116,5 +116,6 @@ RUN pip install pynwb
 RUN pip install spikeinterface
 RUN pip install websockets
 RUN pip install click
+RUN pip install aiohttp aiohttp_cors
 
 RUN /bin/sh -c "usermod -aG docker vscode && newgrp docker"
