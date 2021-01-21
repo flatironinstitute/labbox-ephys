@@ -1,9 +1,27 @@
+
+import os
+import sys
+from aiohttp import web
+import aiohttp_cors
+import kachery as ka
+thisdir = os.path.dirname(os.path.realpath(__file__))
+os.environ['LABBOX_EPHYS_PYTHON_MODULE_DIR'] = f'{thisdir}/../labbox_ephys'
+
+# # this is how the python functions in the extensions get registered
+sys.path.insert(0, f'{thisdir}/../../src')
+import extensions
+extensions # just keep the linter happy - we only need to import extensions to register the hither functions
+# remove the prepended path so we don't have side-effects
+sys.path.remove(f'{thisdir}/../../src')
+
+import random
 import asyncio
 import json
-import os
 import sys
 import time
 import traceback
+import urllib3
+import yaml
 
 import hither as hi
 import kachery_p2p as kp
@@ -12,127 +30,173 @@ import labbox_ephys as le
 import websockets
 from labbox_ephys.api._session import Session
 
-print(f"LABBOX_EPHYS_DEPLOY: {os.environ.get('LABBOX_EPHYS_DEPLOY')}")
-
-# todo: manage this with configuration feeds
-if os.environ.get('LABBOX_EPHYS_DEPLOY') == 'ephys1':
-    crfeed_uri = 'feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1'
-    labbox_config = {
-        'job_handlers': {
-            'default': {
-                'type': 'local'
-            },
-            'partition1': {
-                'type': 'remote',
-                'uri': crfeed_uri,
-                'cr_partition': 'partition1'
-            },
-            'partition2': {
-                'type': 'remote',
-                'uri': crfeed_uri,
-                'cr_partition': 'partition2'
-            },
-            'partition3': {
-                'type': 'remote',
-                'uri': crfeed_uri,
-                'cr_partition': 'partition3'
-            },
-            'timeseries': {
-                'type': 'local'
+def main():
+    config_path_or_url = os.environ.get('LABBOX_EPHYS_CONFIG', None)
+    print(f"LABBOX_EPHYS_CONFIG: {config_path_or_url}")
+    if config_path_or_url:
+        if config_path_or_url == 'ephys1':
+            # hard-coded for now - will remove
+            labbox_config = {
+                'compute_resource_uri': 'feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1',
+                'job_handlers': {
+                    'local': {
+                        'type': 'local'
+                    },
+                    'partition1': {
+                        'type': 'remote',
+                        'cr_partition': 'partition1'
+                    },
+                    'partition2': {
+                        'type': 'remote',
+                        'cr_partition': 'partition2'
+                    },
+                    'partition3': {
+                        'type': 'remote',
+                        'cr_partition': 'partition3'
+                    },
+                    'timeseries': {
+                        'type': 'remote',
+                        'cr_partition': 'partition3'
+                    }
+                }
+            }
+        else:    
+            labbox_config = load_config(config_path_or_url)
+    else:
+        labbox_config = {
+            'compute_resource_uri': '',
+            'job_handlers': {
+                'local': {
+                    'type': 'local'
+                },
+                'partition1': {
+                    'type': 'local'
+                },
+                'partition2': {
+                    'type': 'local'
+                },
+                'partition3': {
+                    'type': 'local'
+                },
+                'timeseries': {
+                    'type': 'local'
+                }
             }
         }
-    }
-elif os.environ.get('LABBOX_CONFIG_URI', None) is not None:
-    config_uri = os.environ['LABBOX_CONFIG_URI']
-    num_tries = 0
-    while True:
-        try:
-            print(f'Trying to load config from: {config_uri}')
-            labbox_config = kp.load_object(config_uri)
-            break
-        except:
-            if num_tries > 20:
-                raise
-            time.sleep(2)
-            num_tries = num_tries + 1
 
-    assert labbox_config is not None, f'Unable to load config from subfeed: {config_uri}'
-else:
-    labbox_config = {
-        'job_handlers': {
-            'default': {
-                'type': 'local'
-            },
-            'partition1': {
-                'type': 'local'
-            },
-            'partition2': {
-                'type': 'local'
-            },
-            'partition3': {
-                'type': 'local'
-            },
-            'timeseries': {
-                'type': 'local'
-            }
-        }
-    }
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-print(json.dumps(labbox_config, indent=4))
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    print(json.dumps(labbox_config, indent=4))
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
-local_job_handlers = dict(
-    default=hi.ParallelJobHandler(4),
-    partition1=hi.ParallelJobHandler(4),
-    partition2=hi.ParallelJobHandler(4),
-    partition3=hi.ParallelJobHandler(4),
-    timeseries=hi.ParallelJobHandler(4)
-)
-
-# default_job_cache=hi.JobCache(use_tempdir=True)
-job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
-if not os.path.exists(job_cache_path):
-    os.mkdir(job_cache_path)
-default_job_cache=hi.JobCache(path=job_cache_path)
-
-async def incoming_message_handler(session, websocket):
-    async for message in websocket:
-        msg = json.loads(message)
-        session.handle_message(msg)
-
-async def outgoing_message_handler(session, websocket):
-    while True:
-        try:
-            hi.wait(0)
-        except:
-            traceback.print_exc()
-        messages = session.check_for_outgoing_messages()
-        for message in messages:
-            await websocket.send(json.dumps(message))
-        if session.elapsed_sec_since_incoming_keepalive() > 60:
-            print('Closing session')
-            return
-        await asyncio.sleep(0.05)
-
-# Thanks: https://websockets.readthedocs.io/en/stable/intro.html
-async def connection_handler(websocket, path):
-    session = Session(
-        labbox_config=labbox_config
+    local_job_handlers = dict(
+        default=hi.ParallelJobHandler(4),
+        partition1=hi.ParallelJobHandler(4),
+        partition2=hi.ParallelJobHandler(4),
+        partition3=hi.ParallelJobHandler(4),
+        timeseries=hi.ParallelJobHandler(4)
     )
-    task1 = asyncio.ensure_future(
-        incoming_message_handler(session, websocket))
-    task2 = asyncio.ensure_future(
-        outgoing_message_handler(session, websocket))
-    done, pending = await asyncio.wait(
-        [task1, task2],
-        return_when=asyncio.FIRST_COMPLETED,
-    )
-    print('Connection closed.')
-    session.cleanup()
-    for task in pending:
-        task.cancel()
 
-start_server = websockets.serve(connection_handler, '0.0.0.0', 15308)
+    # default_job_cache=hi.JobCache(use_tempdir=True)
+    job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
+    if not os.path.exists(job_cache_path):
+        os.mkdir(job_cache_path)
+    default_job_cache=hi.JobCache(path=job_cache_path)
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+    async def incoming_message_handler(session, websocket):
+        async for message in websocket:
+            msg = json.loads(message)
+            session.handle_message(msg)
+
+    async def outgoing_message_handler(session, websocket):
+        while True:
+            try:
+                hi.wait(0)
+            except:
+                traceback.print_exc()
+            messages = session.check_for_outgoing_messages()
+            for message in messages:
+                await websocket.send(json.dumps(message))
+            if session.elapsed_sec_since_incoming_keepalive() > 60:
+                print('Closing session')
+                return
+            await asyncio.sleep(0.05)
+
+    # Thanks: https://websockets.readthedocs.io/en/stable/intro.html
+    async def connection_handler(websocket, path):
+        session = Session(
+            labbox_config=labbox_config
+        )
+        task1 = asyncio.ensure_future(
+            incoming_message_handler(session, websocket))
+        task2 = asyncio.ensure_future(
+            outgoing_message_handler(session, websocket))
+        done, pending = await asyncio.wait(
+            [task1, task2],
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+        print('Connection closed.')
+        session.cleanup()
+        for task in pending:
+            task.cancel()
+
+    start_server = websockets.serve(connection_handler, '0.0.0.0', 15308)
+
+    asyncio.get_event_loop().run_until_complete(start_server)
+
+
+    routes = web.RouteTableDef()
+
+    async def sha1_handler(request):
+        sha1 = str(request.rel_url).split('/')[2]
+        uri = 'sha1://' + sha1
+        txt = ka.load_text(uri)
+        if txt is not None:
+            return web.Response(text=txt)
+        else:
+            raise Exception(f'Not found: {uri}')
+    app = web.Application()
+    cors = aiohttp_cors.setup(app, defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                    allow_credentials=True,
+                    expose_headers="*",
+                    allow_headers="*",
+                )
+        })
+    sha1_resource = cors.add(app.router.add_resource('/sha1/{sha1}'))
+    sha1_route = cors.add(
+        sha1_resource.add_route("GET", sha1_handler), {
+            "http://client.example.org": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers=("X-Custom-Server-Header",),
+                allow_headers=("X-Requested-With", "Content-Type"),
+                max_age=3600,
+            )
+        })
+    # app.add_routes(routes)
+    web.run_app(app, port=15309)
+
+    # asyncio.get_event_loop().run_forever()
+
+def cache_bust(url):
+    r = random_string(8)
+    if '?' in url:
+        return url + '&' + r
+    else:
+        return url + '?' + r
+
+def random_string(num_chars: int) -> str:
+    chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    return ''.join(random.choice(chars) for _ in range(num_chars))
+
+def load_config(config_path_or_url):
+    if config_path_or_url.startswith('http://') or config_path_or_url.startswith('https://'):
+        http = urllib3.PoolManager()
+        x = http.request('GET', cache_bust(config_path_or_url)).data
+        return yaml.safe_load(x)
+    else:
+        with open(config_path_or_url) as f:
+            x = f.read()
+            return yaml.safe_load(x)
+
+if __name__ == '__main__':
+    main()

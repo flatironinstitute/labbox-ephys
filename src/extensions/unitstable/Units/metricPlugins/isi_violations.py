@@ -1,8 +1,9 @@
+import os
 import hither as hi
 
 @hi.function('get_isi_violation_rates', '0.1.1')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def get_isi_violation_rates(sorting_object, recording_object, configuration={}):
     import labbox_ephys as le
     import spikemetrics as sm
@@ -27,8 +28,8 @@ def get_isi_violation_rates(sorting_object, recording_object, configuration={}):
 
 @hi.function('createjob_get_isi_violation_rates', '')
 def createjob_get_isi_violation_rates(labbox, sorting_object, recording_object, configuration={}):
-    jh = labbox.get_job_handler('partition3')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,

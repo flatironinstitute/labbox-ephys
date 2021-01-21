@@ -1,3 +1,4 @@
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -5,9 +6,9 @@ import numpy as np
 from ._correlograms_phy import compute_correlograms
 
 
-@hi.function('fetch_correlogram_plot_data', '0.2.0')
+@hi.function('fetch_correlogram_plot_data', '0.2.3')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
     import labbox_ephys as le
     S = le.LabboxEphysSortingExtractor(sorting_object)
@@ -18,9 +19,9 @@ def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
 @hi.function('createjob_fetch_correlogram_plot_data', '')
 def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y=None):
     jh = labbox.get_job_handler('partition1')
-    jc = labbox.get_default_job_cache()
+    # jc = labbox.get_job_cache()
     with hi.Config(
-        job_cache=jc,
+        job_cache=None, # jc,
         job_handler=jh,
         container=jh.is_remote
     ):
@@ -59,7 +60,7 @@ def _get_correlogram_data(*, sorting, unit_id1, unit_id2=None, window_size_msec,
     bin_counts = C[0, 0, :] if auto else C[0, 1, :]
     bin_size_sec = bin_size_msec / 1000
     return {
-        'bins': bins.tolist(),
-        'bin_counts': bin_counts.tolist(),
+        'bins': bins.astype(np.float32),
+        'bin_counts': bin_counts.astype(np.int16),
         'bin_size_sec': bin_size_sec
     }

@@ -3,8 +3,13 @@ import Splitter from '../../common/Splitter'
 import { SortingViewProps } from "../../extensionInterface"
 import SelectUnitsWidget from './SelectUnitsWidget'
 import SpikeAmplitudesTimeWidget from './SpikeAmplitudesTimeWidget'
+import useSpikeAmplitudesData from './useSpikeAmplitudesData'
 
 const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch, width, height}) => {
+    const spikeAmplitudesData = useSpikeAmplitudesData(recording.recordingObject, sorting.sortingObject)
+    if (!spikeAmplitudesData) {
+        return <div>Creating spike amplitudes data...</div>
+    }
     return (
         <Splitter
             width={width || 600}
@@ -13,6 +18,7 @@ const SpikeAmplitudesView: FunctionComponent<SortingViewProps> = ({recording, so
         >
             <SelectUnitsWidget sorting={sorting} selection={selection} selectionDispatch={selectionDispatch} />
             <SpikeAmplitudesTimeWidget
+                spikeAmplitudesData={spikeAmplitudesData}
                 recording={recording}
                 sorting={sorting}
                 unitIds={selection.selectedUnitIds || []}

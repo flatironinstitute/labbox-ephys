@@ -12,12 +12,12 @@ import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
 import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
-import { HitherContext, HitherInterface } from './extensions/common/hither';
+import { HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
+import initializeHitherInterface from './extensions/initializeHitherInterface';
 import './index.css';
 // reducer
 import rootReducer, { RootState } from './reducers';
-import createHitherJob, { handleHitherJobCreated, handleHitherJobError, handleHitherJobFinished, setApiConnection, setDispatch } from './reducers/createHitherJob';
 import registerExtensions from './registerExtensions';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -64,7 +64,7 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
 // thunk allows asynchronous actions
 const theStore = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
 const extensionContext = extensionContextDispatch(theStore.dispatch)
-setDispatch(theStore.dispatch)
+// setDispatch(theStore.dispatch)
 registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)
@@ -134,6 +134,9 @@ class ApiConnection {
   }
 }
 const apiConnection = new ApiConnection();
+const baseSha1Url = `http://${window.location.hostname}:15309/sha1`;
+const hither = initializeHitherInterface((msg) => apiConnection.sendMessage(msg), baseSha1Url)
+
 apiConnection.onConnect(() => {
   console.info('Connected to API server');
 })
@@ -161,19 +164,20 @@ apiConnection.onMessage(msg => {
     });
   }
   else if (type0 === 'hitherJobFinished') {
-    handleHitherJobFinished(msg);
+    const timer0 = Number(new Date())
+    hither.handleHitherJobFinished(msg);
   }
   else if (type0 === 'hitherJobError') {
-    handleHitherJobError(msg);
+    hither.handleHitherJobError(msg);
   }
   else if (type0 === 'hitherJobCreated') {
-    handleHitherJobCreated(msg);
+    hither.handleHitherJobCreated(msg);
   }
   else {
     console.warn(`Unregognized message type from server: ${type0}`)
   }
 });
-setApiConnection(apiConnection);
+// setApiConnection(apiConnection);
 const waitForDocumentInfo = async () => {
   while (true) {
     const state = theStore.getState() as RootState
@@ -193,10 +197,6 @@ const waitForDocumentInfo = async () => {
   }
 }
 waitForDocumentInfo();
-
-const hither: HitherInterface = {
-  createHitherJob: createHitherJob
-}
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

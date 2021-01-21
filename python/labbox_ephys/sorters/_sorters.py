@@ -10,7 +10,7 @@ import kachery as ka
 
 @hi.function('mountainsort4b', '0.1.6')
 @hi.container('docker://magland/labbox-ephys-mountainsort4:0.3.5')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def mountainsort4b(
     recording_object: dict,
     detect_sign=-1,

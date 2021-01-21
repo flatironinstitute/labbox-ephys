@@ -2,6 +2,7 @@ import base64
 # import time
 import io
 
+import os
 import hither as hi
 import kachery as ka
 import labbox_ephys as le
@@ -11,9 +12,12 @@ import spikeextractors as se
 
 @hi.function('createjob_get_recording_info', '0.1.2')
 def createjob_get_recording_info(labbox, recording_object):
-    jc = labbox.get_default_job_cache()
+    jc = labbox.get_job_cache()
+    jh = labbox.get_job_handler('partition1')
     with hi.Config(
-        job_cache=jc
+        job_cache=jc,
+        job_handler=jh,
+        container=jh.is_remote
     ):
         return get_recording_info.run(recording_object=recording_object)
 
@@ -28,7 +32,7 @@ def estimate_noise_level(recording: se.RecordingExtractor):
     return est_noise_level
 
 @hi.function('get_recording_info', '0.1.6')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def get_recording_info(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
@@ -42,26 +46,26 @@ def get_recording_info(recording_object):
     )
 
 @hi.function('recording_is_downloaded', '0.1.0')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def recording_is_downloaded(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     return recording.is_local()
 
 @hi.function('download_recording', '0.1.0')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def download_recording(recording_object):
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
     recording.download()
 
 @hi.function('createjob_download_recording', '0.1.0')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def createjob_download_recording(labbox, recording_object):
     return download_recording.run(recording_object=recording_object)
 
 @hi.function('createjob_recording_is_downloaded', '0.1.0')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def createjob_recording_is_downloaded(labbox, recording_object):
     return recording_is_downloaded.run(recording_object=recording_object)
 

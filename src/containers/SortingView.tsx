@@ -4,8 +4,8 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
-import { createCalculationPool, HitherContext } from '../extensions/common/hither';
-import { filterPlugins, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer, useRecordingAnimation } from '../extensions/extensionInterface';
+import { createCalculationPool, HitherContext, useHitherJob } from '../extensions/common/hither';
+import { filterPlugins, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { DocumentInfo } from '../reducers/documentInfo';
@@ -23,8 +23,8 @@ import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sor
 // }
 
 interface StateProps {
-  sorting: Sorting | undefined
-  recording: Recording | undefined
+  sorting?: Sorting
+  recording?: Recording
   extensionsConfig: any
   documentInfo: DocumentInfo
   plugins: Plugins
@@ -53,14 +53,19 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
   const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
   const { documentId, feedUri, readOnly } = documentInfo;
-  const [sortingInfoStatus, setSortingInfoStatus] = useState<CalcStatus>('waiting');
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
+  useEffect(() => {
+    if (recording?.recordingInfo) {
+      if (!selection.timeRange) {
+        const newTimeRange = {min: 0, max: Math.min(recording.recordingInfo.num_frames, Math.floor(recording.recordingInfo.sampling_frequency / 10))}
+        selectionDispatch({type: 'SetTimeRange', timeRange: newTimeRange})
+      }
+    }
+  }, [recording?.recordingInfo, selection.timeRange])
   // const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
-
-  useRecordingAnimation(selection, selectionDispatch)
   
   // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
 
@@ -78,19 +83,15 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   // }
   // useEffect(() => {effect()});
 
+  const {result: sortingInfo, job: sortingInfoJob} = useHitherJob<SortingInfo>(
+    'createjob_get_sorting_info',
+    { sorting_object: sorting?.sortingObject, recording_object: recording?.recordingObject },
+    { useClientCache: true }
+  )
+
   useEffect(() => {
-    if ((sorting) && (recording) && (!sorting.sortingInfo) && (sortingInfoStatus === 'waiting')) {
-      setSortingInfoStatus('computing');
-      hither.createHitherJob(
-        'createjob_get_sorting_info',
-        { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { useClientCache: true }
-      ).wait().then((sortingInfo: any) => {
-        onSetSortingInfo({ sortingId, sortingInfo: sortingInfo as SortingInfo });
-        setSortingInfoStatus('finished');
-      })
-    }
-  }, [onSetSortingInfo, setSortingInfoStatus, sortingInfoStatus, recording, sorting, sortingId, hither])
+    sorting?.sortingId && sortingInfo && onSetSortingInfo({sortingId: sorting.sortingId, sortingInfo})
+  }, [sorting?.sortingId, sortingInfo, onSetSortingInfo])
 
   useEffect(() => {
     if ((sorting) && (sorting.externalUnitMetricsUri) && (!sorting.externalUnitMetrics) && (externalUnitMetricsStatus === 'waiting')) {

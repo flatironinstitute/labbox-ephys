@@ -273,6 +273,11 @@ type SetTimeRangeRecordingSelectionAction = {
     timeRange: {min: number, max: number} | null
 }
 
+type ZoomTimeRangeRecordingSelectionAction = {
+    type: 'ZoomTimeRange',
+    factor: number
+}
+
 type SetAmpScaleFactorRecordingSelectionAction = {
     type: 'SetAmpScaleFactor',
     ampScaleFactor: number
@@ -293,7 +298,12 @@ type SetWaveformsModeRecordingSelectionAction = {
     waveformsMode: 'geom' | 'vertical'
 }
 
-export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetVisibleElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | SetWaveformsModeRecordingSelectionAction
+type SetRecordingSelectionAction = {
+    type: 'Set',
+    state: RecordingSelection
+}
+
+export type RecordingSelectionAction = SetRecordingSelectionRecordingSelectionAction | SetSelectedElectrodeIdsRecordingSelectionAction | SetVisibleElectrodeIdsRecordingSelectionAction | SetCurrentTimepointRecordingSelectionAction | SetTimeRangeRecordingSelectionAction | ZoomTimeRangeRecordingSelectionAction | SetAmpScaleFactorRecordingSelectionAction | ScaleAmpScaleFactorRecordingSelectionAction | SetCurrentTimepointVelocityRecordingSelectionAction | SetWaveformsModeRecordingSelectionAction | SetRecordingSelectionAction
 
 const adjustTimeRangeToIncludeTimepoint = (timeRange: {min: number, max: number}, timepoint: number) => {
     if ((timeRange.min <= timepoint) && (timepoint < timeRange.max)) return timeRange
@@ -333,6 +343,29 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
             timeRange: action.timeRange
         }
     }
+    else if (action.type === 'ZoomTimeRange') {
+        const maxTimeSpan = 30000 * 60 * 5
+        const currentTimepoint = state.currentTimepoint
+        const timeRange = state.timeRange
+        if (!timeRange) return state
+        if ((timeRange.max - timeRange.min) / action.factor > maxTimeSpan ) return state
+        let t: number
+        if ((currentTimepoint === undefined) || (currentTimepoint < timeRange.min))
+            t = timeRange.min
+        else if (currentTimepoint > timeRange.max)
+            t = timeRange.max
+        else
+            t = currentTimepoint
+        const newTimeRange = zoomTimeRange(timeRange, action.factor, t)
+        return {
+            ...state,
+            timeRange: newTimeRange
+        }
+        // return fix({
+        //     ...state,
+        //     timeRange: newTimeRange
+        // })
+    }
     else if (action.type === 'SetAmpScaleFactor') {
         return {
             ...state,
@@ -359,6 +392,9 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
             ...state,
             waveformsMode: action.waveformsMode
         }
+    }
+    else if (action.type === 'Set') {
+        return action.state
     }
     else return state
 }
@@ -387,6 +423,11 @@ type SetVisibleUnitIdsSortingSelectionAction = {
     visibleUnitIds: number[] | null
 }
 
+type SetSortingSelectionAction = {
+    type: 'Set',
+    state: SortingSelection
+}
+
 type UnitClickedSortingSelectionAction = {
     type: 'UnitClicked'
     unitId: number
@@ -394,7 +435,7 @@ type UnitClickedSortingSelectionAction = {
     shiftKey?: boolean
 }
 
-export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction | RecordingSelectionAction
+export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction | SetSortingSelectionAction | RecordingSelectionAction
 
 const unitClickedReducer = (state: SortingSelection, action: UnitClickedSortingSelectionAction): SortingSelection => {
     const unitId = action.unitId
@@ -440,6 +481,9 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
     }
     else if (action.type === 'UnitClicked') {
         return unitClickedReducer(state, action)
+    }
+    else if (action.type === 'Set') {
+        return action.state
     }
     else {
         return recordingSelectionReducer(state, action)
@@ -534,4 +578,12 @@ export interface ExtensionContext {
     unregisterRecordingView: (name: string) => void
     registerSortingUnitMetric: (M: SortingUnitMetricPlugin) => void
     unregisterSortingUnitMetric: (name: string) => void
+}
+
+const zoomTimeRange = (timeRange: {min: number, max: number}, factor: number, anchorTime: number): {min: number, max: number} => {
+    const oldT1 = timeRange.min
+    const oldT2 = timeRange.max
+    const t1 = anchorTime + (oldT1 - anchorTime) / factor
+    const t2 = anchorTime + (oldT2 - anchorTime) / factor
+    return {min: Math.floor(t1), max: Math.floor(t2)}
 }

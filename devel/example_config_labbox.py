@@ -17,7 +17,7 @@ def main():
 
     config = {
         'job_handlers': {
-            'default': {
+            'local': {
                 'type': 'local'
             },
             'partition1': {

@@ -1,5 +1,6 @@
 from typing import Dict
 
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -8,8 +9,8 @@ import numpy as np
 @hi.function('createjob_fetch_spike_amplitudes', '0.1.1')
 def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
-    jh = labbox.get_job_handler('partition2')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -28,9 +29,9 @@ def _compute_peak_channel_index_from_average_waveform(average_waveform):
     peak_channel_index = np.argmax(channel_amplitudes)
     return peak_channel_index
 
-@hi.function('fetch_spike_amplitudes', '0.1.3')
+@hi.function('fetch_spike_amplitudes', '0.1.4')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_spike_amplitudes(snippets_h5, unit_id):
     import h5py
     h5_path = ka.load_file(snippets_h5)
@@ -41,9 +42,9 @@ def fetch_spike_amplitudes(snippets_h5, unit_id):
         peak_channel_index = _compute_peak_channel_index_from_average_waveform(average_waveform)
         maxs = [np.max(unit_waveforms[i][peak_channel_index, :]) for i in range(unit_waveforms.shape[0])]
         mins = [np.min(unit_waveforms[i][peak_channel_index, :]) for i in range(unit_waveforms.shape[0])]
-        peak_amplitudes = [maxs[i] - mins[i] for i in range(len(mins))]
+        peak_amplitudes = np.array([maxs[i] - mins[i] for i in range(len(mins))])
     
     return dict(
-        timepoints=[float(t) for t in unit_spike_train],
-        amplitudes=[float(a) for a in peak_amplitudes]
+        timepoints=unit_spike_train.astype(np.float32),
+        amplitudes=peak_amplitudes.astype(np.float32)
     )

@@ -1,5 +1,6 @@
 from typing import Dict
 
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -20,8 +21,8 @@ def test_func_1():
 @hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0')
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
-    jh = labbox.get_job_handler('partition2')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -33,9 +34,9 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
             unit_id=unit_id
         )
 
-@hi.function('fetch_average_waveform_plot_data', '0.2.3')
+@hi.function('fetch_average_waveform_plot_data', '0.2.4')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     import h5py
     h5_path = ka.load_file(snippets_h5)
@@ -58,12 +59,12 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     return dict(
         channel_id=int(maxchan_id),
         sampling_frequency=sampling_frequency,
-        average_waveform=average_waveform[maxchan_index, :].astype(float).tolist()
+        average_waveform=average_waveform[maxchan_index, :].astype(np.float32)
     )
 
 @hi.function('old_fetch_average_waveform_plot_data', '0.1.14')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def old_fetch_average_waveform_plot_data(recording_object, sorting_object, unit_id):
     import labbox_ephys as le
     R = le.LabboxEphysRecordingExtractor(recording_object)

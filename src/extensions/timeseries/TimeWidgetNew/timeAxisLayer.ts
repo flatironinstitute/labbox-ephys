@@ -62,6 +62,7 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
         transformation,
         inverseTransformation
     })
+    layer.repaintImmediate()
 }
 
 interface TicksData {

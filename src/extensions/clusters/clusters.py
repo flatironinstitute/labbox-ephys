@@ -1,3 +1,4 @@
+import os
 import hither as hi
 import kachery as ka
 import labbox_ephys as le
@@ -10,10 +11,12 @@ def IndividualClustersView(*, sorting: le.LabboxEphysSortingExtractor, recording
     return lew.create_sorting_view('IndividualClustersView', sorting=sorting, recording=recording)
 
 @hi.function('createjob_individual_cluster_features', '0.1.0')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def createjob_individual_cluster_features(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
-    jh = labbox.get_job_handler('partition2')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -27,7 +30,7 @@ def createjob_individual_cluster_features(labbox, recording_object, sorting_obje
 
 @hi.function('individual_cluster_features', '0.1.1')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def individual_cluster_features(snippets_h5, unit_id):
     import h5py
     h5_path = ka.load_file(snippets_h5)
@@ -53,7 +56,7 @@ def individual_cluster_features(snippets_h5, unit_id):
     features = pca.transform(X) # L x nf
 
     return dict(
-        timepoints=unit_spike_train.tolist(),
-        x=features[:, 0].squeeze().tolist(),
-        y=features[:, 1].squeeze().tolist(),
+        timepoints=unit_spike_train.astype(np.float32),
+        x=features[:, 0].squeeze().astype(np.float32),
+        y=features[:, 1].squeeze().astype(np.float32)
     )

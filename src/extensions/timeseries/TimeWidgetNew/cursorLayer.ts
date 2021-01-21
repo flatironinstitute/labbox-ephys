@@ -39,7 +39,8 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
 }
 
 const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
-    layer.scheduleRepaint()
+    // layer.scheduleRepaint()
+    layer.repaintImmediate()
 }
 
 export const createCursorLayer = () => {

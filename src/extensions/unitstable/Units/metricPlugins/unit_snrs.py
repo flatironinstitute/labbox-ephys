@@ -1,3 +1,4 @@
+import os
 import hither as hi
 import kachery as ka
 import numpy as np
@@ -7,7 +8,7 @@ from labbox_ephys.helpers.get_unit_waveforms import get_unit_waveforms
 
 @hi.function('get_unit_snrs', '0.1.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules(['../../../../python/labbox_ephys'])
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def get_unit_snrs(snippets_h5):
     import h5py
     h5_path = ka.load_file(snippets_h5)
@@ -31,8 +32,8 @@ def _compute_unit_snr_from_waveforms(waveforms):
 
 @hi.function('createjob_get_unit_snrs', '')
 def createjob_get_unit_snrs(labbox, sorting_object, recording_object, configuration={}):
-    jh = labbox.get_job_handler('partition2')
-    jc = labbox.get_default_job_cache()
+    jh = labbox.get_job_handler('partition1')
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,

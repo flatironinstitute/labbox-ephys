@@ -1,4 +1,3 @@
-import { Dialog } from '@material-ui/core';
 import React, { Fragment, FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createCalculationPool, HitherContext } from '../../common/hither';
 import { Recording, Sorting } from '../../extensionInterface';
@@ -11,11 +10,13 @@ type Props = {
     sorting: Sorting
     recording: Recording
     children: React.ReactElement<ChildProps>
+    width: number
+    height: number
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children }) => {
+const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children, width, height }) => {
     const hither = useContext(HitherContext)
     const sortingObject = sorting.sortingObject
     const recordingObject = recording.recordingObject
@@ -98,18 +99,23 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children }
 
     return (
         <Fragment>
-            <Dialog
-                open={status !== 'finished'}
-            >
-                {error ? <Status message={`Error: ${error.message}`} /> : <Status message={message} />}
-            </Dialog>
+            <BlockInteraction block={status !== 'finished'} {...{width, height}} message={error ? `Error: ${error.message}` : message} />
             {lastValidChild || child}
         </Fragment>
     )
 }
 
-const Status: FunctionComponent<{message: string}> = ({ message }) => {
-    return <div>{message}</div>
+const BlockInteraction: FunctionComponent<{width: number, height: number, block: boolean, message: string}> = ({width, height, block, message}) => {
+    if (block) {
+        return (
+            <div className="BlockInteraction" style={{position: 'absolute', width, height, backgroundColor: 'gray', opacity: 0.5, zIndex: 99999}}>
+                <div style={{backgroundColor: 'blue', color: 'white', fontSize: 20}}>{message}</div>
+            </div>
+        )
+    }
+    else {
+        return <div className="BlockInteraction" />
+    }
 }
 
 export default PreloadCheck

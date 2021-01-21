@@ -2,7 +2,6 @@ import { useContext, useMemo } from "react"
 import { createCalculationPool, HitherContext, HitherInterface } from "../../common/hither"
 import useFetchCache from "../../common/useFetchCache"
 import { RecordingInfo } from "../../extensionInterface"
-import Mda from "./Mda"
 
 // it may be important to limit this to 1 at a time when using a filter
 const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 1, method: 'stack'})
@@ -15,7 +14,7 @@ export type TimeseriesData = {
   getSampleRate: () => number
 }
 
-const getTimeseriesDataSegment = async (args: {hither: HitherInterface, recordingObject: any, ds_factor: number, segment_num: number, segment_size: number}): Promise<Mda> => {
+const getTimeseriesDataSegment = async (args: {hither: HitherInterface, recordingObject: any, ds_factor: number, segment_num: number, segment_size: number}): Promise<number[][]> => {
   const { hither, recordingObject, ds_factor, segment_num, segment_size } = args
   const result = await hither.createHitherJob(
       'createjob_get_timeseries_segment',
@@ -30,11 +29,12 @@ const getTimeseriesDataSegment = async (args: {hither: HitherInterface, recordin
           calculationPool: timeseriesCalculationPool
       }
   ).wait() as {
-      data_b64: string
+      traces: number[][]
   }
-  let X = new Mda()
-  X.setFromBase64(result.data_b64);
-  return X
+  // let X = new Mda()
+  // X.setFromBase64(result.data_b64);
+  // return X
+  return result.traces
 }
 
 type TimeseriesDataSegmentQuery = {
@@ -118,10 +118,10 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
         ret.push(NaN)
       }
       for (let segment of segments) {
-        const x = data.get({type: 'dataSegment', ds_factor, segment_num: segment.segment_num, segment_size}) as Mda | undefined
+        const x = data.get({type: 'dataSegment', ds_factor, segment_num: segment.segment_num, segment_size}) as number[][] | undefined
         if (x) {
           for (let i = 0; i < segment.src2 - segment.src1; i++) {
-            ret[segment.dst1 + i] = x.value(ch, segment.src1 + i)
+            ret[segment.dst1 + i] = x[ch][segment.src1 + i]
           }
         }
       }
@@ -132,11 +132,11 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
         ret.push(NaN)
       }
       for (let segment of segments) {
-        const x = data.get({type: 'dataSegment', ds_factor, segment_num: segment.segment_num, segment_size}) as Mda | undefined
+        const x = data.get({type: 'dataSegment', ds_factor, segment_num: segment.segment_num, segment_size}) as number[][] | undefined
         if (x) {
           for (let i = 0; i < segment.src2 - segment.src1; i++) {
-            ret[(segment.dst1 + i) * 2] = x.value(ch, (segment.src1 + i) * 2)
-            ret[(segment.dst1 + i) * 2 + 1] = x.value(ch, (segment.src1 + i) * 2 + 1)
+            ret[(segment.dst1 + i) * 2] = x[ch][(segment.src1 + i) * 2]
+            ret[(segment.dst1 + i) * 2 + 1] = x[ch][(segment.src1 + i) * 2 + 1]
           }
         }
       }

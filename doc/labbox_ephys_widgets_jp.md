@@ -37,6 +37,7 @@ In addition to installing the Python package, the latter command will also build
 Next, activate the compiled jupyterlab extension:
 
 ```
+jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
 jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
 jupyter labextension install jupyterlab/labbox_ephys_widgets_jp
 ```

@@ -3,9 +3,9 @@ import React, { FunctionComponent, useState } from 'react';
 
 
 export interface BottomBarInfo {
-    currentTime: number | null
+    currentTime?: number | null
     samplerate: number
-    timeRange: {min: number, max: number} | null
+    timeRange?: {min: number, max: number} | null
     statusText: string
 }
 
@@ -28,14 +28,14 @@ const TimeWidgetBottomBar: FunctionComponent<Props> = (props) => {
         <Toolbar style={{ minHeight: height }}>
             <CurrentTimeControl
                 width={180}
-                currentTime={info.currentTime}
+                currentTime={info.currentTime || null}
                 samplerate={info.samplerate}
                 onChange={onCurrentTimeChanged}
             />
                 &nbsp;
             <TimeRangeControl
                 width={250}
-                timeRange={info.timeRange}
+                timeRange={info.timeRange || null}
                 samplerate={info.samplerate}
                 onChange={props.onTimeRangeChanged}
             />

@@ -3,6 +3,7 @@ import HitherContext from "./HitherContext";
 import { HitherJob, HitherJobOpts } from "./HitherInterface";
 
 const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any}, hitherJobOpts: HitherJobOpts): {result: T | undefined, job: HitherJob} => {
+    const timer = Number(new Date())
     const hither = useContext(HitherContext)
     const [state, setState] = useState<{
         status: '' | 'waiting' | 'running' | 'error' | 'finished',

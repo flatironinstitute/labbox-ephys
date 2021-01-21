@@ -1,6 +1,7 @@
 import base64
 import io
 
+import os
 import hither as hi
 # import time
 import labbox_ephys as le
@@ -10,7 +11,7 @@ import numpy as np
 @hi.function('createjob_get_timeseries_segment', '0.1.0')
 def createjob_get_timeseries_segment(labbox, recording_object, ds_factor, segment_num, segment_size):
     jh = labbox.get_job_handler('timeseries')
-    jc = labbox.get_default_job_cache()
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
@@ -18,8 +19,8 @@ def createjob_get_timeseries_segment(labbox, recording_object, ds_factor, segmen
     ):
         return get_timeseries_segment.run(recording_object=recording_object, ds_factor=ds_factor, segment_num=segment_num, segment_size=segment_size)
 
-@hi.function('get_timeseries_segment', '0.1.0')
-@hi.local_modules(['../../labbox_ephys'])
+@hi.function('get_timeseries_segment', '0.1.1')
+@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_size):
     import time
@@ -40,15 +41,18 @@ def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_siz
         traces_reshaped = traces.reshape((M, N2, ds_factor))
         traces_min = np.min(traces_reshaped, axis=2)
         traces_max = np.max(traces_reshaped, axis=2)
-        traces = np.zeros((M, N2 * 2))
+        traces = np.zeros((M, N2 * 2), dtype=np.float32)
         traces[:, 0::2] = traces_min
         traces[:, 1::2] = traces_max
     
-    data_b64 = _mda32_to_base64(traces)
-    # elapsed = time.time() - timer
-    return dict(
-        data_b64=data_b64
-    )
+    return {
+        'traces': traces
+    }
+    # data_b64 = _mda32_to_base64(traces)
+    # # elapsed = time.time() - timer
+    # return dict(
+    #     data_b64=data_b64
+    # )
 
 def _mda32_to_base64(X) -> str:
     f = io.BytesIO()

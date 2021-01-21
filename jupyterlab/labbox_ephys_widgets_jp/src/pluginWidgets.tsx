@@ -6,9 +6,10 @@ import { DOMWidgetModel, DOMWidgetView, ISerializers, WidgetModel } from '@jupyt
 import React, { FunctionComponent, useEffect, useReducer, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../css/widget.css';
-import { CalculationPool, createCalculationPool, HitherContext, HitherInterface, HitherJob, HitherJobOpts } from './extensions/common/hither';
+import { CalculationPool, createCalculationPool, HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import initializeHitherInterface from './extensions/initializeHitherInterface';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -48,106 +49,119 @@ class LEJExtensionContext {
 const extensionContext = new LEJExtensionContext()
 registerExtensions(extensionContext)
 
-class HitherJobManager {
-  _activeJobs: {[key: string]: any} = {}
-  _jobFinishedCallbacks: {[key: string]: (result: any, runtime_info: any) => void} = {}
-  _jobErrorCallbacks: {[key: string]: (error_message: string, runtime_info: any) => void} = {}
-  _iterating: boolean = false
-  constructor(private model: DOMWidgetModel) {
-    model.on('msg:custom', (msg: any) => {
-      if (msg.type === 'hitherJobFinished') {
-        const clientJobId = msg.client_job_id
-        if (this._activeJobs[clientJobId]) {
-          const cb = this._jobFinishedCallbacks[clientJobId]
-          if (cb) {
-            cb(msg.result, msg.runtime_info)
-          }
-          delete this._activeJobs[clientJobId]
-        }
-      }
-      else if (msg.type === 'hitherJobError') {
-        const clientJobId = msg.client_job_id
-        const cb = this._jobFinishedCallbacks[msg.client_job_id]
-        if (cb) {
-          cb(msg.error_message, msg.runtime_info)
-        }
-        delete this._activeJobs[clientJobId]
-      }
-      else if (msg.type === 'debug') {
-        console.info('DEBUG MESSAGE', msg)
-      }
-    })
-  }
-  createHitherJob(functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) {
-    const clientJobId: string = randomAlphaId()
-    let localJob: HitherJob = {
-      jobId: null,
-      functionName,
-      kwargs,
-      opts,
-      clientJobId,
-      result: null,
-      runtime_info: {},
-      error_message: null,
-      status: '',
-      timestampStarted: 0,
-      timestampFinished: null,
-      clientCancelled: false,
-      wait: async () => {}, // this will be replaced below
-      cancel: () => {} // replaced below
-    }
-    let localOnFinished: ((result: any) => void) | null = null
-    let localOnError: ((error_message: string) => void) | null = null
-    this._jobFinishedCallbacks[clientJobId] = (result: any, runtime_info: any) => {
-      localJob.result = result
-      localJob.runtime_info = runtime_info
-      if (localOnFinished) localOnFinished(result)
-    }
-    this._jobErrorCallbacks[clientJobId] = (error_message: string, runtime_info: any) => {
-      localJob.error_message = error_message
-      localJob.runtime_info = runtime_info
-      if (localOnError) localOnError(error_message)
-    }
-    this.model.send({type: 'hitherCreateJob', functionName, kwargs, clientJobId}, {})
-    const _wait = () => {
-      return new Promise((resolve, reject) => {
-        if (localJob.result) {
-          resolve(localJob.result)
-          return
-        }
-        if (localJob.error_message) {
-          reject(new Error(localJob.error_message))
-          return
-        }
-        localOnFinished = (result: any) => {
-          resolve(result)
-        }
-        localOnError = (error_message: string) => {
-          reject(new Error(error_message))
-        }
-      })
-    }
-    localJob.wait = _wait
-    localJob.cancel = () => {localJob.clientCancelled = true} // todo - do more than this?
-    this._activeJobs[clientJobId] = localJob
-    this._startIterating()
-    return localJob
-  }
-  _startIterating() {
-    if (this._iterating) return
-    this._iterating = true
-    ;(async () => {
-      while (true) {
-        if (Object.values(this._activeJobs).length === 0) {
-          this._iterating = false
-          return
-        }
-        this.model.send({type: 'iterate'}, {})
-        await sleepMsec(3000)
-      }
-    })()
-  }
-}
+// class HitherJobManager {
+//   _activeJobs: {[key: string]: any} = {}
+//   _jobFinishedCallbacks: {[key: string]: (result: any, runtime_info: any) => void} = {}
+//   _jobErrorCallbacks: {[key: string]: (error_message: string, runtime_info: any) => void} = {}
+//   _iterating: boolean = false
+//   constructor(private model: DOMWidgetModel) {
+//     model.on('msg:custom', (msg: any) => {
+//       if (msg.type === 'hitherJobFinished') {
+//         const clientJobId = msg.client_job_id
+//         if (this._activeJobs[clientJobId]) {
+//           delete this._activeJobs[clientJobId]
+//           const url = `/sha1/${msg.result_sha1}`
+//           axios.get(url).then((result) => {
+//             const x = processHitherJobResult(result.data)
+//             const cb = this._jobFinishedCallbacks[clientJobId]
+//             if (cb) {
+//               cb(x, msg.runtime_info)
+//             }
+//           })
+//           .catch((err: Error) => {
+//             const cb = this._jobErrorCallbacks[clientJobId]
+//             if (cb) {
+//               cb(`Problem retrieving result: ${err.message}`, msg.runtime_info)
+//             }
+//           })
+//         }
+//       }
+//       else if (msg.type === 'hitherJobError') {
+//         const clientJobId = msg.client_job_id
+//         const cb = this._jobErrorCallbacks[msg.client_job_id]
+//         if (cb) {
+//           cb(msg.error_message, msg.runtime_info)
+//         }
+//         delete this._activeJobs[clientJobId]
+//       }
+//       else if (msg.type === 'debug') {
+//         console.info('DEBUG MESSAGE', msg)
+//       }
+//     })
+//   }
+//   sendMessage(msg: {[key: string]: any}) {
+//     this.model.send(msg, {})
+//   }
+//   createHitherJob(functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) {
+//     const clientJobId: string = randomAlphaId()
+//     let localJob: HitherJob = {
+//       jobId: null,
+//       functionName,
+//       kwargs,
+//       opts,
+//       clientJobId,
+//       result: null,
+//       runtime_info: {},
+//       error_message: null,
+//       status: '',
+//       timestampStarted: 0,
+//       timestampFinished: null,
+//       clientCancelled: false,
+//       wait: async () => {}, // this will be replaced below
+//       cancel: () => {} // replaced below
+//     }
+//     let localOnFinished: ((result: any) => void) | null = null
+//     let localOnError: ((error_message: string) => void) | null = null
+//     this._jobFinishedCallbacks[clientJobId] = (result: any, runtime_info: any) => {
+//       localJob.result = result
+//       localJob.runtime_info = runtime_info
+//       if (localOnFinished) localOnFinished(result)
+//     }
+//     this._jobErrorCallbacks[clientJobId] = (error_message: string, runtime_info: any) => {
+//       localJob.error_message = error_message
+//       localJob.runtime_info = runtime_info
+//       if (localOnError) localOnError(error_message)
+//     }
+//     this.model.send({type: 'hitherCreateJob', functionName, kwargs, clientJobId}, {})
+//     const _wait = () => {
+//       return new Promise((resolve, reject) => {
+//         if (localJob.result) {
+//           resolve(localJob.result)
+//           return
+//         }
+//         if (localJob.error_message) {
+//           reject(new Error(localJob.error_message))
+//           return
+//         }
+//         localOnFinished = (result: any) => {
+//           resolve(result)
+//         }
+//         localOnError = (error_message: string) => {
+//           reject(new Error(error_message))
+//         }
+//       })
+//     }
+//     localJob.wait = _wait
+//     localJob.cancel = () => {localJob.clientCancelled = true} // todo - do more than this?
+//     this._activeJobs[clientJobId] = localJob
+//     this._startIterating()
+//     return localJob
+//   }
+//   _startIterating() {
+//     if (this._iterating) return
+//     this._iterating = true
+//     ;(async () => {
+//       while (true) {
+//         if (Object.values(this._activeJobs).length === 0) {
+//           this._iterating = false
+//           return
+//         }
+//         this.model.send({type: 'iterate'}, {})
+//         await sleepMsec(3000)
+//       }
+//     })()
+//   }
+// }
 
 export class SortingViewModel extends DOMWidgetModel {
   initialize(attributes: any, options: any) {
@@ -274,6 +288,16 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     }, null)
   }, [model])
 
+  // default time range
+  useEffect(() => {
+    if (recordingInfo) {
+      if (!selection.timeRange) {
+        const newTimeRange = {min: 0, max: Math.min(recordingInfo.num_frames, Math.floor(recordingInfo.sampling_frequency / 10))}
+        selectionDispatch({type: 'SetTimeRange', timeRange: newTimeRange})
+      }
+    }
+  }, [recordingInfo, selection.timeRange])
+
   const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
   const [width, setWidth] = useState<number | undefined>(undefined)
   const [height, setHeight] = useState<number | undefined>(undefined)
@@ -349,9 +373,9 @@ function useInterval(callback: () => void, delay: number | null) {
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 export class SortingView extends DOMWidgetView {
-  _hitherJobManager: HitherJobManager
+  // _hitherJobManager: HitherJobManager
   initialize() {
-    this._hitherJobManager = new HitherJobManager(this.model)
+    // this._hitherJobManager = new HitherJobManager(this.model)
   }
   element() {
     const pluginName = this.model.get('pluginName')
@@ -363,10 +387,48 @@ export class SortingView extends DOMWidgetView {
     
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-    const hither: HitherInterface = {
-      createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts): HitherJob => {
-        return this._hitherJobManager.createHitherJob(functionName, kwargs, opts)
+    const baseSha1Url = `/sha1`
+    const hither = initializeHitherInterface(msg => {
+      if (msg.type === 'hitherCreateJob') _startIterating(300)
+      this.model.send(msg, {})
+    }, baseSha1Url)
+    this.model.on('msg:custom', (msg: any) => {
+      if (msg.type === 'hitherJobCreated') {
+        _startIterating(300)
+        hither.handleHitherJobCreated(msg)
       }
+      else if (msg.type === 'hitherJobFinished') {
+        _startIterating(300)
+        hither.handleHitherJobFinished(msg)
+      }
+      else if (msg.type === 'hitherJobError') {
+        _startIterating(300)
+        hither.handleHitherJobError(msg)
+      }
+      else if (msg.type === 'debug') {
+        console.info('DEBUG MESSAGE', msg)
+      }
+    })
+    let _iterating = false
+    let _iterate_interval = 200
+    const _startIterating = (interval: number) => {
+      _iterate_interval = interval
+      if (_iterating) {
+        this.model.send({type: 'iterate'}, {})
+        return
+      }
+      _iterating = true
+      ;(async () => {
+        while (true) {
+          if (hither.getNumActiveJobs() === 0) {
+            _iterating = false
+            return
+          }
+          this.model.send({type: 'iterate'}, {})
+          await sleepMsec(_iterate_interval)
+          _iterate_interval = Math.min(5000, _iterate_interval + 50)
+        }
+      })()
     }
 
     const plugins: Plugins = {

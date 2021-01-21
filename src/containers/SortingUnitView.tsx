@@ -5,7 +5,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SimilarUnit from '../components/SimilarUnit';
-import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/common/hither';
+import { CalculationPool, createCalculationPool, HitherContext, useHitherJob } from '../extensions/common/hither';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
@@ -39,22 +39,11 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
   const hither = useContext(HitherContext)
   const { documentId, feedUri } = documentInfo;
 
-  const [sortingInfoStatus, setSortingInfoStatus] = useState<string | null>(null);
-  const [sortingInfo, setSortingInfo] = useState<SortingInfo | null>(null);
-
-  const effect = async () => {
-    if (sortingInfoStatus === null) {
-      setSortingInfoStatus('computing');
-      const sortingInfo = await hither.createHitherJob(
-        'createjob_get_sorting_info',
-        { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-        { useClientCache: true }
-      ).wait() as SortingInfo;
-      setSortingInfo(sortingInfo);
-      setSortingInfoStatus('finished');
-    }
-  }
-  useEffect(() => {effect()});
+  const {result: sortingInfo, job: sortingInfoJob} = useHitherJob<SortingInfo>(
+    'createjob_get_sorting_info',
+    { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
+    { useClientCache: true }
+  )
   
   const width = size.width
   if (!width) return <div>No width</div>
