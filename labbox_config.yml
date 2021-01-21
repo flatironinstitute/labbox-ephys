@@ -1,0 +1,13 @@
+---
+compute_resource_uri: feed://b16f0abbd0ccb46ad53a4f492053092d8856b273f5cba53147c41461656327fa?name=dubbb
+job_handlers:
+  local:
+    type: local
+  partition1:
+    type: remote
+  partition2:
+    type: remote
+  partition3:
+    type: remote
+  timeseries:
+    type: remote
