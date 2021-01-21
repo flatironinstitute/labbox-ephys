@@ -4,20 +4,31 @@ import Toolbar from '@material-ui/core/Toolbar';
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import Typography from '@material-ui/core/Typography';
 import { Home } from '@material-ui/icons';
-import * as QueryString from "query-string";
-import React, { Fragment, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { Link, Redirect, Route, Switch, withRouter } from 'react-router-dom';
+import QueryString from 'querystring';
+import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } from 'react';
+import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { Link, Redirect, Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
 import { setDocumentInfo } from './actions';
-import HitherJobMonitorControl from './containers/HitherJobMonitorControl';
+import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import PersistStateControl from './containers/PersistStateControl';
+import { HitherJob } from './extensions/common/hither';
+import { ExtensionsConfig } from './extensions/reducers';
 import { getPathQuery } from './kachery';
+import { RootAction, RootState } from './reducers';
+import { DocumentInfo } from './reducers/documentInfo';
 import Routes from './Routes';
 
 
-const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
+type ToolBarContentProps = {
+    documentInfo: DocumentInfo
+    extensionsConfig: ExtensionsConfig
+    websocketStatus: string
+}
+
+const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ documentInfo, extensionsConfig, websocketStatus }) => {
     const { documentId, feedUri } = documentInfo;
+    const hitherJobs: HitherJob[] = []
     return (
         <Fragment>
             <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
@@ -31,13 +42,15 @@ const ToolBarContent = ({ documentInfo, extensionsConfig }) => {
             <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} >Config</Button>
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
-            <HitherJobMonitorControl />
+            <HitherJobMonitorControl
+                {...{documentInfo, hitherJobs, websocketStatus}}
+            />
         </Fragment>
     )
 }
 //////////////////////////////////////////////////////////////
 
-const SetDocumentInfo = ({ documentId, feedUri, onSetDocumentInfo }) => {
+const SetDocumentInfo: FunctionComponent<{documentId: string | null, feedUri: string | null, onSetDocumentInfo: (di: DocumentInfo) => void}> = ({ documentId, feedUri, onSetDocumentInfo }) => {
     useEffect(() => {
         (async () => {
             console.info(`Using feed: ${feedUri}`);
@@ -77,7 +90,23 @@ function useWindowDimensions() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-const AppContainer = ({ location, initialLoadComplete, children, documentInfo, onSetDocumentInfo, extensionsConfig, size }) => {
+interface StateProps {
+    initialLoadComplete: boolean
+    extensionsConfig: ExtensionsConfig
+    documentInfo: DocumentInfo
+    websocketStatus: string
+}
+
+interface DispatchProps {
+    onSetDocumentInfo: (documentInfo: DocumentInfo) => void
+}
+
+interface OwnProps {
+}
+
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
+
+const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, documentInfo, onSetDocumentInfo, extensionsConfig, websocketStatus }) => {
     const { documentId } = documentInfo;
 
     const { width, height } = useWindowDimensions()
@@ -91,7 +120,7 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
                         const query = QueryString.parse(location.search);
                         return <SetDocumentInfo
                             documentId={match.params.documentId}
-                            feedUri={query.feed || null}
+                            feedUri={(query.feed as string) || null}
                             onSetDocumentInfo={onSetDocumentInfo}
                         />
                     }}
@@ -111,7 +140,7 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
         <div className={"TheAppBar"}>
             <AppBar position="static">
                 <Toolbar>
-                    <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} />
+                    <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} websocketStatus={websocketStatus} />
                 </Toolbar>
             </AppBar>
             <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: toolBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -127,15 +156,14 @@ const AppContainer = ({ location, initialLoadComplete, children, documentInfo, o
     )
 }
 
-const mapStateToProps = state => {
-    return {
-        initialLoadComplete: state.serverConnection.initialLoadComplete,
-        documentInfo: state.documentInfo,
-        extensionsConfig: state.extensionsConfig
-    }
-}
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
+    initialLoadComplete: state.serverConnection.initialLoadComplete,
+    documentInfo: state.documentInfo,
+    extensionsConfig: state.extensionsConfig,
+    websocketStatus: state.serverConnection.websocketStatus
+})
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
     onSetDocumentInfo: documentInfo => dispatch(setDocumentInfo(documentInfo))
 })
 
