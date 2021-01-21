@@ -49,11 +49,12 @@ class WorkerSession:
 
         server_info = {
             'nodeId': node_id,
-            'defaultFeedId': self._default_feed_id
+            'defaultFeedId': self._default_feed_id,
+            'labboxConfig': self._labbox_config
         }
         msg = {
             'type': 'reportServerInfo',
-            'serverInfo': server_info,
+            'serverInfo': server_info
         }
         self._send_message(msg)
     def cleanup(self):

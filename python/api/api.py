@@ -32,36 +32,13 @@ from labbox_ephys.api._session import Session
 
 def main():
     config_path_or_url = os.environ.get('LABBOX_EPHYS_CONFIG', None)
+    if config_path_or_url is None:
+        default_config_path = f'{thisdir}/../../labbox_config.yml'
+        if os.path.exists(default_config_path):
+            config_path_or_url = default_config_path
     print(f"LABBOX_EPHYS_CONFIG: {config_path_or_url}")
     if config_path_or_url:
-        if config_path_or_url == 'ephys1':
-            # hard-coded for now - will remove
-            labbox_config = {
-                'compute_resource_uri': 'feed://09b27ce6c71add9fe6effaf351fce98d867d6fa002333a8b06565b0a108fb0ba?name=ephys1',
-                'job_handlers': {
-                    'local': {
-                        'type': 'local'
-                    },
-                    'partition1': {
-                        'type': 'remote',
-                        'cr_partition': 'partition1'
-                    },
-                    'partition2': {
-                        'type': 'remote',
-                        'cr_partition': 'partition2'
-                    },
-                    'partition3': {
-                        'type': 'remote',
-                        'cr_partition': 'partition3'
-                    },
-                    'timeseries': {
-                        'type': 'remote',
-                        'cr_partition': 'partition3'
-                    }
-                }
-            }
-        else:    
-            labbox_config = load_config(config_path_or_url)
+        labbox_config = load_config(config_path_or_url)
     else:
         labbox_config = {
             'compute_resource_uri': '',

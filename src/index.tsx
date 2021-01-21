@@ -143,11 +143,9 @@ apiConnection.onConnect(() => {
 apiConnection.onMessage(msg => {
   const type0 = msg.type;
   if (type0 === 'reportServerInfo') {
-    const { nodeId, defaultFeedId } = msg.serverInfo;
     theStore.dispatch({
       type: SET_SERVER_INFO,
-      nodeId,
-      defaultFeedId
+      serverInfo: msg.serverInfo
     });
   }
   else if (type0 === 'action') {

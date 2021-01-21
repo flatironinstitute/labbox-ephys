@@ -1,15 +1,36 @@
 import { Reducer } from 'react'
 import { SET_SERVER_INFO } from '../actions'
 
-interface ServerInfo {
-    nodeId: string | null
-    defaultFeedId: string | null
+type HandlerType = 'local' | 'remote'
+
+export interface ServerInfo {
+    nodeId?: string
+    defaultFeedId?: string
+    labboxConfig?: {
+        compute_resource_uri: string
+            job_handlers: {
+            local: {
+                type: HandlerType
+            },
+            partition1: {
+                type: HandlerType
+            },
+            partition2: {
+                type: HandlerType
+            },
+            partition3: {
+                type: HandlerType
+            },
+            timeseries: {
+                type: HandlerType
+            }
+        }
+    }
 }
 
 interface SetServerInfoAction {
     type: 'SET_SERVER_INFO'
-    nodeId: string
-    defaultFeedId: string
+    serverInfo: ServerInfo
 }
 const isSetServerInfoAction = (x: any): x is SetServerInfoAction => (
     x.type === SET_SERVER_INFO
@@ -17,15 +38,12 @@ const isSetServerInfoAction = (x: any): x is SetServerInfoAction => (
 
 export type State = ServerInfo
 export type Action = SetServerInfoAction
-export const initialState: State = {nodeId: null, defaultFeedId: null}
+export const initialState: State = {}
 
 // the reducer
 const serverInfo: Reducer<State, Action> = (state: State = initialState, action: Action): State => {
     if (isSetServerInfoAction(action)) {
-        return {
-            nodeId: action.nodeId,
-            defaultFeedId: action.defaultFeedId
-        }
+        return action.serverInfo
     }
     else {
         return state
