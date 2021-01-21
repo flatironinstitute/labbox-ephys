@@ -3,7 +3,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import About from "./components/About";
 import Docs from "./components/Docs";
 import Config from './containers/Config';
-import HitherJobMonitor from './containers/HitherJobMonitor';
+import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Home from "./containers/Home";
 import ImportRecordings from "./containers/ImportRecordings";
 import ImportSortings from "./containers/ImportSortings";

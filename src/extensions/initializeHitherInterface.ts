@@ -232,12 +232,18 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
     const getNumActiveJobs = () => {
         return Object.values(globalData.hitherJobs).filter(j => (!['finished', 'error'].includes(j._object.status))).length
     }
+    const getHitherJobs = (): HitherJob[] => {
+        return Object.values(globalData.hitherJobs).map(j => ({
+            ...(j._object)
+        }))
+    }
     return {
         createHitherJob,
         handleHitherJobFinished,
         handleHitherJobError,
         handleHitherJobCreated,
-        getNumActiveJobs
+        getNumActiveJobs,
+        getHitherJobs
     }
 }
 

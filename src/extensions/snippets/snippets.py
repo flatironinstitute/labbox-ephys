@@ -31,6 +31,7 @@ def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object
 @hi.function('get_sorting_unit_snippets', '0.1.7')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@le.serialize
 def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets):
     import h5py
     h5_path = ka.load_file(snippets_h5)
@@ -88,6 +89,7 @@ def createjob_get_sorting_unit_info(labbox, recording_object, sorting_object, un
 @hi.function('get_sorting_unit_info', '0.1.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@le.serialize
 def get_sorting_unit_info(snippets_h5, unit_id):
     import h5py
     h5_path = ka.load_file(snippets_h5)
