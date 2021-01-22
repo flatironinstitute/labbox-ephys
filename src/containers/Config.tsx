@@ -39,12 +39,12 @@ const Config: FunctionComponent<Props> = ({ extensionsConfig }) => {
   //   component: <ConfigJobHandlers />
   // })
   tabs.push({
-    label: 'Sharing',
-    component: <ConfigSharing />
-  })
-  tabs.push({
     label: 'Compute Resource',
     component: <ConfigComputeResource />
+  })
+  tabs.push({
+    label: 'Sharing',
+    component: <ConfigSharing />
   })
   tabs.push({
     label: 'Extensions',

@@ -38,7 +38,7 @@ const ConfigSharing: FunctionComponent<Props> = ({ documentInfo, defaultFeedId }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     documentInfo: state.documentInfo,
-    defaultFeedId: state.serverInfo.defaultFeedId
+    defaultFeedId: state.serverInfo?.defaultFeedId || ''
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

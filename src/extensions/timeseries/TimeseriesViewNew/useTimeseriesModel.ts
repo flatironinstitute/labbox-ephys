@@ -62,8 +62,8 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
   const segment_size = Math.ceil(segment_size_times_num_channels / num_channels)
 
   const getChannelData = useMemo(() => ((ch: number, t1: number, t2: number, ds_factor: number) => {
-    const i1 = Math.floor(t1 / segment_size)
-    const i2 = Math.ceil((t2 -1) / segment_size)
+    const i1 = Math.floor(Math.max(0, t1) / segment_size)
+    const i2 = Math.ceil((Math.min(t2, recordingInfo.num_frames) -1) / segment_size)
     const segments = []
     for (let i = i1; i <= i2; i++) {
       if ((i === i1) && (i === i2)) {

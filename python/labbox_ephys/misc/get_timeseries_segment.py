@@ -19,7 +19,7 @@ def createjob_get_timeseries_segment(labbox, recording_object, ds_factor, segmen
     ):
         return get_timeseries_segment.run(recording_object=recording_object, ds_factor=ds_factor, segment_num=segment_num, segment_size=segment_size)
 
-@hi.function('get_timeseries_segment', '0.1.1')
+@hi.function('get_timeseries_segment', '0.1.2')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @le.serialize
@@ -47,7 +47,7 @@ def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_siz
         traces[:, 1::2] = traces_max
     
     return {
-        'traces': traces
+        'traces': traces.astype(np.float32)
     }
     # data_b64 = _mda32_to_base64(traces)
     # # elapsed = time.time() - timer

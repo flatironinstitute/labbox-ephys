@@ -1,9 +1,13 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import Markdown from '../extensions/common/Markdown';
 import { RootAction, RootState } from '../reducers';
+import { ServerInfo } from '../reducers/serverInfo';
+import md from './ConfigComputeResource.md.gen';
+
 
 interface StateProps {
-    nodeId: string | null
+    serverInfo: ServerInfo
 }
 
 interface DispatchProps {
@@ -14,23 +18,21 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const  ComponentName: FunctionComponent<Props> = ({ nodeId }) => {
-    const Content = () => {
-        return <div>
-            <pre>kachery-p2p node ID: {nodeId}</pre>
-        </div>
+const ConfigComputeResource: FunctionComponent<Props> = ({ serverInfo }) => {
+    const substitute = {
+        nodeId: serverInfo.nodeId,
+        computeResourceUri: (serverInfo?.labboxConfig)?.compute_resource_uri || 'local'
     }
-
     return (
-        <div>
-            <h1>Compute resource configuration</h1>
-            <Content />
-        </div>
+        <Markdown
+            source={md}
+            substitute={substitute}
+        />
     )
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    nodeId: state.serverInfo.nodeId
+    serverInfo: state.serverInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
@@ -39,4 +41,4 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatc
 export default connect<StateProps, DispatchProps, OwnProps, RootState>(
     mapStateToProps,
     mapDispatchToProps
-)( ComponentName)
+)(ConfigComputeResource)

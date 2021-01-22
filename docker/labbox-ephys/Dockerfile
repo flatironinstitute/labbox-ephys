@@ -46,7 +46,7 @@ RUN pip install pynwb
 
 # #########################################
 # ### Install kachery-p2p
-RUN pip install kachery-p2p==0.5.11
+RUN pip install kachery-p2p==0.5.15
 
 # #########################################
 # ### Install hither
