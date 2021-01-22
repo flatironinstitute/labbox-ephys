@@ -1,5 +1,6 @@
 import os
 import time
+import json
 
 import hither as hi
 import kachery as ka
@@ -43,6 +44,7 @@ class WorkerSession:
         self._remote_job_handlers = {}
         self._on_message_callbacks = []
         self._queued_document_action_messages = []
+        self._additional_subfeed_watches = []
 
     def initialize(self):
         node_id = kp.get_node_id()
@@ -153,8 +155,8 @@ class WorkerSession:
             job = self._jobs_by_id[job_id]
             job.cancel()
     def iterate(self):
+        subfeed_watches = {}
         if (self._feed_uri is not None) and (self._feed_uri.startswith('feed://')):
-            subfeed_watches = {}
             for key in ['recordings', 'sortings']:
                 subfeed_name = dict(key=key, documentId=self._document_id)
                 subfeed_watches[key] = dict(
@@ -162,11 +164,23 @@ class WorkerSession:
                     subfeedName=subfeed_name,
                     position=self._subfeed_positions[key]
                 )
+        for w in self._additional_subfeed_watches:
+            subfeed_watches[w['watch_name']] = dict(
+                feedId = w['feed_id'],
+                subfeedHash=w['subfeed_hash'],
+                position=self._subfeed_positions[w['watch_name']]
+            )
+        if len(subfeed_watches.keys()) > 0:
             messages = kp.watch_for_new_messages(subfeed_watches=subfeed_watches, wait_msec=100)
             for key in messages.keys():
-                for m in messages[key]:
-                    self._send_message({'type': 'action', 'action': m['action']})
-                    self._subfeed_positions[key] = self._subfeed_positions[key] + 1
+                if key in ['recordings', 'sortings']:
+                    for m in messages[key]:
+                        self._send_message({'type': 'action', 'action': m['action']})
+                        self._subfeed_positions[key] = self._subfeed_positions[key] + 1
+                else:
+                    for m in messages[key]:
+                        self._send_message({'type': 'subfeedMessage', 'watchName': key, 'message': m})
+                        self._subfeed_positions[key] = self._subfeed_positions[key] + 1
         hi.wait(0)
         job_ids = list(self._jobs_by_id.keys())
         for job_id in job_ids:
@@ -200,6 +214,13 @@ class WorkerSession:
                 self._send_message(msg)
     def on_message(self, callback):
         self._on_message_callbacks.append(callback)
+    def add_subfeed_watch(self, *, watch_name: str, feed_id: str, subfeed_hash: str):
+        self._additional_subfeed_watches.append(dict(
+            watch_name=watch_name,
+            feed_id=feed_id,
+            subfeed_hash=subfeed_hash
+        ))
+        self._subfeed_positions[watch_name] = 0
     def _send_message(self, msg):
         for cb in self._on_message_callbacks:
             cb(msg)
