@@ -4,6 +4,7 @@ import os
 import sys
 
 from .api._workersession import WorkerSession
+from .serialize import serialize
 from .extensions import *
 from .extractors import (LabboxEphysRecordingExtractor,
                          LabboxEphysSortingExtractor, MdaRecordingExtractor,

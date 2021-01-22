@@ -28,9 +28,10 @@ def createjob_individual_cluster_features(labbox, recording_object, sorting_obje
             unit_id=unit_id
         )
 
-@hi.function('individual_cluster_features', '0.1.1')
+@hi.function('individual_cluster_features', '0.1.2')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@le.serialize
 def individual_cluster_features(snippets_h5, unit_id):
     import h5py
     h5_path = ka.load_file(snippets_h5)

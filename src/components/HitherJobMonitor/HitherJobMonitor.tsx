@@ -1,28 +1,38 @@
 import { Button, IconButton, Link as LinkMui, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
-import React, { Dispatch, FunctionComponent, useState } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import NiceTable from '../components/NiceTable';
-import { HitherJob } from '../extensions/common/hither';
-import { RootAction, RootState } from '../reducers';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { HitherContext, HitherJob } from '../../extensions/common/hither';
+import NiceTable from '../NiceTable';
 
-interface StateProps {
-    allJobs: HitherJob[],
-    pendingJobs: HitherJob[],
-    runningJobs: HitherJob[],
-    finishedJobs: HitherJob[],
-    erroredJobs: HitherJob[]
-}
+type Props = {}
 
-interface DispatchProps {
-}
+const HitherJobMonitor: FunctionComponent<Props> = () => {
+    const [hitherJobs, setHitherJobs] = useState<HitherJob[]>([])
+    const hither = useContext(HitherContext)
+    useEffect(() => {
+        // this should only get called once
+        // (hither should not change, but if it does we might have a problem here)
+        const update = () => {
+            const hj = hither.getHitherJobs()
+            setHitherJobs(hj)
+        }
+        update()
+        const timer1 = setInterval(() => {
+            update()
+        }, 1000)
+        return () => {
+            clearInterval(timer1)
+        }
+    }, [hither])
 
-interface OwnProps {
-}
+    const { allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs } = {
+        allJobs: hitherJobs,
+        pendingJobs: hitherJobs.filter(j => (j.status === 'pending')),
+        runningJobs: hitherJobs.filter(j => (j.status === 'running')),
+        finishedJobs: hitherJobs.filter(j => (j.status === 'finished')),
+        erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
+    }
 
-type Props = StateProps & DispatchProps & OwnProps
-
-const HitherJobMonitor: FunctionComponent<Props> = ({ allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs }) => {
     const [currentJob, setCurrentJob] = useState<HitherJob | null>(null);
 
     const handleCancelJob = (j: HitherJob) => {
@@ -253,18 +263,4 @@ function formatTime(d: Date) {
     return ret;
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    allJobs: state.hitherJobs,
-    pendingJobs: state.hitherJobs.filter(j => (j.status === 'pending')),
-    runningJobs: state.hitherJobs.filter(j => (j.status === 'running')),
-    finishedJobs: state.hitherJobs.filter(j => (j.status === 'finished')),
-    erroredJobs: state.hitherJobs.filter(j => (j.status === 'error'))
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(HitherJobMonitor)
+export default HitherJobMonitor

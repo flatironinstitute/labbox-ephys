@@ -42,8 +42,10 @@ export const dummyHitherJob: HitherJob = {
 
 export interface HitherInterface {
     createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => HitherJob
+    getHitherJobs: () => HitherJob[]
 }
 
 export const dummyHitherInterface: HitherInterface = {
-    createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => (dummyHitherJob)
+    createHitherJob: (functionName: string, kwargs: {[key: string]: any}, opts: HitherJobOpts) => (dummyHitherJob),
+    getHitherJobs: (): HitherJob[] => []
 }

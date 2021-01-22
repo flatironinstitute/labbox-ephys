@@ -22,6 +22,7 @@ def createjob_get_timeseries_segment(labbox, recording_object, ds_factor, segmen
 @hi.function('get_timeseries_segment', '0.1.1')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
+@le.serialize
 def get_timeseries_segment(recording_object, ds_factor, segment_num, segment_size):
     import time
     recording0 = le.LabboxEphysRecordingExtractor(recording_object, download=False)

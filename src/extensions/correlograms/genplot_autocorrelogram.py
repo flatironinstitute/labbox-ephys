@@ -2,15 +2,16 @@ import os
 import hither as hi
 import kachery as ka
 import numpy as np
+import labbox_ephys as le
 
 from ._correlograms_phy import compute_correlograms
 
 
-@hi.function('fetch_correlogram_plot_data', '0.2.3')
+@hi.function('fetch_correlogram_plot_data', '0.2.4')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@le.serialize
 def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
-    import labbox_ephys as le
     S = le.LabboxEphysSortingExtractor(sorting_object)
     data = _get_correlogram_data(sorting=S, unit_id1=unit_x, unit_id2=unit_y,
         window_size_msec=50, bin_size_msec=1)
@@ -19,7 +20,7 @@ def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
 @hi.function('createjob_fetch_correlogram_plot_data', '')
 def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y=None):
     jh = labbox.get_job_handler('partition1')
-    # jc = labbox.get_job_cache()
+    jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=None, # jc,
         job_handler=jh,
