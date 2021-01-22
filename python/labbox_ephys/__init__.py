@@ -16,8 +16,8 @@ from .helpers.prepare_snippets_h5 import (prepare_snippets_h5,
                                           prepare_snippets_h5_from_extractors)
 from .helpers.SubsampledSortingExtractor import SubsampledSortingExtractor
 from .misc import get_recording_info, get_recording_object, get_sorting_info
-from .register_views import (recording_views, register_recording_view,
-                             register_sorting_view, sorting_views)
+from .register_views import (_recording_views, register_recording_view,
+                             register_sorting_view, _sorting_views)
 from .sorters import sorters
 
 dummy = 0
