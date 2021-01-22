@@ -21,3 +21,5 @@ import extensions
 extensions # just keep the linter happy - we only need to import extensions to register the hither functions
 # remove the prepended path so we don't have side-effects
 sys.path.remove(f'{thisdir}/../src')
+
+from labbox_ephys import _sorting_views as sorting_views, _recording_views as recording_views
