@@ -38,7 +38,7 @@ setuptools.setup(
         'spikeextractors>=0.9.2',
         'spiketoolkit>=0.7.1',
         'hither>=0.4.2',
-        'kachery-p2p>=0.5.11',
+        'kachery-p2p>=0.5.15',
         'websockets',
         'pyyaml'
     ],

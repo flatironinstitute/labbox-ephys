@@ -1,3 +1,4 @@
+import os
 import hither as hi
 import kachery_p2p as kp
 import labbox_ephys as le
@@ -16,6 +17,8 @@ def createjob_get_sorting_info(labbox, sorting_object, recording_object):
         return get_sorting_info.run(sorting_object=sorting_object, recording_object=recording_object)
 
 @hi.function('get_sorting_info', '0.1.0')
+@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
+@hi.local_modules([os.environ.get('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def get_sorting_info(sorting_object, recording_object):
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
     recording = le.LabboxEphysRecordingExtractor(recording_object, download=False)
