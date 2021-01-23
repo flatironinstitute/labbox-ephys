@@ -4,9 +4,11 @@ import docsMd from './docs.md.gen';
 
 const Docs: FunctionComponent<{}> = () => {
     return (
-        <Markdown
-            source={docsMd}
-        />
+        <div style={{padding: 20}}>
+            <Markdown
+                source={docsMd}
+            />
+        </div>
     )
 }
 

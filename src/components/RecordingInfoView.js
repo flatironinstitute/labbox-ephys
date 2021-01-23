@@ -49,7 +49,7 @@ const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
 
 const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames, noise_level }) => {
     return (
-        <Table>
+        <Table className="NiceTable">
             <TableHead>
             </TableHead>
             <TableBody>

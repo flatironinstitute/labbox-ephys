@@ -1,6 +1,7 @@
 // LABBOX-EXTENSION: pythonsnippets
 // LABBOX-EXTENSION-TAGS:
 
+import SubjectIcon from '@material-ui/icons/Subject';
 import { ExtensionContext } from "../extensionInterface";
 import LoadSortingPythonSnippet from './LoadSortingPythonSnippet/LoadSortingPythonSnippet';
 
@@ -10,6 +11,7 @@ export function activate(context: ExtensionContext) {
         label: 'Load sorting in Python',
         priority: 0,
         component: LoadSortingPythonSnippet,
-        singleton: true
+        singleton: true,
+        icon: <SubjectIcon />
     })
 }

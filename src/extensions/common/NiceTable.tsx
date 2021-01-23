@@ -14,13 +14,13 @@ interface Col {
 interface Props {
     rows: Row[],
     columns: Col[],
-    onDeleteRow: ((row: Row) => void) | undefined,
-    deleteRowLabel: string | undefined,
-    onEditRow: ((row: Row) => void) | undefined,
-    editRowLabel: string | undefined,
-    selectionMode: 'none' | 'single' | 'multiple',
-    selectedRowKeys: {[key: string]: boolean},
-    onSelectedRowKeysChanged: ((keys: string[]) => void) | undefined
+    onDeleteRow?: ((row: Row) => void),
+    deleteRowLabel?: string,
+    onEditRow?: ((row: Row) => void),
+    editRowLabel?: string,
+    selectionMode?: 'none' | 'single' | 'multiple',
+    selectedRowKeys?: {[key: string]: boolean},
+    onSelectedRowKeysChanged?: ((keys: string[]) => void)
 }
 
 const NiceTable: FunctionComponent<Props> = ({

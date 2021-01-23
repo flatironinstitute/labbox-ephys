@@ -1,6 +1,8 @@
-import { faSquare } from '@fortawesome/free-regular-svg-icons'
-import { faEnvelope, faGrinHearts, faPencilAlt, faSocks, faVials } from '@fortawesome/free-solid-svg-icons'
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { GraphicEq, Settings, Visibility } from '@material-ui/icons'
+import GrainIcon from '@material-ui/icons/Grain'
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser'
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
@@ -181,12 +183,12 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
     }, [openViewsDispatch])
     const width = props.width || 600
     const height = props.height || 900
-    const preprocessingIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSocks} type="outline" /></span>
-    const visibleUnitsIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faVials} type="outline" /></span>
-    const visibleElectrodesIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faEnvelope} type="outline" /></span>
-    const launchIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faSquare} type="outline" /></span>
+    const preprocessingIcon = <span style={{color: 'gray'}}><GraphicEq /></span>
+    const visibleUnitsIcon = <span style={{color: 'gray'}}><Visibility /></span>
+    const visibleElectrodesIcon = <span style={{color: 'gray'}}><GrainIcon /></span>
+    const launchIcon = <span style={{color: 'gray'}}><OpenInBrowserIcon /></span>
     const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
-    const optionsIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faGrinHearts} /></span>
+    const optionsIcon = <span style={{color: 'gray'}}><Settings /></span>
 
     const sortingViewProps = {...props}
     return (
@@ -198,7 +200,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
             >
                 <div>
                     {/* Launch */}
-                    <Expandable icon={launchIcon} label="Launch" defaultExpanded={true} unmountOnExit={false}>
+                    <Expandable icon={launchIcon} label="Open views" defaultExpanded={true} unmountOnExit={false}>
                         <ViewLauncher
                             plugins={plugins}
                             onLaunchSortingView={handleLaunchSortingView}

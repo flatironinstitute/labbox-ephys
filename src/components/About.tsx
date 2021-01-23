@@ -8,9 +8,11 @@ interface Props {
 
 const About: FunctionComponent<Props> = (props) => {
     return (
-        <Markdown
-            source={aboutMd}
-        />
+        <div style={{padding: 20}}>
+            <Markdown
+                source={aboutMd}
+            />
+        </div>
     )
 }
 

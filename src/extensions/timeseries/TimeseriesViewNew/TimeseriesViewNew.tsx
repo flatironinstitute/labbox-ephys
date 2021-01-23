@@ -56,7 +56,7 @@ const TimeseriesViewNew = (props: Props) => {
                 <Splitter
                     width={props.width}
                     height={props.height}
-                    initialPosition={400}
+                    initialPosition={200}
                 >
                     {
                         opts.channelSelectPanel && (

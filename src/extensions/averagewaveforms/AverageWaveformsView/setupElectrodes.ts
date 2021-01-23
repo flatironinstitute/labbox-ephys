@@ -30,7 +30,7 @@ const computeRadius = (electrodeLocations: number[][]): number => {
         })
     })
     // (might set a hard cap, but remember these numbers are in electrode-space coordinates)
-    const radius = 0.4 * leastNorm
+    const radius = 0.45 * leastNorm
     computeRadiusCache.set(key, radius)
     return radius
 }

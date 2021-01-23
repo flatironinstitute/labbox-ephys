@@ -34,8 +34,8 @@ const SnippetsWidget: FunctionComponent<Props> = ({ recording, sorting, selectio
             <Grid container direction="column">
                 {
                     (unitIds || []).map(unitId => (
-                        <Grid item key={unitId}>
-                            <h3 style={{paddingTop: 0, paddingBottom: 0, marginTop: 0, marginBottom: 0}}>Unit {unitId}</h3>
+                        <Grid item key={unitId} style={{border: 'solid 3px lightgray', marginBottom: 2}}>
+                            <h3 style={{paddingTop: 0, paddingBottom: 0, marginTop: 10, marginBottom: 10}}>Snippets for unit {unitId}</h3>
                             <WhenVisible width={width} height={rowHeight}>
                                 <SnippetsRow {...{recording, sorting, selection, selectionDispatch, unitId, height: rowHeight, noiseLevel}} />
                             </WhenVisible>

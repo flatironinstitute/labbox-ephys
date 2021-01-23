@@ -13,6 +13,8 @@ interface Props {
     customActions?: any[] | null
 }
 
+const iconButtonStyle = {paddingLeft: 6, paddingRight: 6, paddingTop: 4, paddingBottom: 4}
+
 const TimeWidgetToolbarNew: FunctionComponent<Props> = (props) => {
     const style0 = {
         width: props.width,
@@ -65,7 +67,7 @@ const TimeWidgetToolbarNew: FunctionComponent<Props> = (props) => {
                         let color: 'inherit' | 'primary' = 'inherit';
                         if (button.selected) color = 'primary';
                         return (
-                            <IconButton title={button.title} onClick={button.onClick} key={ii} color={color}>
+                            <IconButton title={button.title} onClick={button.onClick} key={ii} color={color} style={iconButtonStyle}>
                                 {button.icon}
                             </IconButton>
                         );
