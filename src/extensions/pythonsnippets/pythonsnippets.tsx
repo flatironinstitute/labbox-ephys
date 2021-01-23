@@ -2,6 +2,7 @@
 // LABBOX-EXTENSION-TAGS:
 
 import SubjectIcon from '@material-ui/icons/Subject';
+import React from 'react';
 import { ExtensionContext } from "../extensionInterface";
 import LoadSortingPythonSnippet from './LoadSortingPythonSnippet/LoadSortingPythonSnippet';
 

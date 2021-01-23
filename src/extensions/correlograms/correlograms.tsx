@@ -2,6 +2,7 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import BarChartIcon from '@material-ui/icons/BarChart';
+import React from 'react';
 import { ExtensionContext } from "../extensionInterface";
 import AutoCorrelograms from "./AutoCorrelograms";
 import CrossCorrelogramsView from "./CrossCorrelogramsView/CrossCorrelogramsView";

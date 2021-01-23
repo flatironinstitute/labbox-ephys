@@ -2,6 +2,7 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import ScatterPlotIcon from '@material-ui/icons/ScatterPlot';
+import React from 'react';
 import { ExtensionContext } from '../extensionInterface';
 import SpikeAmplitudesUnitView from './SpikeAmplitudesView/SpikeAmplitudesUnitView';
 import SpikeAmplitudesView from './SpikeAmplitudesView/SpikeAmplitudesView';

@@ -3,6 +3,7 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import React from 'react';
 import { ExtensionContext } from "../extensionInterface";
 import RawRecordingView from "./RawViews/RawRecordingView";
 import RawSortingView from "./RawViews/RawSortingView";

@@ -2,6 +2,7 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import { BubbleChart } from '@material-ui/icons';
+import React from 'react';
 import { ExtensionContext } from '../extensionInterface';
 import IndividualClustersView from './IndividualClustersView/IndividualClustersView';
 
