@@ -8,9 +8,9 @@ import { createCalculationPool, HitherContext, useHitherJob } from '../extension
 import { filterPlugins, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
 import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -26,7 +26,7 @@ interface StateProps {
   sorting?: Sorting
   recording?: Recording
   extensionsConfig: any
-  documentInfo: DocumentInfo
+  workspaceInfo: WorkspaceInfo
   plugins: Plugins
 }
 
@@ -51,8 +51,8 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
-  const { documentId, feedUri, readOnly } = documentInfo;
+  const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
+  const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
@@ -198,11 +198,11 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       </div>
       <div style={footerStyle}>
           {`Sorting: `}
-          <Link to={`/${documentId}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
+          <Link to={`/${workspaceName}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
             {sorting.sortingLabel}
           </Link>
           {` | Recording: `}
-          <Link to={`/${documentId}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
+          <Link to={`/${workspaceName}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
             {recording.recordingLabel}
           </Link>
       </div>
@@ -239,7 +239,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
   extensionsConfig: state.extensionsConfig,
-  documentInfo: state.documentInfo
+  workspaceInfo: state.workspaceInfo
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {

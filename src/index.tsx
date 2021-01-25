@@ -176,17 +176,17 @@ apiConnection.onMessage(msg => {
   }
 });
 // setApiConnection(apiConnection);
-const waitForDocumentInfo = async () => {
+const waitForWorkspaceInfo = async () => {
   while (true) {
     const state = theStore.getState() as RootState
-    const documentInfo = state.documentInfo
-    if ((documentInfo) && (documentInfo.documentId)) {
+    const workspaceInfo = state.workspaceInfo
+    if ((workspaceInfo) && (workspaceInfo.workspaceName)) {
       apiConnection.sendMessage({
         type: 'reportClientInfo',
         clientInfo: {
-          feedUri: documentInfo.feedUri,
-          documentId: documentInfo.documentId,
-          readOnly: documentInfo.readOnly
+          feedUri: workspaceInfo.feedUri,
+          workspaceName: workspaceInfo.workspaceName,
+          readOnly: workspaceInfo.readOnly
         }
       })
       return;
@@ -194,7 +194,7 @@ const waitForDocumentInfo = async () => {
     await sleepMsec(10);
   }
 }
-waitForDocumentInfo();
+waitForWorkspaceInfo();
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

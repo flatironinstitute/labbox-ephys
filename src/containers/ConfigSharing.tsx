@@ -1,10 +1,10 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 interface StateProps {
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
     defaultFeedId: string | null
 }
 
@@ -16,19 +16,19 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const ConfigSharing: FunctionComponent<Props> = ({ documentInfo, defaultFeedId }) => {
-    const {feedUri, documentId} = documentInfo;
+const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo, defaultFeedId }) => {
+    const {feedUri, workspaceName} = workspaceInfo;
     const resolvedFeedUri = feedUri || 'feed://' + defaultFeedId;
     return (
         <div>
             <h1>Sharing</h1>
             <p>You can share the following information:</p>
             <pre>{`Feed URI: ${resolvedFeedUri}`}</pre>
-            <pre>{`document ID: ${documentId}`}</pre>
+            <pre>{`document ID: ${workspaceName}`}</pre>
             {
                 resolvedFeedUri && (
                     <pre>
-                        {`.../${documentId}?feed=${resolvedFeedUri}`}
+                        {`.../${workspaceName}?feed=${resolvedFeedUri}`}
                     </pre>
                 )
             }
@@ -37,7 +37,7 @@ const ConfigSharing: FunctionComponent<Props> = ({ documentInfo, defaultFeedId }
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    documentInfo: state.documentInfo,
+    workspaceInfo: state.workspaceInfo,
     defaultFeedId: state.serverInfo?.defaultFeedId || ''
 })
   

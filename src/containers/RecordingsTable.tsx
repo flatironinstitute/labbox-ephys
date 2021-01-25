@@ -8,12 +8,12 @@ import NiceTable from '../components/NiceTable';
 import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording, RecordingInfo } from '../reducers/recordings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 interface StateProps {
     recordings: Recording[],
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
 }
 
 interface DispatchProps {
@@ -26,9 +26,9 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
     const hither = useContext(HitherContext)
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { workspaceName, feedUri, readOnly } = workspaceInfo;
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
         return array.sort(function (a, b) {
@@ -65,7 +65,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
             recording: rec,
             recordingLabel: {
                 text: rec.recordingLabel,
-                element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
+                element: <Link title={"View this recording"} to={`/${workspaceName}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
             },
             numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
             samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
@@ -106,7 +106,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     recordings: state.recordings,
-    documentInfo: state.documentInfo
+    workspaceInfo: state.workspaceInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

@@ -1,6 +1,7 @@
 import { Reducer } from 'react'
-import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_ALL_SORTINGS_FOR_RECORDINGS, DELETE_SORTINGS, MERGE_UNITS, REMOVE_UNIT_LABEL, SET_CURATION, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO, UNMERGE_UNITS } from '../actions'
+import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_SORTINGS, MERGE_UNITS, REMOVE_UNIT_LABEL, SET_CURATION, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO, UNMERGE_UNITS } from '../actions'
 import { ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer, SortingInfo } from '../extensions/extensionInterface'
+import { DeleteRecordingsAction, isDeleteRecordingsAction } from './recordings'
 export type { ExternalSortingUnitMetric, Label, Sorting, SortingInfo } from '../extensions/extensionInterface'
 
 export interface AddSortingAction {
@@ -17,14 +18,6 @@ export interface DeleteSortingsAction {
 }
 const isDeleteSortingsAction = (x: any): x is DeleteSortingsAction => (
     x.type === DELETE_SORTINGS
-)
-
-export interface DeleteAllSortingsForRecordingsAction {
-    type: 'DELETE_ALL_SORTINGS_FOR_RECORDINGS'
-    recordingIds: string[]
-}
-const isDeleteAllSortingsForRecordingsAction = (x: any): x is DeleteAllSortingsForRecordingsAction => (
-    x.type === DELETE_ALL_SORTINGS_FOR_RECORDINGS
 )
 
 export interface SetSortingInfoAction {
@@ -93,7 +86,7 @@ const isUnmergeUnitsAction = (x: any): x is UnmergeUnitsAction => (
 )
 
 export type State = Sorting[]
-export type Action = (AddSortingAction | DeleteSortingsAction | DeleteAllSortingsForRecordingsAction | SetSortingInfoAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
+export type Action = (AddSortingAction | DeleteSortingsAction | DeleteRecordingsAction | SetSortingInfoAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
 export const initialState: State = []
 
 // the reducer
@@ -110,7 +103,7 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
             !(s.sortingId in exclude)
         ));
     }
-    else if (isDeleteAllSortingsForRecordingsAction(action)) {
+    else if (isDeleteRecordingsAction(action)) {
         const excludeRecordingIds = Object.fromEntries(action.recordingIds.map(id => [id, true]));
         return state.filter(s => (
             !(s.recordingId in excludeRecordingIds)

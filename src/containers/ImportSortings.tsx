@@ -7,13 +7,13 @@ import SortingInfoView from '../components/SortingInfoView';
 import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 interface StateProps {
     recordings: Recording[],
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
 }
 
 interface DispatchProps {
@@ -26,8 +26,8 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, documentInfo, onAddSorting }) => {
-    const { documentId, feedUri  } = documentInfo;
+const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, recordings, workspaceInfo, onAddSorting }) => {
+    const { workspaceName, feedUri  } = workspaceInfo;
     const [method, setMethod] = useState('examples');
 
     const recording = recordings.filter(r => (r.recordingId === recordingId))[0];
@@ -38,7 +38,7 @@ const ImportSortings: FunctionComponent<Props> = ({ history, recordingId, record
     const recordingObject = recording.recordingObject;
 
     const handleDone = () => {
-        history.push(`/${documentId}/recording/${recordingId}${getPathQuery({feedUri})}`);
+        history.push(`/${workspaceName}/recording/${recordingId}${getPathQuery({feedUri})}`);
     }
 
     let form;
@@ -415,7 +415,7 @@ function isEmptyObject(x: {[key: string]: any}) {
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     recordings: state.recordings,
-    documentInfo: state.documentInfo
+    workspaceInfo: state.workspaceInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

@@ -2,14 +2,14 @@ import React, { FunctionComponent, useContext, useEffect, useState } from 'react
 import { Link } from 'react-router-dom';
 import { HitherContext, HitherJob } from '../../extensions/common/hither';
 import { getPathQuery } from '../../kachery';
-import { DocumentInfo } from '../../reducers/documentInfo';
+import { WorkspaceInfo } from '../../reducers/workspaceInfo';
 
 type Props = {
-    documentInfo: DocumentInfo,
+    workspaceInfo: WorkspaceInfo,
     websocketStatus: string
 }
 
-const HitherJobMonitorControl: FunctionComponent<Props> = ({ documentInfo, websocketStatus }) => {
+const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo, websocketStatus }) => {
     const [hitherJobs, setHitherJobs] = useState<HitherJob[]>([])
     const hither = useContext(HitherContext)
     useEffect(() => {
@@ -31,13 +31,13 @@ const HitherJobMonitorControl: FunctionComponent<Props> = ({ documentInfo, webso
         finishedJobs: hitherJobs.filter(j => (j.status === 'finished')),
         erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
     }
-    const { documentId, feedUri } = documentInfo;
+    const { workspaceName, feedUri } = workspaceInfo;
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;
     const numErrored = erroredJobs.length;
     const title = `Jobs: ${numRunning} running | ${numFinished} finished | ${numErrored} errored`
     return (
-        <Link to={`/${documentId}/hitherJobMonitor${getPathQuery({ feedUri })}`} style={{ color: 'white' }} title={title}>
+        <Link to={`/${workspaceName}/hitherJobMonitor${getPathQuery({ feedUri })}`} style={{ color: 'white' }} title={title}>
             <span style={{ fontFamily: "courier", backgroundColor: (websocketStatus === 'connected') ? '' : 'red' }}>{numRunning}:{numFinished}:{numErrored}</span>
         </Link>
     );

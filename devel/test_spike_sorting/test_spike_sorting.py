@@ -64,8 +64,8 @@ le_sortings.append(dict(
 
 try:
     f = kp.create_feed()
-    recordings = f.get_subfeed(dict(documentId='default', key='recordings'))
-    sortings = f.get_subfeed(dict(documentId='default', key='sortings'))
+    recordings = f.get_subfeed(dict(workspaceName='default', key='recordings'))
+    sortings = f.get_subfeed(dict(workspaceName='default', key='sortings'))
     for le_recording in le_recordings:
         recordings.append_message(dict(
             action=dict(
@@ -85,8 +85,8 @@ try:
             action=action
         ))
     x = f.create_snapshot([
-        dict(documentId='default', key='recordings'),
-        dict(documentId='default', key='sortings')
+        dict(workspaceName='default', key='recordings'),
+        dict(workspaceName='default', key='sortings')
     ])
     print('Feed:')
     print(x.get_uri())

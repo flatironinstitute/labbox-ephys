@@ -11,15 +11,15 @@ import { filterPlugins, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 interface StateProps {
   sorting: Sorting,
   recording: Recording,
   extensionsConfig: ExtensionsConfig,
-  documentInfo: DocumentInfo
+  workspaceInfo: WorkspaceInfo
   plugins: Plugins
 }
 
@@ -35,9 +35,9 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, documentInfo, size }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, workspaceInfo, size }) => {
   const hither = useContext(HitherContext)
-  const { documentId, feedUri } = documentInfo;
+  const { workspaceName, feedUri } = workspaceInfo;
 
   const {result: sortingInfo, job: sortingInfoJob} = useHitherJob<SortingInfo>(
     'createjob_get_sorting_info',
@@ -53,7 +53,7 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
     <div>
       <h3>
         {recording.recordingLabel} {` `}
-        <Link to={`/${documentId}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
+        <Link to={`/${workspaceName}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
           {sorting.sortingLabel}
         </Link>
         {` Unit: `} {unitId}
@@ -203,7 +203,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
-    documentInfo: state.documentInfo,
+    workspaceInfo: state.workspaceInfo,
     plugins: filterPlugins(state.plugins)
 })
   
