@@ -1,8 +1,14 @@
 import { SetExtensionEnabledAction } from '../extensions/reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
 import { SetPersistStatusAction } from '../reducers/persisting'
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { AddRecordingAction, DeleteRecordingsAction, Recording } from '../reducers/recordings'
 import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, DeleteSortingsForRecordingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, Sorting } from '../reducers/sortings'
+=======
+import { AddRecordingAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
+import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
+import { SetWorkspaceInfoAction, WorkspaceInfo } from '../reducers/workspaceInfo'
+>>>>>>> import recordings view python scripts
 
 export const REPORT_INITIAL_LOAD_COMPLETE = 'REPORT_INITIAL_LOAD_COMPLETE'
 export const SET_WEBSOCKET_STATUS = 'SET_WEBSOCKET_STATUS'
@@ -68,7 +74,12 @@ export const addRecording = (recording: Recording): AddRecordingAction & Persist
   persistKey: 'recordings'
 })
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 export const deleteRecordings = (recordingIds: string[]): DeleteRecordingsAction & PersistAction => ({
+=======
+export const deleteRecordings = (dispatch: Dispatch<RootAction & PersistAction>, recordingIds: string[]) => {
+  dispatch({
+>>>>>>> import recordings view python scripts
     type: DELETE_RECORDINGS,
     recordingIds: recordingIds,
     persistKey: 'recordings'
@@ -103,6 +114,14 @@ export const setExtensionEnabled = (extensionName: string, value: boolean): SetE
   value
 })
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+export const setWorkspaceInfo = (workspaceInfo: WorkspaceInfo): SetWorkspaceInfoAction => ({
+  type: SET_DOCUMENT_INFO,
+  workspaceInfo
+})
+
+>>>>>>> import recordings view python scripts
 // curation
 
 export const addUnitLabel = (a: { sortingId: string, unitId: number, label: string }): AddUnitLabelAction & PersistAction => ({

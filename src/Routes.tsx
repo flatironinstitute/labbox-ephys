@@ -1,8 +1,14 @@
 import React, { FunctionComponent } from 'react';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { useLocation } from "react-router-dom";
 import { WorkspaceInfo } from './AppContainer';
 import About from './components/About';
 import Docs from './components/Docs';
+=======
+import { Redirect, Route, Switch } from "react-router-dom";
+import About from "./components/About";
+import Docs from "./components/Docs";
+>>>>>>> import recordings view python scripts
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
@@ -21,6 +27,7 @@ const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: W
     )
     if (workspaceName !== workspaceInfo.workspaceName) throw Error('Unexpected mismatch in workspaceName')
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
     switch(page) {
         case 'about': return <About />
         case 'docs': return <Docs />
@@ -28,6 +35,71 @@ const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: W
         case 'hitherJobMonitor': return <HitherJobMonitor />
         default: return <Home width={width} height={height} workspaceInfo={workspaceInfo} />
     }
+=======
+const Routes: FunctionComponent<{width: number, height: number}> = ({width, height}) => {
+    return (
+        <Switch>
+            <Route path="/about"><About /></Route>
+            <Route path="/docs"><Docs /></Route>
+            <Route path="/test"><TestPage /></Route>
+            <Route
+                path="/:workspaceName/config"
+                render={({ match }) => (
+                    <Config />
+                )}
+            />
+            <Route
+                path="/:workspaceName/hitherJobMonitor"
+                render={({ match }) => (
+                    <HitherJobMonitor />
+                )}
+            />
+            <Route
+                path="/:workspaceName/importRecordings"
+                render={({ match }) => (
+                    <ImportRecordings />
+                )}
+            />
+            <Route
+                path="/:workspaceName/importSortingsForRecording/:recordingId*"
+                render={({ match }) => (
+                    <ImportSortings recordingId={match.params.recordingId} />
+                )}
+            />
+            <Route
+                path="/:workspaceName/recording/:recordingId*"
+                render={({ match }) => (
+                    <RecordingView recordingId={match.params.recordingId} />
+                )}
+            />
+            <Route
+                path="/:workspaceName/sorting/:sortingId*"
+                render={({ match }) => (
+                    <SortingView sortingId={match.params.sortingId} width={width} height={height} />
+                )}
+            />
+            <Route
+                path="/:workspaceName/sortingUnit/:sortingId/:unitId"
+                render={({ match }) => (
+                    <SortingUnitView sortingId={match.params.sortingId} unitId={parseInt(match.params.unitId)} />
+                )}
+            />
+            <Route
+                path="/:workspaceName/timeseriesForRecording/:recordingId*"
+                render={({ match }) => (
+                    <TimeseriesForRecordingView recordingId={match.params.recordingId} />
+                )}
+            />
+            <Route
+                path="/:workspaceName"
+                render={({ match }) => (
+                    <Home width={width} height={height} />
+                )}
+            />
+            <Route path="/"><Redirect to="/default" /></Route>
+        </Switch>
+    );
+>>>>>>> import recordings view python scripts
 }
 
 export default Routes;

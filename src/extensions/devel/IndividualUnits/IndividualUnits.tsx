@@ -12,7 +12,11 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     // const { workspaceName, feedUri, readOnly } = workspaceInfo || {};
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
     const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+=======
+    const { sortingInfo } = sorting
+>>>>>>> import recordings view python scripts
     if (!sortingInfo) return <div>No sorting info</div>
 
     let selectedUnitIdsArray = selection.selectedUnitIds || []

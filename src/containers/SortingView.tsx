@@ -10,7 +10,12 @@ import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortin
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
+=======
+import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
+>>>>>>> import recordings view python scripts
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -26,6 +31,10 @@ interface StateProps {
   sorting?: Sorting
   recording?: Recording
   extensionsConfig: any
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+  workspaceInfo: WorkspaceInfo
+>>>>>>> import recordings view python scripts
   plugins: Plugins
 }
 
@@ -49,7 +58,11 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
   const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetExternalUnitMetrics } = props
+=======
+  const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
+>>>>>>> import recordings view python scripts
   const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
@@ -183,7 +196,12 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
   extensionsConfig: state.extensionsConfig
+=======
+  extensionsConfig: state.extensionsConfig,
+  workspaceInfo: state.workspaceInfo
+>>>>>>> import recordings view python scripts
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {

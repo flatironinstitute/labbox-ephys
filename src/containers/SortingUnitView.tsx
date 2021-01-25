@@ -14,12 +14,21 @@ import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { Sorting } from '../reducers/sortings';
+=======
+import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
+>>>>>>> import recordings view python scripts
 
 interface StateProps {
   sorting: Sorting,
   recording: Recording,
   extensionsConfig: ExtensionsConfig,
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+  workspaceInfo: WorkspaceInfo
+>>>>>>> import recordings view python scripts
   plugins: Plugins
 }
 
@@ -37,6 +46,10 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
 const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, workspaceInfo, size }) => {
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+  const hither = useContext(HitherContext)
+>>>>>>> import recordings view python scripts
   const { workspaceName, feedUri } = workspaceInfo;
 
   const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
@@ -199,6 +212,10 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    workspaceInfo: state.workspaceInfo,
+>>>>>>> import recordings view python scripts
     plugins: filterPlugins(state.plugins)
 })
   

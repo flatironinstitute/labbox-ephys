@@ -174,6 +174,7 @@ apiConnection.onMessage(msg => {
     console.warn(`Unregognized message type from server: ${type0}`)
   }
 });
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 
 const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
   apiConnection.sendMessage({
@@ -182,9 +183,30 @@ const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
       feedUri: workspaceInfo.feedUri,
       workspaceName: workspaceInfo.workspaceName,
       readOnly: workspaceInfo.readOnly
+=======
+// setApiConnection(apiConnection);
+const waitForWorkspaceInfo = async () => {
+  while (true) {
+    const state = theStore.getState() as RootState
+    const workspaceInfo = state.workspaceInfo
+    if ((workspaceInfo) && (workspaceInfo.workspaceName)) {
+      apiConnection.sendMessage({
+        type: 'reportClientInfo',
+        clientInfo: {
+          feedUri: workspaceInfo.feedUri,
+          workspaceName: workspaceInfo.workspaceName,
+          readOnly: workspaceInfo.readOnly
+        }
+      })
+      return;
+>>>>>>> import recordings view python scripts
     }
   })
 }
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+waitForWorkspaceInfo();
+>>>>>>> import recordings view python scripts
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

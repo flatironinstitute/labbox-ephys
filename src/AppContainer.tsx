@@ -9,6 +9,10 @@ import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } fro
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, useLocation, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+import { setWorkspaceInfo } from './actions';
+>>>>>>> import recordings view python scripts
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import PersistStateControl from './containers/PersistStateControl';
 import { HitherJob } from './extensions/common/hither';
@@ -16,6 +20,10 @@ import { useOnce } from './extensions/common/hooks';
 import { ExtensionsConfig } from './extensions/reducers';
 import { getPathQuery } from './kachery';
 import { RootAction, RootState } from './reducers';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+import { WorkspaceInfo } from './reducers/workspaceInfo';
+>>>>>>> import recordings view python scripts
 import Routes from './Routes';
 
 export interface WorkspaceInfo {
@@ -54,6 +62,24 @@ const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo,
 }
 //////////////////////////////////////////////////////////////
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+const SetWorkspaceInfo: FunctionComponent<{workspaceName: string | null, feedUri: string | null, onSetWorkspaceInfo: (di: WorkspaceInfo) => void}> = ({ workspaceName, feedUri, onSetWorkspaceInfo }) => {
+    useEffect(() => {
+        (async () => {
+            console.info(`Using feed: ${feedUri}`);
+            const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
+            onSetWorkspaceInfo({
+                workspaceName,
+                feedUri,
+                readOnly
+            });
+        })();
+    })
+    return <div>Setting document info...</div>
+}
+
+>>>>>>> import recordings view python scripts
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
 function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -82,10 +108,18 @@ function useWindowDimensions() {
 interface StateProps {
     initialLoadComplete: boolean
     extensionsConfig: ExtensionsConfig
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    workspaceInfo: WorkspaceInfo
+>>>>>>> import recordings view python scripts
     websocketStatus: string
 }
 
 interface DispatchProps {
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
+>>>>>>> import recordings view python scripts
 }
 
 interface OwnProps {
@@ -94,6 +128,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoadComplete, extensionsConfig, websocketStatus }) => {
     const { width, height } = useWindowDimensions()
 
@@ -115,16 +150,44 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoa
         workspaceName,
         feedUri,
         readOnly
+=======
+const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspaceInfo, onSetWorkspaceInfo, extensionsConfig, websocketStatus }) => {
+    const { workspaceName } = workspaceInfo;
+
+    const { width, height } = useWindowDimensions()
+
+    if (!workspaceName) {
+        return (
+            <Switch>
+                <Route
+                    path="/:workspaceName/:path*"
+                    render={({ match, location }) => {
+                        const query = QueryString.parse(location.search);
+                        return <SetWorkspaceInfo
+                            workspaceName={match.params.workspaceName}
+                            feedUri={(query.feed as string) || null}
+                            onSetWorkspaceInfo={onSetWorkspaceInfo}
+                        />
+                    }}
+                />
+                <Route path="/"><Redirect to="/default" /></Route>
+            </Switch>
+        )
+        
+>>>>>>> import recordings view python scripts
     }
 
     const appBarHeight = 48 // hard-coded for now - must agree with theme.ts
     const H = height - appBarHeight - 2
     const hMargin = 0
     const W = width - hMargin * 2 - 2
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 
     useOnce(() => {
         onSetWorkspaceInfo(workspaceInfo)
     })
+=======
+>>>>>>> import recordings view python scripts
 
     return (
         <div className={"TheAppBar"}>
@@ -148,11 +211,19 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoa
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     initialLoadComplete: state.serverConnection.initialLoadComplete,
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    workspaceInfo: state.workspaceInfo,
+>>>>>>> import recordings view python scripts
     extensionsConfig: state.extensionsConfig,
     websocketStatus: state.serverConnection.websocketStatus
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    onSetWorkspaceInfo: workspaceInfo => dispatch(setWorkspaceInfo(workspaceInfo))
+>>>>>>> import recordings view python scripts
 })
 
 export default withRouter(connect(

@@ -6,12 +6,21 @@ import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
 import { useSortingInfos } from '../extensions/common/getRecordingInfo';
 import { RootAction, RootState } from '../reducers';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { Sorting } from '../reducers/sortings';
 import { WorkspaceRouteDispatch } from './WorkspaceView';
+=======
+import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
+>>>>>>> import recordings view python scripts
 
 
 
 interface StateProps {
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    workspaceInfo: WorkspaceInfo
+>>>>>>> import recordings view python scripts
 }
 
 interface DispatchProps {
@@ -26,6 +35,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, workspaceInfo, workspaceRouteDispatch }) => {
     const { readOnly } = workspaceInfo;
 
@@ -55,6 +65,48 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, w
             }
         }
     })), [sortings2, handleViewSorting, sortingInfos])
+=======
+const calculationPool = createCalculationPool({maxSimultaneous: 6})
+
+const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, workspaceInfo }) => {
+    const hither = useContext(HitherContext)
+    const { workspaceName, feedUri, readOnly } = workspaceInfo;
+    const infosInProgress = useRef(new Set<string>())
+
+    useEffect(() => {
+        for (const sor of sortings) {
+            if ((!sor.sortingInfo) && (!infosInProgress.current.has(sor.sortingId))) {
+                infosInProgress.current.add(sor.sortingId)
+                hither.createHitherJob(
+                    'createjob_get_sorting_info',
+                    { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
+                    {
+                        useClientCache: true,
+                        calculationPool: calculationPool
+                    }
+                ).wait().then(sortingInfo => {
+                    onSetSortingInfo({ sortingId: sor.sortingId, sortingInfo: sortingInfo });
+                }).catch((err: Error) => {
+                    console.error(err);
+                    return;
+                })
+            }
+        }
+    }, [sortings, hither, onSetSortingInfo])
+
+    const sortings2: Sorting[] = useMemo(() => (sortByKey<Sorting>(sortings, 'sortingLabel')), [sortings])
+    const rows = useMemo(() => (sortings2.map(s => ({
+        key: s.sortingId,
+        columnValues: {
+            sorting: s,
+            sortingLabel: {
+                text: s.sortingLabel,
+                element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
+            },
+            numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
+        }
+    }))), [sortings2, workspaceName, feedUri])
+>>>>>>> import recordings view python scripts
 
     const columns = [
         {
@@ -102,6 +154,10 @@ const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[]
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+    workspaceInfo: state.workspaceInfo
+>>>>>>> import recordings view python scripts
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

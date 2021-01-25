@@ -1,6 +1,11 @@
 import { Reducer } from 'react'
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_SORTINGS, DELETE_SORTINGS_FOR_RECORDINGS, MERGE_UNITS, REMOVE_UNIT_LABEL, SET_CURATION, SET_EXTERNAL_SORTING_UNIT_METRICS, UNMERGE_UNITS } from '../actions'
 import { ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer } from '../extensions/extensionInterface'
+=======
+import { ADD_SORTING, ADD_UNIT_LABEL, DELETE_SORTINGS, MERGE_UNITS, REMOVE_UNIT_LABEL, SET_CURATION, SET_EXTERNAL_SORTING_UNIT_METRICS, SET_SORTING_INFO, UNMERGE_UNITS } from '../actions'
+import { ExternalSortingUnitMetric, Sorting, SortingCuration, sortingCurationReducer, SortingInfo } from '../extensions/extensionInterface'
+>>>>>>> import recordings view python scripts
 import { DeleteRecordingsAction, isDeleteRecordingsAction } from './recordings'
 export type { ExternalSortingUnitMetric, Label, Sorting, SortingInfo } from '../extensions/extensionInterface'
 
@@ -20,12 +25,22 @@ const isDeleteSortingsAction = (x: any): x is DeleteSortingsAction => (
     x.type === DELETE_SORTINGS
 )
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 export interface DeleteSortingsForRecordingsAction {
     type: 'DELETE_SORTINGS_FOR_RECORDINGS'
     recordingIds: string[]
 }
 export const isDeleteSortingsForRecordingsAction = (x: any): x is DeleteSortingsForRecordingsAction => (
     x.type === DELETE_SORTINGS_FOR_RECORDINGS
+=======
+export interface SetSortingInfoAction {
+    type: 'SET_SORTING_INFO'
+    sortingId: string
+    sortingInfo: SortingInfo
+}
+const isSetSortingInfoAction = (x: any): x is SetSortingInfoAction => (
+    x.type === SET_SORTING_INFO
+>>>>>>> import recordings view python scripts
 )
 
 export interface SetExternalSortingUnitMetricsAction {
@@ -85,7 +100,11 @@ const isUnmergeUnitsAction = (x: any): x is UnmergeUnitsAction => (
 )
 
 export type State = Sorting[]
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 export type Action = (AddSortingAction | DeleteSortingsAction | DeleteSortingsForRecordingsAction | DeleteRecordingsAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
+=======
+export type Action = (AddSortingAction | DeleteSortingsAction | DeleteRecordingsAction | SetSortingInfoAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
+>>>>>>> import recordings view python scripts
 export const initialState: State = []
 
 // the reducer
@@ -102,12 +121,15 @@ const sortings: Reducer<State, Action> = (state: State = initialState, action: A
             !(s.sortingId in exclude)
         ));
     }
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
     else if (isDeleteSortingsForRecordingsAction(action)) {
         const exclude = Object.fromEntries(action.recordingIds.map(id => [id, true]));
         return state.filter(s => (
             !(s.recordingId in exclude)
         ));
     }
+=======
+>>>>>>> import recordings view python scripts
     else if (isDeleteRecordingsAction(action)) {
         const excludeRecordingIds = Object.fromEntries(action.recordingIds.map(id => [id, true]));
         return state.filter(s => (

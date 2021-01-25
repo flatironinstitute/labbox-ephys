@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { WorkspaceInfo } from '../../AppContainer';
 import { HitherContext, HitherJob } from '../../extensions/common/hither';
 import { getPathQuery } from '../../kachery';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+import { WorkspaceInfo } from '../../reducers/workspaceInfo';
+>>>>>>> import recordings view python scripts
 
 type Props = {
     workspaceInfo: WorkspaceInfo,

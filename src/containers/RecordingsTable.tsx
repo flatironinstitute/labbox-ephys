@@ -2,6 +2,7 @@ import { CircularProgress } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { useRecordingInfos } from '../extensions/common/getRecordingInfo';
 import { Recording, RecordingInfo } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
@@ -14,6 +15,17 @@ interface Props {
     sortings: Sorting[]
     onDeleteRecordings: (recordingIds: string[]) => void
     workspaceRouteDispatch: WorkspaceRouteDispatch
+=======
+import { HitherContext } from '../extensions/common/hither';
+import { getPathQuery } from '../kachery';
+import { RootAction, RootState } from '../reducers';
+import { Recording, RecordingInfo } from '../reducers/recordings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
+
+interface StateProps {
+    recordings: Recording[],
+    workspaceInfo: WorkspaceInfo
+>>>>>>> import recordings view python scripts
 }
 
 const sortingElement = (sorting: Sorting, sortingInfo?: SortingInfo) => {
@@ -35,6 +47,7 @@ const sortingsElement = (sortings: Sorting[]) => {
 const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDeleteRecordings, workspaceInfo, workspaceRouteDispatch }) => {
     const { readOnly } = workspaceInfo;
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
     const sortingsByRecordingId: {[key: string]: Sorting[]} = useMemo(() => {
         const ret: {[key: string]: Sorting[]} = {}
         recordings.forEach(r => {
@@ -42,6 +55,11 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
         })
         return ret
     }, [recordings, sortings])
+=======
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
+    const hither = useContext(HitherContext)
+    const { workspaceName, feedUri, readOnly } = workspaceInfo;
+>>>>>>> import recordings view python scripts
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
         return array.sort(function (a, b) {
@@ -61,6 +79,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
 
     const recordingInfos: {[key: string]: RecordingInfo} = useRecordingInfos(recordings)
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
     const rows = useMemo(() => (recordings.map(rec => {
         const recordingInfo = recordingInfos[rec.recordingId]
         return {
@@ -76,6 +95,19 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
                 durationMinutes: recordingInfo ? recordingInfo.num_frames / recordingInfo.sampling_frequency / 60 : '',
                 sortings: { element: sortingsElement(sortingsByRecordingId[rec.recordingId]) }
             }
+=======
+    const rows = recordings.map(rec => ({
+        key: rec.recordingId,
+        columnValues: {
+            recording: rec,
+            recordingLabel: {
+                text: rec.recordingLabel,
+                element: <Link title={"View this recording"} to={`/${workspaceName}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
+            },
+            numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
+            samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
+            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
+>>>>>>> import recordings view python scripts
         }
     })), [recordings, sortingsByRecordingId, handleViewRecording, recordingInfos])
 
@@ -114,6 +146,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
     );
 }
 
+<<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 const ViewRecordingLink: FunctionComponent<{recording: Recording, onClick: (r: Recording) => void}> = ({recording, onClick}) => {
     const handleClick = useCallback(() => {
         onClick(recording)
@@ -128,5 +161,16 @@ const Anchor: FunctionComponent<{title: string, onClick: () => void}> = ({title,
         <button type="button" className="link-button" onClick={onClick}>{children}</button>
     )
 }
+=======
+const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
+    recordings: state.recordings,
+    workspaceInfo: state.workspaceInfo
+})
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+    onDeleteRecordings: (recordingIds: string[]) => deleteRecordings(dispatch, recordingIds),
+    onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
+})
+>>>>>>> import recordings view python scripts
 
 export default RecordingsTable
