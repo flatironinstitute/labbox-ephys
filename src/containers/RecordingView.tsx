@@ -11,15 +11,15 @@ import { filterPlugins, Plugins, RecordingSelectionAction } from '../extensions/
 import sortByPriority from '../extensions/sortByPriority';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording, RecordingInfo } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 import { Expandable } from './SortingView';
 
 interface StateProps {
   recording: Recording,
   sortings: Sorting[],
-  documentInfo: DocumentInfo,
+  workspaceInfo: WorkspaceInfo,
   plugins: Plugins
 }
 
@@ -35,9 +35,9 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, documentInfo, onSetRecordingInfo, plugins }) => {
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, workspaceInfo, onSetRecordingInfo, plugins }) => {
   const hither = useContext(HitherContext)
-  const { documentId, feedUri, readOnly } = documentInfo;
+  const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [recordingInfo, setRecordingInfo] = useState<RecordingInfo | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -61,7 +61,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
   }
 
   const handleImportSortings = () => {
-    history.push(`/${documentId}/importSortingsForRecording/${recordingId}${getPathQuery({ feedUri })}`)
+    history.push(`/${workspaceName}/importSortingsForRecording/${recordingId}${getPathQuery({ feedUri })}`)
   }
 
   return (
@@ -75,7 +75,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
         </Grid>
 
         <Grid item xs={12} lg={6}>
-          {/* <Link to={`/${documentId}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
+          {/* <Link to={`/${workspaceName}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
           <SortingsView sortings={sortings} onImportSortings={readOnly ? null : handleImportSortings} />
         </Grid>
       </Grid>
@@ -101,7 +101,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   // todo: use selector
   recording: state.recordings.filter(rec => (rec.recordingId === ownProps.recordingId))[0],
   sortings: state.sortings.filter(s => (s.recordingId === ownProps.recordingId)),
-  documentInfo: state.documentInfo,
+  workspaceInfo: state.workspaceInfo,
   plugins: filterPlugins(state.plugins)
 })
   

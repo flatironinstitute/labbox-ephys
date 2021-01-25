@@ -18,7 +18,7 @@ def main():
     for output_fname in output_fnames:
         process_template(output_fname, template_kwargs=dict(extensions=extensions))
     
-    create_md_ts_files('.')
+    create_text_ts_files('.')
 
 def find_files_with_templates(folder: str) -> List[str]:
     ret: List[str] = []
@@ -77,22 +77,22 @@ def update_template(template_fname: str, output_fname: str) -> None:
             with open(template_fname, 'w') as f:
                 f.write(new_template_code)
 
-# For every .md file that also has a .md.gen.ts file, generate the .md.gen.ts file so that the markdown can be imported via `import x from './---.md.gen'`
+# For every file that also has a .gen.ts file, generate the .gen.ts file so that the text can be imported via `import x from './---.gen'`
 # The previous raw.macro solution did not work with jupyter extension
-def create_md_ts_files(folder: str) -> None:
+def create_text_ts_files(folder: str) -> None:
     ret: List[str] = []
     for a in os.listdir(folder):
         fname = folder + '/' + a
         fname2 = fname + '.gen.ts'
-        if a.endswith('.md') and os.path.exists(fname2):
+        if os.path.exists(fname2):
             print(f'Writing {fname2}')
             with open(fname, 'r') as f:
-                md_txt = f.read()
+                txt = f.read()
             with open(fname2, 'w') as f:
-                f.write(f'const markdown: string = {json.dumps(md_txt)}\n\nexport default markdown')
+                f.write(f'const text: string = {json.dumps(txt)}\n\nexport default text')
         if os.path.isdir(fname):
             if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
-                create_md_ts_files(folder + '/' + a)
+                create_text_ts_files(folder + '/' + a)
 
 class SectionInfo(NamedTuple):
     code: str

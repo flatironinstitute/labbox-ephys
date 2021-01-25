@@ -9,29 +9,29 @@ import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } fro
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, Redirect, Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
-import { setDocumentInfo } from './actions';
+import { setWorkspaceInfo } from './actions';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import PersistStateControl from './containers/PersistStateControl';
 import { HitherJob } from './extensions/common/hither';
 import { ExtensionsConfig } from './extensions/reducers';
 import { getPathQuery } from './kachery';
 import { RootAction, RootState } from './reducers';
-import { DocumentInfo } from './reducers/documentInfo';
+import { WorkspaceInfo } from './reducers/workspaceInfo';
 import Routes from './Routes';
 
 
 type ToolBarContentProps = {
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
     extensionsConfig: ExtensionsConfig
     websocketStatus: string
 }
 
-const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ documentInfo, extensionsConfig, websocketStatus }) => {
-    const { documentId, feedUri } = documentInfo;
+const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo, extensionsConfig, websocketStatus }) => {
+    const { workspaceName, feedUri } = workspaceInfo;
     const hitherJobs: HitherJob[] = []
     return (
         <Fragment>
-            <Button color="inherit" component={Link} to={`/${documentId}${getPathQuery({feedUri})}`}>
+            <Button color="inherit" component={Link} to={`/${workspaceName}${getPathQuery({feedUri})}`}>
                 <Home />&nbsp;
                 <Typography variant="h6">
                     Labbox-ephys
@@ -39,24 +39,24 @@ const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ documentInfo, 
             </Button>
             <span style={{marginLeft: 'auto'}} />
             <Button color="inherit" component={Link} to="/docs" style={{marginLeft: 'auto'}}>Docs</Button>
-            <Button color="inherit" component={Link} to={`/${documentId}/config${getPathQuery({feedUri})}`} >Config</Button>
+            <Button color="inherit" component={Link} to={`/${workspaceName}/config${getPathQuery({feedUri})}`} >Config</Button>
             <Button color="inherit" component={Link} to="/about">About</Button>
             <PersistStateControl />
             <HitherJobMonitorControl
-                {...{documentInfo, hitherJobs, websocketStatus}}
+                {...{workspaceInfo, hitherJobs, websocketStatus}}
             />
         </Fragment>
     )
 }
 //////////////////////////////////////////////////////////////
 
-const SetDocumentInfo: FunctionComponent<{documentId: string | null, feedUri: string | null, onSetDocumentInfo: (di: DocumentInfo) => void}> = ({ documentId, feedUri, onSetDocumentInfo }) => {
+const SetWorkspaceInfo: FunctionComponent<{workspaceName: string | null, feedUri: string | null, onSetWorkspaceInfo: (di: WorkspaceInfo) => void}> = ({ workspaceName, feedUri, onSetWorkspaceInfo }) => {
     useEffect(() => {
         (async () => {
             console.info(`Using feed: ${feedUri}`);
             const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
-            onSetDocumentInfo({
-                documentId,
+            onSetWorkspaceInfo({
+                workspaceName,
                 feedUri,
                 readOnly
             });
@@ -93,12 +93,12 @@ function useWindowDimensions() {
 interface StateProps {
     initialLoadComplete: boolean
     extensionsConfig: ExtensionsConfig
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
     websocketStatus: string
 }
 
 interface DispatchProps {
-    onSetDocumentInfo: (documentInfo: DocumentInfo) => void
+    onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
 }
 
 interface OwnProps {
@@ -106,22 +106,22 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, documentInfo, onSetDocumentInfo, extensionsConfig, websocketStatus }) => {
-    const { documentId } = documentInfo;
+const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspaceInfo, onSetWorkspaceInfo, extensionsConfig, websocketStatus }) => {
+    const { workspaceName } = workspaceInfo;
 
     const { width, height } = useWindowDimensions()
 
-    if (!documentId) {
+    if (!workspaceName) {
         return (
             <Switch>
                 <Route
-                    path="/:documentId/:path*"
+                    path="/:workspaceName/:path*"
                     render={({ match, location }) => {
                         const query = QueryString.parse(location.search);
-                        return <SetDocumentInfo
-                            documentId={match.params.documentId}
+                        return <SetWorkspaceInfo
+                            workspaceName={match.params.workspaceName}
                             feedUri={(query.feed as string) || null}
-                            onSetDocumentInfo={onSetDocumentInfo}
+                            onSetWorkspaceInfo={onSetWorkspaceInfo}
                         />
                     }}
                 />
@@ -132,15 +132,15 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, documentI
     }
 
     const appBarHeight = 48 // hard-coded for now - must agree with theme.ts
-    const H = height - appBarHeight - 5
+    const H = height - appBarHeight - 2
     const hMargin = 0
-    const W = width - hMargin * 2
+    const W = width - hMargin * 2 - 2
 
     return (
         <div className={"TheAppBar"}>
             <AppBar position="static" style={{height: appBarHeight}}>
                 <Toolbar>
-                    <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} websocketStatus={websocketStatus} />
+                    <ToolBarContent workspaceInfo={workspaceInfo} extensionsConfig={extensionsConfig} websocketStatus={websocketStatus} />
                 </Toolbar>
             </AppBar>
             <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: appBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
@@ -158,13 +158,13 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, documentI
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     initialLoadComplete: state.serverConnection.initialLoadComplete,
-    documentInfo: state.documentInfo,
+    workspaceInfo: state.workspaceInfo,
     extensionsConfig: state.extensionsConfig,
     websocketStatus: state.serverConnection.websocketStatus
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onSetDocumentInfo: documentInfo => dispatch(setDocumentInfo(documentInfo))
+    onSetWorkspaceInfo: workspaceInfo => dispatch(setWorkspaceInfo(workspaceInfo))
 })
 
 export default withRouter(connect(

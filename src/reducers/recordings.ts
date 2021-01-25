@@ -15,7 +15,7 @@ export interface DeleteRecordingsAction {
     type: 'DELETE_RECORDINGS'
     recordingIds: string[]
 }
-const isDeleteRecordingsAction = (x: any): x is DeleteRecordingsAction => (
+export const isDeleteRecordingsAction = (x: any): x is DeleteRecordingsAction => (
     x.type === DELETE_RECORDINGS
 )
 

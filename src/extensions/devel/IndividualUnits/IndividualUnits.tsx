@@ -10,7 +10,7 @@ const individualUnitsCalculationPool = createCalculationPool({maxSimultaneous: 6
 const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection, plugins }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
-    // const { documentId, feedUri, readOnly } = documentInfo || {};
+    // const { workspaceName, feedUri, readOnly } = workspaceInfo || {};
     const { sortingInfo } = sorting
     if (!sortingInfo) return <div>No sorting info</div>
 
@@ -53,7 +53,7 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
                             sortingInfo={sortingInfo}
                             plugins={plugins}
                         />
-                        {/* <Link to={`/${documentId}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
+                        {/* <Link to={`/${workspaceName}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
                             More details for unit {id}
                         </Link> */}
                     </Grid>

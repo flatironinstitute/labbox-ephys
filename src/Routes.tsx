@@ -2,8 +2,8 @@ import React, { FunctionComponent } from 'react';
 import { Redirect, Route, Switch } from "react-router-dom";
 import About from "./components/About";
 import Docs from "./components/Docs";
-import Config from './containers/Config';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
+import Config from './containers/Config';
 import Home from "./containers/Home";
 import ImportRecordings from "./containers/ImportRecordings";
 import ImportSortings from "./containers/ImportSortings";
@@ -23,57 +23,57 @@ const Routes: FunctionComponent<{width: number, height: number}> = ({width, heig
             <Route path="/docs"><Docs /></Route>
             <Route path="/test"><TestPage /></Route>
             <Route
-                path="/:documentId/config"
+                path="/:workspaceName/config"
                 render={({ match }) => (
                     <Config />
                 )}
             />
             <Route
-                path="/:documentId/hitherJobMonitor"
+                path="/:workspaceName/hitherJobMonitor"
                 render={({ match }) => (
                     <HitherJobMonitor />
                 )}
             />
             <Route
-                path="/:documentId/importRecordings"
+                path="/:workspaceName/importRecordings"
                 render={({ match }) => (
                     <ImportRecordings />
                 )}
             />
             <Route
-                path="/:documentId/importSortingsForRecording/:recordingId*"
+                path="/:workspaceName/importSortingsForRecording/:recordingId*"
                 render={({ match }) => (
                     <ImportSortings recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/:documentId/recording/:recordingId*"
+                path="/:workspaceName/recording/:recordingId*"
                 render={({ match }) => (
                     <RecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/:documentId/sorting/:sortingId*"
+                path="/:workspaceName/sorting/:sortingId*"
                 render={({ match }) => (
                     <SortingView sortingId={match.params.sortingId} width={width} height={height} />
                 )}
             />
             <Route
-                path="/:documentId/sortingUnit/:sortingId/:unitId"
+                path="/:workspaceName/sortingUnit/:sortingId/:unitId"
                 render={({ match }) => (
                     <SortingUnitView sortingId={match.params.sortingId} unitId={parseInt(match.params.unitId)} />
                 )}
             />
             <Route
-                path="/:documentId/timeseriesForRecording/:recordingId*"
+                path="/:workspaceName/timeseriesForRecording/:recordingId*"
                 render={({ match }) => (
                     <TimeseriesForRecordingView recordingId={match.params.recordingId} />
                 )}
             />
             <Route
-                path="/:documentId"
+                path="/:workspaceName"
                 render={({ match }) => (
-                    <Home />
+                    <Home width={width} height={height} />
                 )}
             />
             <Route path="/"><Redirect to="/default" /></Route>

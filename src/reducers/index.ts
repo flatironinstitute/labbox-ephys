@@ -5,7 +5,7 @@
 // import sortings from './sortings'
 // import persisting from './persisting'
 // import hitherJobs from './hitherJobs'
-// import documentInfo from './documentInfo'
+// import workspaceInfo from './workspaceInfo'
 // import serverInfo from './serverInfo'
 // import extensionsConfig from '../extensions/reducers'
 
@@ -18,13 +18,12 @@
 //     serverConnection,
 //     hitherJobs,
 //     extensionsConfig,
-//     documentInfo
+//     workspaceInfo
 // })
 
 import { combineReducers } from '@reduxjs/toolkit'
 import extensionsConfig, { Action as ExtensionsConfigAction, State as ExtensionsConfigState } from '../extensions/reducers'
 import databaseConfig, { Action as DatabaseConfigAction, State as DatabaseConfigState } from './databaseConfig'
-import documentInfo, { Action as DocumentInfoAction, State as DocumentInfoState } from './documentInfo'
 import hitherJobs, { Action as HitherJobsAction, State as HitherJobsState } from './hitherJobs'
 import persisting, { Action as PersistingAction, State as PersistingState } from './persisting'
 import plugins, { Action as PluginsAction, State as PluginsState } from './plugins'
@@ -32,10 +31,11 @@ import recordings, { Action as RecordingsAction, State as RecordingsState } from
 import serverConnection, { Action as ServerConnectionAction, State as ServerConnectionState } from './serverConnection'
 import serverInfo, { Action as ServerInfoAction, State as ServerInfoState } from './serverInfo'
 import sortings, { Action as SortingsAction, State as SortingsState } from './sortings'
+import workspaceInfo, { Action as WorkspaceInfoAction, State as WorkspaceInfoState } from './workspaceInfo'
 
 export interface RootState {
     databaseConfig: DatabaseConfigState
-    documentInfo: DocumentInfoState
+    workspaceInfo: WorkspaceInfoState
     hitherJobs: HitherJobsState
     persisting: PersistingState
     recordings: RecordingsState
@@ -47,7 +47,7 @@ export interface RootState {
 }
 const rootReducer = combineReducers({
     databaseConfig,
-    documentInfo,
+    workspaceInfo,
     hitherJobs,
     persisting,
     recordings,
@@ -58,6 +58,6 @@ const rootReducer = combineReducers({
     plugins
 })
 
-export type RootAction =  DatabaseConfigAction | DocumentInfoAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | PluginsAction
+export type RootAction =  DatabaseConfigAction | WorkspaceInfoAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | PluginsAction
 
 export default rootReducer

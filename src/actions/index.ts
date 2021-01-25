@@ -2,10 +2,10 @@ import { Dispatch } from 'react'
 import { SetExtensionEnabledAction } from '../extensions/reducers'
 import { RootAction } from '../reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
-import { DocumentInfo, SetDocumentInfoAction } from '../reducers/documentInfo'
 import { SetPersistStatusAction } from '../reducers/persisting'
 import { AddRecordingAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
 import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
+import { SetWorkspaceInfoAction, WorkspaceInfo } from '../reducers/workspaceInfo'
 
 export const REPORT_INITIAL_LOAD_COMPLETE = 'REPORT_INITIAL_LOAD_COMPLETE'
 export const SET_WEBSOCKET_STATUS = 'SET_WEBSOCKET_STATUS'
@@ -21,7 +21,6 @@ export const SET_RECORDING_INFO = 'SET_RECORDING_INFO'
 
 export const ADD_SORTING = 'ADD_SORTING'
 export const DELETE_SORTINGS = 'DELETE_SORTINGS'
-export const DELETE_ALL_SORTINGS_FOR_RECORDINGS = 'DELETE_ALL_SORTINGS_FOR_RECORDINGS'
 export const SET_SORTING_INFO = 'SET_SORTING_INFO'
 export const SET_EXTERNAL_SORTING_UNIT_METRICS = 'SET_EXTERNAL_SORTING_UNIT_METRICS'
 
@@ -80,11 +79,6 @@ export const addRecording = (recording: Recording): AddRecordingAction & Persist
 
 export const deleteRecordings = (dispatch: Dispatch<RootAction & PersistAction>, recordingIds: string[]) => {
   dispatch({
-    type: DELETE_ALL_SORTINGS_FOR_RECORDINGS,
-    recordingIds: recordingIds,
-    persistKey: 'sortings'
-  });
-  dispatch({
     type: DELETE_RECORDINGS,
     recordingIds: recordingIds,
     persistKey: 'recordings'
@@ -120,9 +114,9 @@ export const setExtensionEnabled = (extensionName: string, value: boolean): SetE
   value
 })
 
-export const setDocumentInfo = (documentInfo: DocumentInfo): SetDocumentInfoAction => ({
+export const setWorkspaceInfo = (workspaceInfo: WorkspaceInfo): SetWorkspaceInfoAction => ({
   type: SET_DOCUMENT_INFO,
-  documentInfo
+  workspaceInfo
 })
 
 // curation

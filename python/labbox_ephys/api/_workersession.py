@@ -38,7 +38,7 @@ class WorkerSession:
         self._feed = None
         self._subfeed_positions = {}
         self._feed_uri = None
-        self._document_id = None
+        self._workspace_name = None
         self._readonly = None
         self._jobs_by_id = {}
         self._remote_job_handlers = {}
@@ -67,7 +67,7 @@ class WorkerSession:
         if type0 == 'reportClientInfo':
             print('reported client info:', msg)
             self._feed_uri = msg['clientInfo']['feedUri']
-            self._document_id = msg['clientInfo']['documentId']
+            self._workspace_name = msg['clientInfo']['workspaceName']
             self._readonly = msg['clientInfo']['readOnly']
             if not self._feed_uri:
                 self._feed_uri = 'feed://' + self._default_feed_id
@@ -76,11 +76,15 @@ class WorkerSession:
             self._feed = kp.load_feed(self._feed_uri)
             for key in ['recordings', 'sortings']:
                 self._subfeed_positions[key] = 0
-                subfeed_name = dict(key=key, documentId=self._document_id)
+                subfeed_name = dict(key=key, workspaceName=self._workspace_name)
                 subfeed = self._feed.get_subfeed(subfeed_name)
-                for m in subfeed.get_next_messages(wait_msec=10):
-                    self._send_message({'type': 'action', 'action': m['action']})
-                    self._subfeed_positions[key] = self._subfeed_positions[key] + 1
+                messages = subfeed.get_next_messages(wait_msec=10)
+                for m in messages:
+                    if 'action' in m:
+                        self._send_message({'type': 'action', 'action': m['action']})
+                    else:
+                        print(f'WARNING: No action in message for {key}')
+                self._subfeed_positions[key] = self._subfeed_positions[key] + len(messages)
             self._send_message({
                 'type': 'reportInitialLoadComplete'
             })
@@ -96,7 +100,7 @@ class WorkerSession:
             if self._feed is None:
                 self._queued_document_action_messages.append(msg)
             else:
-                subfeed_name = dict(key=msg['key'], documentId=self._document_id)
+                subfeed_name = dict(key=msg['key'], workspaceName=self._workspace_name)
                 subfeed = self._feed.get_subfeed(subfeed_name)
                 subfeed.append_message({
                     'action': msg['action']
@@ -158,7 +162,7 @@ class WorkerSession:
         subfeed_watches = {}
         if (self._feed_uri is not None) and (self._feed_uri.startswith('feed://')):
             for key in ['recordings', 'sortings']:
-                subfeed_name = dict(key=key, documentId=self._document_id)
+                subfeed_name = dict(workspaceName=self._workspace_name, key=key)
                 subfeed_watches[key] = dict(
                     feedId=self._feed._feed_id, # fix this
                     subfeedName=subfeed_name,
@@ -175,12 +179,14 @@ class WorkerSession:
             for key in messages.keys():
                 if key in ['recordings', 'sortings']:
                     for m in messages[key]:
-                        self._send_message({'type': 'action', 'action': m['action']})
-                        self._subfeed_positions[key] = self._subfeed_positions[key] + 1
+                        if 'action' in m:
+                            self._send_message({'type': 'action', 'action': m['action']})
+                        else:
+                            print(f'WARNING: no action in feed message for {key}')
                 else:
                     for m in messages[key]:
                         self._send_message({'type': 'subfeedMessage', 'watchName': key, 'message': m})
-                        self._subfeed_positions[key] = self._subfeed_positions[key] + 1
+                self._subfeed_positions[key] = self._subfeed_positions[key] + len(messages[key])
         hi.wait(0)
         job_ids = list(self._jobs_by_id.keys())
         for job_id in job_ids:

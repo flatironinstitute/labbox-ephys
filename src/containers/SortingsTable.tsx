@@ -7,13 +7,13 @@ import NiceTable from '../components/NiceTable';
 import { createCalculationPool, HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 
 
 interface StateProps {
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
 }
 
 interface DispatchProps {
@@ -29,9 +29,9 @@ type Props = StateProps & DispatchProps & OwnProps
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, documentInfo }) => {
+const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, workspaceInfo }) => {
     const hither = useContext(HitherContext)
-    const { documentId, feedUri, readOnly } = documentInfo;
+    const { workspaceName, feedUri, readOnly } = workspaceInfo;
     const infosInProgress = useRef(new Set<string>())
 
     useEffect(() => {
@@ -62,11 +62,11 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
             sorting: s,
             sortingLabel: {
                 text: s.sortingLabel,
-                element: <Link title={"View this sorting"} to={`/${documentId}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
+                element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
             },
             numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
         }
-    }))), [sortings2, documentId, feedUri])
+    }))), [sortings2, workspaceName, feedUri])
 
     const columns = [
         {
@@ -99,7 +99,7 @@ const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[]
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-    documentInfo: state.documentInfo
+    workspaceInfo: state.workspaceInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

@@ -7,12 +7,12 @@ import RadioChoices from '../components/RadioChoices';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
+import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 interface StateProps {
     extensionsConfig: ExtensionsConfig
-    documentInfo: DocumentInfo
+    workspaceInfo: WorkspaceInfo
 }
 
 interface DispatchProps {
@@ -24,13 +24,13 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, extensionsConfig, documentInfo }) => {
-    const { documentId, feedUri } = documentInfo;
+const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, extensionsConfig, workspaceInfo }) => {
+    const { workspaceName, feedUri } = workspaceInfo;
 
     const [method, setMethod] = useState('');
 
     const handleDone = () => {
-        history.push(`/${documentId}${getPathQuery({feedUri})}`);
+        history.push(`/${workspaceName}${getPathQuery({feedUri})}`);
     }
 
     let form;
@@ -82,7 +82,7 @@ const ImportRecordings: FunctionComponent<Props> = ({ onAddRecording, history, e
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     extensionsConfig: state.extensionsConfig,
-    documentInfo: state.documentInfo
+    workspaceInfo: state.workspaceInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
