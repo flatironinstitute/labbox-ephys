@@ -146,24 +146,26 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const W = props.width || 800
   const H = props.height || 800
 
-  const headingHeight = 70
+  const footerHeight = 20
 
-  const headingStyle = useMemo<React.CSSProperties>(() => ({
+  const footerStyle = useMemo<React.CSSProperties>(() => ({
     position: 'absolute',
     left: 0,
-    top: 0,
+    top: H - footerHeight,
     width: W,
-    height: headingHeight,
-    overflow: 'auto'
-  }), [W, headingHeight])
+    height: footerHeight,
+    overflow: 'hidden'
+  }), [W, H, footerHeight])
 
+  const contentWidth = W
+  const contentHeight = H - footerHeight
   const contentWrapperStyle = useMemo<React.CSSProperties>(() => ({
     position: 'absolute',
     left: 0,
-    top: headingHeight,
-    width: W,
-    height: H - headingHeight
-  }), [headingHeight, W, H])
+    top: 0,
+    width: contentWidth,
+    height: contentHeight
+  }), [contentWidth, contentHeight])
 
   const sv = plugins.sortingViews['MVSortingView']
   if (!sv) throw Error('Missing sorting view: MVSortingView')
@@ -179,14 +181,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
     <div>
-      <div style={headingStyle}>
-        <h3>
-          {`Sorting: ${sorting.sortingLabel} for `}
-          <Link to={`/${documentId}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
-            {recording.recordingLabel}
-          </Link>
-        </h3>
-      </div>
       <div style={contentWrapperStyle}>
           <sv.component
             {...svProps}
@@ -198,9 +192,19 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             readOnly={readOnly}
             plugins={plugins}
             calculationPool={calculationPool}
-            width={W}
-            height={H - headingHeight}
+            width={contentWidth}
+            height={contentHeight}
           />
+      </div>
+      <div style={footerStyle}>
+          {`Sorting: `}
+          <Link to={`/${documentId}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
+            {sorting.sortingLabel}
+          </Link>
+          {` | Recording: `}
+          <Link to={`/${documentId}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
+            {recording.recordingLabel}
+          </Link>
       </div>
     </div>
   );

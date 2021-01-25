@@ -177,27 +177,34 @@ const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, 
             return 100
         }
     }, [electrodeLocations, height, selection.waveformsMode])
+    const tileStyle = useMemo(() => ({width: boxWidth + 5, height: height + 15}), [boxWidth, height])
     return (
         <GridList style={{flexWrap: 'nowrap', height: height + 15}}>
             {
                 info && electrodeLocations && snippets ? (
-                    snippets.map((snippet) => (
-                        <GridListTile key={snippet.timepoint} style={{width: boxWidth + 5, height: height + 15}}>
-                            <SnippetBox
-                                snippet={snippet}
-                                noiseLevel={noiseLevel}
-                                samplingFrequency={info.sampling_frequency}
-                                electrodeIds={info.channel_ids}
-                                electrodeLocations={electrodeLocations}
-                                selection={selection}
-                                selectionDispatch={selectionDispatch}
-                                width={boxWidth}
-                                height={height}
-                            />
+                    snippets.length > 0 ? (
+                        snippets.map((snippet) => (
+                            <GridListTile key={snippet.timepoint} style={tileStyle}>
+                                <SnippetBox
+                                    snippet={snippet}
+                                    noiseLevel={noiseLevel}
+                                    samplingFrequency={info.sampling_frequency}
+                                    electrodeIds={info.channel_ids}
+                                    electrodeLocations={electrodeLocations}
+                                    selection={selection}
+                                    selectionDispatch={selectionDispatch}
+                                    width={boxWidth}
+                                    height={height}
+                                />
+                            </GridListTile>
+                        ))
+                    ) : (
+                        <GridListTile style={{...tileStyle, width: 500, color: 'gray'}}>
+                            <div>No snippets found in selected time range</div>
                         </GridListTile>
-                    ))
+                    )
                 ) : (
-                    <GridListTile style={{width: 180}}>
+                    <GridListTile style={{...tileStyle, width: 180}}>
                         <div style={{whiteSpace: 'nowrap'}}>Retrieving snippets...</div>
                     </GridListTile>
                 )

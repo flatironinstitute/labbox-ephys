@@ -9,10 +9,15 @@ interface Props {
     gripThickness?: number
     gripInnerThickness?: number
     gripMargin?: number
+    adjustable?: boolean
 }
 
+const defaultGripThickness = 10
+const defaultGripInnerThickness = 4
+const defaultGripMargin = 2
+
 const Splitter: FunctionComponent<Props> = (props) => {
-    const { width, height, initialPosition, onChange } = props
+    const {width, height, initialPosition, onChange, adjustable=true} = props
 
     const [gripPosition, setGripPosition] = useState<number>(initialPosition)
 
@@ -31,9 +36,9 @@ const Splitter: FunctionComponent<Props> = (props) => {
         return <child1.type {...child1.props} width={width} height={height} />
     }
 
-    const gripThickness = props.gripThickness ?? 12
-    const gripInnerThickness = props.gripInnerThickness ?? 4
-    const gripMargin = props.gripMargin ?? 4
+    const gripThickness = adjustable ? (props.gripThickness ?? defaultGripThickness) : 0
+    const gripInnerThickness = adjustable ? (props.gripInnerThickness ?? defaultGripInnerThickness) : 0
+    const gripMargin = adjustable ? (props.gripMargin ?? defaultGripMargin) : 0
     const width1 = gripPosition - gripThickness / 2 - gripMargin
     const width2 = width - width1 - gripThickness - 2 * gripMargin;
 
@@ -101,19 +106,23 @@ const Splitter: FunctionComponent<Props> = (props) => {
             <div key="child1" style={{...style1, position: 'absolute'}} className="SplitterChild">
                 <child1.type {...child1.props} width={width1} height={height} />
             </div>
-            <Draggable
-                key="drag"
-                position={{ x: gripPosition - gripThickness / 2 - gripMargin, y: 0 }}
-                axis="x"
-                onDrag={(evt: DraggableEvent, ui: DraggableData) => _handleGripDrag(evt, ui)}
-                onStop={(evt: DraggableEvent, ui: DraggableData) => _handleGripDragStop(evt, ui)}
-            >
-                <div style={{...styleGripOuter, position: 'absolute'}}>
-                    <div style={{...styleGrip, position: 'absolute'}}>
-                        <div style={{...styleGripInner, position: 'absolute'}} />
-                    </div>
-                </div>
-            </Draggable>
+            {
+                adjustable && (
+                    <Draggable
+                        key="drag"
+                        position={{ x: gripPosition - gripThickness / 2 - gripMargin, y: 0 }}
+                        axis="x"
+                        onDrag={(evt: DraggableEvent, ui: DraggableData) => _handleGripDrag(evt, ui)}
+                        onStop={(evt: DraggableEvent, ui: DraggableData) => _handleGripDragStop(evt, ui)}
+                    >
+                        <div style={{...styleGripOuter, position: 'absolute'}}>
+                            <div style={{...styleGrip, position: 'absolute'}}>
+                                <div style={{...styleGripInner, position: 'absolute'}} />
+                            </div>
+                        </div>
+                    </Draggable>
+                )
+            }
 
             <div key="child2" style={{...style2, position: 'absolute'}} className="SplitterChild">
                 <child2.type {...child2.props} width={width2} height={height} />

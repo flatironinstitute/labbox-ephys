@@ -1,8 +1,8 @@
 import { Button, IconButton, Link as LinkMui, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import NiceTable from '../../components/NiceTable';
 import { HitherContext, HitherJob } from '../../extensions/common/hither';
-import NiceTable from '../NiceTable';
 
 type Props = {}
 
@@ -39,23 +39,24 @@ const HitherJobMonitor: FunctionComponent<Props> = () => {
         console.warn('Cancel job not implemented')
     }
 
-    if (currentJob) {
-        return (
-            <div>
-                <div><Button onClick={() => setCurrentJob(null)}>Back to table</Button></div>
-                <HitherJobInfoView job={currentJob} />
-            </div>
-        )
-    }
-    else {
-        return (
-            <HitherJobMonitorTable
-                jobs={allJobs}
-                onViewJob={j => setCurrentJob(j)}
-                onCancelJob={j => handleCancelJob(j)}
-            />
-        )
-    }
+    return (
+        <div style={{padding: 20}}>
+            {
+                currentJob ? (
+                    <div>
+                        <div><Button onClick={() => setCurrentJob(null)}>Back to table</Button></div>
+                        <HitherJobInfoView job={currentJob} />
+                    </div>
+                ) : (
+                    <HitherJobMonitorTable
+                        jobs={allJobs}
+                        onViewJob={j => setCurrentJob(j)}
+                        onCancelJob={j => handleCancelJob(j)}
+                    />
+                )
+            }
+        </div>
+    )
 }
 
 const HitherJobInfoView: FunctionComponent<{job: HitherJob}> = ({ job }) => {
@@ -133,7 +134,7 @@ const HitherJobInfoView: FunctionComponent<{job: HitherJob}> = ({ job }) => {
     ]
     return (
         <div>
-            <Table>
+            <Table className="NiceTable">
                 <TableHead></TableHead>
                 <TableBody>
                     {
@@ -203,13 +204,14 @@ const HitherJobMonitorTable: FunctionComponent<{
         key: j.jobId || 'null',
         columnValues: {
             jobId: {
+                text: j.jobId,
                 element: <LinkMui href="#" onClick={() => {onViewJob && onViewJob(j)}}>{j.jobId}</LinkMui>
             },
-            functionName: j.functionName,
-            status: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status,
-            started: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : '',
-            finished: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : '',
-            message: j.error_message || ''
+            functionName: {text: j.functionName},
+            status: {text: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status},
+            started: {text: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : ''},
+            finished: {text: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : ''},
+            message: {text: j.error_message || ''}
         }
     }));
     return (

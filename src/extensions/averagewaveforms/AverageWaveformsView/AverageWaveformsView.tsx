@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
-import sizeMe, { SizeMeProps } from 'react-sizeme';
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
@@ -11,10 +10,10 @@ import AverageWaveformView from './AverageWaveformView';
 export type AverageWaveformAction = ActionItem | DividerItem
 
 
-const TOOLBAR_INITIAL_WIDTH = 55
+const TOOLBAR_INITIAL_WIDTH = 36 // hard-coded for now
 
-const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = (props) => {
-    const {recording, sorting, selection, selectionDispatch} = props
+const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
+    const {recording, sorting, selection, selectionDispatch, width=600, height=650} = props
     const boxHeight = 250
     const boxWidth = 180
     const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
@@ -28,9 +27,6 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
             customActions={scalingActions || []}
         />
     ), [sorting, recording, selection, selectionDispatch, noiseLevel, scalingActions])
-
-    const width = props.size.width;
-    const height = 650 // hard-coded as per TimeseriesForRecordingView.tsx
 
     const _handleScaleAmplitudeUp = useCallback(() => {
         selectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
@@ -65,6 +61,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
                 width={width}
                 height={height}
                 initialPosition={TOOLBAR_INITIAL_WIDTH}
+                adjustable={false}
             >
                 {
                     <AverageWaveformsToolbar
@@ -87,4 +84,4 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps & SizeMeProps> = 
     : (<div>No width</div>);
 }
 
-export default sizeMe()(AverageWaveformsView)
+export default AverageWaveformsView

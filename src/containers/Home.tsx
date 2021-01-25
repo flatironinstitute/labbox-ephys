@@ -23,7 +23,7 @@ type Props = StateProps & DispatchProps & OwnProps
 const Home: FunctionComponent<Props> = ({ documentInfo }) => {
   const { documentId, feedUri, readOnly } = documentInfo;
   return (
-    <div>
+    <div style={{margin: 30}}>
       {
         readOnly && (
           <Typography component="p" style={{fontStyle: "italic"}}>
