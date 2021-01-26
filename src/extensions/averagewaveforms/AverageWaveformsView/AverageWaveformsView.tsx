@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
+import { useRecordingInfo } from '../../../actions/getRecordingInfo';
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
@@ -14,9 +15,10 @@ const TOOLBAR_INITIAL_WIDTH = 36 // hard-coded for now
 
 const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
     const {recording, sorting, selection, selectionDispatch, width=600, height=650} = props
+    const recordingInfo = useRecordingInfo(recording.recordingObject)
     const boxHeight = 250
     const boxWidth = 180
-    const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
+    const noiseLevel = (recordingInfo || {}).noise_level || 1  // fix this
     const [scalingActions, setScalingActions] = useState<AverageWaveformAction[] | null>(null)
     const unitComponent = useMemo(() => (unitId: number) => (
         <AverageWaveformView

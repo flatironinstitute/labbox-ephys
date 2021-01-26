@@ -1,5 +1,6 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
+import { useSortingInfo } from '../../actions/getRecordingInfo';
 import { Sorting } from '../extensionInterface';
 import ClientSidePlot from './ClientSidePlot';
 import { CalculationPool } from './hither';
@@ -28,8 +29,9 @@ const PlotGrid: FunctionComponent<Props> = ({ sorting, onUnitClicked, selections
 }) => {
         const maxUnitsVisibleIncrement = 60;
         const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
+        const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
 
-        let unit_ids: number[] = sorting.sortingInfo ? sorting.sortingInfo.unit_ids : [];
+        let unit_ids: number[] = sortingInfo ? sortingInfo.unit_ids : []
         let showExpandButton = false;
         if (unit_ids.length > maxUnitsVisible) {
             unit_ids = unit_ids.slice(0, maxUnitsVisible);

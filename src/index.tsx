@@ -10,7 +10,7 @@ import { AnyAction, applyMiddleware, createStore, Middleware, MiddlewareAPI } fr
 import thunk from 'redux-thunk';
 import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
-import AppContainer from './AppContainer';
+import AppContainer, { WorkspaceInfo } from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
 import { HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
@@ -19,7 +19,7 @@ import initializeHitherInterface from './extensions/initializeHitherInterface';
 import theme from './extensions/theme';
 import './index.css';
 // reducer
-import rootReducer, { RootState } from './reducers';
+import rootReducer from './reducers';
 import registerExtensions from './registerExtensions';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
@@ -41,7 +41,7 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
   // this middleware is applied to the redux store
   // it inserts itself as part
   // of the action-processesing pipeline
-  const sendAction = async (key: any, theAction: any) => {
+  const sendAction = async (key: string, theAction: any) => {
     delete theAction['persistKey'];
     apiConnection.sendMessage({
       type: 'appendDocumentAction',
@@ -53,7 +53,14 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
   if (action.persistKey) {
     // if the action has persistKey field, then
     // send it to the server
-    sendAction(action.persistKey, action);
+    if (Array.isArray(action.persistKey)) {
+      (action.persistKey as string[]).forEach(pk => {
+        sendAction(pk, action)
+      })
+    }
+    else {
+      sendAction(action.persistKey as string, action);
+    }
     return;
   }
   return next(action);
@@ -162,7 +169,6 @@ apiConnection.onMessage(msg => {
     });
   }
   else if (type0 === 'hitherJobFinished') {
-    const timer0 = Number(new Date())
     hither.handleHitherJobFinished(msg);
   }
   else if (type0 === 'hitherJobError') {
@@ -175,26 +181,17 @@ apiConnection.onMessage(msg => {
     console.warn(`Unregognized message type from server: ${type0}`)
   }
 });
-// setApiConnection(apiConnection);
-const waitForWorkspaceInfo = async () => {
-  while (true) {
-    const state = theStore.getState() as RootState
-    const workspaceInfo = state.workspaceInfo
-    if ((workspaceInfo) && (workspaceInfo.workspaceName)) {
-      apiConnection.sendMessage({
-        type: 'reportClientInfo',
-        clientInfo: {
-          feedUri: workspaceInfo.feedUri,
-          workspaceName: workspaceInfo.workspaceName,
-          readOnly: workspaceInfo.readOnly
-        }
-      })
-      return;
+
+const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
+  apiConnection.sendMessage({
+    type: 'reportClientInfo',
+    clientInfo: {
+      feedUri: workspaceInfo.feedUri,
+      workspaceName: workspaceInfo.workspaceName,
+      readOnly: workspaceInfo.readOnly
     }
-    await sleepMsec(10);
-  }
+  })
 }
-waitForWorkspaceInfo();
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
@@ -202,7 +199,7 @@ const content = (
     <MuiThemeProvider theme={theme}>
       <Provider store={theStore}>
         <Router>
-          <AppContainer />
+          <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} />
         </Router>
       </Provider>
     </MuiThemeProvider>

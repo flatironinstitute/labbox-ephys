@@ -25,12 +25,12 @@ const HitherJobMonitor: FunctionComponent<Props> = () => {
         }
     }, [hither])
 
-    const { allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs } = {
-        allJobs: hitherJobs,
-        pendingJobs: hitherJobs.filter(j => (j.status === 'pending')),
-        runningJobs: hitherJobs.filter(j => (j.status === 'running')),
-        finishedJobs: hitherJobs.filter(j => (j.status === 'finished')),
-        erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
+    const { allJobs } = {
+        allJobs: hitherJobs
+        // pendingJobs: hitherJobs.filter(j => (j.status === 'pending')),
+        // runningJobs: hitherJobs.filter(j => (j.status === 'running')),
+        // finishedJobs: hitherJobs.filter(j => (j.status === 'finished')),
+        // erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
     }
 
     const [currentJob, setCurrentJob] = useState<HitherJob | null>(null);
@@ -207,8 +207,15 @@ const HitherJobMonitorTable: FunctionComponent<{
                 text: j.jobId,
                 element: <LinkMui href="#" onClick={() => {onViewJob && onViewJob(j)}}>{j.jobId}</LinkMui>
             },
-            functionName: {text: j.functionName},
-            status: {text: j.status === 'running' ? {element: <span>{j.status} <CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>} : j.status},
+            functionName: {
+                text: j.functionName
+            },
+            status: {
+                text: j.status,
+                element: j.status === 'running' ? (
+                    <span><span>{j.status} </span><CancelJobButton onClick={() => {onCancelJob && onCancelJob(j)}}/></span>
+                ) : <span>{j.status}</span>
+            },
             started: {text: j.timestampStarted ? formatTime(new Date(j.timestampStarted)) : ''},
             finished: {text: j.timestampFinished ? formatTime(new Date(j.timestampFinished)) : ''},
             message: {text: j.error_message || ''}

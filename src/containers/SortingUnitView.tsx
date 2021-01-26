@@ -4,22 +4,22 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
+import { useSortingInfo } from '../actions/getRecordingInfo';
+import { WorkspaceInfo } from '../AppContainer';
 import SimilarUnit from '../components/SimilarUnit';
-import { CalculationPool, createCalculationPool, HitherContext, useHitherJob } from '../extensions/common/hither';
+import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/common/hither';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
-import { Sorting, SortingInfo } from '../reducers/sortings';
-import { WorkspaceInfo } from '../reducers/workspaceInfo';
+import { Sorting } from '../reducers/sortings';
 
 interface StateProps {
   sorting: Sorting,
   recording: Recording,
   extensionsConfig: ExtensionsConfig,
-  workspaceInfo: WorkspaceInfo
   plugins: Plugins
 }
 
@@ -29,6 +29,7 @@ interface DispatchProps {
 interface OwnProps {
     sortingId: string
     unitId: number
+    workspaceInfo: WorkspaceInfo
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeMeProps
@@ -36,14 +37,9 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
 const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, workspaceInfo, size }) => {
-  const hither = useContext(HitherContext)
   const { workspaceName, feedUri } = workspaceInfo;
 
-  const {result: sortingInfo, job: sortingInfoJob} = useHitherJob<SortingInfo>(
-    'createjob_get_sorting_info',
-    { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-    { useClientCache: true }
-  )
+  const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
   
   const width = size.width
   if (!width) return <div>No width</div>
@@ -203,7 +199,6 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
-    workspaceInfo: state.workspaceInfo,
     plugins: filterPlugins(state.plugins)
 })
   

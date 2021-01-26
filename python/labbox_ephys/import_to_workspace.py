@@ -36,6 +36,13 @@ def _get_sortings_from_subfeed(sortings_subfeed: kp.Subfeed):
                 for sid in a.get('sortingIds', []):
                     if sid in le_sortings:
                         del le_sortings[sid]
+            elif a.get('type', '') == 'DELETE_SORTINGS_FOR_RECORDINGS':
+                for rid in a.get('recordingIds', []):
+                    sids = list(le_sortings.keys())
+                    for sid in sids:
+                        if le_sortings[sid]['recordingId'] == rid:
+                            del le_sortings[sid]
+    print(le_sortings.keys())
     return le_sortings
 
 def _import_le_recording(recordings_subfeed: kp.Subfeed, le_recording):
