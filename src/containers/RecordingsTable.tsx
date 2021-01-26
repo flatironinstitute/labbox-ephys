@@ -1,6 +1,12 @@
 import { CircularProgress } from '@material-ui/core';
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { WorkspaceInfo } from '../AppContainer';
+=======
+import React, { FunctionComponent, useContext, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { getRecordingInfo } from '../actions/getRecordingInfo';
+>>>>>>> add WorspaceView
 import NiceTable from '../components/NiceTable';
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { useRecordingInfos } from '../extensions/common/getRecordingInfo';
@@ -18,13 +24,13 @@ interface Props {
 =======
 import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
-import { RootAction, RootState } from '../reducers';
 import { Recording, RecordingInfo } from '../reducers/recordings';
+import { Sorting } from '../reducers/sortings';
 import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
-interface StateProps {
-    recordings: Recording[],
+interface Props {
     workspaceInfo: WorkspaceInfo
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 >>>>>>> import recordings view python scripts
 }
 
@@ -57,9 +63,42 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
     }, [recordings, sortings])
 =======
 const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
+=======
+    recordings: Recording[]
+    sortings: Sorting[]
+    onDeleteRecordings: (recordingIds: string[]) => void
+    onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
+}
+
+const sortingElement = (sorting: Sorting) => {
+    return <span>{sorting.sortingId} ({sorting.sortingInfo ? sorting.sortingInfo.unit_ids.length : ''})</span>
+}
+
+const sortingsElement = (sortings: Sorting[]) => {
+    return (
+        <span>
+            {
+                sortings.map(s => (
+                    sortingElement(s)
+                ))
+            }
+        </span>
+    )
+}
+
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
+>>>>>>> add WorspaceView
     const hither = useContext(HitherContext)
     const { workspaceName, feedUri, readOnly } = workspaceInfo;
 >>>>>>> import recordings view python scripts
+
+    const sortingsByRecordingId: {[key: string]: Sorting[]} = useMemo(() => {
+        const ret: {[key: string]: Sorting[]} = {}
+        recordings.forEach(r => {
+            ret[r.recordingId] = sortings.filter(s => (s.recordingId === r.recordingId))
+        })
+        return ret
+    }, [recordings, sortings])
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
         return array.sort(function (a, b) {
@@ -77,6 +116,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
         })
     }, [workspaceRouteDispatch])
 
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
     const recordingInfos: {[key: string]: RecordingInfo} = useRecordingInfos(recordings)
 
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
@@ -97,6 +137,9 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
             }
 =======
     const rows = recordings.map(rec => ({
+=======
+    const rows = useMemo(() => (recordings.map(rec => ({
+>>>>>>> add WorspaceView
         key: rec.recordingId,
         columnValues: {
             recording: rec,
@@ -106,10 +149,17 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
             },
             numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
             samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
             durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
 >>>>>>> import recordings view python scripts
         }
     })), [recordings, sortingsByRecordingId, handleViewRecording, recordingInfos])
+=======
+            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : '',
+            sortings: { element: sortingsElement(sortingsByRecordingId[rec.recordingId]) }
+        }
+    }))), [recordings, sortingsByRecordingId, feedUri, workspaceName])
+>>>>>>> add WorspaceView
 
     const columns = [
         {
@@ -146,6 +196,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
     );
 }
 
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 const ViewRecordingLink: FunctionComponent<{recording: Recording, onClick: (r: Recording) => void}> = ({recording, onClick}) => {
     const handleClick = useCallback(() => {
@@ -173,4 +224,6 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatc
 })
 >>>>>>> import recordings view python scripts
 
+=======
+>>>>>>> add WorspaceView
 export default RecordingsTable

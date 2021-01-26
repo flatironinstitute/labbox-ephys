@@ -1,11 +1,15 @@
 import { SetExtensionEnabledAction } from '../extensions/reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
 import { SetPersistStatusAction } from '../reducers/persisting'
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { AddRecordingAction, DeleteRecordingsAction, Recording } from '../reducers/recordings'
 import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, DeleteSortingsForRecordingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, Sorting } from '../reducers/sortings'
 =======
 import { AddRecordingAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
+=======
+import { AddRecordingAction, DeleteRecordingsAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
+>>>>>>> add WorspaceView
 import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
 import { SetWorkspaceInfoAction, WorkspaceInfo } from '../reducers/workspaceInfo'
 >>>>>>> import recordings view python scripts
@@ -74,12 +78,16 @@ export const addRecording = (recording: Recording): AddRecordingAction & Persist
   persistKey: 'recordings'
 })
 
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 export const deleteRecordings = (recordingIds: string[]): DeleteRecordingsAction & PersistAction => ({
 =======
 export const deleteRecordings = (dispatch: Dispatch<RootAction & PersistAction>, recordingIds: string[]) => {
   dispatch({
 >>>>>>> import recordings view python scripts
+=======
+export const deleteRecordings = (recordingIds: string[]): DeleteRecordingsAction & PersistAction => ({
+>>>>>>> add WorspaceView
     type: DELETE_RECORDINGS,
     recordingIds: recordingIds,
     persistKey: 'recordings'

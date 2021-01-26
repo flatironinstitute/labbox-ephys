@@ -18,18 +18,30 @@ interface StateProps {
 import { Typography } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { deleteRecordings, setRecordingInfo } from '../actions';
 import { RootAction, RootState } from '../reducers';
+import { Recording, RecordingInfo } from '../reducers/recordings';
+import { Sorting } from '../reducers/sortings';
 import { WorkspaceInfo } from '../reducers/workspaceInfo';
 import './Home.css';
-import RecordingsView from './RecordingsView';
+import WorkspaceView from './WorkspaceView';
 
 interface StateProps {
   workspaceInfo: WorkspaceInfo
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 >>>>>>> import recordings view python scripts
+=======
+  sortings: Sorting[]
+  recordings: Recording[]
+>>>>>>> add WorspaceView
 }
 
 interface DispatchProps {
   onDeleteRecordings: (recordingIds: string[]) => void
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
+=======
+  onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
+>>>>>>> add WorspaceView
 }
 
 interface OwnProps {
@@ -43,10 +55,14 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings, recordings, onDeleteRecordings, plugins }) => {
 =======
 const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height }) => {
+=======
+const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings, recordings, onDeleteRecordings, onSetRecordingInfo }) => {
+>>>>>>> add WorspaceView
   const { workspaceName, feedUri, readOnly } = workspaceInfo;
 >>>>>>> import recordings view python scripts
   const hMargin = 30
@@ -86,10 +102,14 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height }) => {
       <div
         style={{position: 'absolute', top: 50 + vMargin, width: W, height: H - 50}}
       >
-        <RecordingsView
+        <WorkspaceView
           width={W}
           height={H - 50}
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 >>>>>>> import recordings view python scripts
+=======
+          {...{workspaceInfo, sortings, recordings, onDeleteRecordings, onSetRecordingInfo}}
+>>>>>>> add WorspaceView
         />
       </div>
     </div>
@@ -97,6 +117,7 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height }) => {
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
+<<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
   sortings: state.sortings,
   recordings: state.recordings,
@@ -111,6 +132,16 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatc
     dispatch(deleteSortingsForRecordings(recordingIds));
     dispatch(deleteRecordings(recordingIds));
   }
+=======
+  workspaceInfo: state.workspaceInfo,
+  sortings: state.sortings,
+  recordings: state.recordings
+})
+  
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+  onDeleteRecordings: (recordingIds: string[]) => dispatch(deleteRecordings(recordingIds)),
+  onSetRecordingInfo: (a: {recordingId: string, recordingInfo: RecordingInfo}) => dispatch(setRecordingInfo(a))
+>>>>>>> add WorspaceView
 })
 
 export default connect<StateProps, DispatchProps, OwnProps, RootState>(
