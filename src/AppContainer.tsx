@@ -99,7 +99,7 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoa
 
     const location = useLocation()
     const pathList = location.pathname.split('/')
-    const { page, workspaceName} = (
+    const { workspaceName}: {page?: string, workspaceName?: string} = (
         (['docs', 'about'].includes(pathList[1])) ? ({
             workspaceName: 'default',
             page: pathList[1]

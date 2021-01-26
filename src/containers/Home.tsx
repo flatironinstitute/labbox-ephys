@@ -28,7 +28,6 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps
 
 const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings, recordings, onDeleteRecordings, plugins }) => {
-  const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2
