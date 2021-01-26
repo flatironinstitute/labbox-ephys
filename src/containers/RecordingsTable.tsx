@@ -1,34 +1,49 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useContext, useEffect } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import React, { FunctionComponent, useContext, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { deleteRecordings, setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import NiceTable from '../components/NiceTable';
 import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
-import { RootAction, RootState } from '../reducers';
 import { Recording, RecordingInfo } from '../reducers/recordings';
+import { Sorting } from '../reducers/sortings';
 import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
-interface StateProps {
-    recordings: Recording[],
+interface Props {
     workspaceInfo: WorkspaceInfo
-}
-
-interface DispatchProps {
+    recordings: Recording[]
+    sortings: Sorting[]
     onDeleteRecordings: (recordingIds: string[]) => void
     onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
 }
 
-interface OwnProps {
+const sortingElement = (sorting: Sorting) => {
+    return <span>{sorting.sortingId} ({sorting.sortingInfo ? sorting.sortingInfo.unit_ids.length : ''})</span>
 }
 
-type Props = StateProps & DispatchProps & OwnProps
+const sortingsElement = (sortings: Sorting[]) => {
+    return (
+        <span>
+            {
+                sortings.map(s => (
+                    sortingElement(s)
+                ))
+            }
+        </span>
+    )
+}
 
-const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
     const hither = useContext(HitherContext)
     const { workspaceName, feedUri, readOnly } = workspaceInfo;
+
+    const sortingsByRecordingId: {[key: string]: Sorting[]} = useMemo(() => {
+        const ret: {[key: string]: Sorting[]} = {}
+        recordings.forEach(r => {
+            ret[r.recordingId] = sortings.filter(s => (s.recordingId === r.recordingId))
+        })
+        return ret
+    }, [recordings, sortings])
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
         return array.sort(function (a, b) {
@@ -59,7 +74,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
     }
     useEffect(() => { effect() })
 
-    const rows = recordings.map(rec => ({
+    const rows = useMemo(() => (recordings.map(rec => ({
         key: rec.recordingId,
         columnValues: {
             recording: rec,
@@ -69,9 +84,10 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
             },
             numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
             samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
-            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
+            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : '',
+            sortings: { element: sortingsElement(sortingsByRecordingId[rec.recordingId]) }
         }
-    }));
+    }))), [recordings, sortingsByRecordingId, feedUri, workspaceName])
 
     const columns = [
         {
@@ -89,6 +105,10 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
         {
             key: 'durationMinutes',
             label: 'Duration (min)'
+        },
+        {
+            key: 'sortings',
+            label: 'Sortings'
         }
     ]
 
@@ -104,17 +124,4 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
     );
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    recordings: state.recordings,
-    workspaceInfo: state.workspaceInfo
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onDeleteRecordings: (recordingIds: string[]) => deleteRecordings(dispatch, recordingIds),
-    onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(RecordingsTable)
+export default RecordingsTable
