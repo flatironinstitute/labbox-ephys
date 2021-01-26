@@ -1,6 +1,7 @@
 import { SetExtensionEnabledAction } from '../extensions/reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
 import { SetPersistStatusAction } from '../reducers/persisting'
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< 13373a8a30be1f9ea678e7f96755fb69949fe6b4
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { AddRecordingAction, DeleteRecordingsAction, Recording } from '../reducers/recordings'
@@ -13,6 +14,10 @@ import { AddRecordingAction, DeleteRecordingsAction, Recording, RecordingInfo, S
 import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
 import { SetWorkspaceInfoAction, WorkspaceInfo } from '../reducers/workspaceInfo'
 >>>>>>> import recordings view python scripts
+=======
+import { AddRecordingAction, DeleteRecordingsAction, Recording } from '../reducers/recordings'
+import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, DeleteSortingsForRecordingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, Sorting } from '../reducers/sortings'
+>>>>>>> workspace view and simplified state flow
 
 export const REPORT_INITIAL_LOAD_COMPLETE = 'REPORT_INITIAL_LOAD_COMPLETE'
 export const SET_WEBSOCKET_STATUS = 'SET_WEBSOCKET_STATUS'
@@ -69,7 +74,7 @@ export const setExternalSortingUnitMetrics = (a: { sortingId: string, externalUn
 })
 
 interface PersistAction {
-  persistKey?: string
+  persistKey?: string | string[]
 }
 
 export const addRecording = (recording: Recording): AddRecordingAction & PersistAction => ({
@@ -122,6 +127,7 @@ export const setExtensionEnabled = (extensionName: string, value: boolean): SetE
   value
 })
 
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
 export const setWorkspaceInfo = (workspaceInfo: WorkspaceInfo): SetWorkspaceInfoAction => ({
@@ -130,6 +136,8 @@ export const setWorkspaceInfo = (workspaceInfo: WorkspaceInfo): SetWorkspaceInfo
 })
 
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 // curation
 
 export const addUnitLabel = (a: { sortingId: string, unitId: number, label: string }): AddUnitLabelAction & PersistAction => ({

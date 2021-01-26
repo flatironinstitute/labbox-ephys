@@ -1,6 +1,10 @@
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useRecordingInfo } from '../../common/getRecordingInfo';
+=======
+import { useRecordingInfo } from '../../../actions/getRecordingInfo';
+>>>>>>> workspace view and simplified state flow
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';

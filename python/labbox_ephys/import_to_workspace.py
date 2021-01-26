@@ -40,15 +40,22 @@ def _get_sortings_from_subfeed(sortings_subfeed: kp.Subfeed):
                 for sid in a.get('sortingIds', []):
                     if sid in le_sortings:
                         del le_sortings[sid]
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+>>>>>>> workspace view and simplified state flow
             elif a.get('type', '') == 'DELETE_SORTINGS_FOR_RECORDINGS':
                 for rid in a.get('recordingIds', []):
                     sids = list(le_sortings.keys())
                     for sid in sids:
                         if le_sortings[sid]['recordingId'] == rid:
                             del le_sortings[sid]
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 =======
 >>>>>>> import recordings view python scripts
+=======
+    print(le_sortings.keys())
+>>>>>>> workspace view and simplified state flow
     return le_sortings
 
 def _import_le_recording(recordings_subfeed: kp.Subfeed, le_recording):

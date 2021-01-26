@@ -4,9 +4,15 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { WorkspaceInfo } from '../AppContainer';
 import SimilarUnit from '../components/SimilarUnit';
 import { useSortingInfo } from '../extensions/common/getRecordingInfo';
+=======
+import { useSortingInfo } from '../actions/getRecordingInfo';
+import { WorkspaceInfo } from '../AppContainer';
+import SimilarUnit from '../components/SimilarUnit';
+>>>>>>> workspace view and simplified state flow
 import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/common/hither';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
@@ -14,21 +20,28 @@ import { ExtensionsConfig } from '../extensions/reducers';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { Sorting } from '../reducers/sortings';
 =======
 import { Sorting, SortingInfo } from '../reducers/sortings';
 import { WorkspaceInfo } from '../reducers/workspaceInfo';
 >>>>>>> import recordings view python scripts
+=======
+import { Sorting } from '../reducers/sortings';
+>>>>>>> workspace view and simplified state flow
 
 interface StateProps {
   sorting: Sorting,
   recording: Recording,
   extensionsConfig: ExtensionsConfig,
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
   workspaceInfo: WorkspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
   plugins: Plugins
 }
 
@@ -46,10 +59,13 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
 const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, workspaceInfo, size }) => {
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
   const hither = useContext(HitherContext)
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
   const { workspaceName, feedUri } = workspaceInfo;
 
   const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
@@ -212,10 +228,13 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     sorting: findSortingForId(state, ownProps.sortingId),
     recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
     extensionsConfig: state.extensionsConfig,
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     workspaceInfo: state.workspaceInfo,
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
     plugins: filterPlugins(state.plugins)
 })
   

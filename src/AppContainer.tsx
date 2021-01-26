@@ -9,10 +9,13 @@ import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } fro
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, useLocation, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
 import { setWorkspaceInfo } from './actions';
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import PersistStateControl from './containers/PersistStateControl';
 import { HitherJob } from './extensions/common/hither';
@@ -20,10 +23,13 @@ import { useOnce } from './extensions/common/hooks';
 import { ExtensionsConfig } from './extensions/reducers';
 import { getPathQuery } from './kachery';
 import { RootAction, RootState } from './reducers';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
 import { WorkspaceInfo } from './reducers/workspaceInfo';
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 import Routes from './Routes';
 
 export interface WorkspaceInfo {
@@ -62,6 +68,7 @@ const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo,
 }
 //////////////////////////////////////////////////////////////
 
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
 const SetWorkspaceInfo: FunctionComponent<{workspaceName: string | null, feedUri: string | null, onSetWorkspaceInfo: (di: WorkspaceInfo) => void}> = ({ workspaceName, feedUri, onSetWorkspaceInfo }) => {
@@ -80,6 +87,8 @@ const SetWorkspaceInfo: FunctionComponent<{workspaceName: string | null, feedUri
 }
 
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
 function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -108,18 +117,24 @@ function useWindowDimensions() {
 interface StateProps {
     initialLoadComplete: boolean
     extensionsConfig: ExtensionsConfig
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     workspaceInfo: WorkspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
     websocketStatus: string
 }
 
 interface DispatchProps {
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 }
 
 interface OwnProps {
@@ -128,6 +143,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoadComplete, extensionsConfig, websocketStatus }) => {
     const { width, height } = useWindowDimensions()
@@ -175,6 +191,29 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspace
         )
         
 >>>>>>> import recordings view python scripts
+=======
+const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoadComplete, extensionsConfig, websocketStatus }) => {
+    const { width, height } = useWindowDimensions()
+
+    const location = useLocation()
+    const pathList = location.pathname.split('/')
+    const { page, workspaceName} = (
+        (['docs', 'about'].includes(pathList[1])) ? ({
+            workspaceName: 'default',
+            page: pathList[1]
+        }) : ({
+            workspaceName: pathList[1] || 'default',
+            page: pathList[2] || ''
+        })
+    )
+    const query = QueryString.parse(location.search);
+    const feedUri = (query.feed as string) || null
+    const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
+    const workspaceInfo: WorkspaceInfo = {
+        workspaceName,
+        feedUri,
+        readOnly
+>>>>>>> workspace view and simplified state flow
     }
 
     const appBarHeight = 48 // hard-coded for now - must agree with theme.ts
@@ -188,6 +227,10 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspace
     })
 =======
 >>>>>>> import recordings view python scripts
+
+    useOnce(() => {
+        onSetWorkspaceInfo(workspaceInfo)
+    })
 
     return (
         <div className={"TheAppBar"}>
@@ -211,19 +254,25 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspace
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     initialLoadComplete: state.serverConnection.initialLoadComplete,
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     workspaceInfo: state.workspaceInfo,
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
     extensionsConfig: state.extensionsConfig,
     websocketStatus: state.serverConnection.websocketStatus
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     onSetWorkspaceInfo: workspaceInfo => dispatch(setWorkspaceInfo(workspaceInfo))
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 })
 
 export default withRouter(connect(

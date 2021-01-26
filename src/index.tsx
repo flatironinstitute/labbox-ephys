@@ -53,7 +53,14 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
   if (action.persistKey) {
     // if the action has persistKey field, then
     // send it to the server
-    sendAction(action.persistKey, action);
+    if (Array.isArray(action.persistKey)) {
+      (action.persistKey as string[]).forEach(pk => {
+        sendAction(pk, action)
+      })
+    }
+    else {
+      sendAction(action.persistKey as string, action);
+    }
     return;
   }
   return next(action);
@@ -174,7 +181,10 @@ apiConnection.onMessage(msg => {
     console.warn(`Unregognized message type from server: ${type0}`)
   }
 });
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+>>>>>>> workspace view and simplified state flow
 
 const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
   apiConnection.sendMessage({
@@ -183,6 +193,7 @@ const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
       feedUri: workspaceInfo.feedUri,
       workspaceName: workspaceInfo.workspaceName,
       readOnly: workspaceInfo.readOnly
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 =======
 // setApiConnection(apiConnection);
 const waitForWorkspaceInfo = async () => {
@@ -207,6 +218,11 @@ const waitForWorkspaceInfo = async () => {
 =======
 waitForWorkspaceInfo();
 >>>>>>> import recordings view python scripts
+=======
+    }
+  })
+}
+>>>>>>> workspace view and simplified state flow
 
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 

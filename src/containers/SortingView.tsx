@@ -3,19 +3,28 @@ import React, { Dispatch, useContext, useEffect, useMemo, useState } from 'react
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics } from '../actions';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { WorkspaceInfo } from '../AppContainer';
 import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
+=======
+import { useRecordingInfo, useSortingInfo } from '../actions/getRecordingInfo';
+import { WorkspaceInfo } from '../AppContainer';
+>>>>>>> workspace view and simplified state flow
 import { createCalculationPool, HitherContext } from '../extensions/common/hither';
 import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
 =======
 import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
 import { WorkspaceInfo } from '../reducers/workspaceInfo';
 >>>>>>> import recordings view python scripts
+=======
+import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
+>>>>>>> workspace view and simplified state flow
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -31,10 +40,13 @@ interface StateProps {
   sorting?: Sorting
   recording?: Recording
   extensionsConfig: any
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
   workspaceInfo: WorkspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
   plugins: Plugins
 }
 
@@ -58,11 +70,15 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
   const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetExternalUnitMetrics } = props
 =======
   const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
 >>>>>>> import recordings view python scripts
+=======
+  const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetExternalUnitMetrics } = props
+>>>>>>> workspace view and simplified state flow
   const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
@@ -196,12 +212,16 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
   extensionsConfig: state.extensionsConfig
 =======
   extensionsConfig: state.extensionsConfig,
   workspaceInfo: state.workspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+  extensionsConfig: state.extensionsConfig
+>>>>>>> workspace view and simplified state flow
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {

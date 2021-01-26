@@ -1,5 +1,9 @@
 import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useRecordingInfo, useSortingInfo } from '../../common/getRecordingInfo';
+=======
+import { useRecordingInfo, useSortingInfo } from '../../../actions/getRecordingInfo';
+>>>>>>> workspace view and simplified state flow
 import { HitherContext } from '../../common/hither';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';

@@ -2,6 +2,7 @@ import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { WorkspaceInfo } from '../AppContainer';
 import { RootAction, RootState } from '../reducers';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 
 interface StateProps {
@@ -11,6 +12,10 @@ import { WorkspaceInfo } from '../reducers/workspaceInfo';
 interface StateProps {
     workspaceInfo: WorkspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+
+interface StateProps {
+>>>>>>> workspace view and simplified state flow
     defaultFeedId: string | null
 }
 
@@ -44,10 +49,13 @@ const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo, defaultFeedId 
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     workspaceInfo: state.workspaceInfo,
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
     defaultFeedId: state.serverInfo?.defaultFeedId || ''
 })
   

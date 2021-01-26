@@ -1,7 +1,12 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
 import { useSortingInfo } from './getRecordingInfo';
+=======
+import { useSortingInfo } from '../../actions/getRecordingInfo';
+import { Sorting, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
+>>>>>>> workspace view and simplified state flow
 
 type Props = {
     sorting: Sorting
@@ -13,7 +18,11 @@ type Props = {
 const SortingUnitPlotGrid: FunctionComponent<Props> = ({ sorting, selection, selectionDispatch, unitComponent }) => {
     const maxUnitsVisibleIncrement = 60;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
     const sortingInfo: SortingInfo | undefined = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+=======
+    const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+>>>>>>> workspace view and simplified state flow
 
     const visibleUnitIds = selection.visibleUnitIds
     let unit_ids: number[] = (sortingInfo ? sortingInfo.unit_ids : []).filter(uid => ((!visibleUnitIds) || (visibleUnitIds.includes(uid))));

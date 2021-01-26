@@ -1,14 +1,20 @@
 import React, { FunctionComponent } from 'react';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+>>>>>>> workspace view and simplified state flow
 import { useLocation } from "react-router-dom";
 import { WorkspaceInfo } from './AppContainer';
 import About from './components/About';
 import Docs from './components/Docs';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 =======
 import { Redirect, Route, Switch } from "react-router-dom";
 import About from "./components/About";
 import Docs from "./components/Docs";
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
@@ -27,7 +33,10 @@ const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: W
     )
     if (workspaceName !== workspaceInfo.workspaceName) throw Error('Unexpected mismatch in workspaceName')
 
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+>>>>>>> workspace view and simplified state flow
     switch(page) {
         case 'about': return <About />
         case 'docs': return <Docs />
@@ -35,6 +44,7 @@ const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: W
         case 'hitherJobMonitor': return <HitherJobMonitor />
         default: return <Home width={width} height={height} workspaceInfo={workspaceInfo} />
     }
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 =======
 const Routes: FunctionComponent<{width: number, height: number}> = ({width, height}) => {
     return (
@@ -100,6 +110,8 @@ const Routes: FunctionComponent<{width: number, height: number}> = ({width, heig
         </Switch>
     );
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 }
 
 export default Routes;

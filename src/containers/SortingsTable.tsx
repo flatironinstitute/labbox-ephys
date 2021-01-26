@@ -2,6 +2,7 @@ import { CircularProgress } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent, useCallback, useMemo } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { deleteSortings } from '../actions';
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
 import { useSortingInfos } from '../extensions/common/getRecordingInfo';
@@ -13,14 +14,25 @@ import { WorkspaceRouteDispatch } from './WorkspaceView';
 import { Sorting, SortingInfo } from '../reducers/sortings';
 import { WorkspaceInfo } from '../reducers/workspaceInfo';
 >>>>>>> import recordings view python scripts
+=======
+import { useSortingInfos } from '../actions/getRecordingInfo';
+import { WorkspaceInfo } from '../AppContainer';
+import NiceTable from '../components/NiceTable';
+import { RootAction, RootState } from '../reducers';
+import { Sorting } from '../reducers/sortings';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
+>>>>>>> workspace view and simplified state flow
 
 
 
 interface StateProps {
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     workspaceInfo: WorkspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 }
 
 interface DispatchProps {
@@ -35,7 +47,10 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+>>>>>>> workspace view and simplified state flow
 const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, workspaceInfo, workspaceRouteDispatch }) => {
     const { readOnly } = workspaceInfo;
 
@@ -48,6 +63,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, w
     }, [workspaceRouteDispatch])
 
     const sortingInfos = useSortingInfos(sortings)
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 
     const sortings2: Sorting[] = useMemo(() => (sortByKey<Sorting>(sortings, 'sortingLabel')), [sortings])
     const rows = useMemo(() => (sortings2.map(s => {
@@ -93,20 +109,30 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
             }
         }
     }, [sortings, hither, onSetSortingInfo])
+=======
+>>>>>>> workspace view and simplified state flow
 
     const sortings2: Sorting[] = useMemo(() => (sortByKey<Sorting>(sortings, 'sortingLabel')), [sortings])
-    const rows = useMemo(() => (sortings2.map(s => ({
-        key: s.sortingId,
-        columnValues: {
-            sorting: s,
-            sortingLabel: {
-                text: s.sortingLabel,
-                element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
-            },
-            numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
+    const rows = useMemo(() => (sortings2.map(s => {
+        const sortingInfo = sortingInfos[s.sortingId]
+        return {
+            key: s.sortingId,
+            columnValues: {
+                sorting: s,
+                sortingLabel: {
+                    text: s.sortingLabel,
+                    element: <ViewSortingLink sorting={s} onClick={handleViewSorting} />
+                    // element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
+                },
+                numUnits: sortingInfo ? sortingInfo.unit_ids.length : {element: <CircularProgress />}
+            }
         }
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
     }))), [sortings2, workspaceName, feedUri])
 >>>>>>> import recordings view python scripts
+=======
+    })), [sortings2, handleViewSorting, sortingInfos])
+>>>>>>> workspace view and simplified state flow
 
     const columns = [
         {
@@ -154,10 +180,13 @@ const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[]
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
+<<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 =======
     workspaceInfo: state.workspaceInfo
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> workspace view and simplified state flow
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
