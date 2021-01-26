@@ -1,9 +1,7 @@
-import { Dispatch } from 'react'
 import { SetExtensionEnabledAction } from '../extensions/reducers'
-import { RootAction } from '../reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
 import { SetPersistStatusAction } from '../reducers/persisting'
-import { AddRecordingAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
+import { AddRecordingAction, DeleteRecordingsAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
 import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
 import { SetWorkspaceInfoAction, WorkspaceInfo } from '../reducers/workspaceInfo'
 
@@ -77,13 +75,11 @@ export const addRecording = (recording: Recording): AddRecordingAction & Persist
   persistKey: 'recordings'
 })
 
-export const deleteRecordings = (dispatch: Dispatch<RootAction & PersistAction>, recordingIds: string[]) => {
-  dispatch({
+export const deleteRecordings = (recordingIds: string[]): DeleteRecordingsAction & PersistAction => ({
     type: DELETE_RECORDINGS,
     recordingIds: recordingIds,
     persistKey: 'recordings'
-  });
-}
+})
 
 export const setRecordingInfo = (a: { recordingId: string, recordingInfo: RecordingInfo }): SetRecordingInfoAction => ({
   type: SET_RECORDING_INFO,
