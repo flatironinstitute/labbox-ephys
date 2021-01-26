@@ -12,8 +12,8 @@ type Props = {
     height: number
 }
 
-// needs to correspond to css (not best system)
-const tabBarHeight = 40 + 5
+// needs to correspond to css (not best system) - see mountainview.css
+const tabBarHeight = 30 + 5
 
 const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed, onSetViewArea, width, height }) => {
     const [currentNorthView, setCurrentNorthView] = useState<View | null>(null)

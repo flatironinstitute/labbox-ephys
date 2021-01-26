@@ -131,19 +131,19 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, documentI
         
     }
 
-    const toolBarHeight = 70
-    const H = height - toolBarHeight - 5
-    const hMargin = 30
+    const appBarHeight = 48 // hard-coded for now - must agree with theme.ts
+    const H = height - appBarHeight - 5
+    const hMargin = 0
     const W = width - hMargin * 2
 
     return (
         <div className={"TheAppBar"}>
-            <AppBar position="static">
+            <AppBar position="static" style={{height: appBarHeight}}>
                 <Toolbar>
                     <ToolBarContent documentInfo={documentInfo} extensionsConfig={extensionsConfig} websocketStatus={websocketStatus} />
                 </Toolbar>
             </AppBar>
-            <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: toolBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
+            <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: appBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
                 {
                     initialLoadComplete ? (
                         <Routes width={W} height={H} />

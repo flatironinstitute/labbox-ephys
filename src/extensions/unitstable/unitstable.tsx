@@ -1,8 +1,7 @@
 // LABBOX-EXTENSION: unitstable
 // LABBOX-EXTENSION-TAGS: jupyter
 
-import { faTable } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import TableChartIcon from '@material-ui/icons/TableChart';
 import React from 'react';
 import { ExtensionContext } from "../extensionInterface";
 import registerMetricPlugins from "./Units/metricPlugins/registerMetricPlugins";
@@ -14,7 +13,7 @@ export function activate(context: ExtensionContext) {
     context.registerSortingView({
         name: 'UnitsTable',
         label: 'Units Table',
-        icon: <FontAwesomeIcon icon={faTable} />,
+        icon: <TableChartIcon />,
         priority: 200,
         component: Units,
         props: {

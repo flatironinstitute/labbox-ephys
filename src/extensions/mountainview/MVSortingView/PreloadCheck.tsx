@@ -35,7 +35,7 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children, 
             setStatus('running')
             ;(async () => {
                 try {
-                    setMessage('Checking sorting local...')
+                    setMessage('Checking sorting data...')
                     const result1 = await hither.createHitherJob('preload_check_sorting_downloaded', {sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as {isLocal: boolean}
                     if (!matchesRunningState({recordingObject, sortingObject})) return
                     if (!result1.isLocal) {
@@ -48,7 +48,7 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children, 
                         }
                     }
 
-                    setMessage('Checking recording local...')
+                    setMessage('Checking recording data...')
                     const result3 = await hither.createHitherJob('preload_check_recording_downloaded', {recording_object: recordingObject}, {useClientCache: false, calculationPool}).wait() as {isLocal: boolean}
                     if (!matchesRunningState({recordingObject, sortingObject})) return
                     if (!result3.isLocal) {

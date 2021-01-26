@@ -1,6 +1,8 @@
 // LABBOX-EXTENSION: firetrack
 // LABBOX-EXTENSION-TAGS: jupyter
 
+import GrainIcon from '@material-ui/icons/Grain';
+import React from 'react';
 import { ExtensionContext } from '../extensionInterface';
 import FireTrackView from './FireTrackView/FireTrackView';
 
@@ -10,6 +12,7 @@ export function activate(context: ExtensionContext) {
         name: 'FireTrack',
         label: 'FireTrack',
         priority: 50,
-        component: FireTrackView
+        component: FireTrackView,
+        icon: <GrainIcon />
     })
 }

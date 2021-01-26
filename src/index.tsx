@@ -15,6 +15,8 @@ import { extensionContextDispatch } from './extensionContextDispatch';
 import { HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import initializeHitherInterface from './extensions/initializeHitherInterface';
+// styling
+import theme from './extensions/theme';
 import './index.css';
 // reducer
 import rootReducer, { RootState } from './reducers';
@@ -22,8 +24,6 @@ import registerExtensions from './registerExtensions';
 // service worker (see unregister() below)
 import * as serviceWorker from './serviceWorker';
 import './styles.css';
-// styling
-import theme from './theme';
 
 /*
 What does this middleware do?

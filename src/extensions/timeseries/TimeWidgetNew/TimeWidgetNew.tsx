@@ -33,8 +33,8 @@ export interface TimeWidgetPanel {
     label: () => string
 }
 
-const toolbarWidth = 50
-const spanWidgetHeight = 50
+const toolbarWidth = 36 // hard-coded for now
+const spanWidgetHeight = 40
 
 interface TimeState {
     numTimepoints: number
@@ -357,7 +357,7 @@ const TimeWidgetNew = (props: Props) => {
             <TimeWidgetToolbarNew
                 width={toolbarWidth}
                 height={height}
-                top={spanWidgetHeight}
+                top={0}
                 onZoomIn={handleZoomTimeIn}
                 onZoomOut={handleZoomTimeOut}
                 onShiftTimeLeft={handleShiftTimeLeft}

@@ -1,6 +1,7 @@
 // LABBOX-EXTENSION: timeseries
 // LABBOX-EXTENSION-TAGS: jupyter
 
+import TimelineIcon from '@material-ui/icons/Timeline';
 import React, { FunctionComponent } from 'react';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import TimeseriesViewNew from './TimeseriesViewNew/TimeseriesViewNew';
@@ -39,12 +40,13 @@ export function activate(context: ExtensionContext) {
         label: 'Timeseries',
         priority: 50,
         fullWidth: true,
-        component: TimeseriesRecordingView,
+        component: TimeseriesRecordingView
     })
     context.registerSortingView({
         name: 'TimeseriesView',
         label: 'Timeseries',
         priority: 50,
-        component: TimeseriesSortingView
+        component: TimeseriesSortingView,
+        icon: <TimelineIcon />
     })
 }

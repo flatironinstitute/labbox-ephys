@@ -27,14 +27,3 @@
     background-color: #f7f5f3;
     border: solid 1px gray;
 }
-
-.MVSortingView .MuiTab-root {
-    min-height: 40px !important;
-    height: 40px !important;
-}
-
-.MVSortingView .MuiTabs-root {
-    min-height: 40px !important;
-    height: 40px !important;
-    color: white;
-}

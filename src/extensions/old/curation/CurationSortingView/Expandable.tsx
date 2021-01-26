@@ -12,7 +12,7 @@ export const Expandable: FunctionComponent<Props> = (props) => {
     return (
       <Accordion TransitionProps={{ unmountOnExit: props.unmountOnExit !== undefined ? props.unmountOnExit : true }} defaultExpanded={props.defaultExpanded}>
         <AccordionSummary>
-          {props.icon && <span style={{paddingRight: 10}}>{props.icon}</span>}{props.label}
+          {props.icon && <span style={{paddingRight: 10}}>{props.icon}</span>}<span style={{paddingTop: 3}}>{props.label}</span>
         </AccordionSummary>
         <AccordionDetails>
           <div style={{width: "100%"}}>

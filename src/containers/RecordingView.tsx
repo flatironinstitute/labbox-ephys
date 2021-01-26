@@ -2,7 +2,6 @@ import { Grid } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { Link } from 'react-router-dom';
 import { setRecordingInfo } from '../actions';
 import { getRecordingInfo } from '../actions/getRecordingInfo';
 import RecordingInfoView from '../components/RecordingInfoView';
@@ -66,7 +65,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
   }
 
   return (
-    <div>
+    <div style={{margin: 20}}>
       <Grid container spacing={3}>
         <Grid item xs={12} lg={6}>
           <h2>{recording.recordingLabel}</h2>
@@ -94,9 +93,6 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
             </Expandable>
           ))
       }
-      <div style={{padding: 20}}>
-        <Link to={`/${documentId}/timeseriesForRecording/${recordingId}${getPathQuery({ feedUri })}`}>View timeseries in new page</Link>
-      </div>
     </div>
   )
 }
