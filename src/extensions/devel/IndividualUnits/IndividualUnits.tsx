@@ -1,7 +1,7 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { useSortingInfo } from '../../../actions/getRecordingInfo';
+import { useSortingInfo } from '../../common/getRecordingInfo';
 import { createCalculationPool } from '../../common/hither';
 import { SortingViewProps } from '../../extensionInterface';
 import IndividualUnit from './IndividualUnit';

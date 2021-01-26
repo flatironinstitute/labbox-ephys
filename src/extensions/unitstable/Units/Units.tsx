@@ -1,7 +1,7 @@
 
 import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react';
-import { useSortingInfo } from '../../../actions/getRecordingInfo';
+import { useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import { Recording, SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';

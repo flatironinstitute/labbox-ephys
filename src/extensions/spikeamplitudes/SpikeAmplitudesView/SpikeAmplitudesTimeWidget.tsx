@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
-import { useRecordingInfo, useSortingInfo } from '../../../actions/getRecordingInfo';
+import { useRecordingInfo, useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';

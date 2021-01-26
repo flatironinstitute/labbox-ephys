@@ -3,8 +3,8 @@ import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState }
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics } from '../actions';
-import { useRecordingInfo, useSortingInfo } from '../actions/getRecordingInfo';
 import { WorkspaceInfo } from '../AppContainer';
+import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
 import { createCalculationPool, HitherContext } from '../extensions/common/hither';
 import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';

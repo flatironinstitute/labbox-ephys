@@ -3,7 +3,7 @@
 
 import GrainIcon from '@material-ui/icons/Grain';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
-import { useRecordingInfo } from '../../actions/getRecordingInfo';
+import { useRecordingInfo } from '../common/getRecordingInfo';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 

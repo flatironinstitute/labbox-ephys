@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
-import { useRecordingInfo } from '../../../actions/getRecordingInfo';
+import { useRecordingInfo } from '../../common/getRecordingInfo';
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
