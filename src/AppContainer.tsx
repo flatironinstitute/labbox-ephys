@@ -7,18 +7,22 @@ import { Home } from '@material-ui/icons';
 import QueryString from 'querystring';
 import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { Link, Redirect, Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
+import { Link, RouteComponentProps, useLocation, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
-import { setWorkspaceInfo } from './actions';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import PersistStateControl from './containers/PersistStateControl';
 import { HitherJob } from './extensions/common/hither';
+import { useOnce } from './extensions/common/hooks';
 import { ExtensionsConfig } from './extensions/reducers';
 import { getPathQuery } from './kachery';
 import { RootAction, RootState } from './reducers';
-import { WorkspaceInfo } from './reducers/workspaceInfo';
 import Routes from './Routes';
 
+export interface WorkspaceInfo {
+    workspaceName: string | null
+    feedUri: string | null
+    readOnly: boolean | null
+}
 
 type ToolBarContentProps = {
     workspaceInfo: WorkspaceInfo
@@ -50,21 +54,6 @@ const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo,
 }
 //////////////////////////////////////////////////////////////
 
-const SetWorkspaceInfo: FunctionComponent<{workspaceName: string | null, feedUri: string | null, onSetWorkspaceInfo: (di: WorkspaceInfo) => void}> = ({ workspaceName, feedUri, onSetWorkspaceInfo }) => {
-    useEffect(() => {
-        (async () => {
-            console.info(`Using feed: ${feedUri}`);
-            const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
-            onSetWorkspaceInfo({
-                workspaceName,
-                feedUri,
-                readOnly
-            });
-        })();
-    })
-    return <div>Setting document info...</div>
-}
-
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
 function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -93,48 +82,49 @@ function useWindowDimensions() {
 interface StateProps {
     initialLoadComplete: boolean
     extensionsConfig: ExtensionsConfig
-    workspaceInfo: WorkspaceInfo
     websocketStatus: string
 }
 
 interface DispatchProps {
-    onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
 }
 
 interface OwnProps {
+    onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspaceInfo, onSetWorkspaceInfo, extensionsConfig, websocketStatus }) => {
-    const { workspaceName } = workspaceInfo;
-
+const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoadComplete, extensionsConfig, websocketStatus }) => {
     const { width, height } = useWindowDimensions()
 
-    if (!workspaceName) {
-        return (
-            <Switch>
-                <Route
-                    path="/:workspaceName/:path*"
-                    render={({ match, location }) => {
-                        const query = QueryString.parse(location.search);
-                        return <SetWorkspaceInfo
-                            workspaceName={match.params.workspaceName}
-                            feedUri={(query.feed as string) || null}
-                            onSetWorkspaceInfo={onSetWorkspaceInfo}
-                        />
-                    }}
-                />
-                <Route path="/"><Redirect to="/default" /></Route>
-            </Switch>
-        )
-        
+    const location = useLocation()
+    const pathList = location.pathname.split('/')
+    const { page, workspaceName} = (
+        (['docs', 'about'].includes(pathList[1])) ? ({
+            workspaceName: 'default',
+            page: pathList[1]
+        }) : ({
+            workspaceName: pathList[1] || 'default',
+            page: pathList[2] || ''
+        })
+    )
+    const query = QueryString.parse(location.search);
+    const feedUri = (query.feed as string) || null
+    const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
+    const workspaceInfo: WorkspaceInfo = {
+        workspaceName,
+        feedUri,
+        readOnly
     }
 
     const appBarHeight = 48 // hard-coded for now - must agree with theme.ts
     const H = height - appBarHeight - 2
     const hMargin = 0
     const W = width - hMargin * 2 - 2
+
+    useOnce(() => {
+        onSetWorkspaceInfo(workspaceInfo)
+    })
 
     return (
         <div className={"TheAppBar"}>
@@ -146,7 +136,7 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspace
             <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: appBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
                 {
                     initialLoadComplete ? (
-                        <Routes width={W} height={H} />
+                        <Routes width={W} height={H} workspaceInfo={workspaceInfo} />
                     ) : (
                         <div>Loading...</div>
                     )
@@ -158,13 +148,11 @@ const AppContainer: FunctionComponent<Props> = ({ initialLoadComplete, workspace
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
     initialLoadComplete: state.serverConnection.initialLoadComplete,
-    workspaceInfo: state.workspaceInfo,
     extensionsConfig: state.extensionsConfig,
     websocketStatus: state.serverConnection.websocketStatus
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onSetWorkspaceInfo: workspaceInfo => dispatch(setWorkspaceInfo(workspaceInfo))
 })
 
 export default withRouter(connect(

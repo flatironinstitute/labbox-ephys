@@ -106,14 +106,12 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
             });
         }
         onFinished(cb: (result: any) => void) {
-            this._object.timestampFinished = Number(new Date())
             this._onFinishedCallbacks.push(cb);
             if (this._object.status === 'finished') {
                 cb(this._object.result);
             }
         }
         onError(cb: (err: Error) => void) {
-            this._object.timestampFinished = Number(new Date())
             this._onErrorCallbacks.push(cb);
             if (this._object.status === 'error') {
                 cb(new Error(this._object.error_message));
@@ -127,6 +125,7 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
             }
         }
         _handleHitherJobError(args: { errorString: string, runtime_info: any | null }) {
+            this._object.timestampFinished = Number(new Date())
             this._object.status = 'error';
             this._object.error_message = args.errorString;
             this._object.runtime_info = args.runtime_info
@@ -136,6 +135,7 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
             }
         }
         _handleHitherJobFinished(a: { result: any, runtime_info: any }) {
+            this._object.timestampFinished = Number(new Date())
             this._object.result = processHitherJobResult(a.result);
             this._object.runtime_info = a.runtime_info;
             this._object.status = 'finished';

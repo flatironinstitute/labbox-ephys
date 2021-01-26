@@ -31,11 +31,9 @@ import recordings, { Action as RecordingsAction, State as RecordingsState } from
 import serverConnection, { Action as ServerConnectionAction, State as ServerConnectionState } from './serverConnection'
 import serverInfo, { Action as ServerInfoAction, State as ServerInfoState } from './serverInfo'
 import sortings, { Action as SortingsAction, State as SortingsState } from './sortings'
-import workspaceInfo, { Action as WorkspaceInfoAction, State as WorkspaceInfoState } from './workspaceInfo'
 
 export interface RootState {
     databaseConfig: DatabaseConfigState
-    workspaceInfo: WorkspaceInfoState
     hitherJobs: HitherJobsState
     persisting: PersistingState
     recordings: RecordingsState
@@ -47,7 +45,6 @@ export interface RootState {
 }
 const rootReducer = combineReducers({
     databaseConfig,
-    workspaceInfo,
     hitherJobs,
     persisting,
     recordings,
@@ -58,6 +55,6 @@ const rootReducer = combineReducers({
     plugins
 })
 
-export type RootAction =  DatabaseConfigAction | WorkspaceInfoAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | PluginsAction
+export type RootAction =  DatabaseConfigAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | PluginsAction
 
 export default rootReducer

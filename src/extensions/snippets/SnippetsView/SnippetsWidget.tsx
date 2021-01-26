@@ -1,6 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React, { Fragment, FunctionComponent, useCallback, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
+import { useRecordingInfo } from '../../../actions/getRecordingInfo';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import SnippetsRow from './SnippetsRow';
 
@@ -27,7 +28,8 @@ const WhenVisible: FunctionComponent<{width: number, height: number}> = ({width,
 }
 
 const SnippetsWidget: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitIds, width, height }) => {
-    const noiseLevel = (recording.recordingInfo || {}).noise_level || 1  // fix this
+    const recordingInfo = useRecordingInfo(recording.recordingObject)
+    const noiseLevel = (recordingInfo || {}).noise_level || 1  // fix this
     const rowHeight = 250
     return (
         <div style={{position: 'absolute', width, height, overflow: 'auto'}}>

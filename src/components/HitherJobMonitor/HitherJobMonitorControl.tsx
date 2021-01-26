@@ -1,8 +1,8 @@
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { WorkspaceInfo } from '../../AppContainer';
 import { HitherContext, HitherJob } from '../../extensions/common/hither';
 import { getPathQuery } from '../../kachery';
-import { WorkspaceInfo } from '../../reducers/workspaceInfo';
 
 type Props = {
     workspaceInfo: WorkspaceInfo,
