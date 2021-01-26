@@ -4,6 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { WorkspaceInfo } from '../AppContainer';
 import SimilarUnit from '../components/SimilarUnit';
@@ -13,6 +14,11 @@ import { useSortingInfo } from '../actions/getRecordingInfo';
 import { WorkspaceInfo } from '../AppContainer';
 import SimilarUnit from '../components/SimilarUnit';
 >>>>>>> workspace view and simplified state flow
+=======
+import { WorkspaceInfo } from '../AppContainer';
+import SimilarUnit from '../components/SimilarUnit';
+import { useSortingInfo } from '../extensions/common/getRecordingInfo';
+>>>>>>> misc fixes
 import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/common/hither';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';

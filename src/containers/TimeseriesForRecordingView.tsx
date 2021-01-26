@@ -2,11 +2,15 @@ import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
 =======
 import { useRecordingInfo } from '../actions/getRecordingInfo';
 >>>>>>> workspace view and simplified state flow
+=======
+import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
+>>>>>>> misc fixes
 import TimeseriesViewNew from '../extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';

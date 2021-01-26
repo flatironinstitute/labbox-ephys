@@ -3,6 +3,7 @@ import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState }
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics } from '../actions';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { WorkspaceInfo } from '../AppContainer';
 import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
@@ -10,6 +11,10 @@ import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecord
 import { useRecordingInfo, useSortingInfo } from '../actions/getRecordingInfo';
 import { WorkspaceInfo } from '../AppContainer';
 >>>>>>> workspace view and simplified state flow
+=======
+import { WorkspaceInfo } from '../AppContainer';
+import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
+>>>>>>> misc fixes
 import { createCalculationPool, HitherContext } from '../extensions/common/hither';
 import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';

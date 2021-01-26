@@ -27,10 +27,13 @@ import { HitherContext } from '../extensions/common/hither';
 import { getPathQuery } from '../kachery';
 =======
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
-import { useRecordingInfos } from '../actions/getRecordingInfo';
 import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 >>>>>>> workspace view and simplified state flow
+=======
+import { useRecordingInfos } from '../extensions/common/getRecordingInfo';
+>>>>>>> misc fixes
 import { Recording, RecordingInfo } from '../reducers/recordings';
 import { Sorting, SortingInfo } from '../reducers/sortings';
 import { WorkspaceRouteDispatch } from './WorkspaceView';

@@ -1,11 +1,15 @@
 import { Grid } from '@material-ui/core';
 import React, { Fragment, FunctionComponent, useCallback, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useRecordingInfo } from '../../common/getRecordingInfo';
 =======
 import { useRecordingInfo } from '../../../actions/getRecordingInfo';
 >>>>>>> workspace view and simplified state flow
+=======
+import { useRecordingInfo } from '../../common/getRecordingInfo';
+>>>>>>> misc fixes
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import SnippetsRow from './SnippetsRow';
 

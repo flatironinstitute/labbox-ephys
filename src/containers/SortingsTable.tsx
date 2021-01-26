@@ -2,6 +2,7 @@ import { CircularProgress } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent, useCallback, useMemo } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { deleteSortings } from '../actions';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
@@ -16,8 +17,11 @@ import { WorkspaceInfo } from '../reducers/workspaceInfo';
 >>>>>>> import recordings view python scripts
 =======
 import { useSortingInfos } from '../actions/getRecordingInfo';
+=======
+>>>>>>> misc fixes
 import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
+import { useSortingInfos } from '../extensions/common/getRecordingInfo';
 import { RootAction, RootState } from '../reducers';
 import { Sorting } from '../reducers/sortings';
 import { WorkspaceRouteDispatch } from './WorkspaceView';

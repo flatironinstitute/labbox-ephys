@@ -1,9 +1,13 @@
 import React, { FunctionComponent } from 'react';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useSortingInfo } from '../../common/getRecordingInfo';
 =======
 import { useSortingInfo } from '../../../actions/getRecordingInfo';
 >>>>>>> workspace view and simplified state flow
+=======
+import { useSortingInfo } from '../../common/getRecordingInfo';
+>>>>>>> misc fixes
 import { Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import UnitsTable from '../../unitstable/Units/UnitsTable';
 

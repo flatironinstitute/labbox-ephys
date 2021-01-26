@@ -1,6 +1,5 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
-import { useSortingInfo } from '../../actions/getRecordingInfo';
 import { Sorting } from '../extensionInterface';
 import ClientSidePlot from './ClientSidePlot';
 import { useSortingInfo } from './getRecordingInfo';

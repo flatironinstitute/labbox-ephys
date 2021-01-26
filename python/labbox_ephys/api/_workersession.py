@@ -179,7 +179,6 @@ class WorkerSession:
             for key in messages.keys():
                 if key in ['recordings', 'sortings']:
                     for m in messages[key]:
-<<<<<<< 11f88c5eb0c15e7876239894d4647b181d2a3df8
                         if 'action' in m:
                             self._send_message({'type': 'action', 'action': m['action']})
                         else:
@@ -188,14 +187,6 @@ class WorkerSession:
                     for m in messages[key]:
                         self._send_message({'type': 'subfeedMessage', 'watchName': key, 'message': m})
                 self._subfeed_positions[key] = self._subfeed_positions[key] + len(messages[key])
-=======
-                        self._send_message({'type': 'action', 'action': m['action']})
-                        self._subfeed_positions[key] = self._subfeed_positions[key] + 1
-                else:
-                    for m in messages[key]:
-                        self._send_message({'type': 'subfeedMessage', 'watchName': key, 'message': m})
-                        self._subfeed_positions[key] = self._subfeed_positions[key] + 1
->>>>>>> jupyter curation feeds
         hi.wait(0)
         job_ids = list(self._jobs_by_id.keys())
         for job_id in job_ids:

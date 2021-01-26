@@ -3,11 +3,15 @@
 
 import GrainIcon from '@material-ui/icons/Grain';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useRecordingInfo } from '../common/getRecordingInfo';
 =======
 import { useRecordingInfo } from '../../actions/getRecordingInfo';
 >>>>>>> workspace view and simplified state flow
+=======
+import { useRecordingInfo } from '../common/getRecordingInfo';
+>>>>>>> misc fixes
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 

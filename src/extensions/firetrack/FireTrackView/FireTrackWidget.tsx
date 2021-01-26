@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useEffect, useMemo, useReducer, useState } from 'react'
-import { useRecordingInfo } from '../../../actions/getRecordingInfo'
 import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
 import { useRecordingInfo } from '../../common/getRecordingInfo'

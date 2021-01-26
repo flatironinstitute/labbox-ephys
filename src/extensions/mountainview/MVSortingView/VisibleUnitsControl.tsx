@@ -1,10 +1,14 @@
 import { Checkbox } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 import { useSortingInfo } from '../../common/getRecordingInfo';
 =======
 import { useSortingInfo } from '../../../actions/getRecordingInfo';
 >>>>>>> workspace view and simplified state flow
+=======
+import { useSortingInfo } from '../../common/getRecordingInfo';
+>>>>>>> misc fixes
 import { useHitherJob } from '../../common/hither';
 import { Recording, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 
@@ -18,11 +22,15 @@ type Props = {
 type PeakElectrodeIds = {[key: string]: number}
 
 const VisibleUnitsControl: FunctionComponent<Props> = ({ sorting, recording, selection, selectionDispatch }) => {
+<<<<<<< 8b5ea1ca1a2be14685dd7e844b3ef682a6e48e34
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
     const sortingInfo: SortingInfo | undefined = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
 =======
     const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
 >>>>>>> workspace view and simplified state flow
+=======
+    const sortingInfo: SortingInfo | undefined = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+>>>>>>> misc fixes
     const [hideRejected, setHideRejected] = useState(false)
     const [showAcceptedOnly, setShowAcceptedOnly] = useState(false)
     const [restrictToVisibleElectrodes, setRestrictToVisibleElectrodes] = useState(true)

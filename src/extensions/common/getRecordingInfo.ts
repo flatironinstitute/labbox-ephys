@@ -1,6 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import { Recording, RecordingInfo } from "../../reducers/recordings";
-import { Sorting, SortingInfo } from "../../reducers/sortings";
+import { Recording, RecordingInfo, Sorting, SortingInfo } from "../extensionInterface";
 import { HitherContext, HitherInterface, HitherJob, useHitherJob } from "./hither";
 
 export const getRecordingInfo = async (a: {recordingObject: any, hither: HitherInterface}): Promise<RecordingInfo> => {
