@@ -83,9 +83,12 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings
 >>>>>>> add WorspaceView
 =======
 const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings, recordings, onDeleteRecordings, plugins }) => {
+<<<<<<< 38e0ca021e38d4d16025a5d8dfe03e26fef2b797
 >>>>>>> workspace view and simplified state flow
   const { workspaceName, feedUri, readOnly } = workspaceInfo;
 >>>>>>> import recordings view python scripts
+=======
+>>>>>>> misc fixes
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2

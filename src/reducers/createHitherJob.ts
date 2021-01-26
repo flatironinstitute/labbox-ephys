@@ -1,7 +1,5 @@
 import { CalculationPool, HitherJob } from '../extensions/common/hither';
 
-const objectHash = require('object-hash');
-
 interface ApiConnection {
   sendMessage: (msg: any) => void
 }
@@ -20,71 +18,71 @@ const globalData: {
   runningJobIds: {}
 };
 
-interface HitherJobCreatedMessageFromServer {
-  client_job_id: string
-  job_id: string
-}
+// interface HitherJobCreatedMessageFromServer {
+//   client_job_id: string
+//   job_id: string
+// }
 
-const handleHitherJobCreated = (msg: HitherJobCreatedMessageFromServer) => {
-  if (!(msg.client_job_id in globalData.hitherJobs)) {
-    console.warn(`Unable to find job with clientJobId: ${msg.client_job_id}.`);
-    return;
-  }
-  const job = globalData.hitherJobs[msg.client_job_id];
-  job._handleHitherJobCreated({jobId: msg.job_id});
-  globalData.hitherJobs[msg.job_id] = job;
-  delete globalData.hitherJobs[job.clientJobId()];
-  // dispatchAddHitherJob(job.object());
-}
+// const handleHitherJobCreated = (msg: HitherJobCreatedMessageFromServer) => {
+//   if (!(msg.client_job_id in globalData.hitherJobs)) {
+//     console.warn(`Unable to find job with clientJobId: ${msg.client_job_id}.`);
+//     return;
+//   }
+//   const job = globalData.hitherJobs[msg.client_job_id];
+//   job._handleHitherJobCreated({jobId: msg.job_id});
+//   globalData.hitherJobs[msg.job_id] = job;
+//   delete globalData.hitherJobs[job.clientJobId()];
+//   // dispatchAddHitherJob(job.object());
+// }
 
-const handleHitherJobCreationError = (msg: any) => {
-  if (!(msg.client_job_id in globalData.hitherJobs)) {
-    console.warn('Unable to find job with clientJobId (hitherJobCreationError).');
-    return;
-  }
-  const job = globalData.hitherJobs[msg.client_job_id];
-  const errorString = `Error creating job ${job._object.functionName}: ${msg.error}`;
-  job._handleHitherJobError({
-    errorString,
-    runtime_info: null
-  });
-  delete globalData.hitherJobs[job.clientJobId()];
-}
+// const handleHitherJobCreationError = (msg: any) => {
+//   if (!(msg.client_job_id in globalData.hitherJobs)) {
+//     console.warn('Unable to find job with clientJobId (hitherJobCreationError).');
+//     return;
+//   }
+//   const job = globalData.hitherJobs[msg.client_job_id];
+//   const errorString = `Error creating job ${job._object.functionName}: ${msg.error}`;
+//   job._handleHitherJobError({
+//     errorString,
+//     runtime_info: null
+//   });
+//   delete globalData.hitherJobs[job.clientJobId()];
+// }
 
-const handleHitherJobFinished = (msg: any) => {
-  const job = globalData.hitherJobs[msg.job_id] || globalData.hitherJobs[msg.client_job_id];
-  if (!job) {
-    console.warn(`job not found (handleHitherJobFinished): ${msg.job_id} ${msg.client_job_id}`);
-    return;
-  }
-  if (!job._object.jobId) {
-    console.warn(`No _jobId for job`);
-    return;
-  }
-  job._handleHitherJobFinished({
-    result: msg.result,
-    runtime_info: msg.runtime_info
-  })
-  // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
-}
+// const handleHitherJobFinished = (msg: any) => {
+//   const job = globalData.hitherJobs[msg.job_id] || globalData.hitherJobs[msg.client_job_id];
+//   if (!job) {
+//     console.warn(`job not found (handleHitherJobFinished): ${msg.job_id} ${msg.client_job_id}`);
+//     return;
+//   }
+//   if (!job._object.jobId) {
+//     console.warn(`No _jobId for job`);
+//     return;
+//   }
+//   job._handleHitherJobFinished({
+//     result: msg.result,
+//     runtime_info: msg.runtime_info
+//   })
+//   // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
+// }
 
-const handleHitherJobError = (msg: any) => {
-  const job = globalData.hitherJobs[msg.job_id] || globalData.hitherJobs[msg.client_job_id];
-  if (!job) {
-    console.warn(`job not found (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
-    return;
-  }
-  // const jobId = job._jobId
-  // if (!jobId) {
-  //   console.warn(`no _jobId (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
-  //   return;
-  // }
-  job._handleHitherJobError({
-    errorString: msg.error_message,
-    runtime_info: msg.runtime_info
-  })
-  // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
-}
+// const handleHitherJobError = (msg: any) => {
+//   const job = globalData.hitherJobs[msg.job_id] || globalData.hitherJobs[msg.client_job_id];
+//   if (!job) {
+//     console.warn(`job not found (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
+//     return;
+//   }
+//   // const jobId = job._jobId
+//   // if (!jobId) {
+//   //   console.warn(`no _jobId (handleHitherJobError): ${msg.job_id} ${msg.client_job_id}`);
+//   //   return;
+//   // }
+//   job._handleHitherJobError({
+//     errorString: msg.error_message,
+//     runtime_info: msg.runtime_info
+//   })
+//   // dispatchUpdateHitherJob({clientJobId: job.clientJobId(), update: job.object()});
+// }
 
 // const dispatchAddHitherJob = (job: HitherJob) => {
 //   if (!globalData.dispatch) {
@@ -103,9 +101,9 @@ const handleHitherJobError = (msg: any) => {
 //   globalData.dispatch = dispatch;
 // }
 
-const setApiConnection = (apiConnection: ApiConnection) => {
-  globalData.apiConnection = apiConnection;
-}
+// const setApiConnection = (apiConnection: ApiConnection) => {
+//   globalData.apiConnection = apiConnection;
+// }
 
 
 class ClientHitherJob {
