@@ -59,7 +59,7 @@ export const setExternalSortingUnitMetrics = (a: { sortingId: string, externalUn
 })
 
 interface PersistAction {
-  persistKey?: string | string[]
+  persistKey?: string
 }
 
 export const addRecording = (recording: Recording): AddRecordingAction & PersistAction => ({

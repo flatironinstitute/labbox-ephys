@@ -85,7 +85,7 @@ const isUnmergeUnitsAction = (x: any): x is UnmergeUnitsAction => (
 )
 
 export type State = Sorting[]
-export type Action = (AddSortingAction | DeleteSortingsAction | DeleteSortingsForRecordingsAction | DeleteRecordingsAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string | string[]}
+export type Action = (AddSortingAction | DeleteSortingsAction | DeleteSortingsForRecordingsAction | DeleteRecordingsAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
 export const initialState: State = []
 
 // the reducer

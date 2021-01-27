@@ -53,14 +53,7 @@ const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispat
   if (action.persistKey) {
     // if the action has persistKey field, then
     // send it to the server
-    if (Array.isArray(action.persistKey)) {
-      (action.persistKey as string[]).forEach(pk => {
-        sendAction(pk, action)
-      })
-    }
-    else {
-      sendAction(action.persistKey as string, action);
-    }
+    sendAction(action.persistKey, action);
     return;
   }
   return next(action);
