@@ -1,3 +1,4 @@
+import uuid
 import spikeextractors as se
 import numpy as np
 import labbox_ephys as le
@@ -42,7 +43,6 @@ def _get_sortings_from_subfeed(sortings_subfeed: kp.Subfeed):
                     for sid in sids:
                         if le_sortings[sid]['recordingId'] == rid:
                             del le_sortings[sid]
-    print(le_sortings.keys())
     return le_sortings
 
 def _import_le_recording(recordings_subfeed: kp.Subfeed, le_recording):
@@ -75,32 +75,39 @@ def _import_le_sorting(sortings_subfeed: kp.Subfeed, le_sorting):
         }
     })
 
-def import_recording(*, feed: kp.Feed, workspace_name: str, recording: se.RecordingExtractor, recording_id: str):
+def random_id():
+    return str(uuid.uuid4())[-12:]
+
+def import_recording(*, feed: kp.Feed, workspace_name: str, recording: se.RecordingExtractor, recording_label: str):
+    recording_id = 'R-' + random_id()
     x = {
         'recordingId': recording_id,
-        'recordingLabel': recording_id,
-        'recordingPath': ka.store_object(recording.object(), basename=f'{recording_id}.json'),
+        'recordingLabel': recording_label,
+        'recordingPath': ka.store_object(recording.object(), basename=f'{recording_label}.json'),
         'recordingObject': recording.object(),
-        'description': f'Imported from Python: {recording_id}'
+        'description': f'Imported from Python: {recording_label}'
     }
     recordings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name, key='recordings'))
     _import_le_recording(recordings_subfeed, x)
+    return x
 
-def import_sorting(*, feed: kp.Feed, workspace_name: str, recording: se.RecordingExtractor, sorting: se.SortingExtractor, recording_id: str, sorting_id: str):
+def import_sorting(*, feed: kp.Feed, workspace_name: str, recording: se.RecordingExtractor, sorting: se.SortingExtractor, recording_id: str, sorting_label: str):
+    sorting_id = 'S-' + random_id()
     x = {
         'sortingId': sorting_id,
-        'sortingLabel': sorting_id,
-        'sortingPath': ka.store_object(sorting.object(), basename=f'{sorting_id}.json'),
+        'sortingLabel': sorting_label,
+        'sortingPath': ka.store_object(sorting.object(), basename=f'{sorting_label}.json'),
         'sortingObject': sorting.object(),
 
         'recordingId': recording_id,
         'recordingPath': ka.store_object(recording.object(), basename=f'{recording_id}.json'),
         'recordingObject': recording.object(),
 
-        'description': f'Imported from Python: {sorting_id}'
+        'description': f'Imported from Python: {sorting_label}'
     }
     sortings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name, key='sortings'))
     _import_le_sorting(sortings_subfeed, x)
+    return x
 
 def delete_recording(*, feed: kp.Feed, workspace_name: str, recording_id: str):
     recordings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name, key='recordings'))

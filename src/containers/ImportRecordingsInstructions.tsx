@@ -2,6 +2,7 @@ import React, { FunctionComponent, useCallback, useState } from 'react';
 import Markdown from '../extensions/common/Markdown';
 import Expandable from '../extensions/old/curation/CurationSortingView/Expandable';
 import import_example_simulated_recording_py from './importExamples/import_example_simulated_recording.py.gen';
+import import_spikeforest_recording_py from './importExamples/import_spikeforest_recording.py.gen';
 import instructionsMd from './ImportRecordingsInstructions.md.gen';
 
 type Props = {
@@ -16,6 +17,10 @@ const ImportRecordingsInstructions: FunctionComponent<Props> = () => {
             <Expandable label="Import example simulated recording">
                 <CopyToClipboardButton text={import_example_simulated_recording_py} />
                 <Markdown source={mdWrapPy(import_example_simulated_recording_py)} />
+            </Expandable>
+            <Expandable label="Import SpikeForest recordings">
+                <CopyToClipboardButton text={import_spikeforest_recording_py} />
+                <Markdown source={mdWrapPy(import_spikeforest_recording_py)} />
             </Expandable>
         </div>
     )
