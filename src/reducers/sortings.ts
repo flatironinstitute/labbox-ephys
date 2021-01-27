@@ -114,6 +114,7 @@ const isUnmergeUnitsAction = (x: any): x is UnmergeUnitsAction => (
 )
 
 export type State = Sorting[]
+<<<<<<< 6f0922fce867e2298b544c38a685c5844e36c5eb
 <<<<<<< fae5d1af6666e69aa85868b4ea976236e06723c3
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
 export type Action = (AddSortingAction | DeleteSortingsAction | DeleteSortingsForRecordingsAction | DeleteRecordingsAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
@@ -123,6 +124,9 @@ export type Action = (AddSortingAction | DeleteSortingsAction | DeleteRecordings
 =======
 export type Action = (AddSortingAction | DeleteSortingsAction | DeleteSortingsForRecordingsAction | DeleteRecordingsAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string | string[]}
 >>>>>>> workspace view and simplified state flow
+=======
+export type Action = (AddSortingAction | DeleteSortingsAction | DeleteSortingsForRecordingsAction | DeleteRecordingsAction | SetCurationAction | AddUnitLabelAction | RemoveUnitLabelAction | MergeUnitsAction | UnmergeUnitsAction | SetExternalSortingUnitMetricsAction) & {persistKey?: string}
+>>>>>>> simplify persistKey
 export const initialState: State = []
 
 // the reducer
