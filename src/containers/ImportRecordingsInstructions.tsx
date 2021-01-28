@@ -57,11 +57,11 @@ const mdWrapPy = (py: string) => {
     return "```python\n" + py + '\n```'
 }
 
-type CopyToClickboardButtonProps = {
+type CopyToClipboardButtonProps = {
     text: string
 }
 
-const CopyToClipboardButton: FunctionComponent<CopyToClickboardButtonProps> = ({ text }) => {
+const CopyToClipboardButton: FunctionComponent<CopyToClipboardButtonProps> = ({ text }) => {
     const [copied, setCopied] = useState(false)
     const handleClick = useCallback(() => {
         navigator.clipboard.writeText(text)
