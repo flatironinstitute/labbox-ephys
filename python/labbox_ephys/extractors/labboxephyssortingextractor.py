@@ -106,6 +106,10 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             S.set_sampling_frequency(samplerate)
             S.set_times_labels(times_npy.ravel(), labels_npy.ravel())
             self._sorting = S
+        elif sorting_format == 'nwb':
+            from .nwbextractors import NwbSortingExtractor
+            path0 = kp.load_file(data['path'])
+            self._sorting: se.SortingExtractor = NwbSortingExtractor(path0)
         elif sorting_format == 'in_memory':
             S = get_in_memory_object(data)
             if S is None:

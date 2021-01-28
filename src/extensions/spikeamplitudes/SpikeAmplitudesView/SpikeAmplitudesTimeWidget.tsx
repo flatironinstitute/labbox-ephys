@@ -37,16 +37,25 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
 
     useEffect(() => {
         const panels: SpikeAmplitudesPanel[] = []
+        const allMins: number[] = []
+        const allMaxs: number[] = []
+
         unitIds.forEach(unitId => {
             const p = new SpikeAmplitudesPanel({spikeAmplitudesData, recording, sorting, unitId, hither})
+            const amps = spikeAmplitudesData.getSpikeAmplitudes(unitId)
+            if (amps) {
+                allMins.push(amps.minAmp)
+                allMaxs.push(amps.maxAmp)
+            }
             panels.push(p)
         })
+        if (allMins.length > 0) {
+            panels.forEach(p => {
+                p.setGlobalAmplitudeRange({min: Math.min(...allMins), max: Math.max(...allMaxs)})
+            })
+        }
         setSpikeAmplitudesPanels(panels)
     }, [unitIds, sorting, hither, recording, spikeAmplitudesData, selection]) // important that this depends on selection so that we refresh when time range changes
-
-    if (spikeAmplitudesPanels) {
-        spikeAmplitudesPanels.forEach(p => p.setPanelGroup(spikeAmplitudesPanels))
-    }
 
     const panels = useMemo(() => (
         spikeAmplitudesPanels ? [combinePanels(spikeAmplitudesPanels, '')] : [] as SpikeAmplitudesPanel[]

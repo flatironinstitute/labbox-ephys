@@ -1,5 +1,6 @@
 import spikeextractors as se
 import numpy as np
+import time
 
 def _extract_snippet_from_traces(
     traces,
@@ -119,6 +120,7 @@ def get_unit_waveforms(
             start_frame=chunk['istart'],
             end_frame=chunk['iend']
         )
+        print(f'Getting unit waveforms for chunk {ii + 1} of {len(chunks)}')
         # num_events_in_chunk x num_channels_in_nbhd[unit_id] x len_of_one_snippet
         unit_waveforms = _get_unit_waveforms_for_chunk(
             recording=recording_chunk,

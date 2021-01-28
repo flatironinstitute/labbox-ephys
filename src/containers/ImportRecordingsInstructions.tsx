@@ -2,8 +2,12 @@ import React, { FunctionComponent, useCallback, useState } from 'react';
 import Markdown from '../extensions/common/Markdown';
 import Expandable from '../extensions/old/curation/CurationSortingView/Expandable';
 import import_example_simulated_recording_py from './importExamples/import_example_simulated_recording.py.gen';
+<<<<<<< f66ae11af53dee11db780eed9facf74e33e3304b
 <<<<<<< 496fb5474a9d62b099218689b8e91b3d5e442647
 <<<<<<< aecffccec7401ef3fe6951958578928f0b85c04b
+=======
+import import_nwb_recording_py from './importExamples/import_nwb_recording.py.gen';
+>>>>>>> Import recordings: snippet for importing from spikeforest
 import import_spikeforest_recording_py from './importExamples/import_spikeforest_recording.py.gen';
 =======
 >>>>>>> import recordings view python scripts
@@ -33,10 +37,17 @@ const ImportRecordingsInstructions: FunctionComponent<Props> = () => {
                 <CopyToClipboardButton text={import_spikeforest_recording_py} />
                 <Markdown source={mdWrapPy(import_spikeforest_recording_py)} />
             </Expandable>
+<<<<<<< f66ae11af53dee11db780eed9facf74e33e3304b
 <<<<<<< 496fb5474a9d62b099218689b8e91b3d5e442647
 =======
 >>>>>>> import recordings view python scripts
 =======
+>>>>>>> Import recordings: snippet for importing from spikeforest
+=======
+            <Expandable label="Import NWB recordings">
+                <CopyToClipboardButton text={import_nwb_recording_py} />
+                <Markdown source={mdWrapPy(import_nwb_recording_py)} />
+            </Expandable>
 >>>>>>> Import recordings: snippet for importing from spikeforest
         </div>
     )
