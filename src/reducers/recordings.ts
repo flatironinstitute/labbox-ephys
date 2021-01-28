@@ -1,6 +1,6 @@
 import { Reducer } from 'react'
-import { ADD_RECORDING, DELETE_RECORDINGS, SET_RECORDING_INFO } from '../actions'
-import { Recording, RecordingInfo } from '../extensions/extensionInterface'
+import { ADD_RECORDING, DELETE_RECORDINGS } from '../actions'
+import { Recording } from '../extensions/extensionInterface'
 export type { Recording, RecordingInfo } from '../extensions/extensionInterface'
 
 export interface AddRecordingAction {
@@ -15,21 +15,12 @@ export interface DeleteRecordingsAction {
     type: 'DELETE_RECORDINGS'
     recordingIds: string[]
 }
-const isDeleteRecordingsAction = (x: any): x is DeleteRecordingsAction => (
+export const isDeleteRecordingsAction = (x: any): x is DeleteRecordingsAction => (
     x.type === DELETE_RECORDINGS
 )
 
-export interface SetRecordingInfoAction {
-    type: 'SET_RECORDING_INFO'
-    recordingId: string
-    recordingInfo: RecordingInfo
-}
-const isSetRecordingInfoAction = (x: any): x is SetRecordingInfoAction => (
-    x.type === SET_RECORDING_INFO
-)
-
 export type State = Recording[]
-export type Action = AddRecordingAction | DeleteRecordingsAction | SetRecordingInfoAction
+export type Action = AddRecordingAction | DeleteRecordingsAction
 export const initialState: State = []
 
 // the reducer
@@ -45,16 +36,6 @@ const recordings: Reducer<State, Action> = (state: State = initialState, action:
         return state.filter(s => (
             !(s.recordingId in exclude)
         ));
-    }
-    else if (isSetRecordingInfoAction(action)) {
-        return state.map(s => (
-            s.recordingId === action.recordingId ? (
-                {
-                    ...s,
-                    recordingInfo: action.recordingInfo
-                }
-            ): s
-        ))
     }
     else {
         return state

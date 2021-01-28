@@ -15,14 +15,6 @@
 	// 	],
 	// 	"description": "Log output to console"
 	// }
-	"consolelog": {
-		"prefix": "consolelog",
-		"body": [
-			"console.log('--- $1');",
-			"$2"
-		],
-		"description": "Debug log"
-	},
 	"extension": {
 		"prefix": "extension",
 		"body": [

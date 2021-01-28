@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
+import { useRecordingInfo, useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';
@@ -19,8 +20,8 @@ type Props = {
 
 const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesData, recording, sorting, unitIds, width, height, selection: externalSelection, selectionDispatch: externalSelectionDispatch }) => {
     const hither = useContext(HitherContext)
-    const { sortingInfo } = sorting
-    const { recordingInfo } = recording
+    const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+    const recordingInfo = useRecordingInfo(recording.recordingObject)
 
     const [selection, selectionDispatch] = useBufferedDispatch(sortingSelectionReducer, externalSelection, useMemo(() => ((state: SortingSelection) => {externalSelectionDispatch({type: 'Set', state})}), [externalSelectionDispatch]), 400)
 

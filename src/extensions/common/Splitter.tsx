@@ -5,6 +5,7 @@ interface Props {
     width: number
     height: number
     initialPosition: number
+    positionFromRight?: boolean
     onChange?: (newPosition: number) => void
     gripThickness?: number
     gripInnerThickness?: number
@@ -17,29 +18,34 @@ const defaultGripInnerThickness = 4
 const defaultGripMargin = 2
 
 const Splitter: FunctionComponent<Props> = (props) => {
-    const {width, height, initialPosition, onChange, adjustable=true} = props
+    const {width, height, initialPosition, onChange, adjustable=true, positionFromRight=false} = props
 
     const [gripPosition, setGripPosition] = useState<number>(initialPosition)
 
     if (!props.children) throw Error('Unexpected: no props.children')
 
+    let child1: ReactElement
+    let child2: ReactElement | null
     if (!Array.isArray(props.children)) {
-        let child0: ReactElement = props.children as any as ReactElement
-        return <child0.type {...child0.props} width={width} height={height} />
+        child1 = props.children as any as ReactElement
+        child2 = null
     }
-    
-    const children = props.children.filter(c => (c !== undefined))
-    let child1 = children[0] as any as ReactElement
-    let child2 = children[1] as any as ReactElement
+    else {
+        const children = props.children.filter(c => (c !== undefined))
+        child1 = children[0] as any as ReactElement
+        child2 = (children[1] as any as ReactElement) || null
+    }
 
-    if (child2 === undefined) {
+    if (!child2) {
         return <child1.type {...child1.props} width={width} height={height} />
     }
+
+    const gripPositionFromLeft = positionFromRight ? width - gripPosition : gripPosition
 
     const gripThickness = adjustable ? (props.gripThickness ?? defaultGripThickness) : 0
     const gripInnerThickness = adjustable ? (props.gripInnerThickness ?? defaultGripInnerThickness) : 0
     const gripMargin = adjustable ? (props.gripMargin ?? defaultGripMargin) : 0
-    const width1 = gripPosition - gripThickness / 2 - gripMargin
+    const width1 = gripPositionFromLeft - gripThickness / 2 - gripMargin
     const width2 = width - width1 - gripThickness - 2 * gripMargin;
 
     let style0: React.CSSProperties = {
@@ -94,10 +100,11 @@ const Splitter: FunctionComponent<Props> = (props) => {
     const _handleGripDrag = (evt: DraggableEvent, ui: DraggableData) => {
     }
     const _handleGripDragStop = (evt: DraggableEvent, ui: DraggableData) => {
-        const newGripPosition = ui.x;
-        if (newGripPosition === gripPosition) {
+        const newGripPositionFromLeft = ui.x;
+        if (newGripPositionFromLeft === gripPositionFromLeft) {
             return;
         }
+        const newGripPosition = positionFromRight ? width - newGripPositionFromLeft : newGripPositionFromLeft
         setGripPosition(newGripPosition)
         onChange && onChange(newGripPosition)
     }
@@ -110,7 +117,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
                 adjustable && (
                     <Draggable
                         key="drag"
-                        position={{ x: gripPosition - gripThickness / 2 - gripMargin, y: 0 }}
+                        position={{ x: gripPositionFromLeft - gripThickness / 2 - gripMargin, y: 0 }}
                         axis="x"
                         onDrag={(evt: DraggableEvent, ui: DraggableData) => _handleGripDrag(evt, ui)}
                         onStop={(evt: DraggableEvent, ui: DraggableData) => _handleGripDragStop(evt, ui)}

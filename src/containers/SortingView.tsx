@@ -2,15 +2,15 @@ import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core
 import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { setExternalSortingUnitMetrics, setRecordingInfo, setSortingInfo } from '../actions';
-import { getRecordingInfo } from '../actions/getRecordingInfo';
-import { createCalculationPool, HitherContext, useHitherJob } from '../extensions/common/hither';
-import { filterPlugins, Plugins, RecordingInfo, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
+import { setExternalSortingUnitMetrics } from '../actions';
+import { WorkspaceInfo } from '../AppContainer';
+import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
+import { createCalculationPool, HitherContext } from '../extensions/common/hither';
+import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
 import { Recording } from '../reducers/recordings';
-import { ExternalSortingUnitMetric, Sorting, SortingInfo } from '../reducers/sortings';
+import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -26,13 +26,10 @@ interface StateProps {
   sorting?: Sorting
   recording?: Recording
   extensionsConfig: any
-  documentInfo: DocumentInfo
   plugins: Plugins
 }
 
 interface DispatchProps {
-  onSetSortingInfo: (a: {sortingId: string, sortingInfo: SortingInfo}) => void
-  onSetRecordingInfo: (a: {recordingId: string, recordingInfo: RecordingInfo}) => void
   onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
   curationDispatch: (a: SortingCurationAction) => void
 }
@@ -40,7 +37,8 @@ interface DispatchProps {
 interface OwnProps {
   sortingId: string,
   width: number,
-  height: number
+  height: number,
+  workspaceInfo: WorkspaceInfo
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
@@ -51,47 +49,21 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { plugins, documentInfo, sorting, sortingId, recording, curationDispatch, onSetSortingInfo, onSetRecordingInfo, onSetExternalUnitMetrics } = props
-  const { documentId, feedUri, readOnly } = documentInfo;
+  const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetExternalUnitMetrics } = props
+  const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
-  useEffect(() => {
-    if (recording?.recordingInfo) {
-      if (!selection.timeRange) {
-        const newTimeRange = {min: 0, max: Math.min(recording.recordingInfo.num_frames, Math.floor(recording.recordingInfo.sampling_frequency / 10))}
-        selectionDispatch({type: 'SetTimeRange', timeRange: newTimeRange})
-      }
-    }
-  }, [recording?.recordingInfo, selection.timeRange])
-  // const [anchorUnitId, setAnchorUnitId] = useState<number | null>(null)
   
-  // const [focusedUnitId, setFocusedUnitId] = useState<number | null>(null)
-
-  // const effect = async () => {
-  //   if ((sorting) && (recording) && (!sorting.sortingInfo) && (sortingInfoStatus === 'waiting')) {
-  //     setSortingInfoStatus('computing');
-  //     const sortingInfo = await createHitherJob(
-  //       'createjob_get_sorting_info',
-  //       { sorting_object: sorting.sortingObject, recording_object: recording.recordingObject },
-  //       { kachery_config: {}, useClientCache: true }
-  //     );
-  //     onSetSortingInfo({ sortingId, sortingInfo });
-  //     setSortingInfoStatus('finished');
-  //   }
-  // }
-  // useEffect(() => {effect()});
-
-  const {result: sortingInfo, job: sortingInfoJob} = useHitherJob<SortingInfo>(
-    'createjob_get_sorting_info',
-    { sorting_object: sorting?.sortingObject, recording_object: recording?.recordingObject },
-    { useClientCache: true }
-  )
+  const sortingInfo = useSortingInfo(sorting?.sortingObject, sorting?.recordingObject)
+  const recordingInfo = useRecordingInfo(recording?.recordingObject)
 
   useEffect(() => {
-    sorting?.sortingId && sortingInfo && onSetSortingInfo({sortingId: sorting.sortingId, sortingInfo})
-  }, [sorting?.sortingId, sortingInfo, onSetSortingInfo])
+    if ((!selection.timeRange) && (recordingInfo)) {
+      selectionDispatch({type: 'SetTimeRange', timeRange: {min: 0, max: Math.min(recordingInfo.num_frames, recordingInfo.sampling_frequency / 10)}})
+    }
+  }, [selection, recordingInfo])
 
   useEffect(() => {
     if ((sorting) && (sorting.externalUnitMetricsUri) && (!sorting.externalUnitMetrics) && (externalUnitMetricsStatus === 'waiting')) {
@@ -106,42 +78,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       })
     }
   }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId, hither])
-
-  const [recordingInfoStatus, setRecordingInfoStatus]= useState<'waiting' | 'calculating' | 'finished' | 'error'>('waiting')
-  useEffect(() => {
-    if (!recording) return;
-    if (recordingInfoStatus === 'waiting') {
-      const rec = recording;
-      if (rec.recordingInfo) {
-        setRecordingInfoStatus('finished')
-      }
-      else {
-        setRecordingInfoStatus('calculating')
-        getRecordingInfo({ recordingObject: rec.recordingObject, hither }).then((info: RecordingInfo) => {
-          setRecordingInfoStatus('finished')
-          onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info })
-        })
-        .catch((err: Error) => {
-          setRecordingInfoStatus('error')
-          console.error(err)
-        })
-      }
-    }
-  }, [recording, hither, onSetRecordingInfo, recordingInfoStatus, setRecordingInfoStatus])
-
-  // const sidebarWidth = '200px'
-
-  // const sidebarStyle = {
-  //   'width': sidebarWidth,
-  //   'height': '100%',
-  //   'position': 'absolute',
-  //   'zIndex': 1,
-  //   'top': 165,
-  //   'left': 0,
-  //   'overflowX': 'hidden',
-  //   'paddingTop': '20px',
-  //   'paddingLeft': '20px'
-  // }
 
   const W = props.width || 800
   const H = props.height || 800
@@ -177,6 +113,13 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   if (!recording) {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
+  if (!recordingInfo) {
+    return <h3>Loading recording info...</h3>
+  }
+  if (!sortingInfo) {
+    return <h3>Loading sorting info...</h3>
+  }
+  
 
   // const selectedUnitIdsLookup: {[key: string]: boolean} = (selection.selectedUnitIds || []).reduce((m, uid) => {m[uid + ''] = true; return m}, {} as {[key: string]: boolean})
   return (
@@ -186,6 +129,8 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             {...svProps}
             sorting={sorting}
             recording={recording}
+            sortingInfo={sortingInfo}
+            recordingInfo={recordingInfo}
             selection={selection}
             selectionDispatch={selectionDispatch}
             curationDispatch={curationDispatch}
@@ -198,11 +143,11 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       </div>
       <div style={footerStyle}>
           {`Sorting: `}
-          <Link to={`/${documentId}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
+          <Link to={`/${workspaceName}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
             {sorting.sortingLabel}
           </Link>
           {` | Recording: `}
-          <Link to={`/${documentId}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
+          <Link to={`/${workspaceName}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
             {recording.recordingLabel}
           </Link>
       </div>
@@ -238,8 +183,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
   // todo: use selector
   sorting: findSortingForId(state, ownProps.sortingId),
   recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
-  extensionsConfig: state.extensionsConfig,
-  documentInfo: state.documentInfo
+  extensionsConfig: state.extensionsConfig
 })
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {
@@ -261,8 +205,6 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatc
     }
   }
   return {
-    onSetSortingInfo: (a: { sortingId: string, sortingInfo: SortingInfo }) => dispatch(setSortingInfo(a)),
-    onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => dispatch(setRecordingInfo(a)),
     onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => dispatch(setExternalSortingUnitMetrics(a)),
     curationDispatch
   }

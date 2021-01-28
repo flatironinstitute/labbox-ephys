@@ -13,11 +13,6 @@ type Props = {
 }
 
 const ViewContainerTabBar: FunctionComponent<Props> = ({ views, currentView, onCurrentViewChanged, onViewClosed, active }) => {
-    // const handleChange = useCallback((event: React.ChangeEvent<{}>, newTabIndex: number) => {
-    //     console.log('---- handleChange', newTabIndex)
-    //     const v = views[newTabIndex]
-    //     if (v) onCurrentViewChanged(v)
-    // }, [onCurrentViewChanged, views])
     useEffect(() => {
         const i = currentView ? views.indexOf(currentView) : -1
         if (i < 0) {

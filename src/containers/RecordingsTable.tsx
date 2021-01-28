@@ -1,34 +1,47 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useContext, useEffect } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { deleteRecordings, setRecordingInfo } from '../actions';
-import { getRecordingInfo } from '../actions/getRecordingInfo';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
-import { HitherContext } from '../extensions/common/hither';
-import { getPathQuery } from '../kachery';
-import { RootAction, RootState } from '../reducers';
-import { DocumentInfo } from '../reducers/documentInfo';
+import { useRecordingInfos } from '../extensions/common/getRecordingInfo';
 import { Recording, RecordingInfo } from '../reducers/recordings';
+import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
+import './WorkspaceView.css';
 
-interface StateProps {
-    recordings: Recording[],
-    documentInfo: DocumentInfo
-}
-
-interface DispatchProps {
+interface Props {
+    workspaceInfo: WorkspaceInfo
+    recordings: Recording[]
+    sortings: Sorting[]
     onDeleteRecordings: (recordingIds: string[]) => void
-    onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
+    workspaceRouteDispatch: WorkspaceRouteDispatch
 }
 
-interface OwnProps {
+const sortingElement = (sorting: Sorting, sortingInfo?: SortingInfo) => {
+    return <span key={sorting.sortingId}>{sorting.sortingId} ({sortingInfo ? sortingInfo.unit_ids.length : ''})</span>
 }
 
-type Props = StateProps & DispatchProps & OwnProps
+const sortingsElement = (sortings: Sorting[]) => {
+    return (
+        <span>
+            {
+                sortings.map(s => (
+                    sortingElement(s)
+                ))
+            }
+        </span>
+    )
+}
 
-const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordings, onSetRecordingInfo, documentInfo }) => {
-    const hither = useContext(HitherContext)
-    const { documentId, feedUri, readOnly } = documentInfo;
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDeleteRecordings, workspaceInfo, workspaceRouteDispatch }) => {
+    const { readOnly } = workspaceInfo;
+
+    const sortingsByRecordingId: {[key: string]: Sorting[]} = useMemo(() => {
+        const ret: {[key: string]: Sorting[]} = {}
+        recordings.forEach(r => {
+            ret[r.recordingId] = sortings.filter(s => (s.recordingId === r.recordingId))
+        })
+        return ret
+    }, [recordings, sortings])
 
     function sortByKey<T extends {[key: string]: any}>(array: T[], key: string): T[] {
         return array.sort(function (a, b) {
@@ -39,39 +52,32 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
 
     recordings = sortByKey(recordings, 'recordingLabel');
 
-    const effect = async () => {
-        recordings.forEach(rec => {
-            (async () => {
-                if ((!rec.recordingInfo) && (!rec.fetchingRecordingInfo)) {
-                    // todo: use calculationPool for this
-                    rec.fetchingRecordingInfo = true;
-                    try {
-                        const info = await getRecordingInfo({recordingObject: rec.recordingObject, hither});
-                        onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
-                    }
-                    catch (err) {
-                        console.error(err);
-                        return;
-                    }
-                }
-            })();
-        });
-    }
-    useEffect(() => { effect() })
+    const handleViewRecording = useCallback((recording: Recording) => {
+        workspaceRouteDispatch({
+            type: 'gotoRecordingPage',
+            recordingId: recording.recordingId
+        })
+    }, [workspaceRouteDispatch])
 
-    const rows = recordings.map(rec => ({
-        key: rec.recordingId,
-        columnValues: {
-            recording: rec,
-            recordingLabel: {
-                text: rec.recordingLabel,
-                element: <Link title={"View this recording"} to={`/${documentId}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
-            },
-            numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
-            samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
-            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : ''
+    const recordingInfos: {[key: string]: RecordingInfo} = useRecordingInfos(recordings)
+
+    const rows = useMemo(() => (recordings.map(rec => {
+        const recordingInfo = recordingInfos[rec.recordingId]
+        return {
+            key: rec.recordingId,
+            columnValues: {
+                recording: rec,
+                recordingLabel: {
+                    text: rec.recordingLabel,
+                    element: <ViewRecordingLink onClick={handleViewRecording} recording={rec} />,
+                },
+                numChannels: recordingInfo ? recordingInfo.channel_ids.length : {element: <CircularProgress />},
+                samplingFrequency: recordingInfo ? recordingInfo.sampling_frequency : '',
+                durationMinutes: recordingInfo ? recordingInfo.num_frames / recordingInfo.sampling_frequency / 60 : '',
+                sortings: { element: sortingsElement(sortingsByRecordingId[rec.recordingId]) }
+            }
         }
-    }));
+    })), [recordings, sortingsByRecordingId, handleViewRecording, recordingInfos])
 
     const columns = [
         {
@@ -89,6 +95,10 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
         {
             key: 'durationMinutes',
             label: 'Duration (min)'
+        },
+        {
+            key: 'sortings',
+            label: 'Sortings'
         }
     ]
 
@@ -104,17 +114,19 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, onDeleteRecordi
     );
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    recordings: state.recordings,
-    documentInfo: state.documentInfo
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onDeleteRecordings: (recordingIds: string[]) => deleteRecordings(dispatch, recordingIds),
-    onSetRecordingInfo: ({ recordingId, recordingInfo }) => dispatch(setRecordingInfo({ recordingId, recordingInfo }))
-})
+const ViewRecordingLink: FunctionComponent<{recording: Recording, onClick: (r: Recording) => void}> = ({recording, onClick}) => {
+    const handleClick = useCallback(() => {
+        onClick(recording)
+    }, [recording, onClick])
+    return (
+        <Anchor title="View recording" onClick={handleClick}>{recording.recordingLabel}</Anchor>
+    )
+}
 
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(RecordingsTable)
+const Anchor: FunctionComponent<{title: string, onClick: () => void}> = ({title, children, onClick}) => {
+    return (
+        <button type="button" className="link-button" onClick={onClick}>{children}</button>
+    )
+}
+
+export default RecordingsTable

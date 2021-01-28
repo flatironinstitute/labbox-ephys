@@ -1,6 +1,7 @@
 
 import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react';
+import { useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import { Recording, SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
 import sortByPriority from '../../sortByPriority';
@@ -69,30 +70,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
             setPreviousRecording(recording)
         }
     }, [recording, previousRecording, setPreviousRecording, updateMetrics])
-    // const activeMetricPlugins = metricPlugins.filter(
-    //     p => (!p.development || (extensionsConfig.enabled.development)));
 
-    // const labelsByUnit = (sorting.curation || {}).labelsByUnit || {}
-    // const labelOptions = [...new Set(
-    //     defaultLabelOptions.concat(
-    //         Object.keys(labelsByUnit || {})
-    //             .reduce(
-    //                 (allLabels: Label[], unitId: string) => {
-    //                     const labels = labelsByUnit[unitId] || []
-    //                     return allLabels.concat(labels)
-    //                 }, [])
-    //     )
-    // )].sort((a, b) => {
-    //     // note this will sort numbers like strings. If that's a problem, we
-    //     // might need a more sophisticated solution.
-    //     const aUpper = a.toUpperCase();
-    //     const bUpper = b.toUpperCase();
-    //     if (aUpper < bUpper) return -1;
-    //     if (aUpper > bUpper) return 1;
-    //     if (a < b) return -1;
-    //     if (b > a) return 1;
-    //     return 0;
-    // });
 
     const fetchMetric = useCallback(async (metric: SortingUnitMetricPlugin) => {
         const name = metric.name;
@@ -125,25 +103,8 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
         sortByPriority(plugins.sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
     }, [plugins.sortingUnitMetrics, metrics, fetchMetric]);
 
-    const { sortingInfo } = sorting
+    const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
     if (!sortingInfo) return <div>No sorting info</div>
-
-    // const handleAddLabel = (unitId: number, label: Label) => {
-    //     curationDispatch({type: 'AddLabel', unitId, label})
-    // }
-    // const handleRemoveLabel = (unitId: number, label: Label) => {
-    //     curationDispatch({type: 'RemoveLabel', unitId, label})
-    // }
-    // const handleApplyLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
-    //     Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
-    //         ? labels.forEach((label) => handleAddLabel(Number(key), label))
-    //         : {});
-    // };
-    // const handlePurgeLabels = (selectedRowKeys: {[key: string]: any}, labels: Label[]) => {
-    //     Object.keys(selectedRowKeys).forEach((key) => selectedRowKeys[key]
-    //         ? labels.forEach((label) => handleRemoveLabel(Number(key), label))
-    //         : {});
-    // };
 
     let units = selection.visibleUnitIds || sortingInfo.unit_ids;
     let showExpandButton = false;

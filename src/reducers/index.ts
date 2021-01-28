@@ -5,7 +5,7 @@
 // import sortings from './sortings'
 // import persisting from './persisting'
 // import hitherJobs from './hitherJobs'
-// import documentInfo from './documentInfo'
+// import workspaceInfo from './workspaceInfo'
 // import serverInfo from './serverInfo'
 // import extensionsConfig from '../extensions/reducers'
 
@@ -18,13 +18,12 @@
 //     serverConnection,
 //     hitherJobs,
 //     extensionsConfig,
-//     documentInfo
+//     workspaceInfo
 // })
 
 import { combineReducers } from '@reduxjs/toolkit'
 import extensionsConfig, { Action as ExtensionsConfigAction, State as ExtensionsConfigState } from '../extensions/reducers'
 import databaseConfig, { Action as DatabaseConfigAction, State as DatabaseConfigState } from './databaseConfig'
-import documentInfo, { Action as DocumentInfoAction, State as DocumentInfoState } from './documentInfo'
 import hitherJobs, { Action as HitherJobsAction, State as HitherJobsState } from './hitherJobs'
 import persisting, { Action as PersistingAction, State as PersistingState } from './persisting'
 import plugins, { Action as PluginsAction, State as PluginsState } from './plugins'
@@ -35,7 +34,6 @@ import sortings, { Action as SortingsAction, State as SortingsState } from './so
 
 export interface RootState {
     databaseConfig: DatabaseConfigState
-    documentInfo: DocumentInfoState
     hitherJobs: HitherJobsState
     persisting: PersistingState
     recordings: RecordingsState
@@ -47,7 +45,6 @@ export interface RootState {
 }
 const rootReducer = combineReducers({
     databaseConfig,
-    documentInfo,
     hitherJobs,
     persisting,
     recordings,
@@ -58,6 +55,6 @@ const rootReducer = combineReducers({
     plugins
 })
 
-export type RootAction =  DatabaseConfigAction | DocumentInfoAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | PluginsAction
+export type RootAction =  DatabaseConfigAction | HitherJobsAction | PersistingAction | RecordingsAction | ServerConnectionAction | ServerInfoAction | SortingsAction | ExtensionsConfigAction | PluginsAction
 
 export default rootReducer

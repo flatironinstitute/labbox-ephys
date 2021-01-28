@@ -1,8 +1,9 @@
 import React, { FunctionComponent, useEffect, useMemo, useReducer, useState } from 'react'
 import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
+import { useRecordingInfo } from '../../common/getRecordingInfo'
 import { createElectrodeGeometryLayer, ElectrodeLayerProps } from "../../electrodegeometry/ElectrodeGeometryWidget/electrodeGeometryLayer"
-import { SortingSelection } from "../../extensionInterface"
+import { Recording, SortingSelection } from "../../extensionInterface"
 import { TimeseriesData } from "../../timeseries/TimeseriesViewNew/useTimeseriesModel"
 
 const updateIndexReducer = (state: number, action: {type: 'increment'}) => {
@@ -26,11 +27,10 @@ const valToColor = (v: number) => {
     return `rgb(${x}, ${x}, ${x})`
 }
 
-const FireTrackWidget: FunctionComponent<{recording: any, timeseriesData: TimeseriesData | null, selection: SortingSelection, width: number, height: number}> = ({ recording, timeseriesData, selection, width, height }) => {
+const FireTrackWidget: FunctionComponent<{recording: Recording, timeseriesData: TimeseriesData | null, selection: SortingSelection, width: number, height: number}> = ({ recording, timeseriesData, selection, width, height }) => {
     const selectedElectrodeIds = selection.selectedElectrodeIds
     const [data, setData] = useState<{[key: string]: number}>({})
     const [updateIndex, updateIndexDispatch] = useReducer(updateIndexReducer, 0)
-    const recordingInfo = recording.recordingInfo
 
     useEffect(() => {
         const t = selection.currentTimepoint
@@ -52,9 +52,9 @@ const FireTrackWidget: FunctionComponent<{recording: any, timeseriesData: Timese
         }
     }, [timeseriesData, selection, selectedElectrodeIds, setData, updateIndex, updateIndexDispatch])
 
-    const ri = recording.recordingInfo
+    const ri = useRecordingInfo(recording.recordingObject)
     const electrodes = useMemo(() => {
-        const scaleFactor = (selection.ampScaleFactor || 1) / (recordingInfo.noise_level || 1) * 1 / 5
+        const scaleFactor = (selection.ampScaleFactor || 1) / (ri?.noise_level || 1) * 1 / 5
         const colorForElectrode = (id: number) => {
             const val = data[id]
             if (isNaN(val)) return 'lightgray'
@@ -62,7 +62,7 @@ const FireTrackWidget: FunctionComponent<{recording: any, timeseriesData: Timese
             return valToColor(adjustedVal)
         }
         return (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).map(e => ({...e, color: colorForElectrode(e.electrodeId)}))
-    }, [ri, data, selection.ampScaleFactor, recordingInfo.noise_level])
+    }, [ri, data, selection.ampScaleFactor])
     const layerProps: ElectrodeLayerProps = {
         electrodes,
         selectedElectrodeIds: useMemo(() => (selection.selectedElectrodeIds || []), [selection.selectedElectrodeIds]),

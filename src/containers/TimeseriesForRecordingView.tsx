@@ -2,6 +2,7 @@ import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
+import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
 import TimeseriesViewNew from '../extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
@@ -20,8 +21,12 @@ interface OwnProps {
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeMeProps
 
 const TimeseriesForRecordingView: FunctionComponent<Props> = ({ recordingId, recording, size }) => {
+  const recordingInfo = useRecordingInfo(recording?.recordingObject)
   if (!recording) {
     return <h3>{`Recording not found: ${recordingId}`}</h3>
+  }
+  if (!recordingInfo) {
+    return <h3>{`Loading recording info`}</h3>
   }
 
   const width = size.width;
@@ -35,7 +40,7 @@ const TimeseriesForRecordingView: FunctionComponent<Props> = ({ recordingId, rec
       <div>
         <TimeseriesViewNew
           recordingObject={recording.recordingObject}
-          recordingInfo={recording.recordingInfo}
+          recordingInfo={recordingInfo}
           width={width}
           height={height}
           opts={{channelSelectPanel: true}}
