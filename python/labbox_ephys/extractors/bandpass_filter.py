@@ -1,11 +1,24 @@
+import spikeextractors as se
 from .filterrecording import FilterRecording
 import numpy as np
 from scipy import special
+import scipy.fft
+import math
 
 
 class BandpassFilterRecording(FilterRecording):
-    def __init__(self, *, recording, freq_min, freq_max, freq_wid):
-        FilterRecording.__init__(self, recording=recording, chunk_size=3000 * 10)
+    def __init__(self, *, recording: se.RecordingExtractor, freq_min, freq_max, freq_wid):
+        self._padding = 3000
+        target_ram = 100 * 1000 * 1000
+        target_chunk_size = math.ceil(
+            min(
+                recording.get_sampling_frequency() * 30,
+                target_ram / (recording.get_num_channels() * 4)
+            )
+        )
+        # It's important that the fft's have size 2^x. So we prepare the chunk sizes to have size 2^x - 2*padding
+        chunk_size = int(2 ** math.ceil(np.log2(target_chunk_size)) - self._padding * 2)
+        FilterRecording.__init__(self, recording=recording, chunk_size=chunk_size)
         self._params = dict(
             name='bandpass_filter',
             freq_min=freq_min,
@@ -18,9 +31,8 @@ class BandpassFilterRecording(FilterRecording):
         return self._params
 
     def filterChunk(self, *, start_frame, end_frame):
-        padding = 3000
-        i1 = start_frame - padding
-        i2 = end_frame + padding
+        i1 = start_frame - self._padding
+        i2 = end_frame + self._padding
         padded_chunk = self._read_chunk(i1, i2)
         if i1 < 0:
             for m in range(padded_chunk.shape[0]):
@@ -63,7 +75,7 @@ class BandpassFilterRecording(FilterRecording):
         #    for m in range(M):
         #        chunk2[m,:]=chunk2[m,:]-np.mean(chunk2[m,:])
         # Do the actual filtering with a DFT with real input
-        chunk_fft = np.fft.rfft(chunk2)
+        chunk_fft = scipy.fft.rfft(chunk2, workers=1)
         kernel = self._create_filter_kernel(
             chunk2.shape[1],
             samplerate,
@@ -71,7 +83,7 @@ class BandpassFilterRecording(FilterRecording):
         )
         kernel = kernel[0:chunk_fft.shape[1]]  # because this is the DFT of real data
         chunk_fft = chunk_fft * np.tile(kernel, (M, 1))
-        chunk_filtered = np.fft.irfft(chunk_fft)
+        chunk_filtered = scipy.fft.irfft(chunk_fft, workers=1)
         return chunk_filtered
 
     def _read_chunk(self, i1, i2):

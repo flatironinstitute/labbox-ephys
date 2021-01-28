@@ -15,8 +15,6 @@ from .binextractors import Bin1RecordingExtractor
 from .mdaextractors import MdaRecordingExtractor
 from .snippetsextractors import Snippets1RecordingExtractor
 
-# from .nwbextractors import NwbRecordingExtractor
-
 def _load_geom_from_csv(path: str) -> list:
     return _listify_ndarray(np.genfromtxt(path, delimiter=',').T)
 
@@ -222,9 +220,10 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             self._recording: se.RecordingExtractor = MdaRecordingExtractor(timeseries_path=data['raw'], samplerate=data['params']['samplerate'], geom=np.array(data['geom']), download=download)
         elif recording_format == 'nrs':
             self._recording: se.RecordingExtractor = NrsRecordingExtractor(**data)
-        # elif recording_format == 'nwb':
-        #     path0 = kp.load_file(data['path'])
-        #     self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name='e-series')
+        elif recording_format == 'nwb':
+            from .nwbextractors import NwbRecordingExtractor
+            path0 = kp.load_file(data['path'])
+            self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0)
         elif recording_format == 'bin1':
             self._recording: se.RecordingExtractor = Bin1RecordingExtractor(**data, p2p=True)
         elif recording_format == 'snippets1':

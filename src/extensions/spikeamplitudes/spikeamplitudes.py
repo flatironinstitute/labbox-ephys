@@ -17,7 +17,7 @@ def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, u
         job_handler=jh,
         container=jh.is_remote
     ):
-        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object, max_events_per_unit=None)
+        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return fetch_spike_amplitudes.run(
             snippets_h5=snippets_h5,
             unit_id=unit_id

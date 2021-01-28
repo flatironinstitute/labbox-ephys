@@ -116,5 +116,5 @@ def preload_extract_snippets(labbox, recording_object, sorting_object):
         job_handler=jh,
         container=jh.is_remote
     ):
-        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object, max_events_per_unit=None)
+        snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return snippets_h5

@@ -3,7 +3,7 @@ import { createCalculationPool, HitherContext, HitherInterface } from "../../com
 import useFetchCache from "../../common/useFetchCache"
 
 export type SpikeAmplitudesData = {
-    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[]}
+    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined
 }
 
 type SpikeAmplitudesDataQuery = {
@@ -29,7 +29,11 @@ const fetchSpikeAmplitudes = async ({hither, recordingObject, sortingObject, uni
         timepoints: number[]
         amplitudes: number[]
     }
-    return result
+    return {
+        ...result,
+        minAmp: Math.min(...result.amplitudes),
+        maxAmp: Math.max(...result.amplitudes)
+    }
 }
 
 const useSpikeAmplitudesData = (recordingObject: any, sortingObject: any): SpikeAmplitudesData | null => {
@@ -44,7 +48,7 @@ const useSpikeAmplitudesData = (recordingObject: any, sortingObject: any): Spike
     }), [hither, recordingObject, sortingObject])
     const data = useFetchCache<SpikeAmplitudesDataQuery>(fetch)
 
-    const getSpikeAmplitudes = useMemo(() => ((unitId: number) => {
+    const getSpikeAmplitudes = useMemo(() => ((unitId: number): {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined => {
         return data.get({type: 'spikeAmplitudes', unitId})
     }), [data])
 
