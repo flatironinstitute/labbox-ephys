@@ -3,8 +3,8 @@ import { createCalculationPool, HitherContext, HitherInterface } from "../../com
 import useFetchCache from "../../common/useFetchCache"
 import { RecordingInfo } from "../../extensionInterface"
 
-// it may be important to limit this to 1 at a time when using a filter
-const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 1, method: 'stack'})
+// it may be important to limit this when using a filter
+const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 4, method: 'stack'})
 
 export type TimeseriesData = {
   getChannelData: (ch: number, t1: number, t2: number, ds_factor: number) => number[]

@@ -23,7 +23,7 @@ class SpikeAmplitudesPanel {
     _calculationScheduled: boolean = false
     _calculationError: Error | null = null
     _yrange: {min: number, max: number} | null = null
-    _panelGroup: SpikeAmplitudesPanel[] | null = null
+    _globalAmplitudeRange: {min: number, max: number} | null = null
     _includeZero = true
     _amplitudes: number[] | undefined = undefined
     constructor(private args: {spikeAmplitudesData: SpikeAmplitudesData, recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
@@ -71,22 +71,17 @@ class SpikeAmplitudesPanel {
         }
         else return null
     }
+    setGlobalAmplitudeRange(r: {min: number, max: number}) {
+        this._globalAmplitudeRange = r
+    }
     autoYRange() {
-        if ((this._panelGroup) && (this._panelGroup.length > 0)) {
-            const amplitudeRanges = this._panelGroup.map(p => p.amplitudeRange()).filter(r => (r !== null))
-            if (amplitudeRanges.length > 0) {
-                const ampMin = Math.min(...amplitudeRanges.map(r => r?.min || 0))
-                const ampMax = Math.max(...amplitudeRanges.map(r => r?.max || 0))
-                return {min: ampMin, max: ampMax}
-            }
+        if (this._globalAmplitudeRange) {
+            return this._globalAmplitudeRange
         }
         return this.amplitudeRange()
     }
     setYRange(yrange: {min: number, max: number}) {
         this._yrange = yrange
-    }
-    setPanelGroup(panels: SpikeAmplitudesPanel[]) {
-        this._panelGroup = panels
     }
     register(onUpdate: () => void) {
         this._updateHandler = onUpdate

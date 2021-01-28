@@ -1,4 +1,5 @@
 import os
+import math
 import hither as hi
 import kachery as ka
 import labbox_ephys as le
@@ -28,11 +29,17 @@ def createjob_individual_cluster_features(labbox, recording_object, sorting_obje
             unit_id=unit_id
         )
 
-@hi.function('individual_cluster_features', '0.1.2')
+def subsample_inds(n, m):
+    if m >= n:
+        return range(n)
+    incr = n / m
+    return [int(math.floor(i * incr)) for i in range(m)]
+
+@hi.function('individual_cluster_features', '0.1.3')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @le.serialize
-def individual_cluster_features(snippets_h5, unit_id):
+def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
     import h5py
     h5_path = ka.load_file(snippets_h5)
     with h5py.File(h5_path, 'r') as f:
@@ -43,6 +50,10 @@ def individual_cluster_features(snippets_h5, unit_id):
         unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
         unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms')) # L x M x T
         unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
+        if len(unit_spike_train) > max_num_events:
+            inds = subsample_inds(len(unit_spike_train), max_num_events)
+            unit_spike_train = unit_spike_train[inds]
+            unit_waveforms = unit_waveforms[inds]
     
     from sklearn.decomposition import PCA
     nf = 2 # number of features
