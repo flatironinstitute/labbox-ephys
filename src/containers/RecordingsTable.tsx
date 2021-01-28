@@ -1,24 +1,23 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { FunctionComponent, useContext, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { getRecordingInfo } from '../actions/getRecordingInfo';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
-import { HitherContext } from '../extensions/common/hither';
-import { getPathQuery } from '../kachery';
+import { useRecordingInfos } from '../extensions/common/getRecordingInfo';
 import { Recording, RecordingInfo } from '../reducers/recordings';
-import { Sorting } from '../reducers/sortings';
-import { WorkspaceInfo } from '../reducers/workspaceInfo';
+import { Sorting, SortingInfo } from '../reducers/sortings';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
+import './WorkspaceView.css';
 
 interface Props {
     workspaceInfo: WorkspaceInfo
     recordings: Recording[]
     sortings: Sorting[]
     onDeleteRecordings: (recordingIds: string[]) => void
-    onSetRecordingInfo: (a: { recordingId: string, recordingInfo: RecordingInfo }) => void
+    workspaceRouteDispatch: WorkspaceRouteDispatch
 }
 
-const sortingElement = (sorting: Sorting) => {
-    return <span>{sorting.sortingId} ({sorting.sortingInfo ? sorting.sortingInfo.unit_ids.length : ''})</span>
+const sortingElement = (sorting: Sorting, sortingInfo?: SortingInfo) => {
+    return <span key={sorting.sortingId}>{sorting.sortingId} ({sortingInfo ? sortingInfo.unit_ids.length : ''})</span>
 }
 
 const sortingsElement = (sortings: Sorting[]) => {
@@ -33,9 +32,8 @@ const sortingsElement = (sortings: Sorting[]) => {
     )
 }
 
-const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDeleteRecordings, onSetRecordingInfo, workspaceInfo }) => {
-    const hither = useContext(HitherContext)
-    const { workspaceName, feedUri, readOnly } = workspaceInfo;
+const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDeleteRecordings, workspaceInfo, workspaceRouteDispatch }) => {
+    const { readOnly } = workspaceInfo;
 
     const sortingsByRecordingId: {[key: string]: Sorting[]} = useMemo(() => {
         const ret: {[key: string]: Sorting[]} = {}
@@ -54,40 +52,32 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
 
     recordings = sortByKey(recordings, 'recordingLabel');
 
-    const effect = async () => {
-        recordings.forEach(rec => {
-            (async () => {
-                if ((!rec.recordingInfo) && (!rec.fetchingRecordingInfo)) {
-                    // todo: use calculationPool for this
-                    rec.fetchingRecordingInfo = true;
-                    try {
-                        const info = await getRecordingInfo({recordingObject: rec.recordingObject, hither});
-                        onSetRecordingInfo({ recordingId: rec.recordingId, recordingInfo: info });
-                    }
-                    catch (err) {
-                        console.error(err);
-                        return;
-                    }
-                }
-            })();
-        });
-    }
-    useEffect(() => { effect() })
+    const handleViewRecording = useCallback((recording: Recording) => {
+        workspaceRouteDispatch({
+            type: 'gotoRecordingPage',
+            recordingId: recording.recordingId
+        })
+    }, [workspaceRouteDispatch])
 
-    const rows = useMemo(() => (recordings.map(rec => ({
-        key: rec.recordingId,
-        columnValues: {
-            recording: rec,
-            recordingLabel: {
-                text: rec.recordingLabel,
-                element: <Link title={"View this recording"} to={`/${workspaceName}/recording/${rec.recordingId}${getPathQuery({feedUri})}`}>{rec.recordingLabel}</Link>,
-            },
-            numChannels: rec.recordingInfo ? rec.recordingInfo.channel_ids.length : {element: <CircularProgress />},
-            samplingFrequency: rec.recordingInfo ? rec.recordingInfo.sampling_frequency : '',
-            durationMinutes: rec.recordingInfo ? rec.recordingInfo.num_frames / rec.recordingInfo.sampling_frequency / 60 : '',
-            sortings: { element: sortingsElement(sortingsByRecordingId[rec.recordingId]) }
+    const recordingInfos: {[key: string]: RecordingInfo} = useRecordingInfos(recordings)
+
+    const rows = useMemo(() => (recordings.map(rec => {
+        const recordingInfo = recordingInfos[rec.recordingId]
+        return {
+            key: rec.recordingId,
+            columnValues: {
+                recording: rec,
+                recordingLabel: {
+                    text: rec.recordingLabel,
+                    element: <ViewRecordingLink onClick={handleViewRecording} recording={rec} />,
+                },
+                numChannels: recordingInfo ? recordingInfo.channel_ids.length : {element: <CircularProgress />},
+                samplingFrequency: recordingInfo ? recordingInfo.sampling_frequency : '',
+                durationMinutes: recordingInfo ? recordingInfo.num_frames / recordingInfo.sampling_frequency / 60 : '',
+                sortings: { element: sortingsElement(sortingsByRecordingId[rec.recordingId]) }
+            }
         }
-    }))), [recordings, sortingsByRecordingId, feedUri, workspaceName])
+    })), [recordings, sortingsByRecordingId, handleViewRecording, recordingInfos])
 
     const columns = [
         {
@@ -122,6 +112,21 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
             />
         </div>
     );
+}
+
+const ViewRecordingLink: FunctionComponent<{recording: Recording, onClick: (r: Recording) => void}> = ({recording, onClick}) => {
+    const handleClick = useCallback(() => {
+        onClick(recording)
+    }, [recording, onClick])
+    return (
+        <Anchor title="View recording" onClick={handleClick}>{recording.recordingLabel}</Anchor>
+    )
+}
+
+const Anchor: FunctionComponent<{title: string, onClick: () => void}> = ({title, children, onClick}) => {
+    return (
+        <button type="button" className="link-button" onClick={onClick}>{children}</button>
+    )
 }
 
 export default RecordingsTable

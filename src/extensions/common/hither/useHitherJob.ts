@@ -1,9 +1,8 @@
 import { useContext, useState } from "react";
 import HitherContext from "./HitherContext";
-import { HitherJob, HitherJobOpts } from "./HitherInterface";
+import { dummyHitherJob, HitherJob, HitherJobOpts } from "./HitherInterface";
 
 const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any}, hitherJobOpts: HitherJobOpts): {result: T | undefined, job: HitherJob} => {
-    const timer = Number(new Date())
     const hither = useContext(HitherContext)
     const [state, setState] = useState<{
         status: '' | 'waiting' | 'running' | 'error' | 'finished',
@@ -18,6 +17,10 @@ const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any
         if (!deepCompare(functionArgs, state.functionArgs)) return false
         if (!deepCompare(hitherJobOpts, state.hitherJobOpts)) return false
         return true
+    }
+
+    if (!functionName) {
+        return {result: undefined, job: dummyHitherJob}
     }
 
     if (!functionMatch()) {

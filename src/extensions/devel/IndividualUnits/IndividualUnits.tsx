@@ -1,6 +1,7 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
+import { useSortingInfo } from '../../common/getRecordingInfo';
 import { createCalculationPool } from '../../common/hither';
 import { SortingViewProps } from '../../extensionInterface';
 import IndividualUnit from './IndividualUnit';
@@ -11,7 +12,7 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     // const { workspaceName, feedUri, readOnly } = workspaceInfo || {};
-    const { sortingInfo } = sorting
+    const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
     if (!sortingInfo) return <div>No sorting info</div>
 
     let selectedUnitIdsArray = selection.selectedUnitIds || []

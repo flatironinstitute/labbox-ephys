@@ -1,72 +1,60 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { Dispatch, FunctionComponent, useCallback, useMemo } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { deleteSortings, setSortingInfo } from '../actions';
+import { deleteSortings } from '../actions';
+import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
-import { createCalculationPool, HitherContext } from '../extensions/common/hither';
-import { getPathQuery } from '../kachery';
+import { useSortingInfos } from '../extensions/common/getRecordingInfo';
 import { RootAction, RootState } from '../reducers';
-import { Sorting, SortingInfo } from '../reducers/sortings';
-import { WorkspaceInfo } from '../reducers/workspaceInfo';
+import { Sorting } from '../reducers/sortings';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 
 
 interface StateProps {
-    workspaceInfo: WorkspaceInfo
 }
 
 interface DispatchProps {
     onDeleteSortings: (sortingIds: string[]) => void
-    onSetSortingInfo: (a: { sortingId: string, sortingInfo: SortingInfo }) => void
 }
 
 interface OwnProps {
     sortings: Sorting[]
+    workspaceRouteDispatch: WorkspaceRouteDispatch
+    workspaceInfo: WorkspaceInfo
 }
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const calculationPool = createCalculationPool({maxSimultaneous: 6})
+const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, workspaceInfo, workspaceRouteDispatch }) => {
+    const { readOnly } = workspaceInfo;
 
-const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, onSetSortingInfo, workspaceInfo }) => {
-    const hither = useContext(HitherContext)
-    const { workspaceName, feedUri, readOnly } = workspaceInfo;
-    const infosInProgress = useRef(new Set<string>())
+    const handleViewSorting = useCallback((sorting: Sorting) => {
+        workspaceRouteDispatch({
+            type: 'gotoSortingPage',
+            recordingId: sorting.recordingId,
+            sortingId: sorting.sortingId
+        })
+    }, [workspaceRouteDispatch])
 
-    useEffect(() => {
-        for (const sor of sortings) {
-            if ((!sor.sortingInfo) && (!infosInProgress.current.has(sor.sortingId))) {
-                infosInProgress.current.add(sor.sortingId)
-                hither.createHitherJob(
-                    'createjob_get_sorting_info',
-                    { sorting_object: sor.sortingObject, recording_object: sor.recordingObject },
-                    {
-                        useClientCache: true,
-                        calculationPool: calculationPool
-                    }
-                ).wait().then(sortingInfo => {
-                    onSetSortingInfo({ sortingId: sor.sortingId, sortingInfo: sortingInfo });
-                }).catch((err: Error) => {
-                    console.error(err);
-                    return;
-                })
-            }
-        }
-    }, [sortings, hither, onSetSortingInfo])
+    const sortingInfos = useSortingInfos(sortings)
 
     const sortings2: Sorting[] = useMemo(() => (sortByKey<Sorting>(sortings, 'sortingLabel')), [sortings])
-    const rows = useMemo(() => (sortings2.map(s => ({
-        key: s.sortingId,
-        columnValues: {
-            sorting: s,
-            sortingLabel: {
-                text: s.sortingLabel,
-                element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
-            },
-            numUnits: s.sortingInfo ? s.sortingInfo.unit_ids.length : {element: <CircularProgress />}
+    const rows = useMemo(() => (sortings2.map(s => {
+        const sortingInfo = sortingInfos[s.sortingId]
+        return {
+            key: s.sortingId,
+            columnValues: {
+                sorting: s,
+                sortingLabel: {
+                    text: s.sortingLabel,
+                    element: <ViewSortingLink sorting={s} onClick={handleViewSorting} />
+                    // element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
+                },
+                numUnits: sortingInfo ? sortingInfo.unit_ids.length : {element: <CircularProgress />}
+            }
         }
-    }))), [sortings2, workspaceName, feedUri])
+    })), [sortings2, handleViewSorting, sortingInfos])
 
     const columns = [
         {
@@ -91,6 +79,21 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, o
     );
 }
 
+const ViewSortingLink: FunctionComponent<{sorting: Sorting, onClick: (s: Sorting) => void}> = ({sorting, onClick}) => {
+    const handleClick = useCallback(() => {
+        onClick(sorting)
+    }, [sorting, onClick])
+    return (
+        <Anchor title="View recording" onClick={handleClick}>{sorting.sortingLabel}</Anchor>
+    )
+}
+
+const Anchor: FunctionComponent<{title: string, onClick: () => void}> = ({title, children, onClick}) => {
+    return (
+        <button type="button" className="link-button" onClick={onClick}>{children}</button>
+    )
+}
+
 const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[] => {
     return array.sort(function (a, b) {
         var x = a[key]; var y = b[key];
@@ -99,12 +102,10 @@ const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[]
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-    workspaceInfo: state.workspaceInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onDeleteSortings: sortingIds => dispatch(deleteSortings(sortingIds)),
-    onSetSortingInfo: ({ sortingId, sortingInfo }) => dispatch(setSortingInfo({ sortingId, sortingInfo }))
+    onDeleteSortings: (sortingIds: string[]) => dispatch(deleteSortings(sortingIds))
 })
 
 export default connect<StateProps, DispatchProps, OwnProps, RootState>(

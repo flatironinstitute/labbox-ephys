@@ -13,7 +13,6 @@ export interface Sorting {
     recordingObject: any
     externalUnitMetricsUri?: string
 
-    sortingInfo?: SortingInfo
     externalUnitMetrics?: ExternalSortingUnitMetric[]
     curation?: SortingCuration
 }
@@ -42,8 +41,6 @@ export interface Recording {
     recordingLabel: string
     recordingObject: any
     recordingPath: string
-    recordingInfo: RecordingInfo
-    fetchingRecordingInfo?: boolean // internal
 }
 
 export interface LabboxPlugin {
@@ -525,6 +522,8 @@ interface ViewProps {
 export interface SortingViewProps extends ViewProps {
     sorting: Sorting
     recording: Recording
+    sortingInfo: SortingInfo
+    recordingInfo: RecordingInfo
     curationDispatch: (action: SortingCurationAction) => void
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
@@ -548,6 +547,7 @@ export interface SortingUnitViewPlugin extends ViewPlugin {
 
 export interface RecordingViewProps extends ViewProps {
     recording: Recording
+    recordingInfo: RecordingInfo
     recordingSelection: RecordingSelection
     recordingSelectionDispatch: RecordingSelectionDispatch
 }

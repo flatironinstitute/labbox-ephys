@@ -40,21 +40,6 @@ const sorting: Sorting = {
                 "spike_sign": -1
             }
         }
-    },
-    "sortingInfo": {
-        "unit_ids": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10
-        ],
-        "samplerate": 30000
     }
 }
 
@@ -89,42 +74,6 @@ const recording: Recording = {
                 "spike_sign": -1
             }
         }
-    },
-    "fetchingRecordingInfo": true,
-    "recordingInfo": {
-        "sampling_frequency": 30000,
-        "channel_ids": [
-            0,
-            1,
-            2,
-            3
-        ],
-        "channel_groups": [
-            0,
-            0,
-            0,
-            0
-        ],
-        "geom": [
-            [
-                1,
-                0
-            ],
-            [
-                2,
-                0
-            ],
-            [
-                3,
-                0
-            ],
-            [
-                4,
-                0
-            ]
-        ],
-        "num_frames": 18000000,
-        "noise_level": 1
     }
 }
 

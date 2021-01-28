@@ -21,8 +21,8 @@
   },
   "license": "BSD-3-Clause",
   "author": {
-    "name": "Jeremy Magland",
-    "email": ""
+    "name": "Jeremy Magland and Jeff Soules",
+    "email": "jmagland@flatironinstitute.org"
   },
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",

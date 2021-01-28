@@ -1,9 +1,8 @@
 import { SetExtensionEnabledAction } from '../extensions/reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
 import { SetPersistStatusAction } from '../reducers/persisting'
-import { AddRecordingAction, DeleteRecordingsAction, Recording, RecordingInfo, SetRecordingInfoAction } from '../reducers/recordings'
-import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, SetSortingInfoAction, Sorting, SortingInfo } from '../reducers/sortings'
-import { SetWorkspaceInfoAction, WorkspaceInfo } from '../reducers/workspaceInfo'
+import { AddRecordingAction, DeleteRecordingsAction, Recording } from '../reducers/recordings'
+import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, DeleteSortingsForRecordingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, Sorting } from '../reducers/sortings'
 
 export const REPORT_INITIAL_LOAD_COMPLETE = 'REPORT_INITIAL_LOAD_COMPLETE'
 export const SET_WEBSOCKET_STATUS = 'SET_WEBSOCKET_STATUS'
@@ -15,7 +14,7 @@ export const RECEIVE_RECORDING_INFO = 'RECEIVE_RECORDING_INFO'
 
 export const ADD_RECORDING = 'ADD_RECORDING'
 export const DELETE_RECORDINGS = 'DELETE_RECORDINGS'
-export const SET_RECORDING_INFO = 'SET_RECORDING_INFO'
+export const DELETE_SORTINGS_FOR_RECORDINGS = 'DELETE_SORTINGS_FOR_RECORDINGS'
 
 export const ADD_SORTING = 'ADD_SORTING'
 export const DELETE_SORTINGS = 'DELETE_SORTINGS'
@@ -53,12 +52,6 @@ export const setDatabaseConfig = (databaseConfig: DatabaseConfig): SetDatabaseCo
   databaseConfig
 })
 
-export const setSortingInfo = (a: { sortingId: string, sortingInfo: SortingInfo }): SetSortingInfoAction => ({
-    type: SET_SORTING_INFO,
-    sortingId: a.sortingId,
-    sortingInfo: a.sortingInfo
-})
-
 export const setExternalSortingUnitMetrics = (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }): SetExternalSortingUnitMetricsAction => ({
   type: SET_EXTERNAL_SORTING_UNIT_METRICS,
   sortingId: a.sortingId,
@@ -81,10 +74,10 @@ export const deleteRecordings = (recordingIds: string[]): DeleteRecordingsAction
     persistKey: 'recordings'
 })
 
-export const setRecordingInfo = (a: { recordingId: string, recordingInfo: RecordingInfo }): SetRecordingInfoAction => ({
-  type: SET_RECORDING_INFO,
-  recordingId: a.recordingId,
-  recordingInfo: a.recordingInfo
+export const deleteSortingsForRecordings = (recordingIds: string[]): DeleteSortingsForRecordingsAction & PersistAction => ({
+  type: DELETE_SORTINGS_FOR_RECORDINGS,
+  recordingIds: recordingIds,
+  persistKey: 'sortings'
 })
 
 export const addSorting = (sorting: Sorting): AddSortingAction & PersistAction => ({
@@ -108,11 +101,6 @@ export const setExtensionEnabled = (extensionName: string, value: boolean): SetE
   type: SET_EXTENSION_ENABLED,
   extensionName,
   value
-})
-
-export const setWorkspaceInfo = (workspaceInfo: WorkspaceInfo): SetWorkspaceInfoAction => ({
-  type: SET_DOCUMENT_INFO,
-  workspaceInfo
 })
 
 // curation

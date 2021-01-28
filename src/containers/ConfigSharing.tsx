@@ -1,10 +1,9 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { WorkspaceInfo } from '../AppContainer';
 import { RootAction, RootState } from '../reducers';
-import { WorkspaceInfo } from '../reducers/workspaceInfo';
 
 interface StateProps {
-    workspaceInfo: WorkspaceInfo
     defaultFeedId: string | null
 }
 
@@ -12,6 +11,7 @@ interface DispatchProps {
 }
 
 interface OwnProps {
+    workspaceInfo: WorkspaceInfo
 }
 
 type Props = StateProps & DispatchProps & OwnProps
@@ -37,7 +37,6 @@ const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo, defaultFeedId 
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    workspaceInfo: state.workspaceInfo,
     defaultFeedId: state.serverInfo?.defaultFeedId || ''
 })
   

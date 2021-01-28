@@ -8,6 +8,7 @@ import React, { FunctionComponent, useEffect, useMemo, useReducer, useRef, useSt
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
+import { useRecordingInfo, useSortingInfo } from './extensions/common/getRecordingInfo';
 import { CalculationPool, createCalculationPool, HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
@@ -21,7 +22,6 @@ class LEJExtensionContext {
   _sortingViewPlugins: {[key: string]: SortingViewPlugin} = {}
   _sortingUnitViewPlugins: {[key: string]: SortingUnitViewPlugin} = {}
   _sortingUnitMetricPlugins: {[key: string]: SortingUnitMetricPlugin} = {}
-  constructor() {}
   registerRecordingView(V: RecordingViewPlugin) {
     this._recordingViewPlugins[V.name] = V
   }
@@ -170,9 +170,12 @@ const useFeedReducer = <State, Action>(reducer: (s: State, a: Action) => State, 
   return [state, newDispatch]
 }
 
-const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, sortingObject, recordingObject, sortingInfo, recordingInfo, plugins, calculationPool, model, curationUri}) => {
+const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, sortingObject, recordingObject, plugins, calculationPool, model, curationUri}) => {
   const [sorting, setSorting] = useState<Sorting | null>(null)
   const [recording, setRecording] = useState<Recording | null>(null)
+
+  const sortingInfo = useSortingInfo(sorting?.sortingObject, sorting?.recordingObject)
+  const recordingInfo = useRecordingInfo(recording?.recordingObject)
 
   // curation
   // const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
@@ -221,7 +224,6 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       recordingId: '',
       recordingPath: '',
       recordingObject,
-      sortingInfo,
       curation,
       externalUnitMetrics
     })
@@ -229,10 +231,9 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
       recordingId: '',
       recordingLabel: '',
       recordingObject,
-      recordingPath: '',
-      recordingInfo
+      recordingPath: ''
     })
-  }, [setSorting, sortingObject, recordingObject, sortingInfo, recordingInfo, curation, externalUnitMetrics])
+  }, [setSorting, sortingObject, recordingObject, curation, externalUnitMetrics])
 
   // selection
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : {})
@@ -260,7 +261,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
         selectionDispatch({type: 'SetTimeRange', timeRange: newTimeRange})
       }
     }
-  }, [recordingInfo, selection.timeRange])
+  }, [selection.timeRange, recordingInfo])
 
   const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
   const [width, setWidth] = useState<number | undefined>(undefined)
@@ -294,12 +295,20 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
   if (!recording) {
     return <div>No recording</div>
   }
+  if (!sortingInfo) {
+    return <div>No sorting info</div>
+  }
+  if (!recordingInfo) {
+    return <div>No recording info</div>
+  }
   
   return (
     <div ref={divRef} className="PluginComponentWrapper" style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0}}>
       <plugin.component
         sorting={sorting}
+        sortingInfo={sortingInfo}
         recording={recording}
+        recordingInfo={recordingInfo}
         curationDispatch={curationDispatch}
         selection={selection}
         selectionDispatch={selectionDispatch}

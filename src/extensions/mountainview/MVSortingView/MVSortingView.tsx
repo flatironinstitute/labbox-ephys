@@ -127,7 +127,7 @@ interface PreprocessingProps {
 
 const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'waiting' | 'running' | 'finished'} & PreprocessingProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {plugins, recording, sorting, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
+    const {plugins, recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const [initializedViews, setInitializedViews] = useState(false)
     const initialPluginViews: {plugin: SortingViewPlugin, area: 'north' | 'south'}[] = useMemo(() => ([
@@ -216,7 +216,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
 
                     {/* Visible electrodes */}
                     <Expandable icon={visibleElectrodesIcon} label="Visible electrodes" defaultExpanded={false} unmountOnExit={false}>
-                        <VisibleElectrodesControl recordingInfo={recording.recordingInfo} selection={selection} selectionDispatch={selectionDispatch} />
+                        <VisibleElectrodesControl recordingInfo={recordingInfo} selection={selection} selectionDispatch={selectionDispatch} />
                     </Expandable>
 
                     {/* Preprocessing */}

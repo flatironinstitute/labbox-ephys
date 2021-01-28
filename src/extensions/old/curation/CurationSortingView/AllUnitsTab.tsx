@@ -22,7 +22,9 @@ const AllUnitsTab: FunctionComponent<SortingViewProps> = (props) => {
                             <sv.component
                                 {...sv.props || {}}
                                 sorting={props.sorting}
+                                sortingInfo={props.sortingInfo}
                                 recording={props.recording}
+                                recordingInfo={props.recordingInfo}
                                 selection={props.selection}
                                 selectionDispatch={props.selectionDispatch}
                                 curationDispatch={props.curationDispatch}

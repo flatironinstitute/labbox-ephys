@@ -3,6 +3,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { default as React, Dispatch, Fragment, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { WorkspaceInfo } from '../AppContainer';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { RootAction, RootState } from '../reducers';
 import ConfigComputeResource from './ConfigComputeResource';
@@ -18,6 +19,7 @@ interface DispatchProps {
 }
 
 interface OwnProps {
+  workspaceInfo: WorkspaceInfo
 }
 
 type Props = StateProps & DispatchProps & OwnProps
@@ -28,7 +30,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Config: FunctionComponent<Props> = ({ extensionsConfig }) => {
+const Config: FunctionComponent<Props> = ({ extensionsConfig, workspaceInfo }) => {
   const classes = useStyles()
   const [currentTabLabel, setCurrentTabLabel] = React.useState<string | null>(null)
 
@@ -43,7 +45,7 @@ const Config: FunctionComponent<Props> = ({ extensionsConfig }) => {
   })
   tabs.push({
     label: 'Sharing',
-    component: <ConfigSharing />
+    component: <ConfigSharing workspaceInfo={workspaceInfo} />
   })
   tabs.push({
     label: 'Extensions',

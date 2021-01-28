@@ -3,6 +3,7 @@
 
 import GrainIcon from '@material-ui/icons/Grain';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { useRecordingInfo } from '../common/getRecordingInfo';
 import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
@@ -15,7 +16,7 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
 }
 
 const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height, recordingSelection, recordingSelectionDispatch}) => {
-    const ri = recording.recordingInfo
+    const ri = useRecordingInfo(recording.recordingObject)
     const visibleElectrodeIds = recordingSelection.visibleElectrodeIds
     const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).filter(a => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(a.id)))), [ri, visibleElectrodeIds])
 
@@ -42,10 +43,10 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     );
 }
 
-const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, plugins, calculationPool, width, height, selection, selectionDispatch}) => {
+const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, recordingInfo, plugins, calculationPool, width, height, selection, selectionDispatch}) => {
     return (
         <ElectrodeGeometryRecordingView
-            {...{recording, plugins, calculationPool, width, height, recordingSelection: selection, recordingSelectionDispatch: selectionDispatch}}
+            {...{recording, recordingInfo, plugins, calculationPool, width, height, recordingSelection: selection, recordingSelectionDispatch: selectionDispatch}}
         />
     )
 }
