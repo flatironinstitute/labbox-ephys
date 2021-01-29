@@ -80,7 +80,7 @@ const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignmen
         default: // can't happen
             throw new Error('Missing vertical alignment in drawText: AlignTop, AlignBottom, or AlignVCenter');
     }
-    return {x: x, y: y, textAlign: textAlign, textBaseline: textBaseline, rotation: 0}
+    return {x: x, y: y, textAlign: textAlign, textBaseline: textBaseline}
 }
 
 
