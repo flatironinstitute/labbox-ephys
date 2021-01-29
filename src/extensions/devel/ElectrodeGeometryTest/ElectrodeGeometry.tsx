@@ -32,10 +32,10 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
     const electrodeYs = electrodes.map((point) => point.y)
     
     const electrodeRect = {
-        xmin: Math.min(...electrodeXs),
-        xmax: Math.max(...electrodeXs),
-        ymin: Math.min(...electrodeYs),
-        ymax: Math.max(...electrodeYs)
+        xmin: getMin(electrodeXs),
+        xmax: getMax(electrodeXs),
+        ymin: getMin(electrodeYs),
+        ymax: getMax(electrodeYs)
     }
 
     // Assuming we want to keep the origin in the range, while the min point is not at (0,0), a perfect
@@ -165,6 +165,14 @@ const ElectrodeGeometry = (props: ElectrodeGeometryProps) => {
             {...{width, height}}
         />
     )
+}
+
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
 }
 
 export default ElectrodeGeometry

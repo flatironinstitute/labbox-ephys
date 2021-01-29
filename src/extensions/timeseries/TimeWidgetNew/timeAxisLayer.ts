@@ -42,7 +42,9 @@ const onPaint = (painter: CanvasPainter, layerProps: TimeWidgetLayerProps, state
         painter2.drawLine(si.t2, 0.45, si.t2, 0.5, pen)
         let rect: RectangularRegion = {xmin: si.t1, ymin: 0, xmax: si.t2 - si.t1, ymax: 0.35}
         let alignment: TextAlignment = {Horizontal: "AlignCenter", Vertical: "AlignTop"}
-        painter2.drawText(rect, alignment, font, pen, brush, si.label)
+        painter2.drawText({
+            rect, alignment, font, pen, brush, text: si.label
+        })
     }
 }
 

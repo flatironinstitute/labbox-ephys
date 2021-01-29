@@ -3,7 +3,7 @@ import { createCalculationPool, HitherContext, HitherInterface } from "../../com
 import useFetchCache from "../../common/useFetchCache"
 
 export type SpikeAmplitudesData = {
-    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined
+    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined | null
 }
 
 type SpikeAmplitudesDataQuery = {
@@ -12,6 +12,14 @@ type SpikeAmplitudesDataQuery = {
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
+
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
+}
 
 const fetchSpikeAmplitudes = async ({hither, recordingObject, sortingObject, unitId}: {hither: HitherInterface, recordingObject: any, sortingObject: any, unitId: number}) => {
     const result = await hither.createHitherJob(
@@ -31,8 +39,8 @@ const fetchSpikeAmplitudes = async ({hither, recordingObject, sortingObject, uni
     }
     return {
         ...result,
-        minAmp: Math.min(...result.amplitudes),
-        maxAmp: Math.max(...result.amplitudes)
+        minAmp: getMin(result.amplitudes),
+        maxAmp: getMax(result.amplitudes)
     }
 }
 

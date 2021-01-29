@@ -30,6 +30,7 @@ interface Props {
 export interface TimeWidgetPanel {
     setTimeRange: (timeRange: {min: number, max: number}) => void
     paint: (painter: CanvasPainter, completenessFactor: number) => void
+    paintYAxis?: (painter: CanvasPainter, width: number, height: number) => void
     label: () => string
 }
 

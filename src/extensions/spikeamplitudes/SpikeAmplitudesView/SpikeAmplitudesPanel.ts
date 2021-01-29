@@ -59,15 +59,23 @@ class SpikeAmplitudesPanel {
             }
         }
         else {
-            painter.drawText({xmin: timeRange.min, xmax: timeRange.max, ymin: 0, ymax: 1}, {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, font, pen, brush, 'calculating')
+            painter.drawText({
+                rect: {xmin: timeRange.min, xmax: timeRange.max, ymin: 0, ymax: 1},
+                alignment: {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'},
+                font, pen, brush,
+                text: 'calculating'
+            })
         }
+    }
+    paintYAxis(painter: CanvasPainter, width: number, height: number) {
+        paintYAxis(painter, {xmin: 0, xmax: width, ymin: 0, ymax: height}, {label:'Spike amplitude'})
     }
     label() {
         return this.args.unitId + ''
     }
     amplitudeRange() {
         if (this._amplitudes) {
-            return {min: Math.min(...this._amplitudes), max: Math.max(...this._amplitudes)}
+            return {min: getMin(this._amplitudes), max: getMax(this._amplitudes)}
         }
         else return null
     }
@@ -88,6 +96,29 @@ class SpikeAmplitudesPanel {
     }
 }
 
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
+}
+
+const paintYAxis = (painter: CanvasPainter, pixelRect: {xmin: number, xmax: number, ymin: number, ymax: number}, {label}: {label: string}) => {
+    const {xmin, xmax, ymin, ymax} = pixelRect
+    painter.drawLine(xmax, ymin, xmax, ymax, {color: 'black'})
+    const tickSize = 10
+    painter.drawText({
+        rect: {xmin, xmax: xmax - tickSize - 2, ymin, ymax},
+        alignment: {Horizontal: 'AlignRight', Vertical: 'AlignCenter'},
+        font: {family: 'Arial', pixelSize: 12},
+        pen: {color: 'black'},
+        brush: {color: 'black'},
+        text: label,
+        orientation: 'Vertical'
+    })
+}
+
 class CombinedPanel {
     constructor(private panels: SpikeAmplitudesPanel[], private labelString: string) {
     }
@@ -96,6 +127,10 @@ class CombinedPanel {
     }
     paint(painter: CanvasPainter, completenessFactor: number) {
         this.panels.forEach(p => p.paint(painter, completenessFactor))
+    }
+    paintYAxis(painter: CanvasPainter, width: number, height: number) {
+        const p = this.panels[0]
+        p && p.paintYAxis && p.paintYAxis(painter, width, height)
     }
     label() {
         return this.labelString

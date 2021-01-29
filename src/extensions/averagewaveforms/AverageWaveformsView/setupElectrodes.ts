@@ -35,12 +35,20 @@ const computeRadius = (electrodeLocations: number[][]): number => {
     return radius
 }
 
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
+}
+
 const getElectrodesBoundingBox = (electrodeLocations: number[][], radius: number): RectangularRegion => {
     return {
-        xmin: Math.min(...electrodeLocations.map(e => (e[0]))) - radius,
-        xmax: Math.max(...electrodeLocations.map(e => (e[0]))) + radius,
-        ymin: Math.min(...electrodeLocations.map(e => (e[1]))) - radius,
-        ymax: Math.max(...electrodeLocations.map(e => (e[1]))) + radius
+        xmin: getMin(electrodeLocations.map(e => (e[0]))) - radius,
+        xmax: getMax(electrodeLocations.map(e => (e[0]))) + radius,
+        ymin: getMin(electrodeLocations.map(e => (e[1]))) - radius,
+        ymax: getMax(electrodeLocations.map(e => (e[1]))) + radius
     }
 }
 

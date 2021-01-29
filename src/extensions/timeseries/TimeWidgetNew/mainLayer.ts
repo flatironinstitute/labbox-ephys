@@ -10,6 +10,9 @@ type Layer = CanvasWidgetLayer<TimeWidgetLayerProps, LayerState>
 interface LayerState {
     timeRange: {min: number, max: number} | null
     transformations: TransformationMatrix[]
+    yAxisTransformations: TransformationMatrix[]
+    yAxisWidths: number[]
+    yAxisHeights: number[]
     inverseTransformations: TransformationMatrix[]
     anchorTimepoint: number | null
     dragging: boolean
@@ -24,6 +27,9 @@ const initialLayerState = {
     timeRange: null,
     transformations: [],
     inverseTransformations: [],
+    yAxisTransformations: [],
+    yAxisWidths: [],
+    yAxisHeights: [],
     anchorTimepoint: null,
     dragging: false,
     captureWheel: false,
@@ -51,9 +57,12 @@ const onPaint = async (painter: CanvasPainter, layerProps: TimeWidgetLayerProps,
         }
         const timer = Number(new Date())
         for (let i = 0; i < panels.length; i++) {
+            const panel = panels[i]
             const painter2 = painter.transform(state.transformations[i])
-            panels[i].setTimeRange(timeRange)
-            panels[i].paint(painter2, completenessFactor)
+            const painter3 = painter.transform(state.yAxisTransformations[i])
+            panel.setTimeRange(timeRange)
+            panel.paint(painter2, completenessFactor)
+            panel.paintYAxis && panel.paintYAxis(painter3, state.yAxisWidths[i], state.yAxisHeights[i])
             if (level === 2) {
                 await sleepMsec(0)
                 if (paintCode !== state.paintStatus.paintCode) {
@@ -90,10 +99,24 @@ const onPropsChange = (layer: Layer, layerProps: TimeWidgetLayerProps) => {
         })
     })
     const inverseTransformations = transformations.map(T => (getInverseTransformationMatrix(T)))
+    const yAxisTransformations = panels.map((panel, i) => {
+        return funcToTransform((p: Vec2): Vec2 => {
+            return [p[0], p[1] + margins.top]
+        })
+    })
+    const yAxisWidths = panels.map((panel, i) => {
+        return margins.left
+    })
+    const yAxisHeights = panels.map((panel, i) => {
+        return height - margins.bottom - margins.top
+    })
     layer.setState({
         ...layer.getState(),
         timeRange,
         transformations,
+        yAxisTransformations,
+        yAxisWidths,
+        yAxisHeights,
         inverseTransformations
     })
 }

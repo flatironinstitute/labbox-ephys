@@ -135,11 +135,14 @@ export const createElectrodesLayer = () => {
             if (useLabels) {
                 const fontColor = ([colors.selected, colors.draggedSelected, colors.hover, colors.selectedHover].includes(color)) ? colors.textDark : colors.textLight
                 if (showLabels) {
-                    painter.drawText(e.rect, 
-                        {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, 
-                        {pixelSize: state.pixelRadius, family: 'Arial'},
-                        {color: fontColor}, {color: fontColor},
-                        e.label)
+                    painter.drawText({
+                        rect: e.rect, 
+                        alignment: {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, 
+                        font: {pixelSize: state.pixelRadius, family: 'Arial'},
+                        pen: {color: fontColor},
+                        brush: {color: fontColor},
+                        text: e.label
+                    })
                 }
             }
         }

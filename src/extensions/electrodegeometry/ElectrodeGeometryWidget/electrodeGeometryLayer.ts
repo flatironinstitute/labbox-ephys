@@ -88,12 +88,20 @@ const computeRadius = (electrodes: Electrode[]): number => {
     return radius
 }
 
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
+}
+
 const getElectrodesBoundingBox = (electrodes: Electrode[], radius: number): RectangularRegion => {
     return {
-        xmin: Math.min(...electrodes.map(e => (e.x))) - radius,
-        xmax: Math.max(...electrodes.map(e => (e.x))) + radius,
-        ymin: Math.min(...electrodes.map(e => (e.y))) - radius,
-        ymax: Math.max(...electrodes.map(e => (e.y))) + radius
+        xmin: getMin(electrodes.map(e => (e.x))) - radius,
+        xmax: getMax(electrodes.map(e => (e.x))) + radius,
+        ymin: getMin(electrodes.map(e => (e.y))) - radius,
+        ymax: getMax(electrodes.map(e => (e.y))) + radius
     }
 }
 
@@ -190,11 +198,13 @@ const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLay
         painter.fillEllipse(e.br, {color: color})
         if (useLabels) {
             const fontColor = ([Color.SELECTED, Color.DRAGGEDSELECTED, Color.HOVER, Color.SELECTEDHOVER].includes(color)) ? TextColor.DARK : TextColor.LIGHT
-            painter.drawText(e.br, 
-                {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, 
-                {pixelSize: state.pixelRadius, family: 'Arial'},
-                {color: fontColor}, {color: fontColor},
-                e.label)
+            painter.drawText({
+                rect: e.br, 
+                alignment: {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, 
+                font: {pixelSize: state.pixelRadius, family: 'Arial'},
+                pen: {color: fontColor}, brush: {color: fontColor},
+                text: e.label
+            })
         }
     }
 

@@ -15,10 +15,10 @@ type Props = {
 
 const IndividualClusterWidget: FunctionComponent<Props> = ({ x, y, width, height, selectedIndex, onSelectedIndexChanged }) => {
     const layerProps = useMemo((): ClusterLayerProps => {
-        const xmin = Math.min(...x)
-        const xmax = Math.max(...x)
-        const ymin = Math.min(...y)
-        const ymax = Math.max(...y)
+        const xmin = getMin(x)
+        const xmax = getMax(x)
+        const ymin = getMin(y)
+        const ymax = getMax(y)
         const rect: RectangularRegion = {xmin, xmax, ymin, ymax}
         return {
             x,
@@ -38,6 +38,14 @@ const IndividualClusterWidget: FunctionComponent<Props> = ({ x, y, width, height
             {...{width, height}}
         />
     )
+}
+
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
 }
 
 export default IndividualClusterWidget

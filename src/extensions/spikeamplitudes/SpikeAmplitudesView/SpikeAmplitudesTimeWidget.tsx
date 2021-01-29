@@ -43,7 +43,7 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
         })
         if (allMins.length > 0) {
             panels.forEach(p => {
-                p.setGlobalAmplitudeRange({min: Math.min(...allMins), max: Math.max(...allMaxs)})
+                p.setGlobalAmplitudeRange({min: getMin(allMins), max: getMax(allMaxs)})
             })
         }
         setSpikeAmplitudesPanels(panels)
@@ -68,6 +68,14 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
             selectionDispatch={selectionDispatch}
         />
     )
+}
+
+function getMin(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
+}
+
+function getMax(arr: number[]) {
+    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
 }
 
 export default SpikeAmplitudesTimeWidget
