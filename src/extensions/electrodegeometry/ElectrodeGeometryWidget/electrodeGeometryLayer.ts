@@ -1,9 +1,9 @@
 import { norm } from "mathjs"
-import { getArrayMax, getArrayMin } from "../../../util/Utility"
 import { funcToTransform } from "../../common/CanvasWidget"
 import { CanvasPainter } from "../../common/CanvasWidget/CanvasPainter"
 import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from "../../common/CanvasWidget/CanvasWidgetLayer"
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from "../../common/CanvasWidget/Geometry"
+import { getArrayMax, getArrayMin } from "../../common/Utility"
 
 interface ElectrodeBoundingBox extends Electrode {
     id: number,

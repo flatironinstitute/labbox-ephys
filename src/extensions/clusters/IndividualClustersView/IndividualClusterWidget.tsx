@@ -1,8 +1,8 @@
 import React, { FunctionComponent, useMemo } from 'react';
-import { getArrayMax, getArrayMin } from '../../../util/Utility';
 import CanvasWidget from '../../common/CanvasWidget';
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
 import { RectangularRegion } from '../../common/CanvasWidget/Geometry';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 import createClusterLayer, { ClusterLayerProps } from './clusterLayer';
 
 type Props = {

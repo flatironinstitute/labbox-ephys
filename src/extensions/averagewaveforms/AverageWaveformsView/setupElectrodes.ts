@@ -1,7 +1,7 @@
 import { norm } from 'mathjs';
-import { getArrayMax, getArrayMin } from '../../../util/Utility';
 import { funcToTransform } from '../../common/CanvasWidget';
 import { getBoundingBoxForEllipse, getHeight, getWidth, RectangularRegion, TransformationMatrix, transformDistance, Vec2 } from '../../common/CanvasWidget/Geometry';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 
 export type ElectrodeBox = {
     label: string

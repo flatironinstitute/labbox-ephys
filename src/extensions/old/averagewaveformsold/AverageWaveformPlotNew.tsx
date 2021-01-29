@@ -1,9 +1,9 @@
 import React from 'react';
-import { getArrayMax, getArrayMin } from '../../../util/Utility';
 import CanvasWidget, { funcToTransform } from '../../common/CanvasWidget';
 import { CanvasPainter, PainterPath } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer, useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../../common/CanvasWidget/Geometry';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 
 interface PlotData {
     average_waveform: number[]

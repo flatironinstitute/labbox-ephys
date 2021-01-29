@@ -1,8 +1,8 @@
 import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
-import { getArrayMax, getArrayMin } from '../../../util/Utility';
 import { useRecordingInfo, useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';

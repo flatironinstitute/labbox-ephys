@@ -15,7 +15,6 @@ tmp
 
 # Duplicated/codesynced files
 jupyterlab/labbox_ephys_widgets_jp/src/extensions
-jupyterlab/labbox_ephys_widgets_jp/src/util
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 

@@ -1,6 +1,6 @@
-import { getArrayMax, getArrayMin } from '../../../util/Utility'
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
 import { HitherInterface } from "../../common/hither"
+import { getArrayMax, getArrayMin } from '../../common/Utility'
 import { Recording, Sorting } from "../../extensionInterface"
 import { SpikeAmplitudesData } from "./useSpikeAmplitudesData"
 
