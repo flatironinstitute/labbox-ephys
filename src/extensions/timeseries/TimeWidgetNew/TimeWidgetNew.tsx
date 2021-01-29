@@ -37,6 +37,7 @@ export interface TimeWidgetPanel {
 const toolbarWidth = 36 // hard-coded for now
 const spanWidgetHeight = 40
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface TimeState {
     numTimepoints: number
     maxTimeSpan: number
@@ -59,6 +60,7 @@ interface SetCurrentTime {
     type: 'setCurrentTime'
     currentTime: number | null
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type TimeAction = ZoomTimeRangeAction | SetTimeRangeAction | TimeShiftFrac | SetCurrentTime | {type: 'gotoHome' | 'gotoEnd'}
 // const timeReducer = (state: TimeState, action: TimeAction): TimeState => {
 
@@ -225,6 +227,7 @@ const plotMargins = {
 // }\
 
 const TimeWidgetNew = (props: Props) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {panels, width, height, customActions, numTimepoints, maxTimeSpan, startTimeSpan, samplerate, selection, selectionDispatch} = props
 
     const [spanWidgetInfo, setSpanWidgetInfo] = useState<SpanWidgetInfo>({numTimepoints})
@@ -277,7 +280,7 @@ const TimeWidgetNew = (props: Props) => {
 
     const handleTimeShiftFrac = useCallback((frac: number) => {
         // selectionDispatch({type: 'TimeShiftFrac', frac})
-    }, [selectionDispatch])
+    }, [])
 
     const handleCurrentTimeChanged = useCallback((t: number | null) => {
         selectionDispatch({type: 'SetCurrentTimepoint', currentTimepoint: t})
@@ -289,11 +292,11 @@ const TimeWidgetNew = (props: Props) => {
 
     const handleGotoHome = useCallback(() => {
         // selectionDispatch({type: 'CurrentTimepointHome'})
-    }, [selectionDispatch])
+    }, [])
 
     const handleGotoEnd = useCallback(() => {
         // selectionDispatch({type: 'CurrentTimepointEnd'})
-    }, [selectionDispatch])
+    }, [])
 
     const handleRepaintTimeEstimate = useCallback((ms: number) => {
         const refreshRateEstimate = 1000 / ms
@@ -313,11 +316,11 @@ const TimeWidgetNew = (props: Props) => {
 
     const handleShiftTimeLeft = useCallback(() => {
         // selectionDispatch({type: 'TimeShiftFrac', frac: -0.2})
-    }, [selectionDispatch])
+    }, [])
 
     const handleShiftTimeRight = useCallback(() => {
         // selectionDispatch({type: 'TimeShiftFrac', frac: 0.2})
-    }, [selectionDispatch])
+    }, [])
 
     const bottomBarInfo = {
         show: true,
@@ -395,6 +398,7 @@ const TimeWidgetNew = (props: Props) => {
     );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const shiftTimeRange = (timeRange: {min: number, max: number}, shift: number): {min: number, max: number} => {
     return {
         min: Math.floor(timeRange.min + shift),

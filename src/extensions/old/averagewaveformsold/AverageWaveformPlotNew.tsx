@@ -1,4 +1,5 @@
 import React from 'react';
+import { getArrayMax, getArrayMin } from '../../../util/Utility';
 import CanvasWidget, { funcToTransform } from '../../common/CanvasWidget';
 import { CanvasPainter, PainterPath } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer, useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
@@ -94,10 +95,10 @@ const createPlotWaveformLayer = () => {
     const onPropsChange = (layer: CanvasWidgetLayer<HelperPlotProps, HelperPlotState>, layerProps: HelperPlotProps) => {
         const { data, width, height } = layerProps
         const boundingRectangle = {
-            xmin: getMin(data.map(a => (a.x))),
-            xmax: getMax(data.map(a => (a.x))),
-            ymin: getMin(data.map(a => (a.y))),
-            ymax: getMax(data.map(a => (a.y)))    
+            xmin: getArrayMin(data.map(a => (a.x))),
+            xmax: getArrayMax(data.map(a => (a.x))),
+            ymin: getArrayMin(data.map(a => (a.y))),
+            ymax: getArrayMax(data.map(a => (a.y)))    
         }
         const margins = {
             left: 20, right: 20,
@@ -133,14 +134,5 @@ const HelperPlot = (props: HelperPlotProps) => {
         </div>
     )
 }
-
-function getMin(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
-}
-
-function getMax(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
-}
-
 
 export default AverageWaveformPlotNew

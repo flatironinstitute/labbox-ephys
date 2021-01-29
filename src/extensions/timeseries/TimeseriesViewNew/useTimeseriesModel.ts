@@ -143,7 +143,7 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
     }
 
     return ret
-  }), [data, segment_size])
+  }), [data, recordingInfo.num_frames, segment_size])
 
   return useMemo(() => ({
     getChannelData,

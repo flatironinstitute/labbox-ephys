@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
+import { getArrayMax, getArrayMin } from '../../../util/Utility';
 import { useRecordingInfo, useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
@@ -43,7 +44,7 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
         })
         if (allMins.length > 0) {
             panels.forEach(p => {
-                p.setGlobalAmplitudeRange({min: getMin(allMins), max: getMax(allMaxs)})
+                p.setGlobalAmplitudeRange({min: getArrayMin(allMins), max: getArrayMax(allMaxs)})
             })
         }
         setSpikeAmplitudesPanels(panels)
@@ -68,14 +69,6 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
             selectionDispatch={selectionDispatch}
         />
     )
-}
-
-function getMin(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
-}
-
-function getMax(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
 }
 
 export default SpikeAmplitudesTimeWidget
