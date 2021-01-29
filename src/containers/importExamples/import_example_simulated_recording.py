@@ -22,6 +22,7 @@ def prepare_recording_sorting():
 recording, sorting_true = prepare_recording_sorting()
 sorting_label = 'true'
 feed = kp.load_feed(feed_name, create=True)
+workspace = le.load_workspace(workspace_name=workspace_name, feed=feed)
 print(f'Feed URI: {feed.get_uri()}')
-R = le.import_recording(feed=feed, workspace_name=workspace_name, recording=recording, recording_label=recording_label)
-S = le.import_sorting(feed=feed, workspace_name=workspace_name, recording=recording, sorting=sorting_true, recording_id=R['recordingId'], sorting_label=sorting_label)
+R_id = workspace.add_recording(recording=recording, label=recording_label)
+S_id = workspace.add_sorting(sorting=sorting_true, recording_id=R_id, label=sorting_label)
