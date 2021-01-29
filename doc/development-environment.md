@@ -31,8 +31,6 @@ git clone https://github.com/flatironinstitute/kachery kachery
 git clone https://github.com/flatironinstitute/kachery-p2p kachery-p2p
 ```
 
-Be sure that you are on the `new-protocol` branch of kachery-p2p (TODO: remove this line once new-protocol has been merged into master)
-
 ### Set environment variables for source code
 
 Set the following environment variables (add these lines to ~/.bashrc so that they are set on each new login)
