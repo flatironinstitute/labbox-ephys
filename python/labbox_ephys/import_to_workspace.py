@@ -5,6 +5,9 @@ import labbox_ephys as le
 import kachery_p2p as kp
 import kachery as ka
 
+# Note: the functions in this file are deprecated. Replaced by le.load_workspace(...). See import examples
+# This file will hang around for a bit, but ultimately be deleted
+
 def _get_recordings_from_subfeed(recordings_subfeed: kp.Subfeed):
     le_recordings = {}
     while True:
