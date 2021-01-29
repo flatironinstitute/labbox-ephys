@@ -31,7 +31,6 @@ interface TextAlignmentConfig {
     y: number
     textAlign: 'left' | 'center' | 'right'
     textBaseline: 'bottom' | 'middle' | 'top'
-    rotation: number
 }
 
 const rotateRect = (r: RectangularRegion) => {
