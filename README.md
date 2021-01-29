@@ -6,10 +6,13 @@
 
 Analysis and visualization of neurophysiology recordings and spike sorting results.
 
-You can either run labbox-ephys as a JupyterLab extension or as a web server
+### Installation instructions
 
-JupyterLab extension: [labbox_ephys_widgets_jp](doc/labbox_ephys_widgets_jp.md)
-Web server: [labbox_ephys web server](doc/labbox_ephys_web_server.md)
+You can either run labbox-ephys as a JupyterLab extension, a local web server, or as a service in the cloud.
+
+* JupyterLab extension: [labbox_ephys_widgets_jp](doc/labbox_ephys_widgets_jp.md)
+* Local web server: [labbox_ephys web server](doc/labbox_ephys_web_server.md)
+* Cloud service: not yet documented
 
 ### Optionally host a compute resource server for calculations
 
