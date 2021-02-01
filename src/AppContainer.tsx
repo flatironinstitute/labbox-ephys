@@ -108,7 +108,7 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoa
             page: pathList[2] || ''
         })
     )
-    const query = QueryString.parse(location.search);
+    const query = QueryString.parse(location.search.slice(1));
     const feedUri = (query.feed as string) || null
     const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
     const workspaceInfo: WorkspaceInfo = {

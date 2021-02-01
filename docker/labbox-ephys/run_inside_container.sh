@@ -25,7 +25,7 @@ if [ -n "$KACHERY_P2P_START_DAEMON_OPTS" ]; then
     export KACHERY_P2P_API_PORT=15320
     mkdir -p $KACHERY_P2P_CONFIG_DIR
 
-    kachery-p2p-start-daemon --verbose 1 --channel flatiron1 --channel flatiron1 $KACHERY_P2P_START_DAEMON_OPTS &
+    kachery-p2p-start-daemon --method npm $KACHERY_P2P_START_DAEMON_OPTS &
 fi
 
 cd /labbox-ephys

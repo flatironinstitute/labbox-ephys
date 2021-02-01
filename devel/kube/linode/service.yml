@@ -14,25 +14,16 @@ spec:
       protocol: TCP
       port: 15308
       targetPort: 15308
-    - name: kacherynode
+    - name: api-http
       protocol: TCP
-      port: 14107
-      targetPort: 14107
-    type: LoadBalancer
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-    name: labbox-ephys-ephys1-service2
-spec:
-    selector:
-        app: labbox-ephys-ephys1
-    ports:
+      port: 15309
+      targetPort: 15309
     - name: kacherynode
       protocol: TCP
       port: 14207
       targetPort: 14207
+    - name: kacherynode-websocket
+      protocol: TCP
+      port: 14208
+      targetPort: 14208
     type: LoadBalancer
-
