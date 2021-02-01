@@ -3,6 +3,7 @@ import CanvasWidget, { funcToTransform } from '../../common/CanvasWidget';
 import { CanvasPainter, PainterPath } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasWidgetLayer, useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
 import { Vec2 } from '../../common/CanvasWidget/Geometry';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 
 interface PlotData {
     average_waveform: number[]
@@ -94,10 +95,10 @@ const createPlotWaveformLayer = () => {
     const onPropsChange = (layer: CanvasWidgetLayer<HelperPlotProps, HelperPlotState>, layerProps: HelperPlotProps) => {
         const { data, width, height } = layerProps
         const boundingRectangle = {
-            xmin: Math.min(...data.map(a => (a.x))),
-            xmax: Math.max(...data.map(a => (a.x))),
-            ymin: Math.min(...data.map(a => (a.y))),
-            ymax: Math.max(...data.map(a => (a.y)))    
+            xmin: getArrayMin(data.map(a => (a.x))),
+            xmax: getArrayMax(data.map(a => (a.x))),
+            ymin: getArrayMin(data.map(a => (a.y))),
+            ymax: getArrayMax(data.map(a => (a.y)))    
         }
         const margins = {
             left: 20, right: 20,
@@ -133,6 +134,5 @@ const HelperPlot = (props: HelperPlotProps) => {
         </div>
     )
 }
-
 
 export default AverageWaveformPlotNew

@@ -3,6 +3,7 @@ import React from 'react'
 import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
 import { CanvasWidgetLayer, useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer'
 import { getHeight, getWidth, RectangularRegion } from '../../common/CanvasWidget/Geometry'
+import { getArrayMax, getArrayMin } from '../../common/Utility'
 import { AnimatedLayerState, handleAnimatedClick, paintAnimationLayer } from './AnimatedLayer'
 import { ClickHistoryState, handleClickTrail, paintClickLayer } from './ClickHistoryLayer'
 import { DragLayerState, paintDragLayer, setDragLayerStateFromProps, updateDragRegion } from './DragLayer'
@@ -32,10 +33,10 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
     const electrodeYs = electrodes.map((point) => point.y)
     
     const electrodeRect = {
-        xmin: Math.min(...electrodeXs),
-        xmax: Math.max(...electrodeXs),
-        ymin: Math.min(...electrodeYs),
-        ymax: Math.max(...electrodeYs)
+        xmin: getArrayMin(electrodeXs),
+        xmax: getArrayMax(electrodeXs),
+        ymin: getArrayMin(electrodeYs),
+        ymax: getArrayMax(electrodeYs)
     }
 
     // Assuming we want to keep the origin in the range, while the min point is not at (0,0), a perfect
@@ -46,10 +47,10 @@ const computeElectrodeCoordinates = (electrodes: Electrode[]): {scaledCoordinate
     const extraYoffsetFrom0 = Math.max(electrodeRect.ymin, 0)
 
     const electrodeRanges = {
-        xmin: Math.min(electrodeRect.xmin, 0),
-        ymin: Math.min(electrodeRect.ymin, 0),
-        xmax: Math.max(electrodeRect.xmax, electrodeRect.xmax + extraXoffsetFrom0),
-        ymax: Math.max(electrodeRect.ymax, electrodeRect.ymax + extraYoffsetFrom0)
+        xmin: electrodeRect.xmin < 0 ? electrodeRect.xmin : 0,
+        ymin: electrodeRect.ymin < 0 ? electrodeRect.ymin : 0,
+        xmax: electrodeRect.xmax + (extraXoffsetFrom0 > 0 ? extraXoffsetFrom0 : 0),
+        ymax: electrodeRect.ymax + (extraYoffsetFrom0 > 0 ? extraYoffsetFrom0 : 0)
     }
     // keep it square -- TODO: Should we actually worry about the aspect ratio of the underlying canvas?
     const side = Math.max(getWidth(electrodeRanges), getHeight(electrodeRanges))

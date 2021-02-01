@@ -1,9 +1,10 @@
 import { useContext, useMemo } from "react"
 import { createCalculationPool, HitherContext, HitherInterface } from "../../common/hither"
 import useFetchCache from "../../common/useFetchCache"
+import { getArrayMax, getArrayMin } from '../../common/Utility'
 
 export type SpikeAmplitudesData = {
-    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined
+    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined | null
 }
 
 type SpikeAmplitudesDataQuery = {
@@ -31,8 +32,8 @@ const fetchSpikeAmplitudes = async ({hither, recordingObject, sortingObject, uni
     }
     return {
         ...result,
-        minAmp: Math.min(...result.amplitudes),
-        maxAmp: Math.max(...result.amplitudes)
+        minAmp: getArrayMin(result.amplitudes),
+        maxAmp: getArrayMax(result.amplitudes)
     }
 }
 

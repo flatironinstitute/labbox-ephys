@@ -1,6 +1,7 @@
 import { norm } from 'mathjs';
 import { funcToTransform } from '../../common/CanvasWidget';
 import { getBoundingBoxForEllipse, getHeight, getWidth, RectangularRegion, TransformationMatrix, transformDistance, Vec2 } from '../../common/CanvasWidget/Geometry';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 
 export type ElectrodeBox = {
     label: string
@@ -37,10 +38,10 @@ const computeRadius = (electrodeLocations: number[][]): number => {
 
 const getElectrodesBoundingBox = (electrodeLocations: number[][], radius: number): RectangularRegion => {
     return {
-        xmin: Math.min(...electrodeLocations.map(e => (e[0]))) - radius,
-        xmax: Math.max(...electrodeLocations.map(e => (e[0]))) + radius,
-        ymin: Math.min(...electrodeLocations.map(e => (e[1]))) - radius,
-        ymax: Math.max(...electrodeLocations.map(e => (e[1]))) + radius
+        xmin: getArrayMin(electrodeLocations.map(e => (e[0]))) - radius,
+        xmax: getArrayMax(electrodeLocations.map(e => (e[0]))) + radius,
+        ymin: getArrayMin(electrodeLocations.map(e => (e[1]))) - radius,
+        ymax: getArrayMax(electrodeLocations.map(e => (e[1]))) + radius
     }
 }
 

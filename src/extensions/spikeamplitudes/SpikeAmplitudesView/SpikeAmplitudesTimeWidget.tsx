@@ -2,6 +2,7 @@ import React, { FunctionComponent, useContext, useEffect, useMemo, useState } fr
 import { useRecordingInfo, useSortingInfo } from '../../common/getRecordingInfo';
 import { HitherContext } from '../../common/hither';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';
@@ -43,7 +44,7 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
         })
         if (allMins.length > 0) {
             panels.forEach(p => {
-                p.setGlobalAmplitudeRange({min: Math.min(...allMins), max: Math.max(...allMaxs)})
+                p.setGlobalAmplitudeRange({min: getArrayMin(allMins), max: getArrayMax(allMaxs)})
             })
         }
         setSpikeAmplitudesPanels(panels)

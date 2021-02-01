@@ -3,6 +3,7 @@ import { funcToTransform } from "../../common/CanvasWidget"
 import { CanvasPainter } from "../../common/CanvasWidget/CanvasPainter"
 import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from "../../common/CanvasWidget/CanvasWidgetLayer"
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from "../../common/CanvasWidget/Geometry"
+import { getArrayMax, getArrayMin } from "../../common/Utility"
 
 interface ElectrodeBoundingBox extends Electrode {
     id: number,
@@ -90,10 +91,10 @@ const computeRadius = (electrodes: Electrode[]): number => {
 
 const getElectrodesBoundingBox = (electrodes: Electrode[], radius: number): RectangularRegion => {
     return {
-        xmin: Math.min(...electrodes.map(e => (e.x))) - radius,
-        xmax: Math.max(...electrodes.map(e => (e.x))) + radius,
-        ymin: Math.min(...electrodes.map(e => (e.y))) - radius,
-        ymax: Math.max(...electrodes.map(e => (e.y))) + radius
+        xmin: getArrayMin(electrodes.map(e => (e.x))) - radius,
+        xmax: getArrayMax(electrodes.map(e => (e.x))) + radius,
+        ymin: getArrayMin(electrodes.map(e => (e.y))) - radius,
+        ymax: getArrayMax(electrodes.map(e => (e.y))) + radius
     }
 }
 
@@ -190,11 +191,13 @@ const paintElectrodeGeometryLayer = (painter: CanvasPainter, props: ElectrodeLay
         painter.fillEllipse(e.br, {color: color})
         if (useLabels) {
             const fontColor = ([Color.SELECTED, Color.DRAGGEDSELECTED, Color.HOVER, Color.SELECTEDHOVER].includes(color)) ? TextColor.DARK : TextColor.LIGHT
-            painter.drawText(e.br, 
-                {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, 
-                {pixelSize: state.pixelRadius, family: 'Arial'},
-                {color: fontColor}, {color: fontColor},
-                e.label)
+            painter.drawText({
+                rect: e.br, 
+                alignment: {Horizontal: 'AlignCenter', Vertical: 'AlignCenter'}, 
+                font: {pixelSize: state.pixelRadius, family: 'Arial'},
+                pen: {color: fontColor}, brush: {color: fontColor},
+                text: e.label
+            })
         }
     }
 

@@ -1,5 +1,6 @@
-labbox_config.yml
-jupyterlab/labbox_ephys_widgets_jp/src/extensions
+*.nwb
+labbox_config*.yml
+test_*.ipynb
 jupyterlab/codesync.txt
 deployment.jfm.yml
 .config
@@ -11,6 +12,9 @@ Untitled*.ipynb
 dist
 tmp
 .eslintcache
+
+# Duplicated/codesynced files
+jupyterlab/labbox_ephys_widgets_jp/src/extensions
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 

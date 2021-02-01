@@ -24,6 +24,7 @@ export const isTextAlignment = (x: any): x is TextAlignment => {
     }
     return true
 }
+export type TextOrientation = 'Horizontal' | 'Vertical'
 
 interface TextAlignmentConfig {
     x: number
@@ -32,22 +33,32 @@ interface TextAlignmentConfig {
     textBaseline: 'bottom' | 'middle' | 'top'
 }
 
-const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignment, t: TransformationMatrix): TextAlignmentConfig => {
-    const rect2 = transformRect(t, rect)
+const rotateRect = (r: RectangularRegion) => {
+    return {xmin: -r.ymax, xmax: -r.ymin, ymin: r.xmax, ymax: r.xmin}
+}
+
+const rotateTextAlignment = (a: TextAlignment): TextAlignment => {
+    return {
+        Horizontal: a.Vertical === 'AlignBottom' ? 'AlignLeft' : (a.Vertical === 'AlignTop' ? 'AlignRight': 'AlignCenter'),
+        Vertical: a.Horizontal === 'AlignRight' ? 'AlignBottom' : (a.Horizontal === 'AlignLeft' ? 'AlignTop': 'AlignCenter'),
+    }
+}
+
+const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignment): TextAlignmentConfig => {
     let x, y
-    let textAlign = 'left'
-    let textBaseline = 'bottom'
+    let textAlign: 'left' | 'center' | 'right' = 'left'
+    let textBaseline: 'bottom' | 'middle' | 'top' = 'bottom'
     switch (alignment.Horizontal) {
         case 'AlignLeft':
-            x = rect2.xmin
+            x = rect.xmin
             textAlign = 'left'
             break
         case 'AlignCenter':
-            x = getCenter(rect2)[0]
+            x = getCenter(rect)[0]
             textAlign = 'center'
             break
         case 'AlignRight':
-            x = rect2.xmax
+            x = rect.xmax
             textAlign = 'right'
             break
         default: // can't happen
@@ -55,21 +66,21 @@ const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignmen
         }
     switch (alignment.Vertical) {
         case 'AlignBottom':
-            y = rect2.ymin
+            y = rect.ymin
             textBaseline = 'bottom'
             break
         case 'AlignCenter':
-            y = getCenter(rect2)[1]
+            y = getCenter(rect)[1]
             textBaseline = 'middle'
             break
         case 'AlignTop':
-            y = rect2.ymax
+            y = rect.ymax
             textBaseline = 'top'
             break
         default: // can't happen
             throw new Error('Missing vertical alignment in drawText: AlignTop, AlignBottom, or AlignVCenter');
     }
-    return {x: x, y: y, textAlign: textAlign, textBaseline: textBaseline} as TextAlignmentConfig
+    return {x: x, y: y, textAlign: textAlign, textBaseline: textBaseline}
 }
 
 
@@ -271,14 +282,27 @@ export class CanvasPainter {
         pPath.lineTo(x2, y2);
         this.drawPath(pPath, pen);
     }
-    drawText(rect: RectangularRegion, alignment: TextAlignment, font: Font, pen: Pen, brush: Brush, txt: string) {
-        const config = getTextAlignmentConfig(rect, alignment, this._transformMatrix)
+    drawText({text, rect, alignment, font, pen, brush, orientation='Horizontal'}: {text: string, rect: RectangularRegion, alignment: TextAlignment, font: Font, pen: Pen, brush: Brush, orientation?: TextOrientation}) {
+        let rect2 = transformRect(this._transformMatrix, rect)
         this._context2D.save()
+        if (orientation === 'Vertical') {
+            this._context2D.rotate(-Math.PI / 2)
+            rect2 = rotateRect(rect2)
+            alignment = rotateTextAlignment(alignment)
+        }
+
+        // the following is useful for debugging the text placement, especially when orientation is Vertical
+        // applyPen(this._context2D, {color: 'green'})
+        // this._context2D.strokeRect(Math.min(rect2.xmin, rect2.xmax), Math.min(rect2.ymin, rect2.ymax), getWidth(rect2), getHeight(rect2))
+        // this._context2D.strokeRect(Math.min(rect2.xmin, rect2.xmax) + 5, Math.min(rect2.ymin, rect2.ymax) + 5, getWidth(rect2) - 10, getHeight(rect2) - 10)
+
         applyFont(this._context2D, font)
+        const config = getTextAlignmentConfig(rect2, alignment)
         applyTextAlignment(this._context2D, config)
         applyPen(this._context2D, pen);
         applyBrush(this._context2D, brush)
-        this._context2D.fillText(txt, config.x, config.y);
+        this._context2D.translate(config.x, config.y)
+        this._context2D.fillText(text, 0, 0)
         this._context2D.restore()
     }
     drawMarker(center: Vec2, opts: {radius: number, pen?: Pen, brush?: Brush}) {
