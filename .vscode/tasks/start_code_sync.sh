@@ -13,4 +13,3 @@ E2=jupyterlab/labbox_ephys_widgets_jp/src/extensions
 [[ ! -d $E2 ]] && cp -r $E1 $E2
 
 unison $E1 $E2 -ignore "Name __pycache__" -repeat watch
-

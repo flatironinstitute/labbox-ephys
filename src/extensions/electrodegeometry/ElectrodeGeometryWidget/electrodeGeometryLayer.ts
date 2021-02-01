@@ -3,6 +3,7 @@ import { funcToTransform } from "../../common/CanvasWidget"
 import { CanvasPainter } from "../../common/CanvasWidget/CanvasPainter"
 import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from "../../common/CanvasWidget/CanvasWidgetLayer"
 import { getBoundingBoxForEllipse, getHeight, getWidth, pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect, transformDistance, Vec2 } from "../../common/CanvasWidget/Geometry"
+import { getArrayMax, getArrayMin } from "../../common/Utility"
 
 interface ElectrodeBoundingBox extends Electrode {
     id: number,
@@ -88,20 +89,12 @@ const computeRadius = (electrodes: Electrode[]): number => {
     return radius
 }
 
-function getMin(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
-}
-
-function getMax(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
-}
-
 const getElectrodesBoundingBox = (electrodes: Electrode[], radius: number): RectangularRegion => {
     return {
-        xmin: getMin(electrodes.map(e => (e.x))) - radius,
-        xmax: getMax(electrodes.map(e => (e.x))) + radius,
-        ymin: getMin(electrodes.map(e => (e.y))) - radius,
-        ymax: getMax(electrodes.map(e => (e.y))) + radius
+        xmin: getArrayMin(electrodes.map(e => (e.x))) - radius,
+        xmax: getArrayMax(electrodes.map(e => (e.x))) + radius,
+        ymin: getArrayMin(electrodes.map(e => (e.y))) - radius,
+        ymax: getArrayMax(electrodes.map(e => (e.y))) + radius
     }
 }
 

@@ -2,6 +2,7 @@ import React, { FunctionComponent, useMemo } from 'react';
 import CanvasWidget from '../../common/CanvasWidget';
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
 import { RectangularRegion } from '../../common/CanvasWidget/Geometry';
+import { getArrayMax, getArrayMin } from '../../common/Utility';
 import createClusterLayer, { ClusterLayerProps } from './clusterLayer';
 
 type Props = {
@@ -15,10 +16,10 @@ type Props = {
 
 const IndividualClusterWidget: FunctionComponent<Props> = ({ x, y, width, height, selectedIndex, onSelectedIndexChanged }) => {
     const layerProps = useMemo((): ClusterLayerProps => {
-        const xmin = getMin(x)
-        const xmax = getMax(x)
-        const ymin = getMin(y)
-        const ymax = getMax(y)
+        const xmin = getArrayMin(x)
+        const xmax = getArrayMax(x)
+        const ymin = getArrayMin(y)
+        const ymax = getArrayMax(y)
         const rect: RectangularRegion = {xmin, xmax, ymin, ymax}
         return {
             x,
@@ -38,14 +39,6 @@ const IndividualClusterWidget: FunctionComponent<Props> = ({ x, y, width, height
             {...{width, height}}
         />
     )
-}
-
-function getMin(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
-}
-
-function getMax(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
 }
 
 export default IndividualClusterWidget

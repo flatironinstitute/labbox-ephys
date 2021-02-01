@@ -1,5 +1,6 @@
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
 import { HitherInterface } from "../../common/hither"
+import { getArrayMax, getArrayMin } from '../../common/Utility'
 import { Recording, Sorting } from "../../extensionInterface"
 import { SpikeAmplitudesData } from "./useSpikeAmplitudesData"
 
@@ -75,7 +76,7 @@ class SpikeAmplitudesPanel {
     }
     amplitudeRange() {
         if (this._amplitudes) {
-            return {min: getMin(this._amplitudes), max: getMax(this._amplitudes)}
+            return {min: getArrayMin(this._amplitudes), max: getArrayMax(this._amplitudes)}
         }
         else return null
     }
@@ -94,14 +95,6 @@ class SpikeAmplitudesPanel {
     register(onUpdate: () => void) {
         this._updateHandler = onUpdate
     }
-}
-
-function getMin(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max <= v ? max : v, Infinity);
-}
-
-function getMax(arr: number[]) {
-    return arr.reduce((max: number, v: number) => max >= v ? max : v, -Infinity);
 }
 
 const paintYAxis = (painter: CanvasPainter, pixelRect: {xmin: number, xmax: number, ymin: number, ymax: number}, {label}: {label: string}) => {
