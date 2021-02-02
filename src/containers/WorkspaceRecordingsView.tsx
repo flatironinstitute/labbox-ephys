@@ -3,6 +3,7 @@ import React, { FunctionComponent, useCallback, useState } from 'react';
 import { WorkspaceInfo } from '../AppContainer';
 import Splitter from '../extensions/common/Splitter';
 import { Recording } from '../reducers/recordings';
+import { ServerInfo } from '../reducers/serverInfo';
 import { Sorting } from '../reducers/sortings';
 import ImportRecordingsInstructions from './ImportRecordingsInstructions';
 import RecordingsTable from './RecordingsTable';
@@ -10,6 +11,7 @@ import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 type Props = {
     workspaceInfo: WorkspaceInfo
+    serverInfo: ServerInfo
     sortings: Sorting[]
     recordings: Recording[]
     onDeleteRecordings: (recordingIds: string[]) => void
@@ -18,7 +20,7 @@ type Props = {
     workspaceRouteDispatch: WorkspaceRouteDispatch
 }
 
-const WorkspaceRecordingsView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, workspaceRouteDispatch }) => {
+const WorkspaceRecordingsView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, serverInfo, workspaceRouteDispatch }) => {
     const [showImportInstructions, setShowImportInstructions] = useState(false)
     const handleImport = useCallback(() => {
         setShowImportInstructions(true)
@@ -41,7 +43,9 @@ const WorkspaceRecordingsView: FunctionComponent<Props> = ({ width, height, sort
             </div>
             {
                 showImportInstructions && (
-                    <ImportRecordingsInstructions />
+                    <ImportRecordingsInstructions
+                        feedUri={workspaceInfo.feedUri || 'feed://' + serverInfo.defaultFeedId || '<>'}
+                    />
                 )
             }
         </Splitter>

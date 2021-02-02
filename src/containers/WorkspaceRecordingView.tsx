@@ -1,11 +1,11 @@
 import { Grid } from '@material-ui/core';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useEffect, useReducer } from 'react';
 import { WorkspaceInfo } from '../AppContainer';
 import RecordingInfoView from '../components/RecordingInfoView';
 import SortingsView from '../components/SortingsView';
 import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
 import { createCalculationPool } from '../extensions/common/hither';
-import { Plugins, RecordingSelectionAction } from '../extensions/extensionInterface';
+import { Plugins, RecordingSelection, recordingSelectionReducer } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { Recording } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
@@ -17,19 +17,31 @@ interface Props {
   sortings: Sorting[]
   workspaceInfo: WorkspaceInfo
   plugins: Plugins
+  width: number
+  height: number
   workspaceRouteDispatch: WorkspaceRouteDispatch
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings, workspaceInfo, plugins, workspaceRouteDispatch }) => {
+const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings, workspaceInfo, plugins, workspaceRouteDispatch, width, height }) => {
   const { readOnly } = workspaceInfo;
   const recordingInfo = useRecordingInfo(recording.recordingObject)
-  if (!recordingInfo) return <div>Loading recording info</div>
 
   const handleImportSortings = () => {
     console.info('not yet implemented')
   }
+
+  const initialRecordingSelection: RecordingSelection = {}
+  const [selection, selectionDispatch] = useReducer(recordingSelectionReducer, initialRecordingSelection)
+
+  useEffect(() => {
+    if ((!selection.timeRange) && (recordingInfo)) {
+      selectionDispatch({type: 'SetTimeRange', timeRange: {min: 0, max: Math.min(recordingInfo.num_frames, recordingInfo.sampling_frequency / 10)}})
+    }
+  }, [selection, recordingInfo])
+
+  if (!recordingInfo) return <div>Loading recording info</div>
 
   return (
     <div style={{margin: 20}}>
@@ -53,9 +65,10 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
                 calculationPool={calculationPool}
                 recording={recording}
                 recordingInfo={recordingInfo}
-                recordingSelection={{}}
-                recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
+                selection={selection}
+                selectionDispatch={selectionDispatch}
                 plugins={plugins}
+                width={width - 40}
               />
             </Expandable>
           ))

@@ -7,25 +7,31 @@ import import_spikeforest_recording_py from './importExamples/import_spikeforest
 import instructionsMd from './ImportRecordingsInstructions.md.gen';
 
 type Props = {
+    feedUri: string
 }
 
-const ImportRecordingsInstructions: FunctionComponent<Props> = () => {
+const ImportRecordingsInstructions: FunctionComponent<Props> = ({ feedUri }) => {
+    const s = (x: string) => {
+        return doSubstitute(x, {
+            feedUri
+        })
+    }
     return (
         <div>
             <Markdown
                 source={instructionsMd}
             />
             <Expandable label="Import example simulated recording">
-                <CopyToClipboardButton text={import_example_simulated_recording_py} />
-                <Markdown source={mdWrapPy(import_example_simulated_recording_py)} />
+                <CopyToClipboardButton text={s(import_example_simulated_recording_py)} />
+                <Markdown source={mdWrapPy(s(import_example_simulated_recording_py))} />
             </Expandable>
             <Expandable label="Import SpikeForest recordings">
-                <CopyToClipboardButton text={import_spikeforest_recording_py} />
-                <Markdown source={mdWrapPy(import_spikeforest_recording_py)} />
+                <CopyToClipboardButton text={s(import_spikeforest_recording_py)} />
+                <Markdown source={mdWrapPy(s(import_spikeforest_recording_py))} />
             </Expandable>
             <Expandable label="Import NWB recordings">
-                <CopyToClipboardButton text={import_nwb_recording_py} />
-                <Markdown source={mdWrapPy(import_nwb_recording_py)} />
+                <CopyToClipboardButton text={s(import_nwb_recording_py)} />
+                <Markdown source={mdWrapPy(s(import_nwb_recording_py))} />
             </Expandable>
         </div>
     )
@@ -42,6 +48,11 @@ type CopyToClipboardButtonProps = {
 const CopyToClipboardButton: FunctionComponent<CopyToClipboardButtonProps> = ({ text }) => {
     const [copied, setCopied] = useState(false)
     const handleClick = useCallback(() => {
+        // see: https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+        if (!window.isSecureContext) {
+            window.alert('Unable to copy to clipbard (not a secure context). This is probably because this site uses http rather than https.')
+            return
+        }
         navigator.clipboard.writeText(text)
         setCopied(true)
         setTimeout(() => {
@@ -51,6 +62,14 @@ const CopyToClipboardButton: FunctionComponent<CopyToClipboardButtonProps> = ({ 
     return (
         <button onClick={handleClick}>{copied ? `Copied` : `Copy to clipboard`}</button>
     )
+}
+
+const doSubstitute = (x: string, s: {[key: string]: string | undefined | null}) => {
+    let y = x
+    for (let k in s) {
+        y = y.split(`{${k}}`).join(s[k] || '')
+    }
+    return y
 }
 
 export default ImportRecordingsInstructions

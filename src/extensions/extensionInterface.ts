@@ -548,8 +548,8 @@ export interface SortingUnitViewPlugin extends ViewPlugin {
 export interface RecordingViewProps extends ViewProps {
     recording: Recording
     recordingInfo: RecordingInfo
-    recordingSelection: RecordingSelection
-    recordingSelectionDispatch: RecordingSelectionDispatch
+    selection: RecordingSelection
+    selectionDispatch: RecordingSelectionDispatch
 }
 
 export interface RecordingViewPlugin extends ViewPlugin {

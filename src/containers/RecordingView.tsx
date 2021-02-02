@@ -63,8 +63,8 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
                 calculationPool={calculationPool}
                 recording={recording}
                 recordingInfo={recordingInfo}
-                recordingSelection={{}}
-                recordingSelectionDispatch={(a: RecordingSelectionAction) => {}}
+                selection={{}}
+                selectionDispatch={(a: RecordingSelectionAction) => {}}
                 plugins={plugins}
               />
             </Expandable>
