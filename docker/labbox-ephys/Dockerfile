@@ -1,10 +1,10 @@
 FROM ubuntu:18.04
 
 #########################################
-### Node 14 and yarn
+### Node 15 and yarn
 ### best to do this before python
 RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get update && apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_15.x | bash - && apt-get update && apt-get install -y nodejs
 RUN npm install -g yarn
 
 #########################################
@@ -44,20 +44,20 @@ RUN pip install matplotlib mpld3
 RUN pip install datajoint
 RUN pip install pynwb
 
+RUN pip install websockets
+RUN pip install aiohttp aiohttp_cors
+
 # #########################################
 # ### Install kachery-p2p
-RUN pip install kachery-p2p==0.5.15
+RUN pip install kachery-p2p==0.5.23
+# save some time when launching container
+RUN npm install -g kachery-p2p-daemon@0.5.23
 
 # #########################################
 # ### Install hither
-RUN git clone https://github.com/flatironinstitute/hither /hither \
-    && cd /hither \
-    && git checkout e3c654f93e6a2710ec1e9b414afbf32689332d96 \
-    && pip install .
+RUN pip install hither==0.4.2
 
 RUN yarn global add serve
-
-RUN pip install websockets
 
 # #########################################
 # ### Install labbox-ephys

@@ -58,26 +58,42 @@ def main():
                 'timeseries': {
                     'type': 'local'
                 }
-            }
+            },
+            'nodes_with_access': [
+            ]
         }
 
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     print(json.dumps(labbox_config, indent=4))
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
-    local_job_handlers = dict(
-        default=hi.ParallelJobHandler(4),
-        partition1=hi.ParallelJobHandler(4),
-        partition2=hi.ParallelJobHandler(4),
-        partition3=hi.ParallelJobHandler(4),
-        timeseries=hi.ParallelJobHandler(4)
-    )
+    nodes_with_access = labbox_config.get('nodes_with_access', [])
+    while True:
+        try:
+            default_feed = kp.load_feed('labbox-ephys-default', create=True)
+            break
+        except:
+            print('Unable to load feed. Perhaps daemon is not running yet. Trying again in a few seconds.')
+            time.sleep(5)
+    subfeed_names = [
+        {'workspaceName': 'default', 'key': 'recordings'},
+        {'workspaceName': 'default', 'key': 'sortings'}
+    ]
+    for sn in subfeed_names:
+        sf = default_feed.get_subfeed(sn)
+        sf.set_access_rules({
+            'rules': [
+                {
+                    'nodeId': n['node_id'],
+                    'write': True
+                }
+                for n in nodes_with_access
+            ]
+        })
 
-    # default_job_cache=hi.JobCache(use_tempdir=True)
     job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
     if not os.path.exists(job_cache_path):
         os.mkdir(job_cache_path)
-    default_job_cache=hi.JobCache(path=job_cache_path)
 
     async def incoming_message_handler(session, websocket):
         async for message in websocket:
