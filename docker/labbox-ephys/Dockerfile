@@ -49,9 +49,9 @@ RUN pip install aiohttp aiohttp_cors
 
 # #########################################
 # ### Install kachery-p2p
-RUN pip install kachery-p2p==0.5.23
+RUN pip install kachery-p2p==0.5.24
 # save some time when launching container
-RUN npm install -g kachery-p2p-daemon@0.5.23
+RUN npm install -g kachery-p2p-daemon@0.5.24
 
 # #########################################
 # ### Install hither
