@@ -5,6 +5,7 @@ import { WorkspaceInfo } from '../AppContainer';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
+import { ServerInfo } from '../reducers/serverInfo';
 import { Sorting } from '../reducers/sortings';
 import './Home.css';
 import WorkspaceView from './WorkspaceView';
@@ -13,6 +14,7 @@ interface StateProps {
   sortings: Sorting[]
   recordings: Recording[]
   plugins: Plugins
+  serverInfo: ServerInfo
 }
 
 interface DispatchProps {
@@ -27,7 +29,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings, recordings, onDeleteRecordings, plugins }) => {
+const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, sortings, recordings, onDeleteRecordings, plugins }) => {
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2
@@ -51,7 +53,7 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings
         <WorkspaceView
           width={W}
           height={H - headerHeight}
-          {...{workspaceInfo, sortings, recordings, onDeleteRecordings, plugins}}
+          {...{workspaceInfo, serverInfo, sortings, recordings, onDeleteRecordings, plugins}}
         />
       </div>
     </div>
@@ -61,7 +63,8 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, sortings
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
   sortings: state.sortings,
   recordings: state.recordings,
-  plugins: filterPlugins(state.plugins)
+  plugins: filterPlugins(state.plugins),
+  serverInfo: state.serverInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

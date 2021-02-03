@@ -20,7 +20,7 @@ const TimeseriesSortingView: FunctionComponent<SortingViewProps> = ({recording, 
     )
 }
 
-const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recording, recordingInfo, width, height, recordingSelection, recordingSelectionDispatch}) => {
+const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recording, recordingInfo, width, height, selection, selectionDispatch}) => {
     return (
         <TimeseriesViewNew
             recordingObject={recording.recordingObject}
@@ -28,8 +28,8 @@ const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recordi
             width={width || 600}
             height={height || 600}
             opts={{channelSelectPanel: true}}
-            recordingSelection={recordingSelection}
-            recordingSelectionDispatch={recordingSelectionDispatch}
+            recordingSelection={selection}
+            recordingSelectionDispatch={selectionDispatch}
         />
     )
 }

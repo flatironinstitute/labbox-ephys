@@ -15,16 +15,16 @@ const zipElectrodes = (locations: number[][], ids: number[]) => {
     })
 }
 
-const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height, recordingSelection, recordingSelectionDispatch}) => {
+const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({recording, width, height, selection, selectionDispatch}) => {
     const ri = useRecordingInfo(recording.recordingObject)
-    const visibleElectrodeIds = recordingSelection.visibleElectrodeIds
+    const visibleElectrodeIds = selection.visibleElectrodeIds
     const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).filter(a => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(a.id)))), [ri, visibleElectrodeIds])
 
     const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
-        recordingSelectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
-    }, [recordingSelectionDispatch])
+        selectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
+    }, [selectionDispatch])
 
-    const selectedElectrodeIds = useMemo(() => (recordingSelection.selectedElectrodeIds || []), [recordingSelection.selectedElectrodeIds])
+    const selectedElectrodeIds = useMemo(() => (selection.selectedElectrodeIds || []), [selection.selectedElectrodeIds])
 
     // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
     if (!ri) {
@@ -46,7 +46,7 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
 const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, recordingInfo, plugins, calculationPool, width, height, selection, selectionDispatch}) => {
     return (
         <ElectrodeGeometryRecordingView
-            {...{recording, recordingInfo, plugins, calculationPool, width, height, recordingSelection: selection, recordingSelectionDispatch: selectionDispatch}}
+            {...{recording, recordingInfo, plugins, calculationPool, width, height, selection, selectionDispatch}}
         />
     )
 }

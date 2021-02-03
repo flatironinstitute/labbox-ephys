@@ -10,7 +10,7 @@ recording_label = 'despy_tet3'
 sorting_label = 'sorting'
 recording_nwb_path = '<path or URI of nwb recording>'
 sorting_nwb_path = '<path or URI of nwb sorting>'
-feed_name = 'labbox-ephys-default'
+feed_uri = '{feedUri}'
 workspace_name = 'default'
 
 
@@ -30,7 +30,7 @@ sorting_uri = ka.store_object({
 sorting = le.LabboxEphysSortingExtractor(sorting_uri, samplerate=30000)
 recording = le.LabboxEphysRecordingExtractor(recording_uri, download=True)
 
-feed = kp.load_feed(feed_name, create=True)
+feed = kp.load_feed(feed_uri)
 workspace = le.load_workspace(workspace_name=workspace_name, feed=feed)
 print(f'Feed URI: {feed.get_uri()}')
 R_id = workspace.add_recording(recording=recording, label=recording_label)

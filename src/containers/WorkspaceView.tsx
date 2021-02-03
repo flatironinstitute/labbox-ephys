@@ -3,6 +3,7 @@ import { useHistory, useLocation } from 'react-router';
 import { WorkspaceInfo } from '../AppContainer';
 import { Plugins } from '../extensions/extensionInterface';
 import { Recording } from '../reducers/recordings';
+import { ServerInfo } from '../reducers/serverInfo';
 import { Sorting } from '../reducers/sortings';
 import SortingView from './SortingView';
 import WorkspaceRecordingsView from './WorkspaceRecordingsView';
@@ -10,6 +11,7 @@ import WorkspaceRecordingView from './WorkspaceRecordingView';
 
 type Props = {
     workspaceInfo: WorkspaceInfo
+    serverInfo: ServerInfo
     sortings: Sorting[]
     recordings: Recording[]
     plugins: Plugins
@@ -113,7 +115,7 @@ const locationFromRoute = (route: WorkspaceRoute, workspaceInfo: WorkspaceInfo) 
     }
 }
 
-const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, plugins }) => {
+const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, serverInfo, plugins }) => {
     const history = useHistory()
     const location = useLocation()
     const route = routeFromLocation(location)
@@ -148,7 +150,7 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, reco
     switch(route.page) {
         case 'recordings': return (
             <WorkspaceRecordingsView
-                {...{width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, workspaceRouteDispatch}}
+                {...{width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, serverInfo, workspaceRouteDispatch}}
             />
         )
         case 'recording': {
@@ -157,7 +159,7 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, reco
             if (!recording) return <div>Recording not found: {rid}</div>
             return (    
                 <WorkspaceRecordingView
-                    {...{recording, workspaceInfo, plugins, workspaceRouteDispatch}}
+                    {...{width, height, recording, workspaceInfo, plugins, workspaceRouteDispatch}}
                     sortings={sortings.filter(s => (s.recordingId === rid))}
                 />
             )
