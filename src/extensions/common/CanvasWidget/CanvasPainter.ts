@@ -34,7 +34,7 @@ interface TextAlignmentConfig {
 }
 
 const rotateRect = (r: RectangularRegion) => {
-    return {xmin: -r.ymax, xmax: -r.ymin, ymin: r.xmax, ymax: r.xmin}
+    return {xmin: -r.ymax, xmax: -r.ymin, ymin: r.xmin, ymax: r.xmax}
 }
 
 const rotateTextAlignment = (a: TextAlignment): TextAlignment => {
@@ -66,7 +66,7 @@ const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignmen
         }
     switch (alignment.Vertical) {
         case 'AlignBottom':
-            y = rect.ymin
+            y = rect.ymax
             textBaseline = 'bottom'
             break
         case 'AlignCenter':
@@ -74,7 +74,7 @@ const getTextAlignmentConfig = (rect: RectangularRegion, alignment: TextAlignmen
             textBaseline = 'middle'
             break
         case 'AlignTop':
-            y = rect.ymax
+            y = rect.ymin
             textBaseline = 'top'
             break
         default: // can't happen
