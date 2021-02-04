@@ -275,8 +275,8 @@ type SetTimeRangeRecordingSelectionAction = {
 
 type ZoomTimeRangeRecordingSelectionAction = {
     type: 'ZoomTimeRange',
-    factor?: number
-    direction?: 'in' | 'out' // provide factor or direction, not both
+    factor?: number             // uses default if unset
+    direction?: 'in' | 'out'    // default direction is 'in'. If direction is set to 'out', 'factor' is inverted.
 }
 
 type SetAmpScaleFactorRecordingSelectionAction = {
@@ -286,8 +286,8 @@ type SetAmpScaleFactorRecordingSelectionAction = {
 
 type ScaleAmpScaleFactorRecordingSelectionAction = {
     type: 'ScaleAmpScaleFactor',
-    multiplier?: number // use either multiplier or direction (not both)
-    direction?: 'up' | 'down' // use either multiplier or direction (not both)
+    multiplier?: number         // uses default if unset
+    direction?: 'up' | 'down'   // default direction is 'up'. If direction is set to 'down', multiplier is inverted.
 }
 
 type SetCurrentTimepointVelocityRecordingSelectionAction = {
@@ -350,9 +350,10 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
         const currentTimepoint = state.currentTimepoint
         const timeRange = state.timeRange
         if (!timeRange) return state
-        const factor = action.factor ? action.factor : (
-            action.direction === 'out' ? 1 / TIME_ZOOM_FACTOR : TIME_ZOOM_FACTOR
-        )
+        const direction = action.direction ?? 'in'
+        const pre_factor = action.factor ?? TIME_ZOOM_FACTOR
+        const factor = direction === 'out' ? 1 / pre_factor : pre_factor
+        
         if ((timeRange.max - timeRange.min) / factor > maxTimeSpan ) return state
         let t: number
         if ((currentTimepoint === undefined) || (currentTimepoint < timeRange.min))
@@ -378,9 +379,9 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
         }
     }
     else if (action.type === 'ScaleAmpScaleFactor') {
-        const multiplier = action.multiplier ? action.multiplier : (
-            action.direction === 'down' ? 1 / AMP_SCALE_FACTOR : AMP_SCALE_FACTOR
-        )
+        const direction = action.direction ?? 'up'
+        const pre_multiplier = action.multiplier ?? AMP_SCALE_FACTOR
+        const multiplier = direction === 'down' ? 1 / pre_multiplier : pre_multiplier
         return {
             ...state,
             ampScaleFactor: (state.ampScaleFactor || 1) * multiplier
