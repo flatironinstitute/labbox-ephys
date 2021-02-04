@@ -6,7 +6,7 @@ def ElectrodeGeometry_sortingview(*, sorting: le.LabboxEphysSortingExtractor, re
     import labbox_ephys_widgets_jp as lew
     return lew.create_sorting_view('ElectrodeGeometrySortingView', sorting=sorting, recording=recording)
 
-@le.register_recording_view('ElectrodeGeometry')
-def ElectrodeGeometry_recordingview(*, recording: le.LabboxEphysRecordingExtractor):
-    import labbox_ephys_widgets_jp as lew
-    return lew.create_recording_view('ElectrodeGeometryRecordingView', recording=recording)
+# @le.register_recording_view('ElectrodeGeometry')
+# def ElectrodeGeometry_recordingview(*, recording: le.LabboxEphysRecordingExtractor):
+#     import labbox_ephys_widgets_jp as lew
+#     return lew.create_recording_view('ElectrodeGeometryRecordingView', recording=recording)

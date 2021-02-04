@@ -2,12 +2,12 @@ import { CircularProgress } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent, useCallback, useMemo } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { deleteSortings } from '../actions';
-import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
 import { useSortingInfos } from '../extensions/common/getRecordingInfo';
+import { WorkspaceInfo } from '../extensions/extensionInterface';
+import { WorkspaceRouteDispatch } from '../extensions/WorkspaceView';
 import { RootAction, RootState } from '../reducers';
 import { Sorting } from '../reducers/sortings';
-import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 
 

@@ -1,6 +1,7 @@
 import uuid
 import kachery_p2p as kp
 import spikeextractors as se
+from ..extractors import LabboxEphysRecordingExtractor, LabboxEphysSortingExtractor
 
 class Workspace:
     def __init__(self, *, feed: kp.Feed, workspace_name: str) -> None:
@@ -47,7 +48,7 @@ class Workspace:
         sortings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name, key='sortings'))
         _import_le_sorting(sortings_subfeed, x)
         self._sortings[sorting_id] = x
-        return x
+        return sorting_id
     def delete_recording(self, recording_id: str):
         if recording_id not in self._recordings:
             raise Exception(f'Recording not found: {recording_id}')
@@ -61,12 +62,19 @@ class Workspace:
     def get_recording(self, recording_id: str):
         return self._recordings[recording_id]
     def get_sorting(self, sorting_id: str):
-        return self._recordings[sorting_id]
-    def get_recordings(self):
-        return self._recordings
-    def get_sortings(self):
-        return self._sortings
-
+        return self._sortings[sorting_id]
+    def get_recording_ids(self):
+        return sorted(list(self._recordings.keys()))
+    def get_sorting_ids(self):
+        return sorted(list(self._sortings.keys()))
+    def get_sorting_ids_for_recording(self, recording_id: str):
+        return [k for k in list(self._sortings.keys()) if self._sortings[k]['recordingId'] == recording_id]
+    def get_recording_extractor(self, recording_id: str):
+        x = self.get_recording(recording_id)
+        return LabboxEphysRecordingExtractor(x['recordingObject'])
+    def get_sorting_extractor(self, sorting_id: str):
+        x = self.get_sorting(sorting_id)
+        return LabboxEphysSortingExtractor(x['sortingObject'])
 
 def load_workspace(*, workspace_name: str='default', feed: kp.Feed=None):
     return Workspace(workspace_name=workspace_name, feed=feed)

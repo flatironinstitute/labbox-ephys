@@ -3,7 +3,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { default as React, Dispatch, Fragment, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { WorkspaceInfo } from '../AppContainer';
+import { WorkspaceInfo } from '../extensions/extensionInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { RootAction, RootState } from '../reducers';
 import ConfigComputeResource from './ConfigComputeResource';

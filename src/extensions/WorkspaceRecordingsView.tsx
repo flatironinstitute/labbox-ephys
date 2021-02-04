@@ -1,10 +1,10 @@
 import { Button } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { WorkspaceInfo } from '../AppContainer';
-import Splitter from '../extensions/common/Splitter';
 import { Recording } from '../reducers/recordings';
 import { ServerInfo } from '../reducers/serverInfo';
 import { Sorting } from '../reducers/sortings';
+import Splitter from './common/Splitter';
 import ImportRecordingsInstructions from './ImportRecordingsInstructions';
 import RecordingsTable from './RecordingsTable';
 import { WorkspaceRouteDispatch } from './WorkspaceView';

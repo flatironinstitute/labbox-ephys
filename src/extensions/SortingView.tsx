@@ -4,13 +4,13 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { setExternalSortingUnitMetrics } from '../actions';
 import { WorkspaceInfo } from '../AppContainer';
-import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
-import { createCalculationPool, HitherContext } from '../extensions/common/hither';
-import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
 import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
+import { useRecordingInfo, useSortingInfo } from './common/getRecordingInfo';
+import { createCalculationPool, HitherContext } from './common/hither';
+import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from './extensionInterface';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;

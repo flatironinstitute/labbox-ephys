@@ -1,8 +1,8 @@
 import { Button, Paper } from "@material-ui/core";
 import React, { FunctionComponent } from 'react';
-import { WorkspaceInfo } from "../AppContainer";
 import SortingsTable from '../containers/SortingsTable';
-import { WorkspaceRouteDispatch } from "../containers/WorkspaceView";
+import { WorkspaceInfo } from "../extensions/extensionInterface";
+import { WorkspaceRouteDispatch } from "../extensions/WorkspaceView";
 import { Sorting } from "../reducers/sortings";
 
 type Props = {

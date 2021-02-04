@@ -1,14 +1,13 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { deleteRecordings, deleteSortingsForRecordings } from '../actions';
-import { WorkspaceInfo } from '../AppContainer';
-import { filterPlugins, Plugins } from '../extensions/extensionInterface';
+import { filterPlugins, Plugins, WorkspaceInfo } from '../extensions/extensionInterface';
+import WorkspaceView from '../extensions/WorkspaceView';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
 import { ServerInfo } from '../reducers/serverInfo';
 import { Sorting } from '../reducers/sortings';
 import './Home.css';
-import WorkspaceView from './WorkspaceView';
 
 interface StateProps {
   sortings: Sorting[]

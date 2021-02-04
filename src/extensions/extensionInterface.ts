@@ -587,3 +587,9 @@ const zoomTimeRange = (timeRange: {min: number, max: number}, factor: number, an
     const t2 = anchorTime + (oldT2 - anchorTime) / factor
     return {min: Math.floor(t1), max: Math.floor(t2)}
 }
+
+export interface WorkspaceInfo {
+    workspaceName: string | null
+    feedUri: string | null
+    readOnly: boolean | null
+}

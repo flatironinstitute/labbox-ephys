@@ -45,11 +45,11 @@ def create_sorting_view(
     curation_subfeed: Union[kp.Subfeed, None]=None,
     height: float=0
 ):
-    class SortingView(DOMWidget):
-        _model_name = Unicode('SortingViewModel').tag(sync=True)
+    class SortingViewJp(DOMWidget):
+        _model_name = Unicode('SortingViewJpModel').tag(sync=True)
         _model_module = Unicode(module_name).tag(sync=True)
         _model_module_version = Unicode(module_version).tag(sync=True)
-        _view_name = Unicode('SortingView').tag(sync=True)
+        _view_name = Unicode('SortingViewJp').tag(sync=True)
         _view_module = Unicode(module_name).tag(sync=True)
         _view_module_version = Unicode(module_version).tag(sync=True)
         pluginName = Unicode(plugin_name).tag(sync=True)
@@ -98,5 +98,5 @@ def create_sorting_view(
                 )
             else:
                 self._worker_session.handle_message(msg)
-    X = SortingView()
+    X = SortingViewJp()
     return X
