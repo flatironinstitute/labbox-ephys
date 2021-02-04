@@ -167,10 +167,10 @@ const TimeseriesWidgetNew = (props: Props) => {
     
     const [actions, setActions] = useState<TimeWidgetAction[] | null>(null)
     const _handleScaleAmplitudeUp = useCallback(() => {
-        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
+        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', direction: 'up'})
     }, [recordingSelectionDispatch])
     const _handleScaleAmplitudeDown = useCallback(() => {
-        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1 / 1.15})
+        recordingSelectionDispatch({type: 'ScaleAmpScaleFactor', direction: 'down'})
     }, [recordingSelectionDispatch])
 
     useEffect(() => {

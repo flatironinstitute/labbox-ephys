@@ -11,7 +11,7 @@ export interface TimeWidgetLayerProps {
     margins: {left: number, right: number, top: number, bottom: number}
     onClick: (args: {timepoint: number, panelIndex: number, y: number}) => void
     onDrag: (args: {newTimeRange: {min: number, max: number}}) => void
-    onTimeZoom: (factor: number) => void
+    onTimeZoom: (a: {direction: 'out' | 'in'}) => void
     onTimeShiftFrac: (frac: number) => void
     onGotoHome: () => void
     onGotoEnd: () => void
