@@ -127,7 +127,7 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, visibleElect
         // const snippetsQuery: SnippetsQuery = {type: 'snippets', recording, sorting, unitId}
         const info = data.get(infoQuery) as InfoType | undefined
         const timeSegments: {min: number, max: number}[] = createTimeSegments(timeRange, {maxNumSegments: 6})
-        const snippetsList: (Snippet[] | undefined)[] = timeSegments.map(timeSegment => {
+        const snippetsList: Snippet[] = timeSegments.map(timeSegment => {
             const snippetsQuery: SnippetsQuery = {
                 type: 'snippets',
                 recording,
@@ -137,11 +137,10 @@ const useSnippets = (args: {recording: Recording, sorting: Sorting, visibleElect
             }
             return data.get(snippetsQuery)
         })
-        const snippets = snippetsList.filter(s => (s === undefined)).length === 0 ? (
-            snippetsList.reduce((acc, val) => (
-                val !== undefined ? acc?.concat(val) : acc
-            ), [] as Snippet[])
-        )?.map(s => (filterSnippetVisibleElectrodes(s, info?.channel_ids, visibleElectrodeIds))) : undefined
+        .reduce((acc, val) => (val ? (acc.concat(val as Snippet)) : acc), [] as Snippet[]) // accumulate the snippets from the time segments
+        const snippets = snippetsList.map(s => (
+            filterSnippetVisibleElectrodes(s, info?.channel_ids, visibleElectrodeIds) // only show the visible electrodes
+        ))
         const snippetsInRange = snippets ? (
             snippets.filter((s) => ((timeRange) && (timeRange.min <= s.timepoint) && (s.timepoint < timeRange.max)))
         ) : undefined
