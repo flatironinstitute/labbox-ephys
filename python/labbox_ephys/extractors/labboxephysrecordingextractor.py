@@ -10,6 +10,7 @@ import spikeextractors as se
 
 from ._in_memory import (_random_string, get_in_memory_object,
                          register_in_memory_object)
+from ._spikeinterface_recording_dict_to_labbox_dict import spikeinterface_recording_dict_to_labbox_dict
 from .bandpass_filter import bandpass_filter
 from .binextractors import Bin1RecordingExtractor
 from .mdaextractors import MdaRecordingExtractor
@@ -231,7 +232,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             if 'channel_ids' in data:
-                channel_ids = np.array(data['channel_ids'])
+                channel_ids = np.array(data['channel_ids']) if data['channel_ids'] is not None else None
             elif 'group' in data:
                 channel_ids = np.array(R.get_channel_ids())
                 groups = R.get_channel_groups(channel_ids=R.get_channel_ids())
@@ -331,6 +332,13 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             'data': register_in_memory_object(recording)
         }
         return LabboxEphysRecordingExtractor(obj)
+    
+    @staticmethod
+    def from_spikeinterface(recording: se.RecordingExtractor):
+        if not recording.is_dumpable:
+            raise Exception('Cannot load recording extractor: recording is not dumpable')
+        x = spikeinterface_recording_dict_to_labbox_dict(recording.dump_to_dict())
+        return LabboxEphysRecordingExtractor(x)
 
     # @staticmethod
     # def get_recording_object(recording):
