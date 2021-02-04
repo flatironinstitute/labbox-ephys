@@ -5,11 +5,10 @@ import { HitherContext, HitherJob } from '../../extensions/common/hither';
 import { getPathQuery } from '../../kachery';
 
 type Props = {
-    workspaceInfo: WorkspaceInfo,
-    websocketStatus: string
+    workspaceInfo: WorkspaceInfo
 }
 
-const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo, websocketStatus }) => {
+const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo }) => {
     const [hitherJobs, setHitherJobs] = useState<HitherJob[]>([])
     const hither = useContext(HitherContext)
     useEffect(() => {
@@ -32,13 +31,17 @@ const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo, webs
         erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
     }
     const { workspaceName, feedUri } = workspaceInfo;
+    const numPending = pendingJobs.length;
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;
     const numErrored = erroredJobs.length;
-    const title = `Jobs: ${numRunning} running | ${numFinished} finished | ${numErrored} errored`
+    const title = `Jobs: ${numPending} pending | ${numRunning} running | ${numFinished} finished | ${numErrored} errored`
+    const errored = numErrored > 0 ? (
+        <span>:<span style={{color: 'pink'}}>{numErrored}</span></span>
+    ) : <span></span>
     return (
         <Link to={`/${workspaceName}/hitherJobMonitor${getPathQuery({ feedUri })}`} style={{ color: 'white' }} title={title}>
-            <span style={{ fontFamily: "courier", backgroundColor: (websocketStatus === 'connected') ? '' : 'red' }}>{numRunning}:{numFinished}:{numErrored}</span>
+            <span style={{ fontFamily: "courier" }}>{numPending}:{numRunning}:{numFinished}{errored}</span>
         </Link>
     );
 }

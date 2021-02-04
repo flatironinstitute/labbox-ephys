@@ -10,7 +10,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, useLocation, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
-import PersistStateControl from './containers/PersistStateControl';
+import ServerStatusControl from './containers/ServerStatusControl';
 import { HitherJob } from './extensions/common/hither';
 import { useOnce } from './extensions/common/hooks';
 import { ExtensionsConfig } from './extensions/reducers';
@@ -28,9 +28,10 @@ type ToolBarContentProps = {
     workspaceInfo: WorkspaceInfo
     extensionsConfig: ExtensionsConfig
     websocketStatus: string
+    onReconnect: () => void
 }
 
-const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo, extensionsConfig, websocketStatus }) => {
+const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo, extensionsConfig, websocketStatus, onReconnect }) => {
     const { workspaceName, feedUri } = workspaceInfo;
     const hitherJobs: HitherJob[] = []
     return (
@@ -45,9 +46,9 @@ const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo,
             <Button color="inherit" component={Link} to="/docs" style={{marginLeft: 'auto'}}>Docs</Button>
             <Button color="inherit" component={Link} to={`/${workspaceName}/config${getPathQuery({feedUri})}`} >Config</Button>
             <Button color="inherit" component={Link} to="/about">About</Button>
-            <PersistStateControl />
+            <ServerStatusControl onReconnect={onReconnect} />
             <HitherJobMonitorControl
-                {...{workspaceInfo, hitherJobs, websocketStatus}}
+                {...{workspaceInfo, hitherJobs}}
             />
         </Fragment>
     )
@@ -90,11 +91,12 @@ interface DispatchProps {
 
 interface OwnProps {
     onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
+    onReconnect: () => void
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoadComplete, extensionsConfig, websocketStatus }) => {
+const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, onReconnect, initialLoadComplete, extensionsConfig, websocketStatus }) => {
     const { width, height } = useWindowDimensions()
 
     const location = useLocation()
@@ -130,7 +132,7 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, initialLoa
         <div className={"TheAppBar"}>
             <AppBar position="static" style={{height: appBarHeight}}>
                 <Toolbar>
-                    <ToolBarContent workspaceInfo={workspaceInfo} extensionsConfig={extensionsConfig} websocketStatus={websocketStatus} />
+                    <ToolBarContent onReconnect={onReconnect} workspaceInfo={workspaceInfo} extensionsConfig={extensionsConfig} websocketStatus={websocketStatus} />
                 </Toolbar>
             </AppBar>
             <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: appBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
