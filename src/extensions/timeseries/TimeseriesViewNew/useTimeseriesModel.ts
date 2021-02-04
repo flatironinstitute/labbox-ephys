@@ -62,11 +62,23 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
   const segment_size = Math.ceil(segment_size_times_num_channels / num_channels)
 
   const getChannelData = useMemo(() => ((ch: number, t1: number, t2: number, ds_factor: number) => {
-    const i1 = Math.floor(Math.max(0, t1) / segment_size)
-    const i2 = Math.ceil((Math.min(t2, recordingInfo.num_frames) -1) / segment_size)
-    const segments = []
+    // Here we are retrieving the channel data, between for timepoints [t1, t2), with downsampling factor ds_factor
+
+    // first we accumulate the information about which segments we need to retrieve
+    const i1 = Math.floor(Math.max(0, t1) / segment_size) // index of start segment
+    const i2 = Math.ceil((Math.min(t2, recordingInfo.num_frames) -1) / segment_size) // index of end segment (inclusive)
+    const segments: {
+      segment_num: number, // the number of the segment
+      t1: number, // the starting timepoint for the segment
+      t2: number, // the ending timepoint for the segment (non-inclusive)
+      src1: number, // the offset where we are going to start reading from this segment
+      src2: number, // the offset where we are going to stop reading from this segment (non-inclusive)
+      dst1: number, // the offset in the output array where we are going to start writing
+      dst2: number // the offset in the output array where we are going to stop writing
+    }[] = []
     for (let i = i1; i <= i2; i++) {
       if ((i === i1) && (i === i2)) {
+        // There is only one segment
         segments.push({
           segment_num: i,
           t1: i * segment_size,
@@ -74,10 +86,11 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
           src1: t1 - (i * segment_size),
           src2: t2 - (i * segment_size),
           dst1: 0,
-          dst2: t2 - t1
+          dst2: t2 - t1 // [t2 - t1] - 0 ?= [t2 - (i * segment_size)] - [t1 - (i * segment_size)] YES
         })
       }
       else if (i === i1) {
+        // There's more than one segment, and this is the first one
         segments.push({
           segment_num: i,
           t1: i * segment_size,
@@ -85,10 +98,11 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
           src1: t1 - (i * segment_size),
           src2: segment_size,
           dst1: 0,
-          dst2: segment_size + (i * segment_size) - t1
+          dst2: segment_size + (i * segment_size) - t1 // [segment_size + (i * segment_size) - t1] - 0 ?= [segment_size] - [t1 - (i * segment_size)] YES
         })
       }
       else if (i === i2) {
+        // There's more than one segment, and this is the last one
         segments.push({
           segment_num: i,
           t1: i * segment_size,
@@ -96,10 +110,11 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
           src1: 0,
           src2: t2 - (i * segment_size),
           dst1: i * segment_size - t1,
-          dst2: t2 - t1
+          dst2: t2 - t1 // [t2 - t1] - [i * segment_size - t1] ?= [t2 - (i * segment_size)] - 0 YES
         })
       }
       else {
+        // There's more than one segment, and we are in the middle
         segments.push({
           segment_num: i,
           t1: i * segment_size,
@@ -107,34 +122,49 @@ const useTimeseriesData = (recordingObject: any, recordingInfo: RecordingInfo): 
           src1: 0,
           src2: segment_size,
           dst1: i * segment_size - t1,
-          dst2: (i + 1) * segment_size - t1
+          dst2: (i + 1) * segment_size - t1 // [(i + 1) * segment_size - t1] - [i * segment_size - t1] ?= [segment_size] - 0 YES
         })
       }
     }
 
+    // This is the output array, which may get some NaN's if the segments are not yet available
     const ret: number[] = [];
     if (ds_factor === 1) {
+      // In this case we are not downsampling
+
+      // start out filling with NaN's
       for (let t = t1; t < t2; t++) {
         ret.push(NaN)
       }
+      // Loop through the segments and copy the data into the output array
       for (let segment of segments) {
         const x = data.get({type: 'dataSegment', ds_factor, segment_num: segment.segment_num, segment_size}) as number[][] | undefined
+        // x will be undefined if that segment is not yet on the client - in that case the fetch request will be triggered, if not already in process
         if (x) {
+          // the data is on the client
           for (let i = 0; i < segment.src2 - segment.src1; i++) {
+            // read from the input and write to the output according to the prepared offsets
+            // note that we don't actually need src2 and dst2, but it doesn't hurt to have them for clarity
             ret[segment.dst1 + i] = x[ch][segment.src1 + i]
           }
         }
       }
     }
     else {
+      // In this case we are downsampling, so we double the size, storing the mins and the maxs over the ds step size
       for (let t = t1; t < t2; t++) {
         ret.push(NaN)
         ret.push(NaN)
       }
+      // Loop through the segments and copy the data into the output array
       for (let segment of segments) {
         const x = data.get({type: 'dataSegment', ds_factor, segment_num: segment.segment_num, segment_size}) as number[][] | undefined
+        // x will be undefined if that segment is not yet on the client - in that case the fetch request will be triggered, if not already in process
         if (x) {
+          // the data is on the client
           for (let i = 0; i < segment.src2 - segment.src1; i++) {
+            // read from the input and write to the output according to the prepared offsets
+            // note that we don't actually need src2 and dst2, but it doesn't hurt to have them for clarity
             ret[(segment.dst1 + i) * 2] = x[ch][(segment.src1 + i) * 2]
             ret[(segment.dst1 + i) * 2 + 1] = x[ch][(segment.src1 + i) * 2 + 1]
           }

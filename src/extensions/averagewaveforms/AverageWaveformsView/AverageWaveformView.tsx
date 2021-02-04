@@ -31,8 +31,7 @@ const AverageWaveformView: FunctionComponent<Props> = ({ sorting, recording, uni
         {
             sorting_object: sorting.sortingObject,
             recording_object: recording.recordingObject,
-            unit_id: unitId,
-            visible_channel_ids: selection.visibleElectrodeIds ? selection.visibleElectrodeIds : null
+            unit_id: unitId
         },
         {useClientCache: true, calculationPool}
     )
@@ -42,13 +41,16 @@ const AverageWaveformView: FunctionComponent<Props> = ({ sorting, recording, uni
     if (!plotData) {
         return <HitherJobStatusView job={job} width={width} height={height} />
     }
+    const visibleElectrodeIds = selection.visibleElectrodeIds
+    const electrodeIds = plotData.channel_ids.filter(id => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(id))))
+    const electrodeLocations = plotData.channel_locations.filter((loc, ii) => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(plotData.channel_ids[ii]))))
     return (
         <WaveformWidget
             waveform={plotData.average_waveform}
             layoutMode={selection.waveformsMode || 'geom'}
             noiseLevel={noiseLevel}
-            electrodeIds={plotData.channel_ids}
-            electrodeLocations={plotData.channel_locations}
+            electrodeIds={electrodeIds}
+            electrodeLocations={electrodeLocations}
             samplingFrequency={plotData.sampling_frequency}
             width={width}
             height={height}
