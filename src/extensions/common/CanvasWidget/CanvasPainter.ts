@@ -34,6 +34,8 @@ interface TextAlignmentConfig {
 }
 
 const rotateRect = (r: RectangularRegion) => {
+    // Corresponds to a 90-degree (counterclockwise) rotation around the origin.
+    // A rectangle in quadrant I will wind up in quadrant II lying on its left side, etc.
     return {xmin: -r.ymax, xmax: -r.ymin, ymin: r.xmin, ymax: r.xmax}
 }
 
