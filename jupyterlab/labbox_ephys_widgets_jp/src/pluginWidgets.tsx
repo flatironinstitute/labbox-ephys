@@ -438,8 +438,9 @@ export class SortingView extends DOMWidgetView {
     this.el.classList.add('plugin-' + pluginName)
     const x = this.element()
     const widgetHeight = this.model.get('widgetHeight')
-    this.el.style.height = '100%'
-    this.el.style['min-height'] = `${widgetHeight || plugin.notebookCellHeight || 500}px`
+    const style = this.el.style as {[key: string]: any}
+    style.height = '100%'
+    style['min-height'] = `${widgetHeight || plugin.notebookCellHeight || 500}px`
     ReactDOM.render(x, this.el)
   }
 }
