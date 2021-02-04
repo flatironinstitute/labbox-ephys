@@ -5,12 +5,12 @@ import { dummyHitherJob, HitherJob, HitherJobOpts } from "./HitherInterface";
 const useHitherJob = <T>(functionName: string, functionArgs: {[key: string]: any}, hitherJobOpts: HitherJobOpts): {result: T | undefined, job: HitherJob} => {
     const hither = useContext(HitherContext)
     const [state, setState] = useState<{
-        status: '' | 'waiting' | 'running' | 'error' | 'finished',
+        status: 'pending' | 'running' | 'error' | 'finished',
         functionName: string,
         functionArgs: {[key: string]: any}
         hitherJobOpts: HitherJobOpts,
         job: HitherJob | null
-    }>({status: '', functionName: '', hitherJobOpts: {}, functionArgs: {}, job: null})
+    }>({status: 'pending', functionName: '', hitherJobOpts: {}, functionArgs: {}, job: null})
 
     const functionMatch = () => {
         if (functionName !== state.functionName) return false

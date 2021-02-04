@@ -362,10 +362,11 @@ export class SortingView extends DOMWidgetView {
     if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
     const baseSha1Url = `/sha1`
-    const hither = initializeHitherInterface(msg => {
+    const hither = initializeHitherInterface(baseSha1Url)
+    hither._registerSendMessage(msg => {
       if (msg.type === 'hitherCreateJob') _startIterating(300)
       this.model.send(msg, {})
-    }, baseSha1Url)
+    })
     this.model.on('msg:custom', (msg: any) => {
       if (msg.type === 'hitherJobCreated') {
         _startIterating(300)

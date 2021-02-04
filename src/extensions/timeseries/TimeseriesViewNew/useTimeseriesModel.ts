@@ -31,9 +31,6 @@ const getTimeseriesDataSegment = async (args: {hither: HitherInterface, recordin
   ).wait() as {
       traces: number[][]
   }
-  // let X = new Mda()
-  // X.setFromBase64(result.data_b64);
-  // return X
   return result.traces
 }
 
