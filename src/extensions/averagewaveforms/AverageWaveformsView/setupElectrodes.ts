@@ -53,10 +53,16 @@ export const getElectrodesAspectRatio = (electrodeLocations: Vec2[]) => {
 }
 
 const setupVerticalElectrodes = ({width, height, electrodeIds}: {width: number, height: number, electrodeIds: number[]}) => {
+    // This is the case where we are displaying electrodes vertically
+    // i.e., not according to the elec geometry, but rather in a
+    // vertical fashion (as in the original MountainView)
+    // There is a user option to toggle this display
     const xMargin = 10
     const yMargin = 10
     const n = electrodeIds.length
     
+    // This is the layer transform which maps [0,1]x[0,1] into the content area of the layer
+    // It is composed with the below transform for each electrode
     const transform = funcToTransform((p: Vec2): Vec2 => {
         const x = xMargin + p[0] * ( width - 2 * xMargin )
         const y = yMargin + p[1] * ( height - 2 * yMargin )
@@ -64,8 +70,15 @@ const setupVerticalElectrodes = ({width, height, electrodeIds}: {width: number, 
     })
 
     const electrodeBoxes: ElectrodeBox[] = electrodeIds.map((eid, ii) => {
+        // The vertical position of the ii^th electrode
+        // scaled to be between 0 and 1
         const y = (0.5 + ii) / (n + 1)
+        
+        // The rectangle which goes from x=0-1
         const rect = {xmin: 0, xmax: 1, ymin: y - 0.5 / (n + 1), ymax: y + 0.5 / (n + 1)}
+
+        // This is the transform associated with the ii^th electrode
+        // This transponse gets composed with the above layer transform
         const transform0 = funcToTransform((p: Vec2): Vec2 => {
             const a = rect.xmin + p[0] * (rect.xmax - rect.xmin)
             const b = rect.ymin + p[1] * (rect.ymax - rect.ymin)
@@ -74,19 +87,18 @@ const setupVerticalElectrodes = ({width, height, electrodeIds}: {width: number, 
         return {
             label: eid + '',
             id: eid,
-            x: 0.5,
+            x: 0.5, // (x, y) here is the center point
             y,
             rect,
             transform: transform0
         }
     })
-
     
     return {
         electrodeBoxes,
         transform,
-        radius: 1 / (n + 1),
-        pixelRadius: height / (n + 1)
+        radius: 1 / (n + 1), // this is the radius of one electrode, which determines the amplitude scaling for waveforms
+        pixelRadius: (height - 2 * yMargin) / (n + 1) // this is the same, except scaled to pixels
     }
 }
 
