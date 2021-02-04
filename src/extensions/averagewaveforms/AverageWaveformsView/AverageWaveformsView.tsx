@@ -31,10 +31,10 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
     ), [sorting, recording, selection, selectionDispatch, noiseLevel, scalingActions])
 
     const _handleScaleAmplitudeUp = useCallback(() => {
-        selectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1.15})
+        selectionDispatch({type: 'ScaleAmpScaleFactor', direction: 'up'})
     }, [selectionDispatch])
     const _handleScaleAmplitudeDown = useCallback(() => {
-        selectionDispatch({type: 'ScaleAmpScaleFactor', multiplier: 1 / 1.15})
+        selectionDispatch({type: 'ScaleAmpScaleFactor', direction: 'down'})
     }, [selectionDispatch])
 
     useEffect(() => {

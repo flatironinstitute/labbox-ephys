@@ -274,8 +274,8 @@ const TimeWidgetNew = (props: Props) => {
         },
         [selectionDispatch]
     )
-    const handleTimeZoom = useCallback((factor: number) => {
-        selectionDispatch({type: 'ZoomTimeRange', factor})
+    const handleTimeZoom = useCallback((a: {direction: 'in' | 'out'}) => {
+        selectionDispatch({type: 'ZoomTimeRange', direction: a.direction})
     }, [selectionDispatch])
 
     const handleTimeShiftFrac = useCallback((frac: number) => {
@@ -307,11 +307,11 @@ const TimeWidgetNew = (props: Props) => {
     }, [allLayers])
 
     const handleZoomTimeIn = useCallback(() => {
-        selectionDispatch({type: 'ZoomTimeRange', factor: 1.15})
+        selectionDispatch({type: 'ZoomTimeRange', direction: 'in'})
     }, [selectionDispatch])
 
     const handleZoomTimeOut = useCallback(() => {
-        selectionDispatch({type: 'ZoomTimeRange', factor: 1 / 1.15})
+        selectionDispatch({type: 'ZoomTimeRange', direction: 'out'})
     }, [selectionDispatch])
 
     const handleShiftTimeLeft = useCallback(() => {
