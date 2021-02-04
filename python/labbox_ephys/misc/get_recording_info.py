@@ -27,11 +27,15 @@ def estimate_noise_level(recording: se.RecordingExtractor):
     start_frame = 0
     end_frame = int(np.minimum(samplerate * 1, N))
     X = recording.get_traces(channel_ids=[int(id) for id in recording.get_channel_ids()], start_frame=start_frame, end_frame=end_frame)
-    est_noise_level = np.median(np.abs(X.squeeze())) / 0.6745  # median absolute deviation (MAD) estimate of stdev
+    X_mean_subtracted = _mean_subtract_on_channels(X)
+    est_noise_level = np.median(np.abs(X_mean_subtracted.squeeze())) / 0.6745  # median absolute deviation (MAD) estimate of stdev
     if (est_noise_level == 0): est_noise_level = 1
     return est_noise_level
 
-@hi.function('get_recording_info', '0.1.6')
+def _mean_subtract_on_channels(X: np.ndarray):
+    return X - np.broadcast_to(np.mean(X, axis=1), (X.shape[1], X.shape[0])).T
+
+@hi.function('get_recording_info', '0.1.7')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 def get_recording_info(recording_object):
