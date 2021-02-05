@@ -1,5 +1,6 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { useHistory, useLocation } from 'react-router';
 import { deleteRecordings, deleteSortings, deleteSortingsForRecordings } from '../actions';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
 import WorkspaceView, { WorkspaceInfo } from '../extensions/WorkspaceView';
@@ -35,6 +36,10 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
   const W = (width || 600) - hMargin * 2
   const H = (height || 600) - vMargin * 2
   const headerHeight = 0 // no header for now
+
+  const history = useHistory()
+  const location = useLocation()
+
   return (
     <div style={{marginLeft: hMargin, marginRight: hMargin, marginTop: vMargin, marginBottom: vMargin}}>
       {/* {
@@ -54,7 +59,7 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
           width={W}
           height={H - headerHeight}
           defaultFeedId={serverInfo.defaultFeedId || ''}
-          {...{workspaceInfo, sortings, recordings, onDeleteRecordings, onDeleteSortings, plugins}}
+          {...{workspaceInfo, sortings, recordings, onDeleteRecordings, onDeleteSortings, plugins, history, location}}
         />
       </div>
     </div>

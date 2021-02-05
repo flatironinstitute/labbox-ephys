@@ -1,9 +1,18 @@
 import React, { FunctionComponent, useMemo } from 'react';
-import { useHistory, useLocation } from 'react-router';
 import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingCurationAction } from '../extensionInterface';
 import SortingView from './SortingView';
 import WorkspaceRecordingsView from './WorkspaceRecordingsView';
 import WorkspaceRecordingView from './WorkspaceRecordingView';
+
+interface Location {
+    pathname: string
+    search: string
+}
+
+interface History {
+    location: Location
+    push: (x: Location) => void
+}
 
 export interface WorkspaceInfo {
     workspaceName: string | null
@@ -19,6 +28,8 @@ type Props = {
     plugins: Plugins
     onDeleteRecordings: (recordingIds: string[]) => void
     onDeleteSortings: (sortingIds: string[]) => void
+    history: History // routing history
+    location: Location // routing location
     width: number
     height: number
 }
@@ -59,7 +70,7 @@ type GotoSortingPageAction = {
 type WorkspaceRouteAction = GotoRecordingsPageAction | GotoRecordingPageAction | GotoSortingPageAction
 export type WorkspaceRouteDispatch = (a: WorkspaceRouteAction) => void
 
-const routeFromLocation = (location: {pathname: string, search: string}): WorkspaceRoute => {
+const routeFromLocation = (location: Location): WorkspaceRoute => {
     const pathList = location.pathname.split('/')
     const workspaceName = pathList[1] || 'default'
     const page = pathList[2] || 'recordings'
@@ -118,9 +129,7 @@ const locationFromRoute = (route: WorkspaceRoute, workspaceInfo: WorkspaceInfo) 
     }
 }
 
-const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, onDeleteSortings, workspaceInfo, defaultFeedId, plugins }) => {
-    const history = useHistory()
-    const location = useLocation()
+const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, onDeleteSortings, workspaceInfo, defaultFeedId, plugins, history, location }) => {
     const route = routeFromLocation(location)
     if (route.workspaceName !== workspaceInfo.workspaceName) {
         throw Error(`Mismatch in workspace name: ${route.workspaceName} <> ${workspaceInfo.workspaceName}`)
