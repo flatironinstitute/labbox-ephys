@@ -10,13 +10,14 @@ import { AnyAction, applyMiddleware, createStore, Middleware, MiddlewareAPI } fr
 import thunk from 'redux-thunk';
 import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
-import AppContainer, { WorkspaceInfo } from './AppContainer';
+import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
 import { HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import initializeHitherInterface, { HitherJobMessage } from './extensions/initializeHitherInterface';
 // styling
 import theme from './extensions/theme';
+import { WorkspaceInfo } from './extensions/WorkspaceView';
 import './index.css';
 // reducer
 import rootReducer from './reducers';

@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { string } from 'mathjs';
 import React, { useMemo, useState } from 'react';
-import ElectrodeGeometryWidget from '../extensions/electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
+import ElectrodeGeometryWidget from '../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
 
 const zipElectrodes = (locations, ids) => {

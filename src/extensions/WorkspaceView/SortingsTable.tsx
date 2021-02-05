@@ -1,30 +1,16 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useCallback, useMemo } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { deleteSortings } from '../actions';
-import { WorkspaceInfo } from '../AppContainer';
-import NiceTable from '../components/NiceTable';
-import { useSortingInfos } from '../extensions/common/getRecordingInfo';
-import { RootAction, RootState } from '../reducers';
-import { Sorting } from '../reducers/sortings';
-import { WorkspaceRouteDispatch } from './WorkspaceView';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { useSortingInfos } from '../common/getRecordingInfo';
+import NiceTable from '../common/NiceTable';
+import { Sorting } from '../extensionInterface';
+import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
 
-
-
-interface StateProps {
-}
-
-interface DispatchProps {
-    onDeleteSortings: (sortingIds: string[]) => void
-}
-
-interface OwnProps {
+interface Props {
     sortings: Sorting[]
     workspaceRouteDispatch: WorkspaceRouteDispatch
     workspaceInfo: WorkspaceInfo
+    onDeleteSortings: (sortingIds: string[]) => void
 }
-
-type Props = StateProps & DispatchProps & OwnProps
 
 const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, workspaceInfo, workspaceRouteDispatch }) => {
     const { readOnly } = workspaceInfo;
@@ -101,14 +87,6 @@ const sortByKey = <T extends {[key: string]: any}>(array: T[], key: string): T[]
     });
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onDeleteSortings: (sortingIds: string[]) => dispatch(deleteSortings(sortingIds))
-})
 
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(SortingsTable)
+
+export default SortingsTable

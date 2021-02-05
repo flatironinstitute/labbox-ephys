@@ -1,6 +1,6 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { WorkspaceInfo } from '../AppContainer';
+import { WorkspaceInfo } from '../extensions/WorkspaceView';
 import { RootAction, RootState } from '../reducers';
 
 interface StateProps {

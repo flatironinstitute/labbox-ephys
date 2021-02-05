@@ -1,21 +1,24 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useHistory, useLocation } from 'react-router';
-import { WorkspaceInfo } from '../AppContainer';
-import { Plugins } from '../extensions/extensionInterface';
-import { Recording } from '../reducers/recordings';
-import { ServerInfo } from '../reducers/serverInfo';
-import { Sorting } from '../reducers/sortings';
+import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingCurationAction } from '../extensionInterface';
 import SortingView from './SortingView';
 import WorkspaceRecordingsView from './WorkspaceRecordingsView';
 import WorkspaceRecordingView from './WorkspaceRecordingView';
 
+export interface WorkspaceInfo {
+    workspaceName: string | null
+    feedUri: string | null
+    readOnly: boolean | null
+}
+
 type Props = {
     workspaceInfo: WorkspaceInfo
-    serverInfo: ServerInfo
+    defaultFeedId: string
     sortings: Sorting[]
     recordings: Recording[]
     plugins: Plugins
     onDeleteRecordings: (recordingIds: string[]) => void
+    onDeleteSortings: (sortingIds: string[]) => void
     width: number
     height: number
 }
@@ -115,7 +118,7 @@ const locationFromRoute = (route: WorkspaceRoute, workspaceInfo: WorkspaceInfo) 
     }
 }
 
-const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, serverInfo, plugins }) => {
+const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, recordings, onDeleteRecordings, onDeleteSortings, workspaceInfo, defaultFeedId, plugins }) => {
     const history = useHistory()
     const location = useLocation()
     const route = routeFromLocation(location)
@@ -150,7 +153,7 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, reco
     switch(route.page) {
         case 'recordings': return (
             <WorkspaceRecordingsView
-                {...{width, height, sortings, recordings, onDeleteRecordings, workspaceInfo, serverInfo, workspaceRouteDispatch}}
+                {...{width, height, sortings, recordings, onDeleteRecordings, defaultFeedId, workspaceInfo, workspaceRouteDispatch}}
             />
         )
         case 'recording': {
@@ -159,7 +162,7 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, reco
             if (!recording) return <div>Recording not found: {rid}</div>
             return (    
                 <WorkspaceRecordingView
-                    {...{width, height, recording, workspaceInfo, plugins, workspaceRouteDispatch}}
+                    {...{width, height, recording, workspaceInfo, plugins, workspaceRouteDispatch, onDeleteSortings}}
                     sortings={sortings.filter(s => (s.recordingId === rid))}
                 />
             )
@@ -169,11 +172,15 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, sortings, reco
             const recording = recordings.filter(r => (r.recordingId === rid))[0]
             if (!recording) return <div>Recording not found: {rid}</div>
             const sid = route.sortingId
-            const sorting = sortings.filter(s => (s.recordingId === rid && s.sortingId === sid))
+            const sorting = sortings.filter(s => (s.recordingId === rid && s.sortingId === sid))[0]
             if (!sorting) return <div>Sorting not found: {rid}/{sid}</div>
             return (
                 <SortingView
-                    sortingId={sid}
+                    sorting={sorting}
+                    recording={recording}
+                    plugins={plugins}
+                    onSetExternalUnitMetrics={(a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => {}}
+                    curationDispatch={(a: SortingCurationAction) => {}}
                     width={width}
                     height={height}
                     workspaceInfo={workspaceInfo}

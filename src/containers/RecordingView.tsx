@@ -2,16 +2,16 @@ import { Grid } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { WorkspaceInfo } from '../AppContainer';
-import RecordingInfoView from '../components/RecordingInfoView';
 import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
 import { createCalculationPool } from '../extensions/common/hither';
 import { filterPlugins, Plugins, RecordingSelectionAction } from '../extensions/extensionInterface';
 import sortByPriority from '../extensions/sortByPriority';
+import { WorkspaceInfo } from '../extensions/WorkspaceView';
+import RecordingInfoView from '../extensions/WorkspaceView/RecordingInfoView';
+import { Expandable } from '../extensions/WorkspaceView/SortingView';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
 import { Sorting } from '../reducers/sortings';
-import { Expandable } from './SortingView';
 
 interface StateProps {
   recording: Recording,

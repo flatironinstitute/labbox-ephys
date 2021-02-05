@@ -1,14 +1,13 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { deleteRecordings, deleteSortingsForRecordings } from '../actions';
-import { WorkspaceInfo } from '../AppContainer';
+import { deleteRecordings, deleteSortings, deleteSortingsForRecordings } from '../actions';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
+import WorkspaceView, { WorkspaceInfo } from '../extensions/WorkspaceView';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';
 import { ServerInfo } from '../reducers/serverInfo';
 import { Sorting } from '../reducers/sortings';
 import './Home.css';
-import WorkspaceView from './WorkspaceView';
 
 interface StateProps {
   sortings: Sorting[]
@@ -19,6 +18,7 @@ interface StateProps {
 
 interface DispatchProps {
   onDeleteRecordings: (recordingIds: string[]) => void
+  onDeleteSortings: (sortingIds: string[]) => void
 }
 
 interface OwnProps {
@@ -29,7 +29,7 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, sortings, recordings, onDeleteRecordings, plugins }) => {
+const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, sortings, recordings, onDeleteRecordings, onDeleteSortings, plugins }) => {
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2
@@ -53,7 +53,8 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
         <WorkspaceView
           width={W}
           height={H - headerHeight}
-          {...{workspaceInfo, serverInfo, sortings, recordings, onDeleteRecordings, plugins}}
+          defaultFeedId={serverInfo.defaultFeedId || ''}
+          {...{workspaceInfo, sortings, recordings, onDeleteRecordings, onDeleteSortings, plugins}}
         />
       </div>
     </div>
@@ -71,6 +72,9 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatc
   onDeleteRecordings: (recordingIds: string[]) => {
     dispatch(deleteSortingsForRecordings(recordingIds));
     dispatch(deleteRecordings(recordingIds));
+  },
+  onDeleteSortings: (sortingIds: string[]) => {
+    dispatch(deleteSortings(sortingIds));
   }
 })
 

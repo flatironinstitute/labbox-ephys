@@ -1,11 +1,11 @@
 import React, { FunctionComponent } from 'react';
 import { useLocation } from "react-router-dom";
-import { WorkspaceInfo } from './AppContainer';
 import About from './components/About';
 import Docs from './components/Docs';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
+import { WorkspaceInfo } from './extensions/WorkspaceView';
 
 const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: WorkspaceInfo}> = ({width, height, workspaceInfo}) => {
     const location = useLocation()

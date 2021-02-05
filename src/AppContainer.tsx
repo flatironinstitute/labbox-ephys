@@ -14,15 +14,10 @@ import ServerStatusControl from './containers/ServerStatusControl';
 import { HitherJob } from './extensions/common/hither';
 import { useOnce } from './extensions/common/hooks';
 import { ExtensionsConfig } from './extensions/reducers';
+import { WorkspaceInfo } from './extensions/WorkspaceView';
 import { getPathQuery } from './kachery';
 import { RootAction, RootState } from './reducers';
 import Routes from './Routes';
-
-export interface WorkspaceInfo {
-    workspaceName: string | null
-    feedUri: string | null
-    readOnly: boolean | null
-}
 
 type ToolBarContentProps = {
     workspaceInfo: WorkspaceInfo
