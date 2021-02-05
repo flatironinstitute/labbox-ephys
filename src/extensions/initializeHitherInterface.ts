@@ -189,7 +189,6 @@ const initializeHitherInterface = (baseSha1Url: string) => {
         const result_sha1 = msg.result_sha1
         // const url = `http://${window.location.hostname}:15309/sha1/${result_sha1}`;
         const url = `${baseSha1Url}/${result_sha1}`
-        console.info('Loading result', url)
         axios.get(url).then((result) => {
             job._handleHitherJobFinished({
                 result: result.data,

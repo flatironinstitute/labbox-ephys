@@ -85,7 +85,7 @@ class WorkerSession:
                 feed_uri = 'feed://' + self._default_feed_id
             self.add_subfeed_watch(
                 watch_name=msg['watchName'],
-                feed_id=_feed_id_from_uri(feed_uri),
+                feed_uri=feed_uri,
                 subfeed_name=msg['subfeedName']
             )
         elif type0 == 'appendDocumentAction':
@@ -161,7 +161,7 @@ class WorkerSession:
             for w in self._additional_subfeed_watches:
                 subfeed_watches[w['watch_name']] = {
                     'position': self._subfeed_positions[w['watch_name']],
-                    'feedId': w['feed_id'],
+                    'feedId': _feed_id_from_uri(w['feed_uri']),
                     'subfeedHash': _subfeed_hash_from_name(w['subfeed_name'])
                 }
             if len(subfeed_watches.keys()) > 0:
@@ -215,10 +215,10 @@ class WorkerSession:
                 self._send_message(msg)
     def on_messages(self, callback):
         self._on_messages_callbacks.append(callback)
-    def add_subfeed_watch(self, *, watch_name: str, feed_id: str, subfeed_name: Union[str, dict]):
+    def add_subfeed_watch(self, *, watch_name: str, feed_uri: str, subfeed_name: Union[str, dict]):
         self._additional_subfeed_watches.append(dict(
             watch_name=watch_name,
-            feed_id=feed_id,
+            feed_uri=feed_uri,
             subfeed_name=subfeed_name
         ))
         self._subfeed_positions[watch_name] = 0

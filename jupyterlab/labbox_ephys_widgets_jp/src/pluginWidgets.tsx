@@ -122,7 +122,7 @@ class Subfeed {
   constructor(private model: WidgetModel, private uri: string) {
     const {feedId, subfeedHash} = parseSubfeedUri(uri)
     const watchName = randomAlphaId()
-    model.send({type: 'addSubfeedWatch', watchName, feedId, subfeedHash}, {})
+    model.send({type: 'addSubfeedWatch', watchName, feedUri: `feed://${feedId}`, subfeedName: `~${subfeedHash}`}, {})
     model.on('msg:custom', (msg: any) => {
       if (msg.type === 'subfeedMessage') {
         if (msg.watchName === watchName) {

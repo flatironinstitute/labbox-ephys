@@ -93,7 +93,7 @@ def create_sorting_view(
             elif msg['type'] == 'addSubfeedWatch':
                 self._worker_session.add_subfeed_watch(
                     watch_name=msg['watchName'],
-                    feed_id=msg['feedId'],
+                    feed_uri=msg['feedUri'],
                     subfeed_name= msg['subfeedName']
                 )
             else:
