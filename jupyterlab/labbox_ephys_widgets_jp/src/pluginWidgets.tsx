@@ -123,11 +123,13 @@ class Subfeed {
     const {feedId, subfeedHash} = parseSubfeedUri(uri)
     const watchName = randomAlphaId()
     model.send({type: 'addSubfeedWatch', watchName, feedUri: `feed://${feedId}`, subfeedName: `~${subfeedHash}`}, {})
-    model.on('msg:custom', (msg: any) => {
-      if (msg.type === 'subfeedMessage') {
-        if (msg.watchName === watchName) {
-          this._messages.push(msg.message)
-          this._onMessageCallbacks.forEach(cb => cb(msg.message))
+    model.on('msg:custom', (msgs: any) => {
+      for (let msg of msgs) {
+        if (msg.type === 'subfeedMessage') {
+          if (msg.watchName === watchName) {
+            this._messages.push(msg.message)
+            this._onMessageCallbacks.forEach(cb => cb(msg.message))
+          }
         }
       }
     })
