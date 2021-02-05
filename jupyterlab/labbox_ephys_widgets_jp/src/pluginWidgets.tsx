@@ -364,24 +364,28 @@ export class SortingView extends DOMWidgetView {
     const baseSha1Url = `/sha1`
     const hither = initializeHitherInterface(baseSha1Url)
     hither._registerSendMessage(msg => {
+      console.info('SENDING MESSAGE', msg)
       if (msg.type === 'hitherCreateJob') _startIterating(300)
       this.model.send(msg, {})
     })
-    this.model.on('msg:custom', (msg: any) => {
-      if (msg.type === 'hitherJobCreated') {
-        _startIterating(300)
-        hither.handleHitherJobCreated(msg)
-      }
-      else if (msg.type === 'hitherJobFinished') {
-        _startIterating(300)
-        hither.handleHitherJobFinished(msg)
-      }
-      else if (msg.type === 'hitherJobError') {
-        _startIterating(300)
-        hither.handleHitherJobError(msg)
-      }
-      else if (msg.type === 'debug') {
-        console.info('DEBUG MESSAGE', msg)
+    this.model.on('msg:custom', (msgs: any) => {
+      console.info('RECEIVED MESSAGES', msgs)
+      for (let msg of msgs) {
+        if (msg.type === 'hitherJobCreated') {
+          _startIterating(300)
+          hither.handleHitherJobCreated(msg)
+        }
+        else if (msg.type === 'hitherJobFinished') {
+          _startIterating(300)
+          hither.handleHitherJobFinished(msg)
+        }
+        else if (msg.type === 'hitherJobError') {
+          _startIterating(300)
+          hither.handleHitherJobError(msg)
+        }
+        else if (msg.type === 'debug') {
+          console.info('DEBUG MESSAGE', msg)
+        }
       }
     })
     let _iterating = false
