@@ -3,6 +3,9 @@ import { CalculationPool } from "./common/hither"
 import { useOnce } from "./common/hooks"
 import { sleepMsec } from "./common/misc"
 
+const TIME_ZOOM_FACTOR = 1.4
+const AMP_SCALE_FACTOR = 1.4
+
 export interface Sorting {
     sortingId: string
     sortingLabel: string
@@ -272,7 +275,8 @@ type SetTimeRangeRecordingSelectionAction = {
 
 type ZoomTimeRangeRecordingSelectionAction = {
     type: 'ZoomTimeRange',
-    factor: number
+    factor?: number             // uses default if unset
+    direction?: 'in' | 'out'    // default direction is 'in'. If direction is set to 'out', 'factor' is inverted.
 }
 
 type SetAmpScaleFactorRecordingSelectionAction = {
@@ -282,7 +286,8 @@ type SetAmpScaleFactorRecordingSelectionAction = {
 
 type ScaleAmpScaleFactorRecordingSelectionAction = {
     type: 'ScaleAmpScaleFactor',
-    multiplier: number
+    multiplier?: number         // uses default if unset
+    direction?: 'up' | 'down'   // default direction is 'up'. If direction is set to 'down', multiplier is inverted.
 }
 
 type SetCurrentTimepointVelocityRecordingSelectionAction = {
@@ -345,7 +350,11 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
         const currentTimepoint = state.currentTimepoint
         const timeRange = state.timeRange
         if (!timeRange) return state
-        if ((timeRange.max - timeRange.min) / action.factor > maxTimeSpan ) return state
+        const direction = action.direction ?? 'in'
+        const pre_factor = action.factor ?? TIME_ZOOM_FACTOR
+        const factor = direction === 'out' ? 1 / pre_factor : pre_factor
+        
+        if ((timeRange.max - timeRange.min) / factor > maxTimeSpan ) return state
         let t: number
         if ((currentTimepoint === undefined) || (currentTimepoint < timeRange.min))
             t = timeRange.min
@@ -353,7 +362,7 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
             t = timeRange.max
         else
             t = currentTimepoint
-        const newTimeRange = zoomTimeRange(timeRange, action.factor, t)
+        const newTimeRange = zoomTimeRange(timeRange, factor, t)
         return {
             ...state,
             timeRange: newTimeRange
@@ -370,9 +379,12 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
         }
     }
     else if (action.type === 'ScaleAmpScaleFactor') {
+        const direction = action.direction ?? 'up'
+        const pre_multiplier = action.multiplier ?? AMP_SCALE_FACTOR
+        const multiplier = direction === 'down' ? 1 / pre_multiplier : pre_multiplier
         return {
             ...state,
-            ampScaleFactor: (state.ampScaleFactor || 1) * action.multiplier
+            ampScaleFactor: (state.ampScaleFactor || 1) * multiplier
         }
     }
     else if (action.type === 'SetCurrentTimepointVelocity') {

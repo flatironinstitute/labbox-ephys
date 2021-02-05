@@ -14,7 +14,7 @@ import AppContainer, { WorkspaceInfo } from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
 import { HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
-import initializeHitherInterface from './extensions/initializeHitherInterface';
+import initializeHitherInterface, { HitherJobMessage } from './extensions/initializeHitherInterface';
 // styling
 import theme from './extensions/theme';
 import './index.css';
@@ -73,7 +73,8 @@ class ApiConnection {
   _connected: boolean = false
   _onMessageCallbacks: ((m: any) => void)[] = []
   _onConnectCallbacks: (() => void)[] = []
-  _isDisconnected = false
+  _onDisconnectCallbacks: (() => void)[] = []
+  _isDisconnected = false // once disconnected, cannot reconnect - need to create a new instance
   _queuedMessages: any[] = []
 
   constructor() {
@@ -100,9 +101,9 @@ class ApiConnection {
       console.warn('Websocket disconnected.');
       this._connected = false;
       this._isDisconnected = true;
+      this._onDisconnectCallbacks.forEach(cb => cb())
       theStore.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
     })
-
     
     this._start();
   }
@@ -113,6 +114,12 @@ class ApiConnection {
     this._onConnectCallbacks.push(cb);
     if (this._connected) {
       cb();
+    }
+  }
+  onDisconnect(cb: () => void) {
+    this._onDisconnectCallbacks.push(cb)
+    if (this._isDisconnected) {
+      cb()
     }
   }
   isDisconnected() {
@@ -129,51 +136,85 @@ class ApiConnection {
   async _start() {
     while (true) {
       await sleepMsec(17000);
-      this.sendMessage({type: 'keepAlive'});
+      if (!this._isDisconnected) this.sendMessage({type: 'keepAlive'});
     }
   }
 }
-const apiConnection = new ApiConnection();
-const baseSha1Url = `http://${window.location.hostname}:15309/sha1`;
-const hither = initializeHitherInterface((msg) => apiConnection.sendMessage(msg), baseSha1Url)
 
-apiConnection.onConnect(() => {
-  console.info('Connected to API server');
-})
-apiConnection.onMessage(msg => {
-  const type0 = msg.type;
-  if (type0 === 'reportServerInfo') {
-    theStore.dispatch({
-      type: SET_SERVER_INFO,
-      serverInfo: msg.serverInfo
-    });
-  }
-  else if (type0 === 'action') {
-    let action = msg.action;
-    if ('persistKey' in action) {
-      // just to be safe
-      delete action['persistKey'];
+const createApiConnection = () => {
+  const x = new ApiConnection()
+
+  x.onMessage(msg => {
+    const type0 = msg.type;
+    if (type0 === 'reportServerInfo') {
+      theStore.dispatch({
+        type: SET_SERVER_INFO,
+        serverInfo: msg.serverInfo
+      });
     }
-    theStore.dispatch(action);
-  }
-  else if (type0 === 'reportInitialLoadComplete') {
-    theStore.dispatch({
-      type: REPORT_INITIAL_LOAD_COMPLETE
-    });
-  }
-  else if (type0 === 'hitherJobFinished') {
-    hither.handleHitherJobFinished(msg);
-  }
-  else if (type0 === 'hitherJobError') {
-    hither.handleHitherJobError(msg);
-  }
-  else if (type0 === 'hitherJobCreated') {
-    hither.handleHitherJobCreated(msg);
+    else if (type0 === 'action') {
+      let action = msg.action;
+      if ('persistKey' in action) {
+        // just to be safe
+        delete action['persistKey'];
+      }
+      theStore.dispatch(action);
+    }
+    else if (type0 === 'reportInitialLoadComplete') {
+      theStore.dispatch({
+        type: REPORT_INITIAL_LOAD_COMPLETE
+      });
+    }
+    else if (type0 === 'hitherJobFinished') {
+      hither.handleHitherJobFinished(msg);
+    }
+    else if (type0 === 'hitherJobError') {
+      hither.handleHitherJobError(msg);
+    }
+    else if (type0 === 'hitherJobCreated') {
+      hither.handleHitherJobCreated(msg);
+    }
+    else {
+      console.warn(`Unregognized message type from server: ${type0}`)
+    }
+  });
+
+  return x
+}
+
+let apiConnection: ApiConnection
+let queuedHitherJobMessages: HitherJobMessage[] = []
+const handleReconnect = () => {
+  apiConnection = createApiConnection()
+  apiConnection.onConnect(() => {
+    console.info('Connected to API server')
+    queuedHitherJobMessages.forEach(msg => {
+      apiConnection.sendMessage(msg)
+    })
+    queuedHitherJobMessages = []
+  })
+  apiConnection.onDisconnect(() => {
+    console.info('Disconnected from API server')
+  })
+}
+handleReconnect() // establish initial connection
+
+const baseSha1Url = `http://${window.location.hostname}:15309/sha1`;
+const hither = initializeHitherInterface(baseSha1Url)
+hither._registerSendMessage((msg) => {
+  if (!apiConnection.isDisconnected()) {
+    apiConnection.sendMessage(msg)
   }
   else {
-    console.warn(`Unregognized message type from server: ${type0}`)
+    // being disconnected is not the same as not being connected
+    // if connection has not yet been established, then the message will be queued in the apiConnection
+    // but if disconnected, we will handle queuing here
+    queuedHitherJobMessages.push(msg)
+    if (msg.type === 'hitherCreateJob') {
+      queuedHitherJobMessages.push(msg)
+    }
   }
-});
+})
 
 const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
   apiConnection.sendMessage({
@@ -192,7 +233,7 @@ const content = (
     <MuiThemeProvider theme={theme}>
       <Provider store={theStore}>
         <Router>
-          <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} />
+          <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} onReconnect={handleReconnect} />
         </Router>
       </Provider>
     </MuiThemeProvider>

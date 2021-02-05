@@ -1,9 +1,9 @@
 import { Reducer } from 'react'
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_WEBSOCKET_STATUS } from '../actions'
 
-interface ServerConnectionState {
+export interface ServerConnectionState {
     initialLoadComplete: boolean
-    websocketStatus: string
+    websocketStatus: 'pending' | 'connected' | 'disconnected'
 }
 
 interface ReportInitialLoadCompleteAction {
@@ -15,7 +15,7 @@ const isReportInitialLoadCompleteAction = (x: any): x is ReportInitialLoadComple
 
 interface SetWebsocketStatusAction {
     type: 'SET_WEBSOCKET_STATUS'
-    websocketStatus: string
+    websocketStatus: 'pending' | 'connected' | 'disconnected'
 }
 const isSetWebsocketStatusAction = (x: any): x is SetWebsocketStatusAction => (
     x.type === SET_WEBSOCKET_STATUS
@@ -23,7 +23,7 @@ const isSetWebsocketStatusAction = (x: any): x is SetWebsocketStatusAction => (
 
 export type State = ServerConnectionState
 export type Action = SetWebsocketStatusAction | ReportInitialLoadCompleteAction
-export const initialState = {
+export const initialState: State = {
     initialLoadComplete: false,
     websocketStatus: 'pending'
 }

@@ -20,24 +20,26 @@ type HitherCreateJobMessage = {
     kwargs: { [key: string]: any },
     clientJobId: string
 }
-type HitherJobMessage = HitherCancelJobMessage | HitherCreateJobMessage
+export type HitherJobMessage = HitherCancelJobMessage | HitherCreateJobMessage
 
 interface HitherJobCreatedMessageFromServer {
     client_job_id: string
     job_id: string
 }
 
-const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void, baseSha1Url: string) => {
+const initializeHitherInterface = (baseSha1Url: string) => {
     const globalData: {
         // dispatch: Dispatch<RootAction> | null,
         hitherClientJobCache: { [key: string]: ClientHitherJob },
         hitherJobs: { [key: string]: ClientHitherJob }
         runningJobIds: { [key: string]: boolean }
+        sendMessage: (msg: HitherJobMessage) => void
     } = {
         // dispatch: null,
         hitherClientJobCache: {},
         hitherJobs: {},
-        runningJobIds: {}
+        runningJobIds: {},
+        sendMessage: (msg: HitherJobMessage) => {throw Error('sendMessage not registered for hither interface.')}
     };
 
     class ClientHitherJob {
@@ -100,7 +102,7 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
                 console.warn('Cannot cancel job that has not yet been created on the server.');
                 return;
             }
-            sendMessage({
+            globalData.sendMessage({
                 type: 'hitherCancelJob',
                 job_id: this._object.jobId
             });
@@ -164,7 +166,7 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
             J.onFinished(() => {
                 complete()
             })
-            sendMessage({
+            globalData.sendMessage({
                 type: 'hitherCreateJob',
                 functionName: J._object.functionName,
                 kwargs: J._object.kwargs,
@@ -237,7 +239,11 @@ const initializeHitherInterface = (sendMessage: (msg: HitherJobMessage) => void,
             ...(j._object)
         }))
     }
+    const _registerSendMessage = (sendMessage: (msg: HitherJobMessage) => void) => {
+        globalData.sendMessage = sendMessage
+    }
     return {
+        _registerSendMessage,
         createHitherJob,
         handleHitherJobFinished,
         handleHitherJobError,

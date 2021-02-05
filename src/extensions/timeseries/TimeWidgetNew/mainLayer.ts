@@ -184,10 +184,10 @@ export const handleWheel: WheelEventHandler = (e: WheelEvent, layer: CanvasWidge
     const listening = layer.getState().captureWheel
     if (!listening) return
     if (e.deltaY > 0) {
-        props.onTimeZoom && props.onTimeZoom(1 / 1.15)
+        props.onTimeZoom && props.onTimeZoom({direction: 'out'})
     }
     else if (e.deltaY < 0) {
-        props.onTimeZoom && props.onTimeZoom(1.15)
+        props.onTimeZoom && props.onTimeZoom({direction: 'in'})
     }
 }
 
@@ -205,8 +205,8 @@ export const handleKeyboardEvent: KeyboardEventHandler = (e: KeyboardEvent, laye
     switch (e.keyCode) {
         case 37: props.onTimeShiftFrac && props.onTimeShiftFrac(-0.2); return false;
         case 39: props.onTimeShiftFrac && props.onTimeShiftFrac(+0.2); return false;
-        case 187: props.onTimeZoom && props.onTimeZoom(1.15); return false;
-        case 189: props.onTimeZoom && props.onTimeZoom(1 / 1.15); return false;
+        case 187: props.onTimeZoom && props.onTimeZoom({direction: 'out'}); return false;
+        case 189: props.onTimeZoom && props.onTimeZoom({direction: 'in'}); return false;
         case 35: props.onGotoEnd && props.onGotoEnd(); return false;
         case 36: props.onGotoHome && props.onGotoHome(); return false;
         default: return true; // console.info('key: ' + e.keyCode); return true;

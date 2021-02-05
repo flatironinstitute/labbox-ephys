@@ -15,7 +15,7 @@ export interface HitherJob {
     result: any
     runtime_info: {[key: string]: any}
     error_message: string | null
-    status: string
+    status: 'pending' | 'running' | 'finished' | 'error'
     timestampStarted: number
     timestampFinished: number | null
     clientCancelled: boolean
@@ -32,7 +32,7 @@ export const dummyHitherJob: HitherJob = {
     result: null,
     runtime_info: {},
     error_message: null,
-    status: '',
+    status: 'pending',
     timestampStarted: 0,
     timestampFinished: null,
     clientCancelled: false,
