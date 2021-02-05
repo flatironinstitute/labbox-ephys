@@ -66,9 +66,9 @@ def create_sorting_view(
             super().__init__()
             self.on_msg(self._handle_message)
             self._worker_session = le.WorkerSession(labbox_config=labbox_config)
-            def on_msg(msg):
-                self.send(msg)
-            self._worker_session.on_message(on_msg)
+            def on_msgs(msgs):
+                self.send(msgs)
+            self._worker_session.on_messages(on_msgs)
         def get_selection(self):
             return deepcopy(self.selection)
         def set_selection(self, selection):
@@ -94,7 +94,7 @@ def create_sorting_view(
                 self._worker_session.add_subfeed_watch(
                     watch_name=msg['watchName'],
                     feed_id=msg['feedId'],
-                    subfeed_hash=msg['subfeedHash']
+                    subfeed_name= msg['subfeedName']
                 )
             else:
                 self._worker_session.handle_message(msg)

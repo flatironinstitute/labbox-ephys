@@ -22,8 +22,8 @@ class Session:
         while self._pipe_to_worker_process.poll():
             msg = self._pipe_to_worker_process.recv()
             if isinstance(msg, dict):
-                if msg['type'] == 'outgoing_message':
-                    ret.append(msg['message'])
+                if msg['type'] == 'outgoing_messages':
+                    ret.extend(msg['messages'])
                 else:
                     print(msg)
                     raise Exception('Unexpected message from worker session')
@@ -45,12 +45,12 @@ class Session:
 def _run_worker_session(pipe_to_parent, labbox_config):
     from ._workersession import WorkerSession
     WS = WorkerSession(labbox_config=labbox_config)
-    def handle_message(msg):
+    def handle_messages(msgs):
         pipe_to_parent.send(dict(
-            type='outgoing_message',
-            message=msg
+            type='outgoing_messages',
+            messages=msgs
         ))
-    WS.on_message(handle_message)
+    WS.on_messages(handle_messages)
     WS.initialize()
     while True:
         while pipe_to_parent.poll():

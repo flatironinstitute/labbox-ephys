@@ -1,12 +1,12 @@
 import os
-import time
 import json
+import hashlib
+from typing import Union
 
 import hither as hi
 import kachery as ka
 import kachery_p2p as kp
 import numpy as np
-import base64
 
 job_cache_path = os.environ['KACHERY_STORAGE_DIR'] + '/job-cache'
 if not os.path.exists(job_cache_path):
@@ -42,9 +42,11 @@ class WorkerSession:
         self._readonly = None
         self._jobs_by_id = {}
         self._remote_job_handlers = {}
-        self._on_message_callbacks = []
+        self._on_messages_callbacks = []
         self._queued_document_action_messages = []
         self._additional_subfeed_watches = []
+
+        self._initial_subfeed_load_complete = False
 
     def initialize(self):
         node_id = kp.get_node_id()
@@ -71,28 +73,21 @@ class WorkerSession:
             self._readonly = msg['clientInfo']['readOnly']
             if not self._feed_uri:
                 self._feed_uri = 'feed://' + self._default_feed_id
-                # self._feed_uri = kp.create_feed(feed_name='labbox-ephys-default').get_uri()
-            # assert self._feed_uri.startswith('sha1://'), 'For now, feedUri must start with sha1://'
             self._feed = kp.load_feed(self._feed_uri)
-            for key in ['recordings', 'sortings']:
-                self._subfeed_positions[key] = 0
-                subfeed_name = dict(key=key, workspaceName=self._workspace_name)
-                subfeed = self._feed.get_subfeed(subfeed_name)
-                messages = subfeed.get_next_messages(wait_msec=10)
-                for m in messages:
-                    if 'action' in m:
-                        self._send_message({'type': 'action', 'action': m['action']})
-                    else:
-                        print(f'WARNING: No action in message for {key}')
-                self._subfeed_positions[key] = self._subfeed_positions[key] + len(messages)
-            self._send_message({
-                'type': 'reportInitialLoadComplete'
-            })
             if self._feed:
                 qm = self._queued_document_action_messages
                 self._queued_document_action_messages = []
                 for m in qm:
                     self.handle_message(m)
+        elif type0 == 'addSubfeedWatch':
+            feed_uri = msg['feedUri']
+            if not feed_uri:
+                feed_uri = 'feed://' + self._default_feed_id
+            self.add_subfeed_watch(
+                watch_name=msg['watchName'],
+                feed_id=_feed_id_from_uri(feed_uri),
+                subfeed_name=msg['subfeedName']
+            )
         elif type0 == 'appendDocumentAction':
             if self._readonly:
                 print('Cannot append document action. This is a readonly feed.')
@@ -159,34 +154,34 @@ class WorkerSession:
             job = self._jobs_by_id[job_id]
             job.cancel()
     def iterate(self):
-        subfeed_watches = {}
-        if (self._feed_uri is not None) and (self._feed_uri.startswith('feed://')):
-            for key in ['recordings', 'sortings']:
-                subfeed_name = dict(workspaceName=self._workspace_name, key=key)
-                subfeed_watches[key] = dict(
-                    feedId=self._feed._feed_id, # fix this
-                    subfeedName=subfeed_name,
-                    position=self._subfeed_positions[key]
-                )
-        for w in self._additional_subfeed_watches:
-            subfeed_watches[w['watch_name']] = dict(
-                feedId = w['feed_id'],
-                subfeedHash=w['subfeed_hash'],
-                position=self._subfeed_positions[w['watch_name']]
-            )
-        if len(subfeed_watches.keys()) > 0:
-            messages = kp.watch_for_new_messages(subfeed_watches=subfeed_watches, wait_msec=100)
-            for key in messages.keys():
-                if key in ['recordings', 'sortings']:
-                    for m in messages[key]:
-                        if 'action' in m:
-                            self._send_message({'type': 'action', 'action': m['action']})
-                        else:
-                            print(f'WARNING: no action in feed message for {key}')
-                else:
-                    for m in messages[key]:
-                        self._send_message({'type': 'subfeedMessage', 'watchName': key, 'message': m})
-                self._subfeed_positions[key] = self._subfeed_positions[key] + len(messages[key])
+        subfeed_msgs = []
+        while True:
+            found_something = False
+            subfeed_watches = {}
+            for w in self._additional_subfeed_watches:
+                subfeed_watches[w['watch_name']] = {
+                    'position': self._subfeed_positions[w['watch_name']],
+                    'feedId': w['feed_id'],
+                    'subfeedHash': _subfeed_hash_from_name(w['subfeed_name'])
+                }
+            if len(subfeed_watches.keys()) > 0:
+                messages = kp.watch_for_new_messages(subfeed_watches=subfeed_watches, wait_msec=100)
+                for key in messages.keys():
+                    if len(messages[key]) > 0:
+                        found_something = True
+                        for m in messages[key]:
+                            subfeed_msgs.append({'type': 'subfeedMessage', 'watchName': key, 'message': m})
+                    self._subfeed_positions[key] = self._subfeed_positions[key] + len(messages[key])
+            if not found_something:
+                break
+        if len(subfeed_msgs) > 0:
+            self._send_messages(subfeed_msgs)
+        if not self._initial_subfeed_load_complete and (self._feed_uri is not None):
+            self._initial_subfeed_load_complete = True
+            self._send_message({
+                'type': 'reportInitialLoadComplete'
+            })
+        
         hi.wait(0)
         job_ids = list(self._jobs_by_id.keys())
         for job_id in job_ids:
@@ -218,18 +213,21 @@ class WorkerSession:
                     'runtime_info': runtime_info
                 }
                 self._send_message(msg)
-    def on_message(self, callback):
-        self._on_message_callbacks.append(callback)
-    def add_subfeed_watch(self, *, watch_name: str, feed_id: str, subfeed_hash: str):
+    def on_messages(self, callback):
+        self._on_messages_callbacks.append(callback)
+    def add_subfeed_watch(self, *, watch_name: str, feed_id: str, subfeed_name: Union[str, dict]):
         self._additional_subfeed_watches.append(dict(
             watch_name=watch_name,
             feed_id=feed_id,
-            subfeed_hash=subfeed_hash
+            subfeed_name=subfeed_name
         ))
         self._subfeed_positions[watch_name] = 0
     def _send_message(self, msg):
-        for cb in self._on_message_callbacks:
-            cb(msg)
+        for cb in self._on_messages_callbacks:
+            cb([msg])
+    def _send_messages(self, msgs):
+        for cb in self._on_messages_callbacks:
+            cb(msgs)
     def _get_job_handler_from_name(self, job_handler_name):
         assert job_handler_name in self._labbox_config['job_handlers'], f'Job handler not found in config: {job_handler_name}'
         a = self._labbox_config['job_handlers'][job_handler_name]
@@ -273,3 +271,24 @@ def _is_jsonable(x) -> bool:
         return True
     except:
         return False
+
+def _feed_id_from_uri(uri: str):
+    a = uri.split('/')
+    return a[2]
+
+def _subfeed_hash_from_name(subfeed_name: Union[str, dict]):
+    if isinstance(subfeed_name, str):
+        if subfeed_name.startswith('~'):
+            return subfeed_name[1:]
+        return _sha1_of_string(subfeed_name)
+    else:
+        return _sha1_of_object(subfeed_name)
+
+def _sha1_of_string(txt: str) -> str:
+    hh = hashlib.sha1(txt.encode('utf-8'))
+    ret = hh.hexdigest()
+    return ret
+
+def _sha1_of_object(obj: object) -> str:
+    txt = json.dumps(obj, sort_keys=True, separators=(',', ':'))
+    return _sha1_of_string(txt)

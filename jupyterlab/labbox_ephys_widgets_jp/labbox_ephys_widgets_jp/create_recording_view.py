@@ -48,9 +48,9 @@ def create_recording_view(plugin_name: str, *, recording: le.LabboxEphysRecordin
             super().__init__()
             self.on_msg(self._handle_message)
             self._worker_session = le.WorkerSession(labbox_config=labbox_config)
-            def on_msg(msg):
-                self.send(msg)
-            self._worker_session.on_message(on_msg)
+            def on_msgs(msgs):
+                self.send(msgs)
+            self._worker_session.on_messages(on_msgs)
         def _handle_message(self, widget, msg, buffers):
             if msg['type'] == 'iterate':
                 self._worker_session.iterate()

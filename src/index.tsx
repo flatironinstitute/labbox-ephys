@@ -94,8 +94,15 @@ class ApiConnection {
     });
     this._ws.addEventListener('message', evt => {
       const x = JSON.parse(evt.data);
-      console.info('INCOMING MESSAGE', x);
-      this._onMessageCallbacks.forEach(cb => cb(x));
+      if (!Array.isArray(x)) {
+        console.warn(x)
+        console.warn('Error getting message, expected a list')
+        return
+      }
+      console.info('INCOMING MESSAGES', x);
+      for (const m of x) {
+        this._onMessageCallbacks.forEach(cb => cb(m))
+      }
     });
     this._ws.addEventListener('close', () => {
       console.warn('Websocket disconnected.');
@@ -152,13 +159,19 @@ const createApiConnection = () => {
         serverInfo: msg.serverInfo
       });
     }
-    else if (type0 === 'action') {
-      let action = msg.action;
-      if ('persistKey' in action) {
-        // just to be safe
-        delete action['persistKey'];
+    else if (type0 === 'subfeedMessage') {
+      const watchName = msg.watchName
+      const message = msg.message
+      if (['recordings', 'sortings'].includes(watchName)) {
+        if ('action' in message) {
+          let action = message.action;
+          if ('persistKey' in action) {
+            // just to be safe
+            delete action['persistKey'];
+          }
+          theStore.dispatch(action);
+        }
       }
-      theStore.dispatch(action);
     }
     else if (type0 === 'reportInitialLoadComplete') {
       theStore.dispatch({
@@ -217,6 +230,22 @@ hither._registerSendMessage((msg) => {
 })
 
 const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
+  // important to send the subfeed watch messages before the reportClientInfo
+  // because otherwise our initial load will not include the recordings/sortings
+  apiConnection.sendMessage({
+    type: 'addSubfeedWatch',
+    watchName: 'recordings',
+    feedUri: workspaceInfo.feedUri,
+    subfeedName: {workspaceName: workspaceInfo.workspaceName, key: 'recordings'}
+  })
+  apiConnection.sendMessage({
+    type: 'addSubfeedWatch',
+    watchName: 'sortings',
+    feedUri: workspaceInfo.feedUri,
+    subfeedName: {workspaceName: workspaceInfo.workspaceName, key: 'sortings'}
+  })
+
+  // report client info
   apiConnection.sendMessage({
     type: 'reportClientInfo',
     clientInfo: {
