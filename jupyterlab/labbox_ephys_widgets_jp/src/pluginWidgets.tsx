@@ -11,7 +11,9 @@ import '../css/widget.css';
 import { useRecordingInfo, useSortingInfo } from './extensions/common/getRecordingInfo';
 import { CalculationPool, createCalculationPool, HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
-import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
+import { sortingCurationReducer, SortingCurationWorkspaceAction } from './extensions/common/workspaceReducer';
+import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, SortingCuration, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
 import initializeHitherInterface from './extensions/initializeHitherInterface';
 import theme from './extensions/theme';
 import registerExtensions from './registerExtensions';
@@ -99,12 +101,6 @@ interface PluginComponentWrapperProps {
   curationUri?: string
 }
 
-interface AppendOnlyLog {
-  appendMessage: (msg: any) => void
-  allMessages: () => any[]
-  onMessage: (callback: (msg: any) => void) => void
-}
-
 const parseSubfeedUri = (uri: string): {feedId: string, subfeedHash: string} => {
   // feed://<feed-id>/~<subfeed-hash>
   const vals = uri.split('/')
@@ -146,32 +142,6 @@ class Subfeed {
   }
 }
 
-const useFeedReducer = <State, Action>(reducer: (s: State, a: Action) => State, initialState: State, subfeed: AppendOnlyLog | null): [State, (a: Action) => void] => {
-  const [state, stateDispatch] = useReducer(reducer, initialState)
-
-  useEffect(() => {
-    if (subfeed) {
-      subfeed.allMessages().forEach(msg => {
-        stateDispatch(msg)
-      })
-      subfeed.onMessage(msg => {
-        stateDispatch(msg)
-      })
-    }
-  }, [subfeed])
-
-  const newDispatch = useMemo(() => ((a: Action) => {
-    if (subfeed) {
-      subfeed.appendMessage(a)
-    }
-    else {
-      stateDispatch(a)
-    }
-  }), [subfeed])
-
-  return [state, newDispatch]
-}
-
 const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = ({plugin, sortingObject, recordingObject, plugins, calculationPool, model, curationUri}) => {
   const [sorting, setSorting] = useState<Sorting | null>(null)
   const [recording, setRecording] = useState<Recording | null>(null)
@@ -182,7 +152,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
   // curation
   // const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
   const curationSubfeed: AppendOnlyLog | null = useMemo(() => (curationUri ? new Subfeed(model, curationUri) : null), [curationUri, model])
-  const [curation, curationDispatch] = useFeedReducer(sortingCurationReducer, curationSubfeed ? {} : model.get('curation'), curationSubfeed)
+  const [curation, curationDispatch] = useFeedReducer<SortingCuration, SortingCurationWorkspaceAction>(sortingCurationReducer, curationSubfeed ? {} : model.get('curation'), curationSubfeed)
   useEffect(() => {
     if (model.get('curation') !== curation) {
       model.set('curation', curation)
@@ -193,7 +163,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     model.on('change:curation', () => {
       if (!curationSubfeed) {
         curationDispatch({
-          type: 'SetCuration',
+          type: 'SET_CURATION',
           curation: model.get('curation')
         })
       }

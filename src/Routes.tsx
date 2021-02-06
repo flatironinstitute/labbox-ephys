@@ -5,9 +5,11 @@ import Docs from './components/Docs';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
+import { WorkspaceDispatch, WorkspaceState } from './extensions/common/workspaceReducer';
 import { WorkspaceInfo } from './extensions/WorkspaceView';
 
-const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: WorkspaceInfo}> = ({width, height, workspaceInfo}) => {
+
+const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: WorkspaceInfo, workspace: WorkspaceState, workspaceDispatch: WorkspaceDispatch}> = ({width, height, workspaceInfo, workspace, workspaceDispatch}) => {
     const location = useLocation()
     const pathList = location.pathname.split('/')
     const { page, workspaceName} = (
@@ -26,7 +28,7 @@ const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: W
         case 'docs': return <Docs />
         case 'config': return <Config workspaceInfo={workspaceInfo} />
         case 'hitherJobMonitor': return <HitherJobMonitor />
-        default: return <Home width={width} height={height} workspaceInfo={workspaceInfo} />
+        default: return <Home width={width} height={height} workspaceInfo={workspaceInfo} workspace={workspace} workspaceDispatch={workspaceDispatch} />
     }
 }
 

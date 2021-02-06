@@ -6,9 +6,9 @@ class Workspace:
     def __init__(self, *, feed: kp.Feed, workspace_name: str) -> None:
         self._feed = feed
         self._workspace_name = workspace_name
-        recordings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name, key='recordings'))
+        recordings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         self._recordings = _get_recordings_from_subfeed(recordings_subfeed)
-        sortings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name, key='sortings'))
+        sortings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         self._sortings = _get_sortings_from_subfeed(sortings_subfeed)
     def add_recording(self, *, label: str, recording: se.RecordingExtractor):
         recording_id = 'R-' + _random_id()
@@ -21,7 +21,7 @@ class Workspace:
             'recordingObject': recording.object(),
             'description': f'Imported from Python: {label}'
         }
-        recordings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name, key='recordings'))
+        recordings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         _import_le_recording(recordings_subfeed, x)
         self._recordings[recording_id] = x
         return recording_id
@@ -44,7 +44,7 @@ class Workspace:
 
             'description': f'Imported from Python: {label}'
         }
-        sortings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name, key='sortings'))
+        sortings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         _import_le_sorting(sortings_subfeed, x)
         self._sortings[sorting_id] = x
         return x
@@ -145,7 +145,7 @@ def _import_le_sorting(sortings_subfeed: kp.Subfeed, le_sorting):
     })
 
 def _delete_recording(*, feed: kp.Feed, workspace_name: str, recording_id: str):
-    recordings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name, key='recordings'))
+    recordings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name))
     le_recordings = _get_recordings_from_subfeed(recordings_subfeed)
     if recording_id not in le_recordings:
         print(f'Cannot remove recording. Recording not found: {recording_id}')
@@ -155,7 +155,7 @@ def _delete_recording(*, feed: kp.Feed, workspace_name: str, recording_id: str):
             'recordingIds': [recording_id]
         }
     })
-    sortings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name, key='sortings'))
+    sortings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name))
     le_sortings = _get_sortings_from_subfeed(sortings_subfeed)
     sorting_ids_to_delete = []
     for k, v in le_sortings.items():
@@ -171,7 +171,7 @@ def _delete_recording(*, feed: kp.Feed, workspace_name: str, recording_id: str):
 
 
 def _delete_sorting(*, feed: kp.Feed, workspace_name: str, sorting_id: str):
-    sortings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name, key='sortings'))
+    sortings_subfeed = feed.get_subfeed(dict(workspaceName=workspace_name))
     le_sortings = _get_recordings_from_subfeed(sortings_subfeed)
     if sorting_id not in le_sortings:
         print(f'Cannot remove sorting. Sorting not found: {sorting_id}')

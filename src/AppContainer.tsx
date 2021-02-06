@@ -5,7 +5,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Home } from '@material-ui/icons';
 import QueryString from 'querystring';
-import React, { Dispatch, Fragment, FunctionComponent, useEffect, useState } from 'react';
+import React, { Dispatch, Fragment, FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { Link, RouteComponentProps, useLocation, withRouter } from 'react-router-dom';
 import sizeMe from 'react-sizeme';
@@ -13,6 +13,8 @@ import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMoni
 import ServerStatusControl from './containers/ServerStatusControl';
 import { HitherJob } from './extensions/common/hither';
 import { useOnce } from './extensions/common/hooks';
+import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
+import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/common/workspaceReducer';
 import { ExtensionsConfig } from './extensions/reducers';
 import { WorkspaceInfo } from './extensions/WorkspaceView';
 import { getPathQuery } from './kachery';
@@ -87,11 +89,12 @@ interface DispatchProps {
 interface OwnProps {
     onSetWorkspaceInfo: (workspaceInfo: WorkspaceInfo) => void
     onReconnect: () => void
+    workspaceSubfeed: AppendOnlyLog
 }
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, onReconnect, initialLoadComplete, extensionsConfig, websocketStatus }) => {
+const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, onReconnect, initialLoadComplete, extensionsConfig, websocketStatus, workspaceSubfeed }) => {
     const { width, height } = useWindowDimensions()
 
     const location = useLocation()
@@ -123,6 +126,26 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, onReconnec
         onSetWorkspaceInfo(workspaceInfo)
     })
 
+    const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog => {
+        return {
+            appendMessage: (msg: any) => {
+                workspaceSubfeed.appendMessage({action: msg})
+            },
+            allMessages: () => (workspaceSubfeed.allMessages().map(m => (m.action || {}))),
+            onMessage: (callback: (msg: any) => void) => {
+                workspaceSubfeed.onMessage((m: any) => {
+                    callback(m.action || {})
+                })
+            }
+        }
+    }, [workspaceSubfeed])
+
+    const [workspace, workspaceDispatch] = useFeedReducer<WorkspaceState, WorkspaceAction>(
+        workspaceReducer,
+        {recordings: [], sortings: []},
+        workspaceSubfeedForReducer
+    )
+
     return (
         <div className={"TheAppBar"}>
             <AppBar position="static" style={{height: appBarHeight}}>
@@ -133,7 +156,7 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, onReconnec
             <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: appBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>
                 {
                     initialLoadComplete ? (
-                        <Routes width={W} height={H} workspaceInfo={workspaceInfo} />
+                        <Routes width={W} height={H} workspaceInfo={workspaceInfo} workspace={workspace} workspaceDispatch={workspaceDispatch} />
                     ) : (
                         <div>Loading...</div>
                     )

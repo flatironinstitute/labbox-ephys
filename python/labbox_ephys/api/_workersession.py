@@ -45,6 +45,7 @@ class WorkerSession:
         self._on_messages_callbacks = []
         self._queued_document_action_messages = []
         self._additional_subfeed_watches = []
+        self._workspace_subfeed_watches = []
 
         self._initial_subfeed_load_complete = False
 
@@ -86,8 +87,19 @@ class WorkerSession:
             self.add_subfeed_watch(
                 watch_name=msg['watchName'],
                 feed_uri=feed_uri,
-                subfeed_name=msg['subfeedName']
+                subfeed_name=msg['subfeedName'],
+                position=msg.get('position', 0)
             )
+        elif type0 == 'addWorkspaceSubfeedWatch':
+            self.add_workspace_subfeed_watch(
+                watch_name=msg['watchName'],
+                position=msg.get('position', 0)
+            )
+        elif type0 == 'appendWorkspaceSubfeedMessage':
+            message = msg['message']
+            subfeed_name = {'workspaceName': self._workspace_name}
+            subfeed = self._feed.get_subfeed(subfeed_name)
+            subfeed.append_message(message)
         elif type0 == 'appendDocumentAction':
             if self._readonly:
                 print('Cannot append document action. This is a readonly feed.')
@@ -164,6 +176,13 @@ class WorkerSession:
                     'feedId': _feed_id_from_uri(w['feed_uri']),
                     'subfeedHash': _subfeed_hash_from_name(w['subfeed_name'])
                 }
+            for w in self._workspace_subfeed_watches:
+                if self._feed_uri is not None:
+                    subfeed_watches[w['watch_name']] = {
+                        'position': self._subfeed_positions[w['watch_name']],
+                        'feedId': _feed_id_from_uri(self._feed_uri),
+                        'subfeedHash': _subfeed_hash_from_name({'workspaceName': self._workspace_name})
+                    }
             if len(subfeed_watches.keys()) > 0:
                 messages = kp.watch_for_new_messages(subfeed_watches=subfeed_watches, wait_msec=100)
                 for key in messages.keys():
@@ -215,13 +234,18 @@ class WorkerSession:
                 self._send_message(msg)
     def on_messages(self, callback):
         self._on_messages_callbacks.append(callback)
-    def add_subfeed_watch(self, *, watch_name: str, feed_uri: str, subfeed_name: Union[str, dict]):
+    def add_subfeed_watch(self, *, watch_name: str, feed_uri: str, subfeed_name: Union[str, dict], position=0):
         self._additional_subfeed_watches.append(dict(
             watch_name=watch_name,
             feed_uri=feed_uri,
             subfeed_name=subfeed_name
         ))
-        self._subfeed_positions[watch_name] = 0
+        self._subfeed_positions[watch_name] = position
+    def add_workspace_subfeed_watch(self, *, watch_name: str, position=0):
+        self._workspace_subfeed_watches.append(dict(
+            watch_name=watch_name
+        ))
+        self._subfeed_positions[watch_name] = position
     def _send_message(self, msg):
         for cb in self._on_messages_callbacks:
             cb([msg])
