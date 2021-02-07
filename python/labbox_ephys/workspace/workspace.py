@@ -10,6 +10,10 @@ class Workspace:
         self._recordings = _get_recordings_from_subfeed(recordings_subfeed)
         sortings_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         self._sortings = _get_sortings_from_subfeed(sortings_subfeed)
+    def get_feed_uri(self):
+        return self._feed.get_uri()
+    def get_workspace_name(self):
+        return self._workspace_name
     def add_recording(self, *, label: str, recording: se.RecordingExtractor):
         recording_id = 'R-' + _random_id()
         if recording_id in self._recordings:

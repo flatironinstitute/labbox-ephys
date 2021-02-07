@@ -4,8 +4,9 @@
 import { ExportData, IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 import { Application, IPlugin } from '@phosphor/application';
 import { Widget } from '@phosphor/widgets';
-import { SortingView, SortingViewModel } from './pluginWidgets';
+import { SortingViewJp, SortingViewJpModel } from './SortingViewJp';
 import { MODULE_NAME, MODULE_VERSION } from './version';
+import { WorkspaceViewJp, WorkspaceViewJpModel } from './WorkspaceViewJp';
 
 const EXTENSION_ID = 'labbox_ephys_widgets_jp:plugin';
 
@@ -23,7 +24,7 @@ const examplePlugin: IPlugin<Application<Widget>, void> = ({
 
 export default examplePlugin;
 
-const exports: ExportData = {SortingView, SortingViewModel}
+const exports: ExportData = {SortingViewJp, SortingViewJpModel, WorkspaceViewJp, WorkspaceViewJpModel}
 
 /**
  * Activate the widget extension.
