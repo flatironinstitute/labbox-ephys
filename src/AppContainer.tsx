@@ -126,6 +126,7 @@ const AppContainer: FunctionComponent<Props> = ({ onSetWorkspaceInfo, onReconnec
         onSetWorkspaceInfo(workspaceInfo)
     })
 
+    // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
     const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog => {
         return {
             appendMessage: (msg: any) => {

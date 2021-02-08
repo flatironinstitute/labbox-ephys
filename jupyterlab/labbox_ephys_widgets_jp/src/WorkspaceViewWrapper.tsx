@@ -21,6 +21,7 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName
         new WorkspaceSubfeed(model, feedUri, workspaceName)
     ), [model, feedUri, workspaceName])
 
+    // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
     const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog => {
         return {
             appendMessage: (msg: any) => {
