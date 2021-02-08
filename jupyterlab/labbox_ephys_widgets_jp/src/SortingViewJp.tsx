@@ -54,7 +54,6 @@ export class SortingViewJp extends DOMWidgetView {
                         calculationPool={calculationPool}
                         model={this.model}
                         curationUri={curationUri}
-                        onClose={cleanup}
                     />
                 </HitherContext.Provider>
             </MuiThemeProvider>
