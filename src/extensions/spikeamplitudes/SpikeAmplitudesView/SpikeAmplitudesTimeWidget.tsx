@@ -42,6 +42,16 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
             }
             panels.push(p)
         })
+        // we want the y-axis to show even when no units are selected
+        if (panels.length === 0) {
+            panels.push(new SpikeAmplitudesPanel({
+                spikeAmplitudesData: null,
+                recording,
+                sorting,
+                unitId: -1,
+                hither
+            }))
+        }
         if (allMins.length > 0) {
             panels.forEach(p => {
                 p.setGlobalAmplitudeRange({min: getArrayMin(allMins), max: getArrayMax(allMaxs)})
