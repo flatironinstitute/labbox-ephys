@@ -1,6 +1,5 @@
 import { WidgetModel } from '@jupyter-widgets/base';
 import React, { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
-import { CalculationPool } from './extensions/common/hither';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
 import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/common/workspaceReducer';
 import { Plugins } from './extensions/extensionInterface';
@@ -11,12 +10,11 @@ interface Props {
     feedUri: string
     workspaceName: string
     plugins: Plugins
-    calculationPool: CalculationPool
     model: WidgetModel
     curationUri?: string
 }
 
-const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName, plugins, calculationPool, model, curationUri }) => {
+const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName, plugins, model }) => {
     // curation
     // const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
     const workspaceSubfeed: AppendOnlyLog | null = useMemo(() => (

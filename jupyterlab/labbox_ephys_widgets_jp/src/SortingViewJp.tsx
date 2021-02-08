@@ -16,6 +16,7 @@ const calculationPool = createCalculationPool({ maxSimultaneous: 6 })
 
 export class SortingViewJp extends DOMWidgetView {
     // _hitherJobManager: HitherJobManager
+    _cleanupCallbacks: (() => void)[] = []
     initialize() {
         // this._hitherJobManager = new HitherJobManager(this.model)
     }
@@ -30,7 +31,8 @@ export class SortingViewJp extends DOMWidgetView {
 
         if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-        const hither = initializeHitherForJpWidgetView(this.model)
+        const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
+        this._cleanupCallbacks.push(cleanup)
 
         const plugins: Plugins = {
             recordingViews: extensionContext._recordingViewPlugins,
@@ -52,6 +54,7 @@ export class SortingViewJp extends DOMWidgetView {
                         calculationPool={calculationPool}
                         model={this.model}
                         curationUri={curationUri}
+                        onClose={cleanup}
                     />
                 </HitherContext.Provider>
             </MuiThemeProvider>
@@ -69,6 +72,9 @@ export class SortingViewJp extends DOMWidgetView {
         this.el.classList.add('plugin-' + pluginName)
 
         renderJpWidget(this, reactElement, widgetHeight || plugin.notebookCellHeight || 500)
+    }
+    remove() {
+        this._cleanupCallbacks.forEach(cb => cb())
     }
 }
 

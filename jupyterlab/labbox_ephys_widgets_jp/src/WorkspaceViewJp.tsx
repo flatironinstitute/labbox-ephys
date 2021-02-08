@@ -5,17 +5,16 @@ import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { createCalculationPool, HitherContext } from './extensions/common/hither';
+import { HitherContext } from './extensions/common/hither';
 import { filterPlugins, Plugins } from './extensions/extensionInterface';
 import theme from './extensions/theme';
 import initializeHitherForJpWidgetView from './initializeHitherForJpWidgetView';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import WorkspaceViewWrapper from './WorkspaceViewWrapper';
 
-const calculationPool = createCalculationPool({ maxSimultaneous: 6 })
-
 export class WorkspaceViewJp extends DOMWidgetView {
     // _hitherJobManager: HitherJobManager
+    _cleanupCallbacks: (() => void)[] = []
     initialize() {
         // this._hitherJobManager = new HitherJobManager(this.model)
     }
@@ -23,7 +22,8 @@ export class WorkspaceViewJp extends DOMWidgetView {
         const feedUri = this.model.get('feedUri')
         const workspaceName = this.model.get('workspaceName')
 
-        const hither = initializeHitherForJpWidgetView(this.model)
+        const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
+        this._cleanupCallbacks.push(cleanup)
 
         const plugins: Plugins = {
             recordingViews: extensionContext._recordingViewPlugins,
@@ -39,7 +39,6 @@ export class WorkspaceViewJp extends DOMWidgetView {
                         feedUri={feedUri}
                         workspaceName={workspaceName}
                         plugins={filterPlugins(plugins)}
-                        calculationPool={calculationPool}
                         model={this.model}
                     />
                 </HitherContext.Provider>
@@ -54,6 +53,9 @@ export class WorkspaceViewJp extends DOMWidgetView {
         this.el.classList.add('WorkspaceViewJp')
 
         renderJpWidget(this, reactElement, widgetHeight)
+    }
+    remove() {
+        this._cleanupCallbacks.forEach(cb => cb())
     }
 }
 

@@ -5,7 +5,7 @@ import { HitherInterface } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import initializeHitherInterface from './extensions/initializeHitherInterface';
 
-const initializeHitherForJpWidgetView = (model: WidgetModel): HitherInterface => {
+const initializeHitherForJpWidgetView = (model: WidgetModel): {hither: HitherInterface, cleanup: () => void} => {
     const baseSha1Url = `/sha1`
     const hither = initializeHitherInterface(baseSha1Url)
     hither._registerSendMessage(msg => {
@@ -13,19 +13,19 @@ const initializeHitherForJpWidgetView = (model: WidgetModel): HitherInterface =>
         if (msg.type === 'hitherCreateJob') _startIterating(300)
         model.send(msg, {})
     })
-    model.on('msg:custom', (msgs: any) => {
+    model.on('msg:custom', (msgs: any[]) => {
         console.info('RECEIVED MESSAGES', msgs)
+        if (msgs.length > 0) {
+            _startIterating(300) // start iterating more often if we got a message from the server (because there's activity)
+        }
         for (let msg of msgs) {
             if (msg.type === 'hitherJobCreated') {
-                _startIterating(300)
                 hither.handleHitherJobCreated(msg)
             }
             else if (msg.type === 'hitherJobFinished') {
-                _startIterating(300)
                 hither.handleHitherJobFinished(msg)
             }
             else if (msg.type === 'hitherJobError') {
-                _startIterating(300)
                 hither.handleHitherJobError(msg)
             }
             else if (msg.type === 'debug') {
@@ -43,18 +43,22 @@ const initializeHitherForJpWidgetView = (model: WidgetModel): HitherInterface =>
         }
         _iterating = true
             ; (async () => {
-                while (true) {
-                    if (hither.getNumActiveJobs() === 0) {
-                        _iterating = false
-                        return
-                    }
+                while (_iterating) {
+                    // if (hither.getNumActiveJobs() === 0) { // don't do this anymore because we also need to handle updates to kachery feeds
+                    //     _iterating = false
+                    //     return
+                    // }
                     model.send({ type: 'iterate' }, {})
                     await sleepMsec(_iterate_interval)
-                    _iterate_interval = Math.min(5000, _iterate_interval + 50)
+                    _iterate_interval = Math.min(5000, _iterate_interval + 50) // decrease the rate of iteration over time
                 }
             })()
     }
-    return hither
+    _startIterating(300)
+    const cleanup = () => {
+        _iterating = false
+    }
+    return {hither, cleanup}
 }
 
 export default initializeHitherForJpWidgetView
