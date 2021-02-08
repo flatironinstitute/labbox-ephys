@@ -1,7 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React, { Fragment, FunctionComponent, useCallback, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
-import { useRecordingInfo } from '../../common/getRecordingInfo';
+import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import SnippetsRow from './SnippetsRow';
 

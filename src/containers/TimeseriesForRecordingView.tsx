@@ -2,7 +2,7 @@ import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
+import { useRecordingInfo } from '../extensions/common/useRecordingInfo';
 import TimeseriesViewNew from '../extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
 import { RootAction, RootState } from '../reducers';
 import { Recording } from '../reducers/recordings';

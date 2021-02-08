@@ -4,7 +4,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { deleteSortings } from '../actions';
 import { WorkspaceInfo } from '../AppContainer';
 import NiceTable from '../components/NiceTable';
-import { useSortingInfos } from '../extensions/common/getRecordingInfo';
+import { useSortingInfos } from '../extensions/common/useSortingInfo';
 import { RootAction, RootState } from '../reducers';
 import { Sorting } from '../reducers/sortings';
 import { WorkspaceRouteDispatch } from './WorkspaceView';

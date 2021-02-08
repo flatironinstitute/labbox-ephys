@@ -8,9 +8,10 @@ import React, { FunctionComponent, useEffect, useMemo, useReducer, useRef, useSt
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
-import { useRecordingInfo, useSortingInfo } from './extensions/common/getRecordingInfo';
 import { CalculationPool, createCalculationPool, HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
+import { useRecordingInfo } from './extensions/common/useRecordingInfo';
+import { useSortingInfo } from './extensions/common/useSortingInfo';
 import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
 import initializeHitherInterface from './extensions/initializeHitherInterface';
 import theme from './extensions/theme';
