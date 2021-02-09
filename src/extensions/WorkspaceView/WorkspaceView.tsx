@@ -5,14 +5,14 @@ import SortingView from './SortingView';
 import WorkspaceRecordingsView from './WorkspaceRecordingsView';
 import WorkspaceRecordingView from './WorkspaceRecordingView';
 
-interface Location {
+export interface LocationInterface {
     pathname: string
     search: string
 }
 
-interface History {
-    location: Location
-    push: (x: Location) => void
+export interface HistoryInterface {
+    location: LocationInterface
+    push: (x: LocationInterface) => void
 }
 
 export interface WorkspaceInfo {
@@ -27,8 +27,8 @@ type Props = {
     workspace: WorkspaceState
     workspaceDispatch: WorkspaceDispatch
     plugins: Plugins
-    history: History // routing history
-    location: Location // routing location
+    history: HistoryInterface // routing history
+    location: LocationInterface // routing location
     width: number
     height: number
 }
@@ -69,7 +69,7 @@ type GotoSortingPageAction = {
 type WorkspaceRouteAction = GotoRecordingsPageAction | GotoRecordingPageAction | GotoSortingPageAction
 export type WorkspaceRouteDispatch = (a: WorkspaceRouteAction) => void
 
-const routeFromLocation = (location: Location): WorkspaceRoute => {
+const routeFromLocation = (location: LocationInterface): WorkspaceRoute => {
     const pathList = location.pathname.split('/')
     const workspaceName = pathList[1] || 'default'
     const page = pathList[2] || 'recordings'

@@ -26,6 +26,7 @@ jupyter nbextension install --sys-prefix --symlink --overwrite --py labbox_ephys
 jupyter serverextension enable --sys-prefix --py labbox_ephys_widgets_jp
 ```
 
+
 ### How to see your changes
 #### Typescript:
 To continuously monitor the project for changes and automatically trigger a rebuild, start Jupyter in watch mode:

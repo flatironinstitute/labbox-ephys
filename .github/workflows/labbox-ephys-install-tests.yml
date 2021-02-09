@@ -17,6 +17,8 @@ jobs:
       matrix:
         # os: ["ubuntu-latest", "macos-latest"] - macos-latest not working on the node compile step: ld: library not found for -lstdc++
         os: ["ubuntu-latest"]
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2

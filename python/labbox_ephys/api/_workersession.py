@@ -100,18 +100,6 @@ class WorkerSession:
             subfeed_name = {'workspaceName': self._workspace_name}
             subfeed = self._feed.get_subfeed(subfeed_name)
             subfeed.append_message(message)
-        elif type0 == 'appendDocumentAction':
-            if self._readonly:
-                print('Cannot append document action. This is a readonly feed.')
-                return
-            if self._feed is None:
-                self._queued_document_action_messages.append(msg)
-            else:
-                subfeed_name = dict(key=msg['key'], workspaceName=self._workspace_name)
-                subfeed = self._feed.get_subfeed(subfeed_name)
-                subfeed.append_message({
-                    'action': msg['action']
-                })
         elif type0 == 'hitherCreateJob':
             functionName = msg['functionName']
             kwargs = msg['kwargs']
