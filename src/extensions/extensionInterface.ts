@@ -2,6 +2,7 @@ import { Reducer, useRef } from "react"
 import { CalculationPool } from "./common/hither"
 import { useOnce } from "./common/hooks"
 import { sleepMsec } from "./common/misc"
+import { SortingCurationWorkspaceAction } from "./common/workspaceReducer"
 
 const TIME_ZOOM_FACTOR = 1.4
 const AMP_SCALE_FACTOR = 1.4
@@ -102,86 +103,10 @@ type UnmergeUnitsSortingCurationAction = {
 
 export type SortingCurationAction = SetCurationSortingCurationAction | AddLabelSortingCurationAction | RemoveLabelSortingCurationAction | MergeUnitsSortingCurationAction | UnmergeUnitsSortingCurationAction
 
-const intersection = (a: number[], b: number[]) => (
-    a.filter(x => (b.includes(x)))
-)
-const union = (a: number[], b: number[]) => (
-    [...a, ...b.filter(x => (!a.includes(x)))].sort()
-)
-
-const simplifyMergeGroups = (mg: (number[])[]): (number[])[] => {
-    const newMergeGroups = mg.map(g => [...g]) // make a copy
-    let somethingChanged = true
-    while (somethingChanged) {
-        somethingChanged = false
-        for (let i = 0; i < newMergeGroups.length; i ++) {
-            const g1 = newMergeGroups[i]
-            for (let j = i + 1; j < newMergeGroups.length; j ++) {
-                const g2 = newMergeGroups[j]
-                if (intersection(g1, g2).length > 0) {
-                    newMergeGroups[i] = union(g1, g2)
-                    newMergeGroups[j] = []
-                    somethingChanged = true
-                }
-            }
-        }
-    }
-    return newMergeGroups.filter(g => (g.length >= 2))
-}
-
 export const mergeGroupForUnitId = (unitId: number, sorting: Sorting) => {
     const mergeGroups = (sorting.curation || {}).mergeGroups || []
     return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
 }
-
-// This reducer is used by the jupyter widget, but not by the web gui. That's because the web gui uses the global redux state to dispatch the curation actions.
-export const sortingCurationReducer: Reducer<SortingCuration, SortingCurationAction> = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
-    if (action.type === 'SetCuration') {
-        return action.curation
-    }
-    else if (action.type === 'AddLabel') {
-        const uid = action.unitId + ''
-        const labels = (state.labelsByUnit || {})[uid] || []
-        if (!labels.includes(action.label)) {
-            return {
-                ...state,
-                labelsByUnit: {
-                    ...state.labelsByUnit,
-                    [uid]: [...labels, action.label].sort()
-                }
-            }
-        }
-        else return state
-    }
-    else if (action.type === 'RemoveLabel') {
-        const uid = action.unitId + ''
-        const labels = (state.labelsByUnit || {})[uid] || []
-        if (labels.includes(action.label)) {
-            return {
-                ...state,
-                labelsByUnit: {
-                    ...state.labelsByUnit,
-                    [uid]: labels.filter(l => (l !== action.label))
-                }
-            }
-        }
-        else return state
-    }
-    else if (action.type === 'MergeUnits') {
-        return {
-            ...state,
-            mergeGroups: simplifyMergeGroups([...(state.mergeGroups || []), action.unitIds])
-        }
-    }
-    else if (action.type === 'UnmergeUnits') {
-        return {
-            ...state,
-            mergeGroups: simplifyMergeGroups((state.mergeGroups || []).map(g => (g.filter(x => (!action.unitIds.includes(x))))))
-        }
-    }
-    else return state
-}
-////////////////////
 
 // This reducer is used only by the jupyter extension
 type SetExternalUnitMetricsAction = {
@@ -536,7 +461,7 @@ export interface SortingViewProps extends ViewProps {
     recording: Recording
     sortingInfo: SortingInfo
     recordingInfo: RecordingInfo
-    curationDispatch: (action: SortingCurationAction) => void
+    curationDispatch: (action: SortingCurationWorkspaceAction) => void
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null

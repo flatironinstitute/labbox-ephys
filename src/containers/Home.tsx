@@ -1,36 +1,32 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { useHistory, useLocation } from 'react-router';
-import { deleteRecordings, deleteSortings, deleteSortingsForRecordings } from '../actions';
+import { WorkspaceDispatch, WorkspaceState } from '../extensions/common/workspaceReducer';
 import { filterPlugins, Plugins } from '../extensions/extensionInterface';
 import WorkspaceView, { WorkspaceInfo } from '../extensions/WorkspaceView';
 import { RootAction, RootState } from '../reducers';
-import { Recording } from '../reducers/recordings';
 import { ServerInfo } from '../reducers/serverInfo';
-import { Sorting } from '../reducers/sortings';
 import './Home.css';
 
 interface StateProps {
-  sortings: Sorting[]
-  recordings: Recording[]
   plugins: Plugins
   serverInfo: ServerInfo
 }
 
 interface DispatchProps {
-  onDeleteRecordings: (recordingIds: string[]) => void
-  onDeleteSortings: (sortingIds: string[]) => void
 }
 
 interface OwnProps {
   workspaceInfo: WorkspaceInfo
+  workspace: WorkspaceState
+  workspaceDispatch: WorkspaceDispatch
   width?: number
   height?: number
 }
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, sortings, recordings, onDeleteRecordings, onDeleteSortings, plugins }) => {
+const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, workspace, workspaceDispatch, plugins }) => {
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2
@@ -59,7 +55,7 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
           width={W}
           height={H - headerHeight}
           defaultFeedId={serverInfo.defaultFeedId || ''}
-          {...{workspaceInfo, sortings, recordings, onDeleteRecordings, onDeleteSortings, plugins, history, location}}
+          {...{workspaceInfo, workspace, workspaceDispatch, plugins, history, location}}
         />
       </div>
     </div>
@@ -67,20 +63,11 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-  sortings: state.sortings,
-  recordings: state.recordings,
   plugins: filterPlugins(state.plugins),
   serverInfo: state.serverInfo
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-  onDeleteRecordings: (recordingIds: string[]) => {
-    dispatch(deleteSortingsForRecordings(recordingIds));
-    dispatch(deleteRecordings(recordingIds));
-  },
-  onDeleteSortings: (sortingIds: string[]) => {
-    dispatch(deleteSortings(sortingIds));
-  }
 })
 
 export default connect<StateProps, DispatchProps, OwnProps, RootState>(

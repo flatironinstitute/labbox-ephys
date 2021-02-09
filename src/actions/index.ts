@@ -1,8 +1,6 @@
 import { SetExtensionEnabledAction } from '../extensions/reducers'
 import { DatabaseConfig, SetDatabaseConfigAction } from '../reducers/databaseConfig'
 import { SetPersistStatusAction } from '../reducers/persisting'
-import { AddRecordingAction, DeleteRecordingsAction, Recording } from '../reducers/recordings'
-import { AddSortingAction, AddUnitLabelAction, DeleteSortingsAction, DeleteSortingsForRecordingsAction, ExternalSortingUnitMetric, RemoveUnitLabelAction, SetExternalSortingUnitMetricsAction, Sorting } from '../reducers/sortings'
 
 export const REPORT_INITIAL_LOAD_COMPLETE = 'REPORT_INITIAL_LOAD_COMPLETE'
 export const SET_WEBSOCKET_STATUS = 'SET_WEBSOCKET_STATUS'
@@ -50,46 +48,6 @@ export const setDatabaseConfig = (databaseConfig: DatabaseConfig): SetDatabaseCo
   databaseConfig
 })
 
-export const setExternalSortingUnitMetrics = (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }): SetExternalSortingUnitMetricsAction => ({
-  type: SET_EXTERNAL_SORTING_UNIT_METRICS,
-  sortingId: a.sortingId,
-  externalUnitMetrics: a.externalUnitMetrics
-})
-
-interface PersistAction {
-  persistKey?: string
-}
-
-export const addRecording = (recording: Recording): AddRecordingAction & PersistAction => ({
-  type: ADD_RECORDING,
-  recording: recording,
-  persistKey: 'recordings'
-})
-
-export const deleteRecordings = (recordingIds: string[]): DeleteRecordingsAction & PersistAction => ({
-    type: DELETE_RECORDINGS,
-    recordingIds: recordingIds,
-    persistKey: 'recordings'
-})
-
-export const deleteSortingsForRecordings = (recordingIds: string[]): DeleteSortingsForRecordingsAction & PersistAction => ({
-  type: DELETE_SORTINGS_FOR_RECORDINGS,
-  recordingIds: recordingIds,
-  persistKey: 'sortings'
-})
-
-export const addSorting = (sorting: Sorting): AddSortingAction & PersistAction => ({
-  type: ADD_SORTING,
-  sorting: sorting,
-  persistKey: 'sortings'
-})
-
-export const deleteSortings = (sortingIds: string[]): DeleteSortingsAction & PersistAction => ({
-  type: DELETE_SORTINGS,
-  sortingIds: sortingIds,
-  persistKey: 'sortings'
-})
-
 export const setPersistStatus = (status: string): SetPersistStatusAction => ({
   type: SET_PERSIST_STATUS,
   status: status
@@ -99,22 +57,4 @@ export const setExtensionEnabled = (extensionName: string, value: boolean): SetE
   type: SET_EXTENSION_ENABLED,
   extensionName,
   value
-})
-
-// curation
-
-export const addUnitLabel = (a: { sortingId: string, unitId: number, label: string }): AddUnitLabelAction & PersistAction => ({
-  type: ADD_UNIT_LABEL,
-  sortingId: a.sortingId,
-  unitId: a.unitId,
-  label: a.label,
-  persistKey: 'sortings'
-})
-
-export const removeUnitLabel = (a: { sortingId: string, unitId: number, label: string }): RemoveUnitLabelAction & PersistAction => ({
-  type: REMOVE_UNIT_LABEL,
-  sortingId: a.sortingId,
-  unitId: a.unitId,
-  label: a.label,
-  persistKey: 'sortings'
 })

@@ -2,7 +2,8 @@ import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core
 import React, { useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { useRecordingInfo, useSortingInfo } from '../common/getRecordingInfo';
 import { createCalculationPool, HitherContext } from '../common/hither';
-import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensionInterface';
+import { SortingCurationWorkspaceAction } from '../common/workspaceReducer';
+import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingSelection, sortingSelectionReducer } from '../extensionInterface';
 import { WorkspaceInfo } from './WorkspaceView';
 
 // const intrange = (a: number, b: number) => {
@@ -23,7 +24,7 @@ interface Props {
   height: number,
   workspaceInfo: WorkspaceInfo
   onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
-  curationDispatch: (a: SortingCurationAction) => void
+  curationDispatch: (a: SortingCurationWorkspaceAction) => void
 }
 
 type CalcStatus = 'waiting' | 'computing' | 'finished'

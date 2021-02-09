@@ -1,7 +1,7 @@
 import { Grid } from "@material-ui/core"
 import React, { Fragment, FunctionComponent } from 'react'
+import Expandable from "../../common/Expandable"
 import { SortingUnitViewProps } from "../../extensionInterface"
-import Expandable from "../../old/curation/CurationSortingView/Expandable"
 import sortByPriority from "../../sortByPriority"
 
 

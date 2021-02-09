@@ -1,11 +1,13 @@
 import { Grid, Paper } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { SortingCuration, SortingCurationDispatch, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { SortingCurationWorkspaceAction } from '../../common/workspaceReducer';
+import { SortingCuration, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 
 type Props = {
+    sortingId: string
     curation: SortingCuration
-    curationDispatch: SortingCurationDispatch
+    curationDispatch: (a: SortingCurationWorkspaceAction) => void
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
 }
@@ -14,48 +16,52 @@ const buttonStyle = {
     paddingTop: 3, paddingBottom: 3, border: 1, borderStyle: 'solid', borderColor: 'gray'
 }
 
-const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ selection, selectionDispatch, curation, curationDispatch, size }) => {
+const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ sortingId, selection, selectionDispatch, curation, curationDispatch, size }) => {
     const width = size.width || 300
     const selectedUnitIds = useMemo(() => (selection.selectedUnitIds || []), [selection.selectedUnitIds])
     const _handleApplyLabel = useCallback(
         (label: string) => {
             for (let unitId of selectedUnitIds) {
                 curationDispatch({
-                    type: 'AddLabel',
+                    type: 'ADD_UNIT_LABEL',
+                    sortingId: sortingId,
                     unitId,
                     label
                 })
             }
         },
-        [curationDispatch, selectedUnitIds],
+        [curationDispatch, selectedUnitIds, sortingId],
     )
 
     const _handleRemoveLabel = useCallback(
         (label: string) => {
             for (let unitId of selectedUnitIds) {
                 curationDispatch({
-                    type: 'RemoveLabel',
+                    type: 'REMOVE_UNIT_LABEL',
+                    sortingId,
                     unitId,
                     label
                 })
             }
         },
-        [curationDispatch, selectedUnitIds]
+        [curationDispatch, selectedUnitIds, sortingId]
     )
 
     const handleMergeSelected = useCallback(() => {
         curationDispatch({
-            type: 'MergeUnits',
+            type: 'MERGE_UNITS',
+            sortingId,
             unitIds: selectedUnitIds
         })
-    }, [curationDispatch, selectedUnitIds])
+    }, [curationDispatch, selectedUnitIds, sortingId])
 
     const handleUnmergeSelected = useCallback(() => {
         curationDispatch({
-            type: 'UnmergeUnits',
+            type: 'UNMERGE_UNITS',
+            sortingId,
             unitIds: selectedUnitIds
         })
-    }, [curationDispatch, selectedUnitIds])
+    }, [curationDispatch, selectedUnitIds, sortingId])
 
     type LabelRecord = {
         label: string,
