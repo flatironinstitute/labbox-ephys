@@ -1,7 +1,8 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import React, { useContext, useEffect, useMemo, useReducer, useState } from 'react';
-import { useRecordingInfo, useSortingInfo } from '../common/getRecordingInfo';
 import { createCalculationPool, HitherContext } from '../common/hither';
+import { useRecordingInfo } from '../common/useRecordingInfo';
+import { useSortingInfo } from '../common/useSortingInfo';
 import { SortingCurationWorkspaceAction } from '../common/workspaceReducer';
 import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingSelection, sortingSelectionReducer } from '../extensionInterface';
 import { WorkspaceInfo } from './WorkspaceView';
