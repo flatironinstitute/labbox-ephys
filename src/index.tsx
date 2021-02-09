@@ -1,22 +1,24 @@
 // react
 import { MuiThemeProvider } from '@material-ui/core';
-import React, { Dispatch } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 // router
 import { BrowserRouter as Router } from 'react-router-dom';
 // redux
-import { AnyAction, applyMiddleware, createStore, Middleware, MiddlewareAPI } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import "../node_modules/react-vis/dist/style.css";
-import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO, SET_WEBSOCKET_STATUS } from './actions';
-import AppContainer, { WorkspaceInfo } from './AppContainer';
+import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO } from './actions';
+import ApiConnection from './ApiConnection';
+import AppContainer from './AppContainer';
 import { extensionContextDispatch } from './extensionContextDispatch';
 import { HitherContext } from './extensions/common/hither';
-import { sleepMsec } from './extensions/common/misc';
+import WorkspaceSubfeed from './extensions/common/WorkspaceSubfeed';
 import initializeHitherInterface, { HitherJobMessage } from './extensions/initializeHitherInterface';
 // styling
 import theme from './extensions/theme';
+import { WorkspaceInfo } from './extensions/WorkspaceView';
 import './index.css';
 // reducer
 import rootReducer from './reducers';
@@ -25,124 +27,17 @@ import registerExtensions from './registerExtensions';
 import * as serviceWorker from './serviceWorker';
 import './styles.css';
 
-/*
-What does this middleware do?
-
-It allows us to dispatch actions to manipulate the redux state
-in the usual way, but if the action has a persistKey field,
-then this middleware redirects the action to the server for
-persistence. Once the server has applied the action to the live
-feed, the new messages on the feed will propagate back to the
-client side (there is a feed listener) and at that time the action
-will actually be played out on the redux state (because the
-persistKey will have been stripped).
-*/
-const persistStateMiddleware: Middleware = (api: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: any) => {
-  // this middleware is applied to the redux store
-  // it inserts itself as part
-  // of the action-processesing pipeline
-  const sendAction = async (key: string, theAction: any) => {
-    delete theAction['persistKey'];
-    apiConnection.sendMessage({
-      type: 'appendDocumentAction',
-      key,
-      action: theAction
-    });
-  }
-
-  if (action.persistKey) {
-    // if the action has persistKey field, then
-    // send it to the server
-    sendAction(action.persistKey, action);
-    return;
-  }
-  return next(action);
-}
-
 // Create the store and apply middleware
-// persistStateMiddleware is described above
 // thunk allows asynchronous actions
-const theStore = createStore(rootReducer, {}, applyMiddleware(persistStateMiddleware, thunk))
+const theStore = createStore(rootReducer, {}, applyMiddleware(thunk))
 const extensionContext = extensionContextDispatch(theStore.dispatch)
 // setDispatch(theStore.dispatch)
 registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)
-class ApiConnection {
-  _ws: WebSocket
-  _connected: boolean = false
-  _onMessageCallbacks: ((m: any) => void)[] = []
-  _onConnectCallbacks: (() => void)[] = []
-  _onDisconnectCallbacks: (() => void)[] = []
-  _isDisconnected = false // once disconnected, cannot reconnect - need to create a new instance
-  _queuedMessages: any[] = []
-
-  constructor() {
-    const url = `ws://${window.location.hostname}:15308`;
-
-    this._ws = new WebSocket(url);
-    console.log(this._ws);
-    this._ws.addEventListener('open', () => {
-      this._connected = true;
-      const qm = this._queuedMessages;
-      this._queuedMessages = [];
-      for (let m of qm) {
-        this.sendMessage(m);
-      }
-      this._onConnectCallbacks.forEach(cb => cb());
-      theStore.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'connected'});
-    });
-    this._ws.addEventListener('message', evt => {
-      const x = JSON.parse(evt.data);
-      console.info('INCOMING MESSAGE', x);
-      this._onMessageCallbacks.forEach(cb => cb(x));
-    });
-    this._ws.addEventListener('close', () => {
-      console.warn('Websocket disconnected.');
-      this._connected = false;
-      this._isDisconnected = true;
-      this._onDisconnectCallbacks.forEach(cb => cb())
-      theStore.dispatch({type: SET_WEBSOCKET_STATUS, websocketStatus: 'disconnected'});
-    })
-    
-    this._start();
-  }
-  onMessage(cb: (m: any) => void) {
-    this._onMessageCallbacks.push(cb);
-  }
-  onConnect(cb: () => void) {
-    this._onConnectCallbacks.push(cb);
-    if (this._connected) {
-      cb();
-    }
-  }
-  onDisconnect(cb: () => void) {
-    this._onDisconnectCallbacks.push(cb)
-    if (this._isDisconnected) {
-      cb()
-    }
-  }
-  isDisconnected() {
-    return this._isDisconnected;
-  }
-  sendMessage(msg: any) {
-    if (!this._connected) {
-      this._queuedMessages.push(msg);
-      return;
-    }
-    console.info('OUTGOING MESSAGE', msg);
-    this._ws.send(JSON.stringify(msg));
-  }
-  async _start() {
-    while (true) {
-      await sleepMsec(17000);
-      if (!this._isDisconnected) this.sendMessage({type: 'keepAlive'});
-    }
-  }
-}
 
 const createApiConnection = () => {
-  const x = new ApiConnection()
+  const x = new ApiConnection(theStore)
 
   x.onMessage(msg => {
     const type0 = msg.type;
@@ -152,13 +47,19 @@ const createApiConnection = () => {
         serverInfo: msg.serverInfo
       });
     }
-    else if (type0 === 'action') {
-      let action = msg.action;
-      if ('persistKey' in action) {
-        // just to be safe
-        delete action['persistKey'];
+    else if (type0 === 'subfeedMessage') {
+      const watchName = msg.watchName
+      const message = msg.message
+      if (['recordings', 'sortings'].includes(watchName)) {
+        if ('action' in message) {
+          let action = message.action;
+          if ('persistKey' in action) {
+            // just to be safe (historical)
+            delete action['persistKey'];
+          }
+          theStore.dispatch(action);
+        }
       }
-      theStore.dispatch(action);
     }
     else if (type0 === 'reportInitialLoadComplete') {
       theStore.dispatch({
@@ -182,6 +83,10 @@ const createApiConnection = () => {
   return x
 }
 
+
+
+const workspaceSubfeed = new WorkspaceSubfeed()
+
 let apiConnection: ApiConnection
 let queuedHitherJobMessages: HitherJobMessage[] = []
 const handleReconnect = () => {
@@ -196,6 +101,7 @@ const handleReconnect = () => {
   apiConnection.onDisconnect(() => {
     console.info('Disconnected from API server')
   })
+  workspaceSubfeed.initialize(apiConnection)
 }
 handleReconnect() // establish initial connection
 
@@ -217,6 +123,22 @@ hither._registerSendMessage((msg) => {
 })
 
 const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
+  // // important to send the subfeed watch messages before the reportClientInfo
+  // // because otherwise our initial load will not include the recordings/sortings
+  // apiConnection.sendMessage({
+  //   type: 'addSubfeedWatch',
+  //   watchName: 'recordings',
+  //   feedUri: workspaceInfo.feedUri,
+  //   subfeedName: {workspaceName: workspaceInfo.workspaceName, key: 'recordings'}
+  // })
+  // apiConnection.sendMessage({
+  //   type: 'addSubfeedWatch',
+  //   watchName: 'sortings',
+  //   feedUri: workspaceInfo.feedUri,
+  //   subfeedName: {workspaceName: workspaceInfo.workspaceName, key: 'sortings'}
+  // })
+
+  // report client info
   apiConnection.sendMessage({
     type: 'reportClientInfo',
     clientInfo: {
@@ -233,7 +155,7 @@ const content = (
     <MuiThemeProvider theme={theme}>
       <Provider store={theStore}>
         <Router>
-          <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} onReconnect={handleReconnect} />
+          <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} onReconnect={handleReconnect} workspaceSubfeed={workspaceSubfeed} />
         </Router>
       </Provider>
     </MuiThemeProvider>

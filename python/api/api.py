@@ -107,8 +107,8 @@ def main():
             except:
                 traceback.print_exc()
             messages = session.check_for_outgoing_messages()
-            for message in messages:
-                await websocket.send(json.dumps(message))
+            if len(messages) > 0:
+                await websocket.send(json.dumps(messages))
             if session.elapsed_sec_since_incoming_keepalive() > 60:
                 print('Closing session')
                 return

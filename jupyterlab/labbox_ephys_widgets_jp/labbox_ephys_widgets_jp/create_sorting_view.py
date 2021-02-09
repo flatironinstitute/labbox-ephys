@@ -45,11 +45,11 @@ def create_sorting_view(
     curation_subfeed: Union[kp.Subfeed, None]=None,
     height: float=0
 ):
-    class SortingView(DOMWidget):
-        _model_name = Unicode('SortingViewModel').tag(sync=True)
+    class SortingViewJp(DOMWidget):
+        _model_name = Unicode('SortingViewJpModel').tag(sync=True)
         _model_module = Unicode(module_name).tag(sync=True)
         _model_module_version = Unicode(module_version).tag(sync=True)
-        _view_name = Unicode('SortingView').tag(sync=True)
+        _view_name = Unicode('SortingViewJp').tag(sync=True)
         _view_module = Unicode(module_name).tag(sync=True)
         _view_module_version = Unicode(module_version).tag(sync=True)
         pluginName = Unicode(plugin_name).tag(sync=True)
@@ -66,9 +66,9 @@ def create_sorting_view(
             super().__init__()
             self.on_msg(self._handle_message)
             self._worker_session = le.WorkerSession(labbox_config=labbox_config)
-            def on_msg(msg):
-                self.send(msg)
-            self._worker_session.on_message(on_msg)
+            def on_msgs(msgs):
+                self.send(msgs)
+            self._worker_session.on_messages(on_msgs)
         def get_selection(self):
             return deepcopy(self.selection)
         def set_selection(self, selection):
@@ -85,18 +85,19 @@ def create_sorting_view(
             if msg['type'] == 'iterate':
                 self._worker_session.iterate()
             elif msg['type'] == 'appendSubfeedMessage':
-                feed_id = msg['feedId']
-                subfeed_hash = msg['subfeedHash']
-                sf = kp.load_subfeed(f'feed://{feed_id}/~{subfeed_hash}')
+                feed_uri = msg['feedUri']
+                subfeed_name = msg['subfeedName']
+                f = kp.load_feed(feed_uri)
+                sf = f.get_subfeed(subfeed_name)
                 sf.append_message(msg['message'])
                 self._worker_session.iterate()
             elif msg['type'] == 'addSubfeedWatch':
                 self._worker_session.add_subfeed_watch(
                     watch_name=msg['watchName'],
-                    feed_id=msg['feedId'],
-                    subfeed_hash=msg['subfeedHash']
+                    feed_uri=msg['feedUri'],
+                    subfeed_name= msg['subfeedName']
                 )
             else:
                 self._worker_session.handle_message(msg)
-    X = SortingView()
+    X = SortingViewJp()
     return X

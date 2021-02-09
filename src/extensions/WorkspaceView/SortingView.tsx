@@ -1,16 +1,10 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { Dispatch, useContext, useEffect, useMemo, useReducer, useState } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { setExternalSortingUnitMetrics } from '../actions';
-import { WorkspaceInfo } from '../AppContainer';
-import { useRecordingInfo, useSortingInfo } from '../extensions/common/getRecordingInfo';
-import { createCalculationPool, HitherContext } from '../extensions/common/hither';
-import { filterPlugins, Plugins, SortingCurationAction, SortingSelection, sortingSelectionReducer } from '../extensions/extensionInterface';
-import { getPathQuery } from '../kachery';
-import { RootAction, RootState } from '../reducers';
-import { Recording } from '../reducers/recordings';
-import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
+import React, { useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import { useRecordingInfo, useSortingInfo } from '../common/getRecordingInfo';
+import { createCalculationPool, HitherContext } from '../common/hither';
+import { SortingCurationWorkspaceAction } from '../common/workspaceReducer';
+import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingSelection, sortingSelectionReducer } from '../extensionInterface';
+import { WorkspaceInfo } from './WorkspaceView';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -22,26 +16,16 @@ import { ExternalSortingUnitMetric, Sorting } from '../reducers/sortings';
 //   return arr;
 // }
 
-interface StateProps {
-  sorting?: Sorting
-  recording?: Recording
-  extensionsConfig: any
+interface Props {
+  sorting: Sorting
+  recording: Recording
   plugins: Plugins
-}
-
-interface DispatchProps {
-  onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
-  curationDispatch: (a: SortingCurationAction) => void
-}
-
-interface OwnProps {
-  sortingId: string,
   width: number,
   height: number,
   workspaceInfo: WorkspaceInfo
+  onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
+  curationDispatch: (a: SortingCurationWorkspaceAction) => void
 }
-
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
 type CalcStatus = 'waiting' | 'computing' | 'finished'
 
@@ -49,15 +33,16 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { plugins, workspaceInfo, sorting, sortingId, recording, curationDispatch, onSetExternalUnitMetrics } = props
+  const { plugins, workspaceInfo, sorting, recording, curationDispatch, onSetExternalUnitMetrics } = props
   const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
   
-  const sortingInfo = useSortingInfo(sorting?.sortingObject, sorting?.recordingObject)
-  const recordingInfo = useRecordingInfo(recording?.recordingObject)
+  const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+  const recordingInfo = useRecordingInfo(recording.recordingObject)
+  const sortingId = sorting.sortingId
 
   useEffect(() => {
     if ((!selection.timeRange) && (recordingInfo)) {
@@ -143,13 +128,9 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       </div>
       <div style={footerStyle}>
           {`Sorting: `}
-          <Link to={`/${workspaceName}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
-            {sorting.sortingLabel}
-          </Link>
+          {sorting.sortingLabel}
           {` | Recording: `}
-          <Link to={`/${workspaceName}/recording/${recording.recordingId}/${getPathQuery({feedUri})}`}>
-            {recording.recordingLabel}
-          </Link>
+          {recording.recordingLabel}
       </div>
     </div>
   );
@@ -170,47 +151,4 @@ export const Expandable = (props: { label: string, children: React.ReactNode[] |
   )
 }
 
-function findSortingForId(state: any, id: string): Sorting | undefined {
-  return state.sortings.filter((s: any) => (s.sortingId === id)).map((s: any) => (s as any as Sorting))[0]
-}
-
-function findRecordingForId(state: any, id: string): Recording | undefined {
-  return state.recordings.filter((s: any) => (s.recordingId === id)).map((s: any) => (s as any as Recording))[0]
-}
-
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({ // todo
-  plugins: filterPlugins(state.plugins),
-  // todo: use selector
-  sorting: findSortingForId(state, ownProps.sortingId),
-  recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {recordingId: ''}).recordingId),
-  extensionsConfig: state.extensionsConfig
-})
-
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => {
-  const curationDispatch = (a: SortingCurationAction) => {
-    if (a.type === 'SetCuration') {
-      dispatch({type: 'SET_CURATION', sortingId: ownProps.sortingId, curation: a.curation, persistKey: 'sortings'})
-    }
-    else if (a.type === 'AddLabel') {
-      dispatch({type: 'ADD_UNIT_LABEL', sortingId: ownProps.sortingId, unitId: a.unitId, label: a.label, persistKey: 'sortings'})
-    }
-    else if (a.type === 'RemoveLabel') {
-      dispatch({type: 'REMOVE_UNIT_LABEL', sortingId: ownProps.sortingId, unitId: a.unitId, label: a.label, persistKey: 'sortings'})
-    }
-    else if (a.type === 'MergeUnits') {
-      dispatch({type: 'MERGE_UNITS', sortingId: ownProps.sortingId, unitIds: a.unitIds, persistKey: 'sortings'})
-    }
-    else if (a.type === 'UnmergeUnits') {
-      dispatch({type: 'UNMERGE_UNITS', sortingId: ownProps.sortingId, unitIds: a.unitIds, persistKey: 'sortings'})
-    }
-  }
-  return {
-    onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => dispatch(setExternalSortingUnitMetrics(a)),
-    curationDispatch
-  }
-}
-
-export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
-  mapStateToProps,
-  mapDispatchToProps
-)(SortingView))
+export default SortingView
