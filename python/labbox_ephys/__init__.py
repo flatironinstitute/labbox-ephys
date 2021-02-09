@@ -20,7 +20,6 @@ from .register_views import (_recording_views, register_recording_view,
                              register_sorting_view, _sorting_views)
 from .sorters import sorters
 
-from .import_to_workspace import import_recording, import_sorting, delete_recording, delete_sorting
 from .workspace import load_workspace, Workspace
 
 dummy = 0

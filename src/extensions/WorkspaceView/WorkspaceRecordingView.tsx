@@ -1,16 +1,13 @@
 import { Grid } from '@material-ui/core';
 import React, { FunctionComponent, useEffect, useReducer } from 'react';
-import { WorkspaceInfo } from '../AppContainer';
-import RecordingInfoView from '../components/RecordingInfoView';
-import SortingsView from '../components/SortingsView';
-import { useRecordingInfo } from '../extensions/common/getRecordingInfo';
-import { createCalculationPool } from '../extensions/common/hither';
-import { Plugins, RecordingSelection, recordingSelectionReducer } from '../extensions/extensionInterface';
-import sortByPriority from '../extensions/sortByPriority';
-import { Recording } from '../reducers/recordings';
-import { Sorting } from '../reducers/sortings';
+import { useRecordingInfo } from '../common/getRecordingInfo';
+import { createCalculationPool } from '../common/hither';
+import { Plugins, Recording, RecordingSelection, recordingSelectionReducer, Sorting } from '../extensionInterface';
+import sortByPriority from '../sortByPriority';
+import RecordingInfoView from './RecordingInfoView';
+import SortingsView from './SortingsView';
 import { Expandable } from './SortingView';
-import { WorkspaceRouteDispatch } from './WorkspaceView';
+import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
 
 interface Props {
   recording: Recording
@@ -20,11 +17,12 @@ interface Props {
   width: number
   height: number
   workspaceRouteDispatch: WorkspaceRouteDispatch
+  onDeleteSortings: (sortingIds: string[]) => void
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings, workspaceInfo, plugins, workspaceRouteDispatch, width, height }) => {
+const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings, workspaceInfo, plugins, workspaceRouteDispatch, onDeleteSortings, width, height }) => {
   const { readOnly } = workspaceInfo;
   const recordingInfo = useRecordingInfo(recording.recordingObject)
 
@@ -54,7 +52,13 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
 
         <Grid item xs={12} lg={6}>
           {/* <Link to={`/${workspaceName}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
-          <SortingsView sortings={sortings} onImportSortings={readOnly ? null : handleImportSortings} workspaceRouteDispatch={workspaceRouteDispatch} workspaceInfo={workspaceInfo} />
+          <SortingsView
+            sortings={sortings}
+            onImportSortings={readOnly ? null : handleImportSortings}
+            workspaceRouteDispatch={workspaceRouteDispatch}
+            workspaceInfo={workspaceInfo}
+            onDeleteSortings={onDeleteSortings}
+          />
         </Grid>
       </Grid>
       {

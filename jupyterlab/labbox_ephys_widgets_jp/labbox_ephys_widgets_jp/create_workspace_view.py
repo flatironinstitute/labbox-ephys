@@ -8,6 +8,7 @@ import hither as hi
 import kachery_p2p as kp
 # this is how the hither functions get registered
 import labbox_ephys as le
+from labbox_ephys.workspace.workspace import Workspace
 import numpy as np
 from hither.job import Job as HitherJob
 from ipywidgets import DOMWidget
@@ -38,29 +39,24 @@ labbox_config = {
         }
     }
 
-def create_sorting_view(
-    plugin_name: str, *,
-    sorting: le.LabboxEphysSortingExtractor,
-    recording: le.LabboxEphysRecordingExtractor,
-    curation_subfeed: Union[kp.Subfeed, None]=None,
+def WorkspaceView(*, workspace: Workspace, height: float=0):
+    return create_workspace_view(feed_uri=workspace.get_feed_uri(), workspace_name=workspace.get_workspace_name(), height=height)
+
+def create_workspace_view(
+    *,
+    feed_uri: str,
+    workspace_name: str,
     height: float=0
 ):
-    class SortingViewJp(DOMWidget):
-        _model_name = Unicode('SortingViewJpModel').tag(sync=True)
+    class WorkspaceViewJp(DOMWidget):
+        _model_name = Unicode('WorkspaceViewJpModel').tag(sync=True)
         _model_module = Unicode(module_name).tag(sync=True)
         _model_module_version = Unicode(module_version).tag(sync=True)
-        _view_name = Unicode('SortingViewJp').tag(sync=True)
+        _view_name = Unicode('WorkspaceViewJp').tag(sync=True)
         _view_module = Unicode(module_name).tag(sync=True)
         _view_module_version = Unicode(module_version).tag(sync=True)
-        pluginName = Unicode(plugin_name).tag(sync=True)
-        sortingObject = DictTrait(sorting.object()).tag(sync=True)
-        recordingObject = DictTrait(recording.object()).tag(sync=True)
-        recordingInfo = DictTrait(le.get_recording_info(recording_object=recording.object())).tag(sync=True)
-        sortingInfo = DictTrait(le.get_sorting_info(sorting_object=sorting.object(), recording_object=recording.object())).tag(sync=True)
-        curationUri = Unicode(curation_subfeed.get_uri() if curation_subfeed is not None else '').tag(sync=True)
-        selection = DictTrait({}).tag(sync=True)
-        curation = DictTrait({}).tag(sync=True)
-        externalUnitMetrics = ListTrait([]).tag(sync=True)
+        feedUri = Unicode(feed_uri).tag(sync=True)
+        workspaceName = Unicode(workspace_name).tag(sync=True)
         widgetHeight = FloatTrait(height).tag(sync=True)
         def __init__(self) -> None:
             super().__init__()
@@ -69,18 +65,6 @@ def create_sorting_view(
             def on_msgs(msgs):
                 self.send(msgs)
             self._worker_session.on_messages(on_msgs)
-        def get_selection(self):
-            return deepcopy(self.selection)
-        def set_selection(self, selection):
-            self.selection = deepcopy(selection)
-        def get_curation(self):
-            return deepcopy(self.curation)
-        def set_curation(self, curation):
-            self.curation = deepcopy(curation)
-        def get_external_unit_metrics(self):
-            return deepcopy(self.externalUnitMetrics)
-        def set_external_unit_metrics(self, external_unit_metrics):
-            self.externalUnitMetrics = deepcopy(external_unit_metrics)
         def _handle_message(self, widget, msg, buffers):
             if msg['type'] == 'iterate':
                 self._worker_session.iterate()
@@ -99,5 +83,5 @@ def create_sorting_view(
                 )
             else:
                 self._worker_session.handle_message(msg)
-    X = SortingViewJp()
+    X = WorkspaceViewJp()
     return X

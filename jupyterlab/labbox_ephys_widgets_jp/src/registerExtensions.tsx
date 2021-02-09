@@ -11,7 +11,6 @@ import { activate as activatetimeseries } from './extensions/timeseries/timeseri
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry'
 import { activate as activatesnippets } from './extensions/snippets/snippets'
 import { activate as activateexample } from './extensions/example/example'
-import { activate as activatecuration } from './extensions/old/curation/curation'
 import { activate as activateaveragewaveformsold } from './extensions/old/averagewaveformsold/averagewaveformsold'
 import { activate as activateclusters } from './extensions/clusters/clusters'
 import { activate as activateunitstable } from './extensions/unitstable/unitstable'
@@ -29,7 +28,6 @@ const registerExtensions = (context: ExtensionContext) => {
     activateelectrodegeometry(context)
     activatesnippets(context)
     activateexample(context)
-    activatecuration(context)
     activateaveragewaveformsold(context)
     activateclusters(context)
     activateunitstable(context)

@@ -1,21 +1,23 @@
+// convert to tsx
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import { string } from 'mathjs';
-import React, { useMemo, useState } from 'react';
-import ElectrodeGeometryWidget from '../extensions/electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
+import React, { FunctionComponent, useMemo, useState } from 'react';
+import { Electrode } from '../devel/ElectrodeGeometryTest/ElectrodeGeometry';
+import ElectrodeGeometryWidget from '../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
+import { RecordingInfo } from '../extensionInterface';
 
 
-const zipElectrodes = (locations, ids) => {
+const zipElectrodes = (locations: number[][], ids: number[]): Electrode[] => {
     if (locations && ids && ids.length !== locations.length) throw Error('Electrode ID count does not match location count.')
-    return ids.map((x, index) => {
+    return ids.map((x: number, index: number) => {
         const loc = locations[index]
-        return { label: string(x), x: loc[0], y: loc[1] }
+        return { label: x + '', x: loc[0], y: loc[1] }
     })
 }
 
-const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
+const RecordingInfoView: FunctionComponent<{recordingInfo: RecordingInfo, hideElectrodeGeometry: boolean}> = ({ recordingInfo, hideElectrodeGeometry }) => {
     const ri = recordingInfo;
     const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState([]);
+    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
@@ -47,7 +49,15 @@ const RecordingInfoView = ({ recordingInfo, hideElectrodeGeometry }) => {
     );
 }
 
-const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, num_frames, noise_level }) => {
+type RecordingViewTableProps = {
+    sampling_frequency: number
+    channel_ids: number[]
+    channel_groups: number[]
+    num_frames: number
+    noise_level: number
+}
+
+const RecordingViewTable: FunctionComponent<RecordingViewTableProps> = ({ sampling_frequency, channel_ids, channel_groups, num_frames, noise_level }) => {
     return (
         <Table className="NiceTable">
             <TableHead>
@@ -86,9 +96,8 @@ const RecordingViewTable = ({ sampling_frequency, channel_ids, channel_groups, n
     )
 }
 
-function commasep(x) {
-    if (!x) return JSON.stringify(x);
-    return x.join(', ');
+function commasep(x: number[]) {
+    return x.map(a => (a + '')).join(', ');
 }
 
 export default RecordingInfoView;

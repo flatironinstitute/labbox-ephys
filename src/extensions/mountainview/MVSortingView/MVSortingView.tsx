@@ -4,9 +4,9 @@ import { GraphicEq, Settings, Visibility } from '@material-ui/icons'
 import GrainIcon from '@material-ui/icons/Grain'
 import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser'
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import Expandable from '../../common/Expandable'
 import Splitter from '../../common/Splitter'
 import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
-import Expandable from '../../old/curation/CurationSortingView/Expandable'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
 import OptionsControl from './OptionsControl'
@@ -230,6 +230,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                     {/* Curation */}
                     <Expandable icon={curationIcon} label="Curation" defaultExpanded={false} unmountOnExit={false}>
                         <CurationControl
+                            sortingId={sorting.sortingId}
                             curation={props.sorting.curation || {}}
                             curationDispatch={props.curationDispatch}
                             selection={props.selection}
