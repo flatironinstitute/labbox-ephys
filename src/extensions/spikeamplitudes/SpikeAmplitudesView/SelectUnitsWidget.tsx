@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { useSortingInfo } from '../../common/getRecordingInfo';
+import { useSortingInfo } from '../../common/useSortingInfo';
 import { Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import UnitsTable from '../../unitstable/Units/UnitsTable';
 

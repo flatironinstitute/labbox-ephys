@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useEffect, useMemo, useReducer, useState } from 'react'
 import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
-import { useRecordingInfo } from '../../common/getRecordingInfo'
+import { useRecordingInfo } from '../../common/useRecordingInfo'
 import { createElectrodeGeometryLayer, ElectrodeLayerProps } from "../../electrodegeometry/ElectrodeGeometryWidget/electrodeGeometryLayer"
 import { Recording, SortingSelection } from "../../extensionInterface"
 import { TimeseriesData } from "../../timeseries/TimeseriesViewNew/useTimeseriesModel"

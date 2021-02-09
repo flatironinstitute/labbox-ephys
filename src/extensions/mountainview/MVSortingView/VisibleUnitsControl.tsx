@@ -1,7 +1,7 @@
 import { Checkbox } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { useSortingInfo } from '../../common/getRecordingInfo';
 import { useHitherJob } from '../../common/hither';
+import { useSortingInfo } from '../../common/useSortingInfo';
 import { Recording, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 
 type Props = {

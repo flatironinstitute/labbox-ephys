@@ -1,7 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React, { FunctionComponent, useEffect, useReducer } from 'react';
-import { useRecordingInfo } from '../common/getRecordingInfo';
 import { createCalculationPool } from '../common/hither';
+import { useRecordingInfo } from '../common/useRecordingInfo';
 import { Plugins, Recording, RecordingSelection, recordingSelectionReducer, Sorting } from '../extensionInterface';
 import sortByPriority from '../sortByPriority';
 import RecordingInfoView from './RecordingInfoView';
