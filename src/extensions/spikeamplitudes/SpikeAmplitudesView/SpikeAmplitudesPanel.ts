@@ -27,7 +27,7 @@ class SpikeAmplitudesPanel {
     _globalAmplitudeRange: {min: number, max: number} | null = null
     _includeZero = true
     _amplitudes: number[] | undefined = undefined
-    constructor(private args: {spikeAmplitudesData: SpikeAmplitudesData, recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
+    constructor(private args: {spikeAmplitudesData: SpikeAmplitudesData | null, recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
     }
     setTimeRange(timeRange: {min: number, max: number}) {
         this._timeRange = timeRange
@@ -39,6 +39,7 @@ class SpikeAmplitudesPanel {
         const color = colorForUnitId(this.args.unitId)
         const pen: Pen = {color: 'black'}
         const brush: Brush = {color}
+        if (!this.args.spikeAmplitudesData) return
         const result = this.args.spikeAmplitudesData.getSpikeAmplitudes(this.args.unitId)
         if ((result) && (result.timepoints) && (result.amplitudes)) {
             const { timepoints, amplitudes } = result
