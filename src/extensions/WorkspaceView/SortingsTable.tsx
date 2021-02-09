@@ -1,5 +1,5 @@
 import { CircularProgress } from '@material-ui/core';
-import { default as React, default as React, FunctionComponent, useCallback, useMemo } from 'react';
+import { default as React, FunctionComponent, useCallback, useMemo } from 'react';
 import NiceTable from '../common/NiceTable';
 import { useSortingInfos } from '../common/useSortingInfo';
 import { Sorting } from '../extensionInterface';
