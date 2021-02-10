@@ -12,7 +12,8 @@ import { CalculationPool, createCalculationPool, HitherContext } from './extensi
 import { sleepMsec } from './extensions/common/misc';
 import { useRecordingInfo } from './extensions/common/useRecordingInfo';
 import { useSortingInfo } from './extensions/common/useSortingInfo';
-import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingCurationReducer, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import { sortingCurationReducer } from './extensions/common/workspaceReducer';
+import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
 import initializeHitherInterface from './extensions/initializeHitherInterface';
 import theme from './extensions/theme';
 import registerExtensions from './registerExtensions';
@@ -192,7 +193,7 @@ const PluginComponentWrapper: FunctionComponent<PluginComponentWrapperProps> = (
     model.on('change:curation', () => {
       if (!curationSubfeed) {
         curationDispatch({
-          type: 'SetCuration',
+          type: 'SET_CURATION',
           curation: model.get('curation')
         })
       }
