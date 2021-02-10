@@ -25,6 +25,7 @@ const TextColor = {
 }
 
 export type Electrode = {
+    id: number
     label: string,
     x: number,
     y: number,
