@@ -18,7 +18,6 @@ from .helpers.SubsampledSortingExtractor import SubsampledSortingExtractor
 from .misc import get_recording_info, get_recording_object, get_sorting_info, get_unit_waveforms_from_snippets_h5
 from .register_views import (_recording_views, register_recording_view,
                              register_sorting_view, _sorting_views)
-from .sorters import sorters
 
 from .workspace import load_workspace, Workspace
 

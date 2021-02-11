@@ -1,1 +1,1 @@
-from ._sorters import sorters
+from .mountainsort4 import mountainsort4
