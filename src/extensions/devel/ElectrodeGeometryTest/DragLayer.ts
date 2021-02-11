@@ -18,7 +18,7 @@ const getElectrodeBoundingRect = (e: Electrode, r: number, fill: boolean = false
 
 export interface DragLayerState {
     dragRegion: RectangularRegion | null
-    electrodeBoundingBoxes: {label: string, x: number, y: number, br: RectangularRegion}[]
+    electrodeBoundingBoxes: {label: string, x: number, y: number, id: number, br: RectangularRegion}[]
     selectedElectrodes: Electrode[]
     draggedElectrodes: Electrode[]
 }

@@ -25,16 +25,18 @@ export type ElectrodeOpts = {
     colors?: ElectrodeColors
     showLabels?: boolean
     disableSelection?: boolean
+    maxElectrodePixelRadius?: number
 }
 
 export type LayerProps = Props & {
     layoutMode: 'geom' | 'vertical'
-    electrodeOpts: ElectrodeOpts
     waveformOpts: {
         colors?: WaveformColors
         waveformWidth: number
     }
 }
+
+export type ElectrodeLayerProps = Props
 
 const electrodeColors: ElectrodeColors = {
     border: 'rgb(120, 100, 120)',
@@ -68,7 +70,11 @@ const WaveformWidget: FunctionComponent<Props> = (props) => {
         electrodeOpts: {...defaultElectrodeOpts, ...props.electrodeOpts},
         waveformOpts: defaultWaveformOpts,
     }
-    const electrodesLayer = useLayer(createElectrodesLayer, layerProps)
+    const electrodeLayerProps: ElectrodeLayerProps = {
+        ...props,
+        electrodeOpts: {...defaultElectrodeOpts, ...props.electrodeOpts},
+    }
+    const electrodesLayer = useLayer(createElectrodesLayer, electrodeLayerProps)
     const waveformLayer = useLayer(createWaveformLayer, layerProps)
     const layers = useLayers([electrodesLayer, waveformLayer])
     return (

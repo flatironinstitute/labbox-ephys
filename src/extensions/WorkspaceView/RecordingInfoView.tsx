@@ -1,23 +1,23 @@
 // convert to tsx
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import React, { FunctionComponent, useMemo, useState } from 'react';
+import React, { FunctionComponent, useMemo, useReducer } from 'react';
 import { Electrode } from '../devel/ElectrodeGeometryTest/ElectrodeGeometry';
 import ElectrodeGeometryWidget from '../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
-import { RecordingInfo } from '../extensionInterface';
+import { RecordingInfo, recordingSelectionReducer } from '../extensionInterface';
 
 
 const zipElectrodes = (locations: number[][], ids: number[]): Electrode[] => {
     if (locations && ids && ids.length !== locations.length) throw Error('Electrode ID count does not match location count.')
     return ids.map((x: number, index: number) => {
         const loc = locations[index]
-        return { label: x + '', x: loc[0], y: loc[1] }
+        return { label: x + '', x: loc[0], y: loc[1], id: x }
     })
 }
 
 const RecordingInfoView: FunctionComponent<{recordingInfo: RecordingInfo, hideElectrodeGeometry: boolean}> = ({ recordingInfo, hideElectrodeGeometry }) => {
     const ri = recordingInfo;
     const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []), [ri])
-    const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
+    const [selection, selectionDispatch] = useReducer(recordingSelectionReducer, {})
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
@@ -38,8 +38,8 @@ const RecordingInfoView: FunctionComponent<{recordingInfo: RecordingInfo, hideEl
                 !hideElectrodeGeometry && (
                     <ElectrodeGeometryWidget
                         electrodes={electrodes}
-                        selectedElectrodeIds={selectedElectrodeIds}
-                        onSelectedElectrodeIdsChanged={setSelectedElectrodeIds}
+                        selection={selection}
+                        selectionDispatch={selectionDispatch}
                         width={350}
                         height={150}
                     />

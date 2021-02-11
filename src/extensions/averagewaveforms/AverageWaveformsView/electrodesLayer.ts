@@ -2,7 +2,7 @@ import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter';
 import { CanvasDragEvent, CanvasWidgetLayer, ClickEvent, ClickEventType, DiscreteMouseEventHandler, DragHandler } from "../../common/CanvasWidget/CanvasWidgetLayer";
 import { pointIsInEllipse, RectangularRegion, rectangularRegionsIntersect } from '../../common/CanvasWidget/Geometry';
 import setupElectrodes, { ElectrodeBox } from './setupElectrodes';
-import { LayerProps } from './WaveformWidget';
+import { ElectrodeLayerProps } from './WaveformWidget';
 
 export type ElectrodeColors = {
     border: string,
@@ -46,7 +46,7 @@ const defaultColors: ElectrodeColors = {
     textDark: 'rgb(32, 32, 32)'
 }
 
-const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<LayerProps, LayerState>) => {
+const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<ElectrodeLayerProps, LayerState>) => {
     if (event.type !== ClickEventType.Release) return
     const { selectionDispatch, electrodeOpts: opts } = layer.getProps()
     if (opts.disableSelection) return
@@ -77,7 +77,7 @@ const handleClick: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     layer.scheduleRepaint()
 }
 
-const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<LayerProps, LayerState>) => {
+const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: CanvasWidgetLayer<ElectrodeLayerProps, LayerState>) => {
     if (event.type !== ClickEventType.Move) return
     const state = layer.getState()
     if (state === null) return
@@ -86,7 +86,7 @@ const handleHover: DiscreteMouseEventHandler = (event: ClickEvent, layer: Canvas
     layer.scheduleRepaint()
 }
 
-const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<LayerProps, LayerState>, drag: CanvasDragEvent) => {
+const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<ElectrodeLayerProps, LayerState>, drag: CanvasDragEvent) => {
     const state = layer.getState()
     const { selectionDispatch, electrodeOpts: opts } = layer.getProps()
     if (opts.disableSelection) return
@@ -103,7 +103,7 @@ const handleDragSelect: DragHandler = (layer: CanvasWidgetLayer<LayerProps, Laye
 }
 
 export const createElectrodesLayer = () => {
-    const onPaint = (painter: CanvasPainter, props: LayerProps, state: LayerState) => {
+    const onPaint = (painter: CanvasPainter, props: ElectrodeLayerProps, state: LayerState) => {
         const opts = props.electrodeOpts
         const colors = opts.colors || defaultColors
         const showLabels = opts.showLabels
@@ -149,15 +149,15 @@ export const createElectrodesLayer = () => {
         
         state.dragRegion && painter.fillRect(state.dragRegion, {color: colors.dragRect})
     }
-    const onPropsChange = (layer: CanvasWidgetLayer<LayerProps, LayerState>, props: LayerProps) => {
+    const onPropsChange = (layer: CanvasWidgetLayer<ElectrodeLayerProps, LayerState>, props: ElectrodeLayerProps) => {
         const state = layer.getState()
         const { width, height, electrodeLocations, electrodeIds, layoutMode } = props
-        const { electrodeBoxes, transform, radius, pixelRadius } = setupElectrodes({width, height, electrodeLocations, electrodeIds, layoutMode})
+        const { electrodeBoxes, transform, radius, pixelRadius } = setupElectrodes({width, height, electrodeLocations, electrodeIds, layoutMode, maxElectrodePixelRadius: props.electrodeOpts.maxElectrodePixelRadius})
         layer.setTransformMatrix(transform)
         layer.setState({...state, electrodeBoxes, radius, pixelRadius})
         layer.scheduleRepaint()
     }
-    return new CanvasWidgetLayer<LayerProps, LayerState>(
+    return new CanvasWidgetLayer<ElectrodeLayerProps, LayerState>(
         onPaint,
         onPropsChange,
         initialLayerState,

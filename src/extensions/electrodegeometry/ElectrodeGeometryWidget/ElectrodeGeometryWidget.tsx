@@ -1,8 +1,10 @@
-import React from "react"
-import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
+import React, { useMemo } from "react"
+import { createElectrodesLayer } from "../../averagewaveforms/AverageWaveformsView/electrodesLayer"
+import { ElectrodeLayerProps } from "../../averagewaveforms/AverageWaveformsView/WaveformWidget"
+import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
-import { Electrode } from "../../devel/ElectrodeGeometryTest/ElectrodeGeometry"
-import { createElectrodeGeometryLayer, ElectrodeLayerProps } from './electrodeGeometryLayer'
+import { RecordingSelection, RecordingSelectionDispatch } from "../../extensionInterface"
+import { Electrode } from "./electrodeGeometryLayer"
 
 // Okay, so after some hoop-jumping, we've learned the RecordingInfo has:
 // - sampling frequency (number), - channel_ids (list of number),
@@ -11,30 +13,35 @@ import { createElectrodeGeometryLayer, ElectrodeLayerProps } from './electrodeGe
 
 interface WidgetProps {
     electrodes: Electrode[] // Note: these shouldn't be interacted with directly. Use the bounding boxes in the state, instead.
-    selectedElectrodeIds: number[]
-    onSelectedElectrodeIdsChanged: (x: number[]) => void
+    selection: RecordingSelection
+    selectionDispatch: RecordingSelectionDispatch
     width: number
     height: number
 }
 
-const ElectrodeGeometryCanvas = (props: ElectrodeLayerProps) => {
-    const layer = useLayer(createElectrodeGeometryLayer, props)
+const ElectrodeGeometryWidget = (props: WidgetProps) => {
+    const electrodeLayerProps: ElectrodeLayerProps = useMemo(() => ({
+        layoutMode: 'geom',
+        electrodeIds: props.electrodes.map(e => e.id),
+        electrodeLocations: props.electrodes.map(e => [e.x, e.y]),
+        width: props.width,
+        height: props.height,
+        selection: props.selection,
+        selectionDispatch: props.selectionDispatch,
+        electrodeOpts: {
+            showLabels: true,
+            maxElectrodePixelRadius: 25
+        },
+        noiseLevel: 0, // not needed
+        samplingFrequency: 0 // not needed
+    }), [props])
+    const layer = useLayer(createElectrodesLayer, electrodeLayerProps)
     const layers = useLayers([layer])
     return (
         <CanvasWidget
             key='electrodeGeometryCanvas'
             layers={layers}
             {...{width: props.width, height: props.height}}
-        />
-    )
-}
-
-
-// Widget proper: just a Sizeme wrapper.
-const ElectrodeGeometryWidget = (props: WidgetProps) => {
-    return (
-        <ElectrodeGeometryCanvas 
-            {...props}
         />
     )
 }
