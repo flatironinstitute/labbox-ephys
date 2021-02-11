@@ -1,5 +1,5 @@
-import { Grid } from '@material-ui/core';
-import React, { FunctionComponent, useEffect, useReducer } from 'react';
+import { Button, Grid } from '@material-ui/core';
+import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react';
 import { createCalculationPool } from '../common/hither';
 import { useRecordingInfo } from '../common/useRecordingInfo';
 import { Plugins, Recording, RecordingSelection, recordingSelectionReducer, Sorting } from '../extensionInterface';
@@ -39,18 +39,25 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
     }
   }, [selection, recordingInfo])
 
+  const handleBackToRecordings = useCallback(() => {
+      workspaceRouteDispatch({
+        type: 'gotoRecordingsPage'
+      })
+  }, [workspaceRouteDispatch])
+
   if (!recordingInfo) return <div>Loading recording info</div>
 
   return (
     <div style={{margin: 20}}>
       <Grid container spacing={3}>
-        <Grid item xs={12} lg={6}>
+        <Grid item xs={12} xl={6}>
+          <Button onClick={handleBackToRecordings}>Back to recordings</Button>
           <h2>{recording.recordingLabel}</h2>
           <div>{recording.recordingPath}</div>
           <RecordingInfoView recordingInfo={recordingInfo} hideElectrodeGeometry={true} />
         </Grid>
 
-        <Grid item xs={12} lg={6}>
+        <Grid item xs={12} xl={6}>
           {/* <Link to={`/${workspaceName}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
           <SortingsView
             sortings={sortings}

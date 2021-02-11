@@ -35,8 +35,8 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     return (
         <ElectrodeGeometryWidget
             electrodes={electrodes}
-            selectedElectrodeIds={selectedElectrodeIds}
-            onSelectedElectrodeIdsChanged={handleSelectedElectrodeIdsChanged}
+            selection={selection}
+            selectionDispatch={selectionDispatch}
             width={width || 350}
             height={height || 150}
         />

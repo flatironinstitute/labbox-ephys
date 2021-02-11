@@ -1,6 +1,6 @@
 import { Checkbox, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Delete, Edit } from "@material-ui/icons";
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import './NiceTable.css';
 
 interface Row {
@@ -15,9 +15,9 @@ interface Col {
 interface Props {
     rows: Row[],
     columns: Col[],
-    onDeleteRow?: ((key: string, columnValues: {[key: string]: any}) => void),
+    onDeleteRow?: (key: string) => void,
     deleteRowLabel?: string,
-    onEditRow?: ((key: string, columnValues: {[key: string]: any}) => void),
+    onEditRow?: (key: string) => void,
     editRowLabel?: string,
     selectionMode?: 'none' | 'single' | 'multiple',
     selectedRowKeys?: {[key: string]: boolean},
@@ -35,10 +35,15 @@ const NiceTable: FunctionComponent<Props> = ({
     selectedRowKeys={},
     onSelectedRowKeysChanged=undefined
 }) => {
-    const selectedRowKeysObj: {[key: string]: boolean} = {};
-    Object.keys(selectedRowKeys).forEach((key) => {selectedRowKeysObj[key] = selectedRowKeys[key]});
-    const handleClickRow = (key: string) => {
+    const selectedRowKeysObj = useMemo(() => {
+        const x: {[key: string]: boolean} = {};
+        Object.keys(selectedRowKeys).forEach((key) => {x[key] = selectedRowKeys[key]});
+        return x
+    }, [selectedRowKeys])
+    const [confirmDeleteRowKey, setConfirmDeleteRowKey] = useState<string | null>(null)
+    const handleClickRow = useCallback((key: string) => {
         if (!onSelectedRowKeysChanged || false) return;
+        
         if (selectionMode === 'single') {
             if (!(key in selectedRowKeysObj) || !selectedRowKeysObj[key]) {
                 onSelectedRowKeysChanged([key + '']);
@@ -55,7 +60,19 @@ const NiceTable: FunctionComponent<Props> = ({
                     .concat(selectedRowKeysObj[key] ? [] : [key.toString()])
             );
         }
-    }
+    }, [onSelectedRowKeysChanged, selectionMode, selectedRowKeysObj])
+    const handleDeleteRow = useCallback((rowKey: string) => {
+        setConfirmDeleteRowKey(rowKey)
+    }, [])
+    const handleConfirmDeleteRow = useCallback((rowKey: string, confirmed: boolean) => {
+        if (confirmed) {
+            onDeleteRow && onDeleteRow(rowKey)
+        }
+        setConfirmDeleteRowKey(null)
+    }, [onDeleteRow])
+    const handleEditRow = useCallback((rowKey: string) => {
+        onEditRow && onEditRow(rowKey)
+    }, [onEditRow])
     return (
         <Table className="NiceTable">
             <TableHead>
@@ -76,13 +93,29 @@ const NiceTable: FunctionComponent<Props> = ({
                         <TableRow key={row.key}>
                             <TableCell>
                                 {
-                                    onDeleteRow && (
-                                        <IconButton title={deleteRowLabel || ''} onClick={() => onDeleteRow && onDeleteRow(row.key, row.columnValues)}><Delete /></IconButton>
-                                    )
+                                    onDeleteRow && ((confirmDeleteRowKey === row.key) ? (
+                                        <ConfirmDeleteRowButton
+                                            title={deleteRowLabel || ''}
+                                            onConfirmDeleteRow={handleConfirmDeleteRow}
+                                            rowKey={row.key}
+                                        />
+                                    ) : (
+                                        (
+                                            <DeleteRowButton
+                                                title={deleteRowLabel || ''}
+                                                onDeleteRow={handleDeleteRow}
+                                                rowKey={row.key}
+                                            />
+                                        )
+                                    ))
                                 }
                                 {
                                     onEditRow && (
-                                        <IconButton title={editRowLabel || ''} onClick={() => onEditRow && onEditRow(row.key, row.columnValues)}><Edit /></IconButton>
+                                        <EditRowButton
+                                            title={editRowLabel || ''}
+                                            onEditRow={handleEditRow}
+                                            rowKey={row.key}
+                                        />
                                     )
                                 }
                                 {
@@ -108,6 +141,51 @@ const NiceTable: FunctionComponent<Props> = ({
         </Table>
     );
 };
+
+const DeleteRowButton: FunctionComponent<{title: string, rowKey: string, onDeleteRow?: (key: string) => void}> = ({ title, rowKey, onDeleteRow }) => {
+    const handleClick = useCallback(() => {
+        onDeleteRow && onDeleteRow(rowKey)
+    }, [onDeleteRow, rowKey])
+    return (
+        <IconButton
+            title={title}
+            onClick={handleClick}
+        ><Delete /></IconButton>
+    )
+}
+
+const ConfirmDeleteRowButton: FunctionComponent<{title: string, rowKey: string, onConfirmDeleteRow?: (key: string, confirmed: boolean) => void}> = ({ title, rowKey, onConfirmDeleteRow }) => {
+    const handleClick = useCallback(() => {
+        onConfirmDeleteRow && onConfirmDeleteRow(rowKey, true)
+    }, [onConfirmDeleteRow, rowKey])
+    const handleCancel = useCallback(() => {
+        onConfirmDeleteRow && onConfirmDeleteRow(rowKey, false)
+    }, [onConfirmDeleteRow, rowKey])
+    return (
+        <span>
+            Confirm delete?
+            <IconButton
+                title={title}
+                onClick={handleClick}
+            ><Delete /></IconButton>
+            <IconButton
+                title={"Cancel"}
+                onClick={handleCancel}
+            >&#10006;</IconButton>
+        </span>
+    )
+}
+
+const EditRowButton: FunctionComponent<{title: string, rowKey: string, onEditRow?: (key: string) => void}> = ({title, rowKey, onEditRow}) => {
+    return (
+        <IconButton
+            title={title}
+            onClick={() => onEditRow && onEditRow(rowKey)}
+        >
+            <Edit />
+        </IconButton>
+    )
+}
 
 const makeCell = (x: any) => {
     // eslint-disable-next-line eqeqeq
