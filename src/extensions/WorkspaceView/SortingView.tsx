@@ -1,11 +1,12 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
-import React, { useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { createCalculationPool, HitherContext } from '../common/hither';
+import Hyperlink from '../common/Hyperlink';
 import { useRecordingInfo } from '../common/useRecordingInfo';
 import { useSortingInfo } from '../common/useSortingInfo';
 import { SortingCurationWorkspaceAction } from '../common/workspaceReducer';
 import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingSelection, sortingSelectionReducer } from '../extensionInterface';
-import { WorkspaceInfo } from './WorkspaceView';
+import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -23,6 +24,7 @@ interface Props {
   plugins: Plugins
   width: number,
   height: number,
+  workspaceRouteDispatch: WorkspaceRouteDispatch
   workspaceInfo: WorkspaceInfo
   onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
   curationDispatch: (a: SortingCurationWorkspaceAction) => void
@@ -34,7 +36,7 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { plugins, workspaceInfo, sorting, recording, curationDispatch, onSetExternalUnitMetrics } = props
+  const { plugins, workspaceInfo, sorting, recording, curationDispatch, onSetExternalUnitMetrics, workspaceRouteDispatch } = props
   const { workspaceName, feedUri, readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
@@ -93,6 +95,13 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   if (!sv) throw Error('Missing sorting view: MVSortingView')
   const svProps = useMemo(() => (sv.props || {}), [sv.props])
 
+  const handleGotoRecording = useCallback(() => {
+      workspaceRouteDispatch({
+        type: 'gotoRecordingPage',
+        recordingId: recording.recordingId
+      })
+  }, [workspaceRouteDispatch, recording.recordingId])
+
   if (!sorting) {
     return <h3>{`Sorting not found: ${sortingId}`}</h3>
   }
@@ -131,7 +140,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
           {`Sorting: `}
           {sorting.sortingLabel}
           {` | Recording: `}
-          {recording.recordingLabel}
+          {<Hyperlink onClick={handleGotoRecording}>{recording.recordingLabel}</Hyperlink>}
       </div>
     </div>
   );
