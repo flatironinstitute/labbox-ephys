@@ -48,7 +48,7 @@ def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
         channel_locations = np.array(f.get(f'channel_locations'))
         sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
         unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
-        unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms')) # L x M x T
+        unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms')) # L x M x T (see below)
         unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
         if len(unit_spike_train) > max_num_events:
             inds = subsample_inds(len(unit_spike_train), max_num_events)
@@ -57,7 +57,12 @@ def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
     
     from sklearn.decomposition import PCA
     nf = 2 # number of features
+
+    # L = number of waveforms (number of spikes)
+    # M = number of electrodes in nbhd
+    # T = num. timepoints in the snippet
     W = unit_waveforms # L x M x T
+
     # subtract mean for each channel and waveform
     for i in range(W.shape[0]):
         for m in range(W.shape[1]):
@@ -65,6 +70,9 @@ def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
     X = W.reshape((W.shape[0], W.shape[1] * W.shape[2])) # L x MT
     pca = PCA(n_components=nf)
     pca.fit(X)
+
+    # L = number of waveforms (number of spikes)
+    # nf = number of features
     features = pca.transform(X) # L x nf
 
     return dict(
