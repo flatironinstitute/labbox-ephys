@@ -190,7 +190,7 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, workspace, wor
             return (
                 <WorkspaceRecordingView
                     onDeleteSortings={handleDeleteSortings}
-                    {...{ width, height, recording, workspaceInfo, plugins, workspaceRouteDispatch }}
+                    {...{ width, height, recording, workspaceInfo, plugins, workspaceRouteDispatch, defaultFeedId }}
                     sortings={workspace.sortings.filter(s => (s.recordingId === rid))}
                 />
             )

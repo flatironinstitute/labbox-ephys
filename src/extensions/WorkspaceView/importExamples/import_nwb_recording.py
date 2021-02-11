@@ -11,7 +11,7 @@ sorting_label = 'sorting'
 recording_nwb_path = '<path or URI of nwb recording>'
 sorting_nwb_path = '<path or URI of nwb sorting>'
 feed_uri = '{feedUri}'
-workspace_name = 'default'
+workspace_name = '{workspaceName}'
 
 
 recording_uri = ka.store_object({

@@ -6,9 +6,9 @@ import kachery_p2p as kp
 
 if __name__ == '__main__':
     # adjust these values
-    feed_uri = 'feed://9244ef2ef4e61d519d7cab66f0dbe19fad62f1b8e05d3b62eaa7c91af8357e6e'
-    workspace_name = 'default'
-    recording_id = 'R-8710445c8de8'
+    feed_uri = '{feedId}'
+    workspace_name = '{workspaceName}'
+    recording_id = '{recordingId}' # {recordingLabel}
 
     feed = kp.load_feed(feed_uri)
     workspace = le.load_workspace(workspace_name=workspace_name, feed=feed)

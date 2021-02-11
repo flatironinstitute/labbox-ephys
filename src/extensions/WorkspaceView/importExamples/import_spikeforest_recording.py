@@ -25,7 +25,7 @@ X3 = {
 # Adjust these values ###########################
 X = X1 # Select example from above
 feed_uri = '{feedUri}'
-workspace_name = 'default'
+workspace_name = '{workspaceName}'
 #################################################
 
 recording_label = X['label']

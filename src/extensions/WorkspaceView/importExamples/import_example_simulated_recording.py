@@ -5,7 +5,7 @@ import kachery_p2p as kp
 
 # adjust these values
 feed_uri = '{feedUri}'
-workspace_name = 'default'
+workspace_name = '{workspaceName}'
 recording_label = 'simulated_recording'
 duration_sec = 50 # duration of simulated recording
 num_channels = 8 # num. channels in simulated recording
