@@ -78,6 +78,10 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
         }
     })), [recordings, sortingsByRecordingId, handleViewRecording, recordingInfos])
 
+    const handleDeleteRow = useCallback((key: string) => {
+        onDeleteRecordings && onDeleteRecordings([key])
+    }, [onDeleteRecordings])
+
     const columns = [
         {
             key: 'recordingLabel',
@@ -107,7 +111,7 @@ const RecordingsTable: FunctionComponent<Props> = ({ recordings, sortings, onDel
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this recording"}
-                onDeleteRow={readOnly ? undefined : (key, columnValues) => onDeleteRecordings([key])}
+                onDeleteRow={readOnly ? undefined : handleDeleteRow}
             />
         </div>
     );
