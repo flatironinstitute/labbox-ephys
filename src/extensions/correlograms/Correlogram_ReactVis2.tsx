@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { VerticalBarSeries, XAxis, XYPlot, YAxis } from 'react-vis';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../common/hither';
-import { Sorting, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
+import { mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
 
 type PlotData = {
     bins: number[]
@@ -27,8 +27,8 @@ const Correlogram_rv2: FunctionComponent<Props> = ({ sorting, unitId1, unitId2, 
         'createjob_fetch_correlogram_plot_data',
         {
             sorting_object: sorting.sortingObject,
-            unit_x: unitId1,
-            unit_y: unitId2 !== undefined ? unitId2 : null
+            unit_x: mergeGroupForUnitId(unitId1, sorting) || unitId1,
+            unit_y: unitId2 !== undefined ? (mergeGroupForUnitId(unitId2, sorting) || unitId2) : null
         },
         {useClientCache: false, calculationPool}
     )

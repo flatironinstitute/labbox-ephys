@@ -3,11 +3,12 @@ import hither as hi
 import kachery as ka
 import numpy as np
 import labbox_ephys as le
+import spikeextractors as se
 
 from ._correlograms_phy import compute_correlograms
 
 
-@hi.function('fetch_correlogram_plot_data', '0.2.4')
+@hi.function('fetch_correlogram_plot_data', '0.2.5')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @le.serialize
@@ -32,16 +33,23 @@ def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y
             unit_y=unit_y
         )
 
+def _get_spike_train(*, sorting: se.SortingExtractor, unit_id):
+    if type(unit_id) == list:
+        x = sorting.get_units_spike_train(unit_ids=unit_id)
+        return np.sort(np.concatenate(x))
+    else:
+        return sorting.get_unit_spike_train(unit_id=unit_id)
+
 def _get_correlogram_data(*, sorting, unit_id1, unit_id2=None, window_size_msec, bin_size_msec):
     auto = unit_id2 is None or unit_id2 == unit_id1
 
-    times = sorting.get_unit_spike_train(unit_id=unit_id1)
+    times = _get_spike_train(sorting=sorting, unit_id=unit_id1)
     window_size = window_size_msec / 1000
     bin_size = bin_size_msec / 1000
     labels = np.ones(times.shape, dtype=np.int32)
     cluster_ids = [1]
     if not auto:
-        times2 = sorting.get_unit_spike_train(unit_id=unit_id2)
+        times2 = _get_spike_train(sorting=sorting, unit_id=unit_id2)
         times = np.concatenate((times, times2))
         labels = np.concatenate((labels, np.ones(times2.shape, dtype=np.int32) *2 ))
         cluster_ids.append(2)
