@@ -31,10 +31,12 @@ After you install the prerequisites above, clone this repository and then instal
 ```
 cd labbox-ephys
 pip install -e ./python
+
+export NODE_OPTIONS="--max-old-space-size=8192"
 pip install -e jupyterlab/labbox_ephys_widgets_jp
 ```
 
-In addition to installing the Python package, the latter command will also build the typescript project (the front-end code that runs in the browser and renders the widgets).
+In addition to installing the Python package, the latter command will also build the typescript project (the front-end code that runs in the browser and renders the widgets). The `NODE_OPTIONS` command may be needed in order to avoid an out-of-memory error during compilation.
 
 Next, activate the compiled jupyterlab extension:
 
