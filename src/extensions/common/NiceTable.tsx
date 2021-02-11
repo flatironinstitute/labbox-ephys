@@ -171,7 +171,7 @@ const ConfirmDeleteRowButton: FunctionComponent<{title: string, rowKey: string, 
             <IconButton
                 title={"Cancel"}
                 onClick={handleCancel}
-            >🗙</IconButton>
+            >&#10006;</IconButton>
         </span>
     )
 }
