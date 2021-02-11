@@ -212,6 +212,7 @@ const WorkspaceView: FunctionComponent<Props> = ({ width, height, workspace, wor
                     width={width}
                     height={height}
                     workspaceInfo={workspaceInfo}
+                    workspaceRouteDispatch={workspaceRouteDispatch}
                 />
             )
         }
