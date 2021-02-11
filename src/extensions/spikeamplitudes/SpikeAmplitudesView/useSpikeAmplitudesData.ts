@@ -4,17 +4,17 @@ import useFetchCache from "../../common/useFetchCache"
 import { getArrayMax, getArrayMin } from '../../common/Utility'
 
 export type SpikeAmplitudesData = {
-    getSpikeAmplitudes: (unitId: number) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined | null
+    getSpikeAmplitudes: (unitId: number | number[]) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined | null
 }
 
 type SpikeAmplitudesDataQuery = {
     type: 'spikeAmplitudes',
-    unitId: number
+    unitId: number | number[]
 }
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const fetchSpikeAmplitudes = async ({hither, recordingObject, sortingObject, unitId}: {hither: HitherInterface, recordingObject: any, sortingObject: any, unitId: number}) => {
+const fetchSpikeAmplitudes = async ({hither, recordingObject, sortingObject, unitId}: {hither: HitherInterface, recordingObject: any, sortingObject: any, unitId: number | number[]}) => {
     const result = await hither.createHitherJob(
         'createjob_fetch_spike_amplitudes',
         {
@@ -49,7 +49,7 @@ const useSpikeAmplitudesData = (recordingObject: any, sortingObject: any): Spike
     }), [hither, recordingObject, sortingObject])
     const data = useFetchCache<SpikeAmplitudesDataQuery>(fetch)
 
-    const getSpikeAmplitudes = useMemo(() => ((unitId: number): {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined => {
+    const getSpikeAmplitudes = useMemo(() => ((unitId: number | number[]): {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined => {
         return data.get({type: 'spikeAmplitudes', unitId})
     }), [data])
 

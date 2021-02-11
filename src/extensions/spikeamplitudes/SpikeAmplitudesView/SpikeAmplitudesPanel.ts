@@ -11,9 +11,11 @@ const colorList = [
     'green',
     'red',
     'orange',
-    'purple'
+    'purple',
+    'cyan'
 ]
-const colorForUnitId = (unitId: number) => {
+const colorForUnitId = (unitId: number | number[]): string => {
+    if (Array.isArray(unitId)) return colorForUnitId(Math.min(...unitId))
     while (unitId < 0) unitId += colorList.length
     return colorList[unitId % colorList.length]
 } 
@@ -27,7 +29,7 @@ class SpikeAmplitudesPanel {
     _globalAmplitudeRange: {min: number, max: number} | null = null
     _includeZero = true
     _amplitudes: number[] | undefined = undefined
-    constructor(private args: {spikeAmplitudesData: SpikeAmplitudesData | null, recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}) {
+    constructor(private args: {spikeAmplitudesData: SpikeAmplitudesData | null, recording: Recording, sorting: Sorting, unitId: number | number[], hither: HitherInterface}) {
     }
     setTimeRange(timeRange: {min: number, max: number}) {
         this._timeRange = timeRange

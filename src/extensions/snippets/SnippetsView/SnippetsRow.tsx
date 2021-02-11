@@ -3,7 +3,7 @@ import React, { FunctionComponent, useContext, useMemo } from 'react';
 import { getElectrodesAspectRatio } from '../../averagewaveforms/AverageWaveformsView/setupElectrodes';
 import { createCalculationPool, HitherContext, HitherInterface } from '../../common/hither';
 import useFetchCache from '../../common/useFetchCache';
-import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import SnippetBox from './SnippetBox';
 
 
@@ -49,7 +49,7 @@ type SnippetsQuery = {
 
 type QueryType = InfoQuery | SnippetsQuery
 
-const getSnippetsInfo = async (args: {recording: Recording, sorting: Sorting, unitId: number, hither: HitherInterface}): Promise<InfoType> => {
+const getSnippetsInfo = async (args: {recording: Recording, sorting: Sorting, unitId: number | number[], hither: HitherInterface}): Promise<InfoType> => {
     const { recording, sorting, unitId, hither } = args
     const result = await hither.createHitherJob(
         'createjob_get_sorting_unit_info',
@@ -74,7 +74,7 @@ const getSnippetsInfo = async (args: {recording: Recording, sorting: Sorting, un
     }
 }
 
-const getSnippets = async (args: {recording: Recording, sorting: Sorting, unitId: number, timeRange: {min: number, max: number}, hither: HitherInterface}): Promise<Snippet[]> => {
+const getSnippets = async (args: {recording: Recording, sorting: Sorting, unitId: number | number[], timeRange: {min: number, max: number}, hither: HitherInterface}): Promise<Snippet[]> => {
     const { recording, sorting, unitId, timeRange, hither } = args
     const result = await hither.createHitherJob(
         'createjob_get_sorting_unit_snippets',
@@ -110,17 +110,21 @@ const createTimeSegments = (timeRange: {min: number, max: number} | null, opts: 
     return ret
 }
 
-const useSnippets = (args: {recording: Recording, sorting: Sorting, visibleElectrodeIds: number[] | undefined, unitId: number, timeRange: {min: number, max: number} | null}) => {
+const useSnippets = (args: {recording: Recording, sorting: Sorting, visibleElectrodeIds: number[] | undefined, selection: SortingSelection, unitId: number, timeRange: {min: number, max: number} | null}) => {
     const hither = useContext(HitherContext)
-    const { recording, sorting, visibleElectrodeIds, unitId, timeRange } = args
+    const { recording, sorting, selection, visibleElectrodeIds, unitId, timeRange } = args
     const fetchFunction = useMemo(() => (
         async (query: QueryType) => {
             switch(query.type) {
-                case 'info': return await getSnippetsInfo({recording: query.recording, sorting: query.sorting, unitId: query.unitId, hither})
-                case 'snippets': return await getSnippets({recording: query.recording, sorting: query.sorting, unitId: query.unitId, timeRange: query.timeRange, hither})
+                case 'info':
+                    const uid1 = applyMergesToUnit(query.unitId, sorting.curation, selection.applyMerges)
+                    return await getSnippetsInfo({recording: query.recording, sorting: query.sorting, unitId: uid1, hither})
+                case 'snippets':
+                    const uid2 = applyMergesToUnit(query.unitId, sorting.curation, selection.applyMerges)
+                    return await getSnippets({recording: query.recording, sorting: query.sorting, unitId: uid2, timeRange: query.timeRange, hither})
             }
         }
-    ), [hither])
+    ), [hither, sorting.curation, selection.applyMerges])
     const data = useFetchCache<QueryType>(fetchFunction)
     return useMemo(() => {
         const infoQuery: InfoQuery = {type: 'info', recording, sorting, unitId}
@@ -165,7 +169,7 @@ const filterSnippetVisibleElectrodes = (s: Snippet, electrodeIds: number[] | und
 }
 
 const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {
-    const {snippets, info} = useSnippets({recording, sorting, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
+    const {snippets, info} = useSnippets({recording, sorting, selection, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
     const electrodeLocations = info?.channel_locations
     const boxWidth = useMemo(() => {
         if (selection.waveformsMode === 'geom') {

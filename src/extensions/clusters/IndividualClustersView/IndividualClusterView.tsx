@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
-import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import IndividualClusterWidget from './IndividualClusterWidget';
 
 type Props = {
@@ -27,7 +27,7 @@ const IndividualClusterView: FunctionComponent<Props> = ({ recording, sorting, s
         {
             recording_object: recording.recordingObject,
             sorting_object: sorting.sortingObject,
-            unit_id: unitId
+            unit_id: applyMergesToUnit(unitId, sorting.curation, selection.applyMerges)
         },
         {
             useClientCache: true,
