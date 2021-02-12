@@ -6,7 +6,7 @@ import numpy as np
 from ..extractors import LabboxEphysSortingExtractor, LabboxEphysRecordingExtractor
 
 @hi.function('mountainsort4', '0.1.0')
-def mountainsort4(
+def mountainsort4(*,
     recording_object,
     detect_sign=-1,
     clip_size=50,
