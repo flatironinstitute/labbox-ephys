@@ -61,7 +61,7 @@ const FireTrackWidget: FunctionComponent<{recording: Recording, timeseriesData: 
             const adjustedVal = - val * scaleFactor
             return valToColor(adjustedVal)
         }
-        return (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).map(e => ({...e, color: colorForElectrode(e.electrodeId)}))
+        return (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).map(e => ({...e, id: e.electrodeId, color: colorForElectrode(e.electrodeId)}))
     }, [ri, data, selection.ampScaleFactor])
     const layerProps: ElectrodeLayerProps = {
         electrodes,

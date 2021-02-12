@@ -102,7 +102,22 @@ const setupVerticalElectrodes = ({width, height, electrodeIds}: {width: number, 
     }
 }
 
-const setupElectrodes = (args: {width: number, height: number, electrodeLocations: Vec2[], electrodeIds: number[], layoutMode: 'geom' | 'vertical'}): {
+const fixDegenerateCase = (electrodeLocations: Vec2[]) => {
+    const box = {
+        xmin: getArrayMin(electrodeLocations.map(e => (e[0]))),
+        xmax: getArrayMax(electrodeLocations.map(e => (e[0]))),
+        ymin: getArrayMin(electrodeLocations.map(e => (e[1]))),
+        ymax: getArrayMax(electrodeLocations.map(e => (e[1])))
+    }
+    if ((box.xmin === box.xmax) && (box.ymin === box.ymax)) {
+        return electrodeLocations.map((x, ii) => [ii, 0])
+    }
+    else {
+        return electrodeLocations
+    }
+}
+
+const setupElectrodes = (args: {width: number, height: number, electrodeLocations: Vec2[], electrodeIds: number[], layoutMode: 'geom' | 'vertical', maxElectrodePixelRadius?: number}): {
     electrodeBoxes: ElectrodeBox[],
     transform: TransformationMatrix,
     radius: number,
@@ -112,20 +127,21 @@ const setupElectrodes = (args: {width: number, height: number, electrodeLocation
     if (layoutMode === 'vertical') {
         return setupVerticalElectrodes({width, height, electrodeIds})
     }
+    const correctedElectrodeLocations = fixDegenerateCase(electrodeLocations)
     const W = width - 10 * 2
     const H = height - 10 * 2
     const canvasAspect = W / H
 
-    const radius = computeRadius(electrodeLocations)
-    let boundingBox = getElectrodesBoundingBox(electrodeLocations, radius)
+    const radius = computeRadius(correctedElectrodeLocations)
+    let boundingBox = getElectrodesBoundingBox(correctedElectrodeLocations, radius)
     let boxAspect = getWidth(boundingBox) / getHeight(boundingBox)
 
-    let realizedElectrodeLocations = electrodeLocations
+    let realizedElectrodeLocations = correctedElectrodeLocations
     if ((boxAspect > 1) !== (canvasAspect > 1)) {
         // if the two aspect ratios' relationship to 1 is different, then one is portrait
         // and the other landscape. We should then correct by rotating the electrode set 90 degrees.
-        // note: a 90-degree right rotation in 2d makes x' = y and y' = -x
-        realizedElectrodeLocations = electrodeLocations.map((loc) => {
+        // note: a 90-degree rotation around the origin makes x' = y and y' = -x
+        realizedElectrodeLocations = correctedElectrodeLocations.map((loc) => {
             return [loc[1], -loc[0]]
         })
         // and of course that also means resetting the x- and y-ranges of the bounding box.
@@ -141,6 +157,13 @@ const setupElectrodes = (args: {width: number, height: number, electrodeLocation
     else {
         // we are constrained in height
         scaleFactor = H / getHeight(boundingBox)
+    }
+
+    // don't allow the electrodes to appear too big
+    if (args.maxElectrodePixelRadius) {
+        if (radius * scaleFactor > args.maxElectrodePixelRadius) {
+            scaleFactor /= (radius * scaleFactor / args.maxElectrodePixelRadius)
+        }
     }
 
     const xMargin = (width - getWidth(boundingBox) * scaleFactor) / 2

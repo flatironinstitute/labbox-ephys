@@ -42,6 +42,10 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, w
         }
     })), [sortings2, handleViewSorting, sortingInfos])
 
+    const handleDeleteRow = useCallback((key: string) => {
+        onDeleteSortings && onDeleteSortings([key])
+    }, [onDeleteSortings])
+
     const columns = [
         {
             key: 'sortingLabel',
@@ -59,7 +63,7 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, w
                 rows={rows}
                 columns={columns}
                 deleteRowLabel={"Remove this sorting"}
-                onDeleteRow={readOnly ? undefined : (key, columnValues) => onDeleteSortings([key])}
+                onDeleteRow={readOnly ? undefined : handleDeleteRow}
             />
         </div>
     );

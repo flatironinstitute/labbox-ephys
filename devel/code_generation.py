@@ -57,9 +57,7 @@ def process_template(output_fname, template_kwargs):
 '''
 
     if not dry_run:
-        with open(output_fname, 'w') as f:
-            f.write(gen_code)
-    print(f'Wrote file: {output_fname}')
+        _write_file_if_changed(output_fname, gen_code)
 
 def update_template(template_fname: str, output_fname: str) -> None:
     with open(template_fname, 'r') as f:
@@ -74,8 +72,7 @@ def update_template(template_fname: str, output_fname: str) -> None:
         print(f'**** Updating template file: {template_fname}')
         print(new_template_code)
         if not dry_run:
-            with open(template_fname, 'w') as f:
-                f.write(new_template_code)
+            _write_file_if_changed(template_fname, new_template_code)
 
 # For every file that also has a .gen.ts file, generate the .gen.ts file so that the text can be imported via `import x from './---.gen'`
 # The previous raw.macro solution did not work with jupyter extension
@@ -85,15 +82,13 @@ def create_text_ts_files(folder: str) -> None:
         fname = folder + '/' + a
         fname2 = fname + '.gen.ts'
         if os.path.exists(fname2):
-            print(f'Writing {fname2}')
             with open(fname, 'r') as f:
                 txt = f.read()
-            with open(fname2, 'w') as f:
-                f.write(f'const text: string = {json.dumps(txt)}\n\nexport default text')
+            new_txt = f'const text: string = {json.dumps(txt)}\n\nexport default text'
+            _write_file_if_changed(fname2, new_txt)
         if os.path.isdir(fname):
             if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
                 create_text_ts_files(folder + '/' + a)
-
 class SectionInfo(NamedTuple):
     code: str
     generation: bool
@@ -200,7 +195,16 @@ def get_extension_data(path: str) -> Union[dict, None]:
         return None
 
 
-
+def _write_file_if_changed(fname, txt):
+    if os.path.exists(fname):
+        with open(fname, 'r') as f:
+            old_text = f.read()
+    else:
+        old_text = None
+    if txt != old_text:
+        print(f'Writing {fname}')
+        with open(fname, 'w') as f:
+            f.write(txt)
 
 if __name__ == '__main__':
     main()

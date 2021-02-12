@@ -10,6 +10,7 @@ import { DragLayerState, paintDragLayer, setDragLayerStateFromProps, updateDragR
 import { paintTestLayer } from './ElectrodeGeometryLayer'
 
 export type Electrode = {
+    id: number,
     label: string,
     x: number,
     y: number

@@ -4,8 +4,8 @@ import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid';
 import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
+import ViewToolbar from '../../common/ViewToolbar';
 import { SortingViewProps } from "../../extensionInterface";
-import AverageWaveformsToolbar from './AverageWaveformsToolbar';
 import AverageWaveformView from './AverageWaveformView';
 
 export type AverageWaveformAction = ActionItem | DividerItem
@@ -66,7 +66,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
                 adjustable={false}
             >
                 {
-                    <AverageWaveformsToolbar
+                    <ViewToolbar
                         width={TOOLBAR_INITIAL_WIDTH}
                         height={height}
                         customActions={scalingActions}

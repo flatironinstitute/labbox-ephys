@@ -1,29 +1,20 @@
-import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import ElectrodeGeometryWidget from "../../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget";
-import { RecordingInfo } from "../../extensionInterface";
+import { RecordingInfo, RecordingSelection, RecordingSelectionDispatch } from "../../extensionInterface";
 
 
 interface Props {
     recordingInfo: RecordingInfo
     width: number
     height: number
-    selectedElectrodeIds?: number[]
+    selection: RecordingSelection
+    selectionDispatch: RecordingSelectionDispatch
     visibleElectrodeIds: number[]
-    onSelectedElectrodeIdsChanged?: (s: number[]) => void
 }
 
-const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, height, selectedElectrodeIds, visibleElectrodeIds, onSelectedElectrodeIdsChanged}) => {
+const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, height, selection, visibleElectrodeIds, selectionDispatch}) => {
     const ri = recordingInfo
     const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).filter(a => (visibleElectrodeIds.includes(a.id))), [ri, visibleElectrodeIds])
-    const [internalSelectedElectrodeIds, setInternalSelectedElectrodeIds] = useState<number[]>([]);
-    const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
-        if (selectedElectrodeIds) {
-            if (onSelectedElectrodeIdsChanged) onSelectedElectrodeIdsChanged(x);
-        }
-        else {
-            setInternalSelectedElectrodeIds(x)
-        }
-    }, [selectedElectrodeIds, onSelectedElectrodeIdsChanged, setInternalSelectedElectrodeIds])
     if (!ri) {
         return (
             <div>No recording info found for recording.</div>
@@ -32,8 +23,8 @@ const ElectrodeGeometryView: FunctionComponent<Props> = ({recordingInfo, width, 
     return (
         <ElectrodeGeometryWidget
             electrodes={electrodes}
-            selectedElectrodeIds={selectedElectrodeIds ? selectedElectrodeIds : internalSelectedElectrodeIds}
-            onSelectedElectrodeIdsChanged={handleSelectedElectrodeIdsChanged}
+            selection={selection}
+            selectionDispatch={selectionDispatch}
             width={width}
             height={height}
         />

@@ -1,5 +1,6 @@
 import { Toolbar } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
+import Hyperlink from '../../common/Hyperlink';
 
 
 export interface BottomBarInfo {
@@ -229,27 +230,11 @@ const EditableText: FunctionComponent<FunctionComponentProps> = (props) => {
 
         link0 = (
             <span title={props.title}>
-                <Link2 onClick={_handleClick}><span>{text}</span></Link2>
+                <Hyperlink onClick={_handleClick}><span>{text}</span></Hyperlink>
             </span>
         );
     }
     return link0
-}
-
-const Link2: FunctionComponent<{onClick: () => void}> = (props) => {
-    let style0 = {
-        color: 'gray',
-        cursor: 'pointer',
-        textDecoration: 'underline'
-    };
-    return (
-        <span
-            style={style0}
-            onClick={props.onClick}
-        >
-            {props.children}
-        </span>
-    );
 }
 
 export default TimeWidgetBottomBar

@@ -6,17 +6,19 @@ In the future, this Jupyterlab extension will be pip-installable through PyPI an
 
 ## Prerequisites
 
-So far we have only tested in Linux, but it should work on OS X as well.
+This has been tested on Linux, OS X, and Windows Subsystem for Linux. If you have any trouble, please submit an issue report.
 
-Create and activate a fresh conda environment (ideally with python=3.8). For example: `conda create -n labbox-ephys-widgets python=3.8` and then `conda activate labbox-ephys-widgets`
+**Step 1.** You must having a running kachery-p2p daemon. See [kachery-p2p](https://github.com/flatironinstitute/kachery-p2p) for information on setting this up.
 
-Install a recent version of jupyterlab:
+**Step 2.** Create and activate a fresh conda environment (ideally with python=3.8). For example: `conda create -n labbox-ephys-widgets python=3.8` and then `conda activate labbox-ephys-widgets`
+
+**Step 3.** Install a recent version of jupyterlab:
 
 ```
 conda install jupyterlab
 ```
 
-Also install a recent version of nodejs (>=12):
+Also install a recent version of nodejs (preferably >=15):
 
 ```
 conda install -c conda-forge nodejs
@@ -24,15 +26,17 @@ conda install -c conda-forge nodejs
 
 ### Installation
 
-Clone this repository and then install the python packages in development mode
+After you install the prerequisites above, clone this repository and then install the python packages in development mode
 
 ```
 cd labbox-ephys
 pip install -e ./python
+
+export NODE_OPTIONS="--max-old-space-size=8192"
 pip install -e jupyterlab/labbox_ephys_widgets_jp
 ```
 
-In addition to installing the Python package, the latter command will also build the typescript project (the front-end code that runs in the browser and renders the widgets).
+In addition to installing the Python package, the latter command will also build the typescript project (the front-end code that runs in the browser and renders the widgets). The `NODE_OPTIONS` command may be needed in order to avoid an out-of-memory error during compilation.
 
 Next, activate the compiled jupyterlab extension:
 
@@ -58,4 +62,4 @@ jupyter lab
 
 This will open a jupyter lab session in your browser.
 
-Within the browser, navigate to and open the following example notebook: `devel/example_notebooks/example1.ipynb`
+Within the browser, navigate to and open the following example notebook: `devel/example_notebooks/example2.ipynb`

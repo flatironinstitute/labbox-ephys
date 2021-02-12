@@ -1,5 +1,5 @@
 import { IconButton } from '@material-ui/core';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 
 interface Props {
     width: number
@@ -9,24 +9,35 @@ interface Props {
 
 const iconButtonStyle = {paddingLeft: 6, paddingRight: 6, paddingTop: 4, paddingBottom: 4}
 
-const AverageWaveformsToolbar: FunctionComponent<Props> = (props) => {
-    const toolbarStyle = {
+type Button = {
+    type: string
+    title: string
+    onClick: () => void
+    icon: any
+    selected: boolean
+}
+
+const ViewToolbar: FunctionComponent<Props> = (props) => {
+    const toolbarStyle = useMemo(() => ({
         width: props.width,
         height: props.height,
         overflow: 'hidden'
-    };
-    let buttons = [];
-    for (let a of (props.customActions || [])) {
-        buttons.push({
-            type: a.type || 'button',
-            title: a.title,
-            onClick: a.callback,
-            icon: a.icon,
-            selected: a.selected
-        });
-    }
+    }), [props.width, props.height])
+    const buttons = useMemo(() => {
+        const b: Button[] = []
+        for (let a of (props.customActions || [])) {
+            b.push({
+                type: a.type || 'button',
+                title: a.title,
+                onClick: a.callback,
+                icon: a.icon,
+                selected: a.selected
+            });
+        }
+        return b
+    }, [props.customActions])
     return (
-        <div className="AverageWaveformsToolBar" style={{position: 'absolute', ...toolbarStyle}}>
+        <div className="ViewToolBar" style={{position: 'absolute', ...toolbarStyle}}>
             {
                 buttons.map((button, ii) => {
                     if (button.type === 'button') {
@@ -50,4 +61,4 @@ const AverageWaveformsToolbar: FunctionComponent<Props> = (props) => {
     );
 }
 
-export default AverageWaveformsToolbar
+export default ViewToolbar

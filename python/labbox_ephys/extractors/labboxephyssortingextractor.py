@@ -77,8 +77,12 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             assert obj is not None, f'Unable to create sorting from arg: {arg}'
         self._object: dict = obj
 
-        sorting_format = self._object['sorting_format']
-        data: dict = self._object['data']
+        if 'firings' in self._object:
+            sorting_format = 'mda'
+            data={'firings': self._object['firings'], 'samplerate': self._object.get('samplerate', 30000)}
+        else:
+            sorting_format = self._object['sorting_format']
+            data: dict = self._object['data']
         if sorting_format == 'mda':
             firings_path = kp.load_file(data['firings'])
             assert firings_path is not None, f'Unable to load firings file: {data["firings"]}'
