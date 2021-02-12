@@ -1,4 +1,4 @@
-import { Button, Paper } from "@material-ui/core";
+import { Paper } from "@material-ui/core";
 import React, { FunctionComponent } from 'react';
 import { WorkspaceInfo } from ".";
 import { Sorting } from "../extensionInterface";
@@ -7,17 +7,15 @@ import { WorkspaceRouteDispatch } from "./WorkspaceView";
 
 type Props = {
     sortings: Sorting[]
-    onImportSortings: (() => void) | null
     workspaceRouteDispatch: WorkspaceRouteDispatch
     workspaceInfo: WorkspaceInfo
     onDeleteSortings: (sortingIds: string[]) => void
 }
 
-const SortingsView: FunctionComponent<Props> = ({ sortings, onImportSortings, workspaceRouteDispatch, workspaceInfo, onDeleteSortings }) => {
+const SortingsView: FunctionComponent<Props> = ({ sortings, workspaceRouteDispatch, workspaceInfo, onDeleteSortings }) => {
     return (
         <Paper>
             <h3>{`${sortings.length} sortings`}</h3>
-            {onImportSortings && <Button onClick={onImportSortings}>Import sortings</Button>}
             <SortingsTable
                 sortings={sortings}
                 workspaceRouteDispatch={workspaceRouteDispatch}

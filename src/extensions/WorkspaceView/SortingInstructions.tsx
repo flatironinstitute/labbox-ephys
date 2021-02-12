@@ -1,21 +1,23 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import Markdown from '../common/Markdown';
-import import_example_simulated_recording_py from './importExamples/import_example_simulated_recording.py.gen';
-import import_nwb_recording_py from './importExamples/import_nwb_recording.py.gen';
-import import_spikeforest_recording_py from './importExamples/import_spikeforest_recording.py.gen';
-import instructionsMd from './ImportRecordingsInstructions.md.gen';
+import spykingcircus_example_py from './sortingExamples/spykingcircus_example.py.gen';
+import instructionsMd from './SortingInstructions.md.gen';
 import { Expandable } from './SortingView';
 
 type Props = {
     feedUri: string
     workspaceName: string
+    recordingId: string
+    recordingLabel: string
 }
 
-const ImportRecordingsInstructions: FunctionComponent<Props> = ({ feedUri, workspaceName }) => {
+const SortingInstructions: FunctionComponent<Props> = ({ feedUri, workspaceName, recordingId, recordingLabel }) => {
     const s = (x: string) => {
         return doSubstitute(x, {
             feedUri,
-            workspaceName
+            workspaceName,
+            recordingId,
+            recordingLabel
         })
     }
     return (
@@ -23,17 +25,9 @@ const ImportRecordingsInstructions: FunctionComponent<Props> = ({ feedUri, works
             <Markdown
                 source={instructionsMd}
             />
-            <Expandable label="Import example simulated recording">
-                <CopyToClipboardButton text={s(import_example_simulated_recording_py)} />
-                <Markdown source={mdWrapPy(s(import_example_simulated_recording_py))} />
-            </Expandable>
-            <Expandable label="Import SpikeForest recordings">
-                <CopyToClipboardButton text={s(import_spikeforest_recording_py)} />
-                <Markdown source={mdWrapPy(s(import_spikeforest_recording_py))} />
-            </Expandable>
-            <Expandable label="Import NWB recordings">
-                <CopyToClipboardButton text={s(import_nwb_recording_py)} />
-                <Markdown source={mdWrapPy(s(import_nwb_recording_py))} />
+            <Expandable label="SpyKING CIRCUS">
+                <CopyToClipboardButton text={s(spykingcircus_example_py)} />
+                <Markdown source={mdWrapPy(s(spykingcircus_example_py))} />
             </Expandable>
         </div>
     )
@@ -74,4 +68,4 @@ const doSubstitute = (x: string, s: {[key: string]: string | undefined | null}) 
     return y
 }
 
-export default ImportRecordingsInstructions
+export default SortingInstructions
