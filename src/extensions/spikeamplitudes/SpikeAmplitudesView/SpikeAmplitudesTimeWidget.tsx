@@ -4,7 +4,7 @@ import useBufferedDispatch from '../../common/useBufferedDispatch';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { useSortingInfo } from '../../common/useSortingInfo';
 import { getArrayMax, getArrayMin } from '../../common/Utility';
-import { Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';
+import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from '../../extensionInterface';
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';
 import { SpikeAmplitudesData } from './useSpikeAmplitudesData';
@@ -35,8 +35,9 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
         const allMaxs: number[] = []
 
         unitIds.forEach(unitId => {
-            const p = new SpikeAmplitudesPanel({spikeAmplitudesData, recording, sorting, unitId, hither})
-            const amps = spikeAmplitudesData.getSpikeAmplitudes(unitId)
+            const uid = applyMergesToUnit(unitId, sorting.curation, selection.applyMerges)
+            const p = new SpikeAmplitudesPanel({spikeAmplitudesData, recording, sorting, unitId: uid, hither})
+            const amps = spikeAmplitudesData.getSpikeAmplitudes(uid)
             if (amps) {
                 allMins.push(amps.minAmp)
                 allMaxs.push(amps.maxAmp)

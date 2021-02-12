@@ -35,25 +35,27 @@ def subsample_inds(n, m):
     incr = n / m
     return [int(math.floor(i * incr)) for i in range(m)]
 
-@hi.function('individual_cluster_features', '0.1.3')
+@hi.function('individual_cluster_features', '0.1.4')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @le.serialize
 def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
     import h5py
     h5_path = ka.load_file(snippets_h5)
-    with h5py.File(h5_path, 'r') as f:
-        unit_ids = np.array(f.get('unit_ids'))
-        channel_ids = np.array(f.get('channel_ids'))
-        channel_locations = np.array(f.get(f'channel_locations'))
-        sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
-        unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
-        unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms')) # L x M x T (see below)
-        unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
-        if len(unit_spike_train) > max_num_events:
-            inds = subsample_inds(len(unit_spike_train), max_num_events)
-            unit_spike_train = unit_spike_train[inds]
-            unit_waveforms = unit_waveforms[inds]
+    # with h5py.File(h5_path, 'r') as f:
+    #     unit_ids = np.array(f.get('unit_ids'))
+    #     channel_ids = np.array(f.get('channel_ids'))
+    #     channel_locations = np.array(f.get(f'channel_locations'))
+    #     sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
+    #     unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
+    #     unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms')) # L x M x T
+    #     unit_waveforms_channel_ids = np.array(f.get(f'unit_waveforms/{unit_id}/channel_ids'))
+    #     if len(unit_spike_train) > max_num_events:
+    #         inds = subsample_inds(len(unit_spike_train), max_num_events)
+    #         unit_spike_train = unit_spike_train[inds]
+    #         unit_waveforms = unit_waveforms[inds]
+    
+    unit_waveforms, unit_waveforms_channel_ids, channel_locations0, sampling_frequency, unit_spike_train = le.get_unit_waveforms_from_snippets_h5(h5_path, unit_id, max_num_events=max_num_events)
     
     from sklearn.decomposition import PCA
     nf = 2 # number of features

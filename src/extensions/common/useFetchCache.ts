@@ -15,6 +15,10 @@ const initialFetchCacheState = {
     activeFetches: {}
 }
 
+type ClearAction = {
+    type: 'clear'
+}
+
 type StartFetchAction = {
     type: 'startFetch',
     queryHash: string
@@ -26,10 +30,13 @@ type SetDataAction = {
     data: any
 }
 
-type FetchCacheAction = StartFetchAction | SetDataAction
+type FetchCacheAction = ClearAction | StartFetchAction | SetDataAction
 
 const fetchCacheReducer = (state: FetchCacheState, action: FetchCacheAction): FetchCacheState => {
     switch(action.type) {
+        case 'clear': {
+            return initialFetchCacheState
+        }
         case 'startFetch': {
             return {
                 ...state,
@@ -64,8 +71,16 @@ const queryHash = <QueryType>(query: QueryType) => {
 
 const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<any>): FetchCache<QueryType> => {
     const [count, setCount] = useState(0)
+    const prevFetchFunction = useRef<(query: QueryType) => Promise<any>>(fetchFunction)
     const [state, dispatch] = useReducer(fetchCacheReducer, initialFetchCacheState)
     const queriesToFetch = useRef<{[key: string]: QueryType}>({})
+    useEffect(() => {
+        // clear whenever fetchFunction has Changed
+        if (fetchFunction !== prevFetchFunction.current) {
+            prevFetchFunction.current = fetchFunction
+            dispatch({type: 'clear'})
+        }
+    }, [fetchFunction])
     const get = useMemo(() => ((query: QueryType) => {
         const h = queryHash(query)
         const v = state.data[h]

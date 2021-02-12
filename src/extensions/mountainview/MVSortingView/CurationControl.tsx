@@ -1,4 +1,4 @@
-import { Grid, Paper } from '@material-ui/core';
+import { Checkbox, Grid, Paper } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { SortingCurationWorkspaceAction } from '../../common/workspaceReducer';
@@ -62,6 +62,10 @@ const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ sortingId, se
             unitIds: selectedUnitIds
         })
     }, [curationDispatch, selectedUnitIds, sortingId])
+
+    const handleToggleApplyMerges = useCallback(() => {
+        selectionDispatch({type: 'ToggleApplyMerges', curation})
+    }, [selectionDispatch, curation])
 
     type LabelRecord = {
         label: string,
@@ -139,6 +143,9 @@ const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ sortingId, se
                 {
                     (selectedUnitIds.length > 0 && unitsAreInMergeGroups(selectedUnitIds)) && <button key="unmerge" onClick={handleUnmergeSelected}>Unmerge units: {selectedUnitIds.join(', ')}</button>
                 }
+                <span style={{whiteSpace: 'nowrap'}}>
+                    <Checkbox checked={selection.applyMerges || false} onClick={handleToggleApplyMerges}/> Apply merges
+                </span>
             </Paper>
         </div>
     )

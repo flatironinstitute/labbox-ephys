@@ -103,9 +103,21 @@ type UnmergeUnitsSortingCurationAction = {
 
 export type SortingCurationAction = SetCurationSortingCurationAction | AddLabelSortingCurationAction | RemoveLabelSortingCurationAction | MergeUnitsSortingCurationAction | UnmergeUnitsSortingCurationAction
 
-export const mergeGroupForUnitId = (unitId: number, sorting: Sorting) => {
-    const mergeGroups = (sorting.curation || {}).mergeGroups || []
+export const mergeGroupForUnitId = (unitId: number, curation: SortingCuration | undefined) => {
+    const mergeGroups = (curation || {}).mergeGroups || []
     return mergeGroups.filter(g => (g.includes(unitId)))[0] || null
+}
+
+export const applyMergesToUnit = (unitId: number, curation: SortingCuration | undefined, applyMerges: boolean | undefined) => {
+    return applyMerges ? (
+        mergeGroupForUnitId(unitId, curation) || unitId
+    ) : unitId
+}
+
+export const isMergeGroupRepresentative = (unitId: number, curation: SortingCuration | undefined) => {
+    const mg = mergeGroupForUnitId(unitId, curation)
+    if (!mg) return true
+    return (Math.min(...mg) === unitId)
 }
 
 // This reducer is used only by the jupyter extension
@@ -338,6 +350,7 @@ export const recordingSelectionReducer: Reducer<RecordingSelection, RecordingSel
 export interface SortingSelection extends RecordingSelection {
     selectedUnitIds?: number[]
     visibleUnitIds?: number[] | null // null means all are selected
+    applyMerges?: boolean
 }
 
 export type SortingSelectionDispatch = (action: SortingSelectionAction) => void
@@ -369,7 +382,12 @@ type UnitClickedSortingSelectionAction = {
     shiftKey?: boolean
 }
 
-export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction | SetSortingSelectionAction | RecordingSelectionAction
+type ToggleApplyMergesSortingSelectionAction = {
+    type: 'ToggleApplyMerges'
+    curation?: SortingCuration // this is used to restrict the selected units when turning the apply merges on
+}
+
+export type SortingSelectionAction = SetSelectionSortingSelectionAction | SetSelectedUnitIdsSortingSelectionAction | SetVisibleUnitIdsSortingSelectionAction | UnitClickedSortingSelectionAction | SetSortingSelectionAction | ToggleApplyMergesSortingSelectionAction | RecordingSelectionAction
 
 const unitClickedReducer = (state: SortingSelection, action: UnitClickedSortingSelectionAction): SortingSelection => {
     const unitId = action.unitId
@@ -419,9 +437,24 @@ export const sortingSelectionReducer: Reducer<SortingSelection, SortingSelection
     else if (action.type === 'Set') {
         return action.state
     }
+    else if (action.type === 'ToggleApplyMerges') {
+        return adjustSelectedUnitIdsBasedOnMerges({
+            ...state,
+            applyMerges: state.applyMerges ? false : true
+        }, action.curation)
+    }
     else {
         return recordingSelectionReducer(state, action)
     }
+}
+
+const adjustSelectedUnitIdsBasedOnMerges = (state: SortingSelection, curation?: SortingCuration): SortingSelection => {
+    return (state.applyMerges && curation) ? (
+        {
+            ...state,
+            selectedUnitIds: state.selectedUnitIds ? state.selectedUnitIds.filter(uid => (isMergeGroupRepresentative(uid, curation))) : undefined
+        }
+    ) : state
 }
 ////////////////////
 

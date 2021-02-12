@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
-import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
 import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
 type PlotData = {
@@ -31,7 +31,7 @@ const AverageWaveformView: FunctionComponent<Props> = ({ sorting, recording, uni
         {
             sorting_object: sorting.sortingObject,
             recording_object: recording.recordingObject,
-            unit_id: unitId
+            unit_id: applyMergesToUnit(unitId, sorting.curation, selection.applyMerges)
         },
         {useClientCache: true, calculationPool}
     )

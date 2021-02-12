@@ -1,6 +1,6 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
-import { Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
+import { isMergeGroupRepresentative, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
 import { useSortingInfo } from './useSortingInfo';
 
 type Props = {
@@ -16,7 +16,9 @@ const SortingUnitPlotGrid: FunctionComponent<Props> = ({ sorting, selection, sel
     const sortingInfo: SortingInfo | undefined = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
 
     const visibleUnitIds = selection.visibleUnitIds
-    let unit_ids: number[] = (sortingInfo ? sortingInfo.unit_ids : []).filter(uid => ((!visibleUnitIds) || (visibleUnitIds.includes(uid))));
+    let unit_ids: number[] = (sortingInfo ? sortingInfo.unit_ids : [])
+        .filter(uid => ((!visibleUnitIds) || (visibleUnitIds.includes(uid))))
+        .filter(uid => ((!selection.applyMerges) || (isMergeGroupRepresentative(uid, sorting.curation))))
     let showExpandButton = false;
     if (unit_ids.length > maxUnitsVisible) {
         unit_ids = unit_ids.slice(0, maxUnitsVisible);

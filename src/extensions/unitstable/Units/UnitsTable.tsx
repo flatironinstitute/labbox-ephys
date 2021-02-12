@@ -90,7 +90,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     rows.forEach(row => {
         const unitId = Number(row.rowId)
         row.data['_unit_id'] = {
-            value: {unitId, mergeGroup: mergeGroupForUnitId(unitId, sorting)},
+            value: {unitId, mergeGroup: mergeGroupForUnitId(unitId, sorting.curation)},
             sortValue: unitId
         }
     })
