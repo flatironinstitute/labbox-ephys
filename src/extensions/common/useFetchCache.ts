@@ -75,7 +75,7 @@ const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<a
     const [state, dispatch] = useReducer(fetchCacheReducer, initialFetchCacheState)
     const queriesToFetch = useRef<{[key: string]: QueryType}>({})
     useEffect(() => {
-        // clear whenever fetchFunctionHashChanged
+        // clear whenever fetchFunction has Changed
         if (fetchFunction !== prevFetchFunction.current) {
             prevFetchFunction.current = fetchFunction
             dispatch({type: 'clear'})

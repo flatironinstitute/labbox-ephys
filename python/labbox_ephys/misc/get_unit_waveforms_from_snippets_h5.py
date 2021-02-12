@@ -5,6 +5,11 @@ import numpy as np
 import h5py
 
 def _intersect_channel_ids(channel_ids_list: List[List[int]]):
+    # from js:
+    #   channel_ids_list is a list of the channel IDs that make up the neighborhood for each unit. This function will be passed a set of unit IDs that are to be merged, along with their respective channel neighborhoods. Its job is to reduce that list to only those channels in the neighborhood of each of the underlying units.
+    #   It is assumed that there will be at least one channel common to all units being merged (so that x in line 10 never collapses to an empty list); violating this assumption leads to failure of the function.
+    #   inds will actually wind up being a list of lists--the per-unit-neighborhood indices of the channels in the consolidated/fully intersected set of channels. Like the input channel_ids_list, its outermost index will be the units, so the channel indices can always be mapped back to the units whose neighborhoods they're identifiying.
+    
     x = channel_ids_list[0]
     for y in channel_ids_list:
         x = np.intersect1d(x, y).tolist()
