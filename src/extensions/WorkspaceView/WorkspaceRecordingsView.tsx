@@ -42,6 +42,7 @@ const WorkspaceRecordingsView: FunctionComponent<Props> = ({ width, height, sort
                 showImportInstructions && (
                     <ImportRecordingsInstructions
                         feedUri={workspaceInfo.feedUri || 'feed://' + defaultFeedId || '<>'}
+                        workspaceName={workspaceInfo.workspaceName || 'default'}
                     />
                 )
             }
