@@ -1,6 +1,6 @@
 
 // !begin-code-generation!
-import { ExtensionContext } from './extensions/extensionInterface'
+import { ExtensionContext } from './extensions/pluginInterface'
 
 {% for extension in extensions -%}
 import { activate as activate{{ extension.name }} } from '{{ extension.relPath }}'

@@ -5,7 +5,7 @@ import Docs from './components/Docs';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
-import { WorkspaceDispatch, WorkspaceState } from './extensions/common/workspaceReducer';
+import { WorkspaceDispatch, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
 import { WorkspaceInfo } from './extensions/WorkspaceView';
 
 

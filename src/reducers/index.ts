@@ -26,7 +26,6 @@ import extensionsConfig, { Action as ExtensionsConfigAction, State as Extensions
 import databaseConfig, { Action as DatabaseConfigAction, State as DatabaseConfigState } from './databaseConfig'
 import hitherJobs, { Action as HitherJobsAction, State as HitherJobsState } from './hitherJobs'
 import persisting, { Action as PersistingAction, State as PersistingState } from './persisting'
-import plugins, { Action as PluginsAction, State as PluginsState } from './plugins'
 import serverConnection, { Action as ServerConnectionAction, State as ServerConnectionState } from './serverConnection'
 import serverInfo, { Action as ServerInfoAction, State as ServerInfoState } from './serverInfo'
 
@@ -37,7 +36,6 @@ export interface RootState {
     serverConnection: ServerConnectionState
     serverInfo: ServerInfoState
     extensionsConfig: ExtensionsConfigState
-    plugins: PluginsState
 }
 const rootReducer = combineReducers({
     databaseConfig,
@@ -45,10 +43,9 @@ const rootReducer = combineReducers({
     persisting,
     serverConnection,
     serverInfo,
-    extensionsConfig,
-    plugins
+    extensionsConfig
 })
 
-export type RootAction =  DatabaseConfigAction | HitherJobsAction | PersistingAction | ServerConnectionAction | ServerInfoAction | ExtensionsConfigAction | PluginsAction
+export type RootAction =  DatabaseConfigAction | HitherJobsAction | PersistingAction | ServerConnectionAction | ServerInfoAction | ExtensionsConfigAction
 
 export default rootReducer

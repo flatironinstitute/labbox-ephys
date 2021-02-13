@@ -1,15 +1,15 @@
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { useHistory, useLocation } from 'react-router';
-import { WorkspaceDispatch, WorkspaceState } from '../extensions/common/workspaceReducer';
-import { filterPlugins, Plugins } from '../extensions/extensionInterface';
+import { useLabboxPlugins } from '../extensions/labbox';
+import { LabboxPlugin } from '../extensions/pluginInterface';
+import { WorkspaceDispatch, WorkspaceState } from '../extensions/pluginInterface/workspaceReducer';
 import WorkspaceView, { WorkspaceInfo } from '../extensions/WorkspaceView';
 import { RootAction, RootState } from '../reducers';
 import { ServerInfo } from '../reducers/serverInfo';
 import './Home.css';
 
 interface StateProps {
-  plugins: Plugins
   serverInfo: ServerInfo
 }
 
@@ -26,7 +26,8 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, workspace, workspaceDispatch, plugins }) => {
+const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, workspace, workspaceDispatch }) => {
+  const plugins = useLabboxPlugins<LabboxPlugin>()
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2
@@ -63,7 +64,6 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-  plugins: filterPlugins(state.plugins),
   serverInfo: state.serverInfo
 })
   

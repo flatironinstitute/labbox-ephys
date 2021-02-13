@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
-import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
-import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../labbox/hither';
+import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import IndividualClusterWidget from './IndividualClusterWidget';
 
 type Props = {

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback } from 'react'
 import Splitter from '../../common/Splitter'
-import { SortingViewProps } from "../../extensionInterface"
+import { SortingViewProps } from "../../pluginInterface"
 import useTimeseriesData from '../../timeseries/TimeseriesViewNew/useTimeseriesModel'
 import FireTrackWidget from './FireTrackWidget'
 

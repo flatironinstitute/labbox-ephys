@@ -1,11 +1,11 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
-import { createCalculationPool, HitherContext } from '../common/hither';
 import Hyperlink from '../common/Hyperlink';
 import { useRecordingInfo } from '../common/useRecordingInfo';
 import { useSortingInfo } from '../common/useSortingInfo';
-import { SortingCurationWorkspaceAction } from '../common/workspaceReducer';
-import { ExternalSortingUnitMetric, Plugins, Recording, Sorting, SortingSelection, sortingSelectionReducer } from '../extensionInterface';
+import { createCalculationPool, HitherContext } from '../labbox';
+import { ExternalSortingUnitMetric, LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins } from '../pluginInterface';
+import { SortingCurationWorkspaceAction } from '../pluginInterface/workspaceReducer';
 import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
 
 // const intrange = (a: number, b: number) => {
@@ -21,7 +21,7 @@ import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
 interface Props {
   sorting: Sorting
   recording: Recording
-  plugins: Plugins
+  plugins: LabboxPlugin[]
   width: number,
   height: number,
   workspaceRouteDispatch: WorkspaceRouteDispatch
@@ -91,7 +91,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     height: contentHeight
   }), [contentWidth, contentHeight])
 
-  const sv = plugins.sortingViews['MVSortingView']
+  const sv = sortingViewPlugins(plugins).filter(p => (p.name === 'MVSortingView'))[0]
   if (!sv) throw Error('Missing sorting view: MVSortingView')
   const svProps = useMemo(() => (sv.props || {}), [sv.props])
 

@@ -3,7 +3,7 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { useRecordingInfo } from '../extensions/common/useRecordingInfo';
-import { Recording } from '../extensions/extensionInterface';
+import { Recording } from '../extensions/pluginInterface';
 import TimeseriesViewNew from '../extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
 import { RootAction, RootState } from '../reducers';
 

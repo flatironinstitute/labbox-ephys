@@ -1,12 +1,13 @@
 // LABBOX-EXTENSION: mountainview
 // LABBOX-EXTENSION-TAGS: jupyter
 
-import { ExtensionContext } from '../extensionInterface';
+import { LabboxExtensionContext } from "../pluginInterface";
 import MVSortingUnitView from './MVSortingUnitView/MVSortingUnitView';
 import MVSortingView from './MVSortingView/MVSortingView';
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'MVSortingView',
         label: 'MVSortingView',
         priority: 5000,
@@ -14,7 +15,8 @@ export function activate(context: ExtensionContext) {
         notebookCellHeight: 800,
         component: MVSortingView
     })
-    context.registerSortingUnitView({
+    context.registerPlugin({
+        type: 'SortingUnitView',
         name: 'MVSortingUnitView',
         label: 'MV sorting unit view',
         component: MVSortingUnitView

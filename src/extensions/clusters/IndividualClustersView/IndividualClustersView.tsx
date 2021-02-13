@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react'
 import SortingUnitPlotGrid from '../../common/SortingUnitPlotGrid'
-import { SortingViewProps } from "../../extensionInterface"
+import { SortingViewProps } from "../../pluginInterface"
 import IndividualClusterView from './IndividualClusterView'
 
 const IndividualClustersView: FunctionComponent<SortingViewProps> = ({recording, sorting, selection, selectionDispatch}) => {

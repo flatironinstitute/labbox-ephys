@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import SortingUnitPairPlotGrid from '../../common/SortingUnitPairPlotGrid';
-import { Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import CorrelogramRv2 from '../Correlogram_ReactVis2';
 
 type Props = {

@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react'
-import { Sorting } from '../../extensionInterface'
+import { Sorting } from "../../pluginInterface"
 
 interface Props {
     sorting: Sorting

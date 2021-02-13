@@ -8,13 +8,13 @@ import React, { FunctionComponent, useEffect, useMemo, useReducer, useRef, useSt
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
-import { CalculationPool, createCalculationPool, HitherContext } from './extensions/common/hither';
 import { sleepMsec } from './extensions/common/misc';
 import { useRecordingInfo } from './extensions/common/useRecordingInfo';
 import { useSortingInfo } from './extensions/common/useSortingInfo';
 import { sortingCurationReducer } from './extensions/common/workspaceReducer';
-import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
 import initializeHitherInterface from './extensions/initializeHitherInterface';
+import { CalculationPool, createCalculationPool, HitherContext } from './extensions/labbox/hither';
+import { externalUnitMetricsReducer, filterPlugins, Plugins, Recording, RecordingViewPlugin, Sorting, sortingSelectionReducer, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin, useRecordingAnimation } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import registerExtensions from './registerExtensions';
 import { MODULE_NAME, MODULE_VERSION } from './version';

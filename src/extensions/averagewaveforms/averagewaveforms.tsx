@@ -3,11 +3,12 @@
 
 import GrainIcon from '@material-ui/icons/Grain';
 import React from 'react';
-import { ExtensionContext } from "../extensionInterface";
+import { LabboxExtensionContext } from "../pluginInterface";
 import AverageWaveformsView from './AverageWaveformsView/AverageWaveformsView';
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'AverageWaveforms',
         label: 'Average waveforms',
         priority: 50,

@@ -4,18 +4,18 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/common/hither';
 import { useSortingInfo } from '../extensions/common/useSortingInfo';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { filterPlugins, Plugins, Recording, Sorting } from '../extensions/extensionInterface';
+import { useLabboxPlugins } from '../extensions/labbox';
+import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/labbox/hither';
+import { LabboxPlugin, Recording, Sorting } from '../extensions/pluginInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { WorkspaceInfo } from '../extensions/WorkspaceView';
 import { getPathQuery } from '../kachery';
 import { RootAction, RootState } from '../reducers';
 
 interface StateProps {
-  extensionsConfig: ExtensionsConfig,
-  plugins: Plugins
+  extensionsConfig: ExtensionsConfig
 }
 
 interface DispatchProps {
@@ -33,7 +33,8 @@ type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeM
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, plugins, workspaceInfo, size }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, workspaceInfo, size }) => {
+  const plugins = useLabboxPlugins<LabboxPlugin>()
   const { workspaceName, feedUri } = workspaceInfo;
 
   const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
@@ -195,8 +196,7 @@ const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state
     // todo: use selector
     // sorting: findSortingForId(state, ownProps.sortingId),
     // recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
-    extensionsConfig: state.extensionsConfig,
-    plugins: filterPlugins(state.plugins)
+    extensionsConfig: state.extensionsConfig
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

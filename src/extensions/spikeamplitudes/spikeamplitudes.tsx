@@ -3,13 +3,14 @@
 
 import ScatterPlotIcon from '@material-ui/icons/ScatterPlot';
 import React from 'react';
-import { ExtensionContext } from '../extensionInterface';
+import { LabboxExtensionContext } from "../pluginInterface";
 import SpikeAmplitudesUnitView from './SpikeAmplitudesView/SpikeAmplitudesUnitView';
 import SpikeAmplitudesView from './SpikeAmplitudesView/SpikeAmplitudesView';
 
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'SpikeAmplitudes',
         label: 'Spike amplitudes',
         priority: 50,
@@ -18,7 +19,8 @@ export function activate(context: ExtensionContext) {
         singleton: false,
         icon: <ScatterPlotIcon />
     })
-    context.registerSortingUnitView({
+    context.registerPlugin({
+        type: 'SortingUnitView',
         name: 'SpikeAmplitudes',
         label: 'Spike amplitudes',
         priority: 50,

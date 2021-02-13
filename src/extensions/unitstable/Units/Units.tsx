@@ -1,9 +1,9 @@
 
 import { Button, Paper } from '@material-ui/core';
-import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react';
-import { HitherContext } from '../../common/hither';
+import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { Recording, SortingUnitMetricPlugin, SortingViewProps } from '../../extensionInterface';
+import { HitherContext } from '../../labbox/hither';
+import { Recording, SortingUnitMetricPlugin, sortingUnitMetricPlugins, SortingViewProps } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
 
@@ -100,8 +100,10 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     }, [metrics, sorting.sortingObject, recording.recordingObject, hither]);
 
     useEffect(() => { 
-        sortByPriority(plugins.sortingUnitMetrics).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
-    }, [plugins.sortingUnitMetrics, metrics, fetchMetric]);
+        sortByPriority(sortingUnitMetricPlugins(plugins)).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
+    }, [plugins, metrics, fetchMetric]);
+
+    const metricsPlugins = useMemo(() => (sortingUnitMetricPlugins(plugins)), [plugins])
 
     const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
     if (!sortingInfo) return <div>No sorting info</div>
@@ -117,7 +119,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
         <div style={{width: width || 300}}>
             <Paper style={{maxHeight: props.maxHeight, overflow: 'auto'}}>
                 <UnitsTable 
-                    sortingUnitMetrics={plugins.sortingUnitMetrics}
+                    sortingUnitMetrics={metricsPlugins}
                     units={units}
                     metrics={metrics}
                     selection={selection}

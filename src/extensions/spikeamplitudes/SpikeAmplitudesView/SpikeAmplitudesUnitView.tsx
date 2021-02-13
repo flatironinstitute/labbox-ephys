@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react'
-import { SortingUnitViewProps } from "../../extensionInterface"
+import { SortingUnitViewProps } from "../../pluginInterface"
 import SpikeAmplitudesTimeWidget from './SpikeAmplitudesTimeWidget'
 import useSpikeAmplitudesData from './useSpikeAmplitudesData'
 

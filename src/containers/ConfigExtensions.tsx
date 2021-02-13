@@ -1,13 +1,13 @@
 import { Checkbox } from '@material-ui/core';
 import React, { Dispatch, Fragment, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { LabboxPlugin, Plugins } from '../extensions/extensionInterface';
+import { useLabboxPlugins } from '../extensions/labbox';
+import { LabboxPlugin, recordingViewPlugins, sortingUnitMetricPlugins, sortingUnitViewPlugins, sortingViewPlugins } from '../extensions/pluginInterface';
 import { ExtensionsConfig } from '../extensions/reducers';
 import { RootAction, RootState } from '../reducers';
 
 interface StateProps {
     extensionsConfig: ExtensionsConfig
-    plugins: Plugins
 }
 
 interface DispatchProps {
@@ -18,27 +18,14 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const ConfigExtensions: FunctionComponent<Props> = ({ plugins, extensionsConfig }) => {
-    const allPlugins: LabboxPlugin[] = [];
-    Object.values(plugins.recordingViews).forEach(p => {
-        allPlugins.push(p)
-    })
-    Object.values(plugins.sortingViews).forEach(p => {
-        allPlugins.push(p)
-    })
-    Object.values(plugins.sortingUnitViews).forEach(p => {
-        allPlugins.push(p)
-    })
-    Object.values(plugins.sortingUnitMetrics).forEach(p => {
-        allPlugins.push(p)
-    })
-
+const ConfigExtensions: FunctionComponent<Props> = ({ extensionsConfig }) => {
+    const plugins = useLabboxPlugins<LabboxPlugin>()
     return (
         <div>
-            <PluginsList plugins={Object.values(plugins.recordingViews)} heading="Recording view plugins" />
-            <PluginsList plugins={Object.values(plugins.sortingViews)} heading="Sorting view plugins" />
-            <PluginsList plugins={Object.values(plugins.sortingUnitViews)} heading="Sorting unit view plugins" />
-            <PluginsList plugins={Object.values(plugins.sortingUnitMetrics)} heading="Sorting unit metric plugins" />
+            <PluginsList plugins={recordingViewPlugins(plugins)} heading="Recording view plugins" />
+            <PluginsList plugins={sortingViewPlugins(plugins)} heading="Sorting view plugins" />
+            <PluginsList plugins={sortingUnitViewPlugins(plugins)} heading="Sorting unit view plugins" />
+            <PluginsList plugins={sortingUnitMetricPlugins(plugins)} heading="Sorting unit metric plugins" />
         </div>
     )
 }
@@ -60,7 +47,6 @@ const PluginsList: FunctionComponent<{plugins: LabboxPlugin[], heading: string}>
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    plugins: state.plugins,
     extensionsConfig: state.extensionsConfig
 })
   

@@ -2,7 +2,7 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import React, { FunctionComponent } from 'react';
-import { ExtensionContext, RecordingViewProps } from "../extensionInterface";
+import { LabboxExtensionContext, RecordingViewProps } from "../pluginInterface";
 
 // Use recordingview snippet to insert a recording view
 const ExampleRecordingView: FunctionComponent<RecordingViewProps> = ({recording}) => {
@@ -13,9 +13,10 @@ const ExampleRecordingView: FunctionComponent<RecordingViewProps> = ({recording}
     )
 }
 
-export function activate(context: ExtensionContext) {
+export function activate(context: LabboxExtensionContext) {
     // Use registerrecordingview snippet to register a recording view
-    context.registerRecordingView({
+    context.registerPlugin({
+        type: 'RecordingView',
         name: 'ExampleRecordingView',
         label: 'Example recording view',
         priority: 50,

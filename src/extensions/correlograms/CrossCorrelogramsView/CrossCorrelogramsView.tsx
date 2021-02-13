@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useMemo, useState } from 'react'
 import Splitter from '../../common/Splitter'
-import { SortingSelection, SortingSelectionAction, SortingSelectionDispatch, SortingViewProps } from "../../extensionInterface"
+import { SortingSelection, SortingSelectionAction, SortingSelectionDispatch, SortingViewProps } from "../../pluginInterface"
 import SelectUnitsWidget from '../../spikeamplitudes/SpikeAmplitudesView/SelectUnitsWidget'
 import CrossCorrelogramsWidget from './CrossCorrelogramsWidget'
 

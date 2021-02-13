@@ -1,5 +1,5 @@
 import React from 'react';
-import { SortingUnitMetricPlugin } from '../../../extensionInterface';
+import { SortingUnitMetricPlugin } from "../../../pluginInterface";
 
 const PeakChannels = (record: any) => {
     return (
@@ -8,6 +8,7 @@ const PeakChannels = (record: any) => {
 }
 
 const plugin: SortingUnitMetricPlugin = {
+    type: 'SortingUnitMetric',
     name: 'PeakChannels',
     label: 'Peak chan.',
     columnLabel: 'Peak chan.',

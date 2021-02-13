@@ -1,5 +1,5 @@
 import React from 'react';
-import { SortingUnitMetricPlugin } from '../../../extensionInterface';
+import { SortingUnitMetricPlugin } from "../../../pluginInterface";
 
 const FiringRate = (record: any) => {
     return (
@@ -8,6 +8,7 @@ const FiringRate = (record: any) => {
 }
 
 const plugin: SortingUnitMetricPlugin = {
+    type: 'SortingUnitMetric',
     name: 'FiringRate',
     label: 'Firing rate (Hz)',
     columnLabel: 'Firing rate (Hz)',

@@ -1,8 +1,8 @@
 import { Button, IconButton, Link as LinkMui, Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
-import { HitherContext, HitherJob } from '../../extensions/common/hither';
 import NiceTable from '../../extensions/common/NiceTable';
+import { HitherContext, HitherJob } from '../../extensions/labbox/hither';
 
 type Props = {}
 

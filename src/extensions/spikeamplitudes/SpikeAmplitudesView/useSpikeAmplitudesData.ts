@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react"
-import { createCalculationPool, HitherContext, HitherInterface } from "../../common/hither"
 import useFetchCache from "../../common/useFetchCache"
 import { getArrayMax, getArrayMin } from '../../common/Utility'
+import { createCalculationPool, HitherContext, HitherInterface } from "../../labbox/hither"
 
 export type SpikeAmplitudesData = {
     getSpikeAmplitudes: (unitId: number | number[]) => {timepoints: number[], amplitudes: number[], minAmp: number, maxAmp: number} | undefined | null

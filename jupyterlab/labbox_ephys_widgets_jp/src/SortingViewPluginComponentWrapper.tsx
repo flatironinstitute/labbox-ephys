@@ -1,11 +1,11 @@
 import { WidgetModel } from '@jupyter-widgets/base';
 import React, { FunctionComponent, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { CalculationPool } from './extensions/common/hither';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
 import { useRecordingInfo } from './extensions/common/useRecordingInfo';
 import { useSortingInfo } from './extensions/common/useSortingInfo';
 import { sortingCurationReducer, SortingCurationWorkspaceAction } from './extensions/common/workspaceReducer';
-import { externalUnitMetricsReducer, Plugins, Recording, Sorting, SortingCuration, sortingSelectionReducer, SortingViewPlugin, useRecordingAnimation } from './extensions/extensionInterface';
+import { CalculationPool } from './extensions/labbox/hither';
+import { externalUnitMetricsReducer, Plugins, Recording, Sorting, SortingCuration, sortingSelectionReducer, SortingViewPlugin, useRecordingAnimation } from './extensions/pluginInterface';
 
 interface Props {
     plugin: SortingViewPlugin

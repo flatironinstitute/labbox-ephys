@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import CanvasWidget from '../../common/CanvasWidget';
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
-import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface';
+import { RecordingSelection, RecordingSelectionDispatch } from "../../pluginInterface";
 import { createElectrodesLayer, ElectrodeColors } from './electrodesLayer';
 import { createWaveformLayer, WaveformColors } from './waveformLayer';
 

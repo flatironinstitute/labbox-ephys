@@ -1,4 +1,4 @@
-import { RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/extensionInterface';
+import { RecordingViewPlugin, SortingUnitMetricPlugin, SortingUnitViewPlugin, SortingViewPlugin } from './extensions/pluginInterface';
 import registerExtensions from './registerExtensions';
 
 class LEJExtensionContext {

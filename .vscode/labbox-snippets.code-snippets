@@ -22,7 +22,7 @@
             "// LABBOX-EXTENSION-TAGS: jupyter",
 			"",
 			"import React from 'react';",
-			"import { ExtensionContext } from '../extensionInterface';",
+			"import { ExtensionContext } from '../pluginInterface",
 			"",
 			"// Use recordingview or sortingview snippet to insert a recording or sorting view (better to put it in a separate file)",
 			"",

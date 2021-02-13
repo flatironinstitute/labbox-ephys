@@ -2,9 +2,10 @@ import { Grid } from '@material-ui/core';
 import React, { Dispatch, FunctionComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { createCalculationPool } from '../extensions/common/hither';
 import { useRecordingInfo } from '../extensions/common/useRecordingInfo';
-import { filterPlugins, Plugins, Recording, RecordingSelectionAction, Sorting } from '../extensions/extensionInterface';
+import { useLabboxPlugins } from '../extensions/labbox';
+import { createCalculationPool } from '../extensions/labbox/hither';
+import { LabboxPlugin, Recording, RecordingSelectionAction, recordingViewPlugins, Sorting } from '../extensions/pluginInterface';
 import sortByPriority from '../extensions/sortByPriority';
 import { WorkspaceInfo } from '../extensions/WorkspaceView';
 import RecordingInfoView from '../extensions/WorkspaceView/RecordingInfoView';
@@ -12,7 +13,6 @@ import { Expandable } from '../extensions/WorkspaceView/SortingView';
 import { RootAction, RootState } from '../reducers';
 
 interface StateProps {
-  plugins: Plugins
 }
 
 interface DispatchProps {
@@ -29,7 +29,8 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
 
-const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, workspaceInfo, plugins }) => {
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, workspaceInfo }) => {
+  const plugins = useLabboxPlugins<LabboxPlugin>()
   const recordingInfo = useRecordingInfo(recording.recordingObject)
 
   if (!recording) {
@@ -54,7 +55,7 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
         
       </Grid>
       {
-          sortByPriority(plugins.recordingViews).filter(rv => (!rv.disabled)).map(rv => (
+          sortByPriority(recordingViewPlugins(plugins)).filter(rv => (!rv.disabled)).map(rv => (
             <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false} key={'rv-' + rv.name}>
               <rv.component
                 key={'rvc-' + rv.name}
@@ -73,7 +74,6 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
 }
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-  plugins: filterPlugins(state.plugins)
 })
   
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({

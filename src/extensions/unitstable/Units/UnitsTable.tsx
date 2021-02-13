@@ -1,11 +1,11 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { ExternalSortingUnitMetric, mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from '../../extensionInterface';
+import { ExternalSortingUnitMetric, mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 import '../unitstable.css';
 import TableWidget, { Column, Row } from './TableWidget';
 
 interface Props {
-    sortingUnitMetrics?: {[key: string]: SortingUnitMetricPlugin}
+    sortingUnitMetrics?: SortingUnitMetricPlugin[]
     units: number[]
     metrics?: {[key: string]: {data: {[key: string]: any}, error: string | null}}
     selection: SortingSelection

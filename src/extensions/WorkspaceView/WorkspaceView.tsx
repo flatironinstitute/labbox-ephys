@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
-import { SortingCurationWorkspaceAction, WorkspaceDispatch, WorkspaceState } from '../common/workspaceReducer';
-import { ExternalSortingUnitMetric, Plugins } from '../extensionInterface';
+import { ExternalSortingUnitMetric, LabboxPlugin } from "../pluginInterface";
+import { SortingCurationWorkspaceAction, WorkspaceDispatch, WorkspaceState } from '../pluginInterface/workspaceReducer';
 import SortingView from './SortingView';
 import WorkspaceRecordingsView from './WorkspaceRecordingsView';
 import WorkspaceRecordingView from './WorkspaceRecordingView';
@@ -26,7 +26,7 @@ type Props = {
     defaultFeedId: string
     workspace: WorkspaceState
     workspaceDispatch: WorkspaceDispatch
-    plugins: Plugins
+    plugins: LabboxPlugin[]
     history: HistoryInterface // routing history
     location: LocationInterface // routing location
     width: number

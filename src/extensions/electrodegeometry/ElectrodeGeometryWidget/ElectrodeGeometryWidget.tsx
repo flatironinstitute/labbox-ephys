@@ -3,7 +3,7 @@ import { createElectrodesLayer } from "../../averagewaveforms/AverageWaveformsVi
 import { ElectrodeLayerProps } from "../../averagewaveforms/AverageWaveformsView/WaveformWidget"
 import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
-import { RecordingSelection, RecordingSelectionDispatch } from "../../extensionInterface"
+import { RecordingSelection, RecordingSelectionDispatch } from "../../pluginInterface"
 import { Electrode } from "./electrodeGeometryLayer"
 
 // Okay, so after some hoop-jumping, we've learned the RecordingInfo has:

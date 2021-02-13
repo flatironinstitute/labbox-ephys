@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
 import WaveformWidget from '../../averagewaveforms/AverageWaveformsView/WaveformWidget';
-import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import { Snippet } from './SnippetsRow';
 
 type Props = {

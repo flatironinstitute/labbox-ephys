@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import SortingUnitPlotGrid from '../common/SortingUnitPlotGrid';
-import { SortingViewProps } from '../extensionInterface';
+import { SortingViewProps } from "../pluginInterface";
 import CorrelogramRv2 from './Correlogram_ReactVis2';
 
 // const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});

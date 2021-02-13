@@ -1,6 +1,6 @@
 import { Grid } from '@material-ui/core';
 import React, { FunctionComponent } from 'react';
-import { Sorting, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
+import { Sorting, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
 
 type Props = {
     sorting: Sorting

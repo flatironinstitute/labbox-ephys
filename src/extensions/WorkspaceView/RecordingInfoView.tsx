@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/c
 import React, { FunctionComponent, useMemo, useReducer } from 'react';
 import { Electrode } from '../devel/ElectrodeGeometryTest/ElectrodeGeometry';
 import ElectrodeGeometryWidget from '../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget';
-import { RecordingInfo, recordingSelectionReducer } from '../extensionInterface';
+import { RecordingInfo, recordingSelectionReducer } from "../pluginInterface";
 
 
 const zipElectrodes = (locations: number[][], ids: number[]): Electrode[] => {

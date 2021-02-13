@@ -3,7 +3,7 @@
 
 import TimelineIcon from '@material-ui/icons/Timeline';
 import React, { FunctionComponent } from 'react';
-import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
+import { LabboxExtensionContext, RecordingViewProps, SortingViewProps } from "../pluginInterface";
 import TimeseriesViewNew from './TimeseriesViewNew/TimeseriesViewNew';
 
 const TimeseriesSortingView: FunctionComponent<SortingViewProps> = ({recording, recordingInfo, width, height, selection, selectionDispatch}) => {
@@ -34,15 +34,17 @@ const TimeseriesRecordingView: FunctionComponent<RecordingViewProps> = ({recordi
     )
 }
 
-export function activate(context: ExtensionContext) {
-    context.registerRecordingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'RecordingView',
         name: 'TimeseriesView',
         label: 'Timeseries',
         priority: 50,
         fullWidth: true,
         component: TimeseriesRecordingView
     })
-    context.registerSortingView({
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'TimeseriesView',
         label: 'Timeseries',
         priority: 50,

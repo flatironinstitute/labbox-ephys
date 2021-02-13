@@ -1,6 +1,6 @@
 import React, { useMemo, useReducer } from 'react';
 import Splitter from '../../common/Splitter';
-import { RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface';
+import { RecordingInfo, RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from "../../pluginInterface";
 import ElectrodeGeometryView from './ElectrodeGeometryView';
 import TimeseriesWidgetNew from './TimeseriesWidgetNew';
 import useTimeseriesData from './useTimeseriesModel';

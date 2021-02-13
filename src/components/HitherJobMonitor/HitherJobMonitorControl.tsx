@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HitherContext, HitherJob } from '../../extensions/common/hither';
+import { HitherContext, HitherJob } from '../../extensions/labbox/hither';
 import { WorkspaceInfo } from '../../extensions/WorkspaceView';
 import { getPathQuery } from '../../kachery';
 

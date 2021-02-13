@@ -1,4 +1,4 @@
-import { Recording, Sorting } from "./extensions/extensionInterface"
+import { Recording, Sorting } from "./extensions/pluginInterface"
 
 const sorting: Sorting = {
     "sortingId": "Sp1x3b34l5",

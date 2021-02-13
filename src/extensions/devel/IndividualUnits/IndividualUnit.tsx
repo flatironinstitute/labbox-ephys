@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { CalculationPool } from '../../common/hither';
-import { Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
+import { CalculationPool } from '../../labbox/hither';
+import { LabboxPlugin, Recording, Sorting, SortingInfo } from "../../pluginInterface";
 
 interface Props {
     sorting: Sorting
@@ -9,7 +9,7 @@ interface Props {
     width: number
     calculationPool: CalculationPool
     sortingInfo: SortingInfo
-    plugins: Plugins
+    plugins: LabboxPlugin[]
 }
 
 // const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {

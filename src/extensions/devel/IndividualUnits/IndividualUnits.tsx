@@ -1,9 +1,9 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useState } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { createCalculationPool } from '../../common/hither';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { SortingViewProps } from '../../extensionInterface';
+import { createCalculationPool } from '../../labbox/hither';
+import { SortingViewProps } from "../../pluginInterface";
 import IndividualUnit from './IndividualUnit';
 
 const individualUnitsCalculationPool = createCalculationPool({maxSimultaneous: 6});

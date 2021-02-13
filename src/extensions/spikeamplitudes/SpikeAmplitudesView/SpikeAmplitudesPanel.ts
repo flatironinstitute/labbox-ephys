@@ -1,7 +1,7 @@
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
-import { HitherInterface } from "../../common/hither"
 import { getArrayMax, getArrayMin } from '../../common/Utility'
-import { Recording, Sorting } from "../../extensionInterface"
+import { HitherInterface } from "../../labbox/hither"
+import { Recording, Sorting } from "../../pluginInterface"
 import { SpikeAmplitudesData } from "./useSpikeAmplitudesData"
 
 // const calculationPool = createCalculationPool({maxSimultaneous: 6})

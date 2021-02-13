@@ -1,5 +1,5 @@
 import { Reducer } from 'react'
-import { HitherJob } from '../extensions/common/hither'
+import { HitherJob } from '../extensions/labbox/hither'
 
 export interface HitherJobUpdate {
 

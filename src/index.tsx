@@ -12,10 +12,11 @@ import "../node_modules/react-vis/dist/style.css";
 import { REPORT_INITIAL_LOAD_COMPLETE, SET_SERVER_INFO } from './actions';
 import ApiConnection from './ApiConnection';
 import AppContainer from './AppContainer';
-import { extensionContextDispatch } from './extensionContextDispatch';
-import { HitherContext } from './extensions/common/hither';
 import WorkspaceSubfeed from './extensions/common/WorkspaceSubfeed';
 import initializeHitherInterface, { HitherJobMessage } from './extensions/initializeHitherInterface';
+import { createExtensionContext, LabboxProvider } from './extensions/labbox';
+import { HitherContext } from './extensions/labbox/hither';
+import { LabboxPlugin } from './extensions/pluginInterface';
 // styling
 import theme from './extensions/theme';
 import { WorkspaceInfo } from './extensions/WorkspaceView';
@@ -30,8 +31,9 @@ import './styles.css';
 // Create the store and apply middleware
 // thunk allows asynchronous actions
 const theStore = createStore(rootReducer, {}, applyMiddleware(thunk))
-const extensionContext = extensionContextDispatch(theStore.dispatch)
 // setDispatch(theStore.dispatch)
+
+const extensionContext = createExtensionContext<LabboxPlugin>()
 registerExtensions(extensionContext)
 
 // This is an open 2-way connection with server (websocket)
@@ -152,13 +154,15 @@ const handleSetWorkspaceInfo = (workspaceInfo: WorkspaceInfo) => {
 const content = (
   // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154 
   <HitherContext.Provider value={hither}>
-    <MuiThemeProvider theme={theme}>
-      <Provider store={theStore}>
-        <Router>
-          <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} onReconnect={handleReconnect} workspaceSubfeed={workspaceSubfeed} />
-        </Router>
-      </Provider>
-    </MuiThemeProvider>
+    <LabboxProvider extensionContext={extensionContext}>
+      <MuiThemeProvider theme={theme}>
+        <Provider store={theStore}>
+          <Router>
+            <AppContainer onSetWorkspaceInfo={handleSetWorkspaceInfo} onReconnect={handleReconnect} workspaceSubfeed={workspaceSubfeed} />
+          </Router>
+        </Provider>
+      </MuiThemeProvider>
+    </LabboxProvider>
   </HitherContext.Provider>
   // </React.StrictMode>
 );

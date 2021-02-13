@@ -11,10 +11,10 @@ import { Link, RouteComponentProps, useLocation, withRouter } from 'react-router
 import sizeMe from 'react-sizeme';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import ServerStatusControl from './containers/ServerStatusControl';
-import { HitherJob } from './extensions/common/hither';
 import { useOnce } from './extensions/common/hooks';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
-import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/common/workspaceReducer';
+import { HitherJob } from './extensions/labbox/hither';
+import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
 import { ExtensionsConfig } from './extensions/reducers';
 import { WorkspaceInfo } from './extensions/WorkspaceView';
 import { getPathQuery } from './kachery';

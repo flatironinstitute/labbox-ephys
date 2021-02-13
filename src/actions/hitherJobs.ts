@@ -1,4 +1,4 @@
-import { HitherJob } from "../extensions/common/hither"
+import { HitherJob } from "../extensions/labbox/hither"
 import { RootAction } from "../reducers"
 import { HitherJobUpdate } from "../reducers/hitherJobs"
 

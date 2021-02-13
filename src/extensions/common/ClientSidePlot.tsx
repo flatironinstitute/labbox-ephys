@@ -1,7 +1,7 @@
 import { Box, CircularProgress } from '@material-ui/core';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
-import { CalculationPool, HitherContext } from './hither';
+import { CalculationPool, HitherContext } from '../labbox/hither';
 
 const ClientSidePlot: FunctionComponent<{
     dataFunctionName: string,

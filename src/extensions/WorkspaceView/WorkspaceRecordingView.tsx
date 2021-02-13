@@ -1,8 +1,8 @@
 import { Button, Grid } from '@material-ui/core';
-import React, { FunctionComponent, useCallback, useEffect, useReducer } from 'react';
-import { createCalculationPool } from '../common/hither';
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer } from 'react';
 import { useRecordingInfo } from '../common/useRecordingInfo';
-import { Plugins, Recording, RecordingSelection, recordingSelectionReducer, Sorting } from '../extensionInterface';
+import { createCalculationPool } from '../labbox/hither';
+import { LabboxPlugin, Recording, RecordingSelection, recordingSelectionReducer, recordingViewPlugins, Sorting } from "../pluginInterface";
 import sortByPriority from '../sortByPriority';
 import RecordingInfoView from './RecordingInfoView';
 import SortingsView from './SortingsView';
@@ -13,7 +13,7 @@ interface Props {
   recording: Recording
   sortings: Sorting[]
   workspaceInfo: WorkspaceInfo
-  plugins: Plugins
+  plugins: LabboxPlugin[]
   width: number
   height: number
   workspaceRouteDispatch: WorkspaceRouteDispatch
@@ -45,6 +45,8 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
       })
   }, [workspaceRouteDispatch])
 
+  const rvPlugins = useMemo(() => (recordingViewPlugins(plugins)), [plugins])
+
   if (!recordingInfo) return <div>Loading recording info</div>
 
   return (
@@ -69,7 +71,7 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
         </Grid>
       </Grid>
       {
-          sortByPriority(plugins.recordingViews).filter(rv => (!rv.disabled)).map(rv => (
+          sortByPriority(rvPlugins).filter(rv => (!rv.disabled)).map(rv => (
             <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false} key={'rv-' + rv.name}>
               <rv.component
                 key={'rvc-' + rv.name}

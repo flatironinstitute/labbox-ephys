@@ -3,12 +3,13 @@
 
 import GrainIcon from '@material-ui/icons/Grain';
 import React from 'react';
-import { ExtensionContext } from '../extensionInterface';
+import { LabboxExtensionContext } from "../pluginInterface";
 import FireTrackView from './FireTrackView/FireTrackView';
 
-export function activate(context: ExtensionContext) {
+export function activate(context: LabboxExtensionContext) {
     // Use registerrecordingview or registersortingview snippet to insert a recording or sorting view
-    context.registerSortingView({
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'FireTrack',
         label: 'FireTrack',
         priority: 50,

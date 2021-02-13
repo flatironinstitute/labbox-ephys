@@ -3,14 +3,15 @@
 
 import TableChartIcon from '@material-ui/icons/TableChart';
 import React from 'react';
-import { ExtensionContext } from "../extensionInterface";
+import { LabboxExtensionContext } from "../pluginInterface";
 import registerMetricPlugins from "./Units/metricPlugins/registerMetricPlugins";
 import Units from './Units/Units';
 
-export function activate(context: ExtensionContext) {
+export function activate(context: LabboxExtensionContext) {
     registerMetricPlugins(context)
 
-    context.registerSortingView({
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'UnitsTable',
         label: 'Units Table',
         icon: <TableChartIcon />,

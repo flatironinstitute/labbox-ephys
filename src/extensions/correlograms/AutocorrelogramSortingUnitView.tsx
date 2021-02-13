@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react'
 import ClientSidePlot from '../common/ClientSidePlot'
-import { CalculationPool } from '../common/hither'
-import { Sorting } from '../extensionInterface'
+import { CalculationPool } from '../labbox/hither'
+import { Sorting } from "../pluginInterface"
 import Correlogram_rv from './Correlogram_ReactVis'
 
 

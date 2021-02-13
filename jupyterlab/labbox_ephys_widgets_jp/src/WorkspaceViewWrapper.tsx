@@ -2,7 +2,7 @@ import { WidgetModel } from '@jupyter-widgets/base';
 import React, { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
 import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/common/workspaceReducer';
-import { Plugins } from './extensions/extensionInterface';
+import { Plugins } from './extensions/pluginInterface';
 import WorkspaceView, { WorkspaceInfo } from './extensions/WorkspaceView';
 import { HistoryInterface, LocationInterface } from './extensions/WorkspaceView/WorkspaceView';
 
