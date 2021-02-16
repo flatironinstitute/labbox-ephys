@@ -1,8 +1,8 @@
 import { Button, Grid } from '@material-ui/core';
+import { createCalculationPool } from 'labbox';
 import React, { FunctionComponent, useState } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { createCalculationPool } from '../../labbox/hither';
 import { SortingViewProps } from "../../pluginInterface";
 import IndividualUnit from './IndividualUnit';
 

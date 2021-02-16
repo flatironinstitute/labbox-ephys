@@ -1,5 +1,6 @@
 
 // !begin-code-generation!
+import { ExtensionContext } from 'labbox';
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms';
 import { activate as activateclusters } from './extensions/clusters/clusters';
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms';
@@ -7,7 +8,6 @@ import { activate as activatedevel } from './extensions/devel/devel';
 import { activate as activateelectrodegeometry } from './extensions/electrodegeometry/electrodegeometry';
 import { activate as activateexample } from './extensions/example/example';
 import { activate as activatefiretrack } from './extensions/firetrack/firetrack';
-import { ExtensionContext } from './extensions/labbox';
 import { activate as activatemountainview } from './extensions/mountainview/mountainview';
 import { activate as activateaveragewaveformsold } from './extensions/old/averagewaveformsold/averagewaveformsold';
 import { LabboxPlugin } from './extensions/pluginInterface';

@@ -1,6 +1,6 @@
+import { createCalculationPool } from 'labbox';
 import React, { useCallback } from 'react';
 import PlotGrid from '../../common/PlotGrid';
-import { createCalculationPool } from '../../labbox/hither';
 import { SortingViewProps } from "../../pluginInterface";
 import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 

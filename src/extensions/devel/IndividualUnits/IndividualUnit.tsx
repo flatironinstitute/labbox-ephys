@@ -1,5 +1,5 @@
+import { CalculationPool } from 'labbox';
 import React, { FunctionComponent } from 'react';
-import { CalculationPool } from '../../labbox/hither';
 import { Recording, Sorting, SortingInfo } from "../../pluginInterface";
 
 interface Props {

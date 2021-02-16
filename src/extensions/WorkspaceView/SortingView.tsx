@@ -1,9 +1,9 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import { createCalculationPool, HitherContext, usePlugins, WorkspaceInfo } from 'labbox';
 import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import Hyperlink from '../common/Hyperlink';
 import { useRecordingInfo } from '../common/useRecordingInfo';
 import { useSortingInfo } from '../common/useSortingInfo';
-import { createCalculationPool, HitherContext, usePlugins, WorkspaceInfo } from '../labbox';
 import { ExternalSortingUnitMetric, LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins } from '../pluginInterface';
 import { SortingCurationWorkspaceAction } from '../pluginInterface/workspaceReducer';
 import { WorkspaceRouteDispatch } from './WorkspaceView';

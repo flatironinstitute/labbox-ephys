@@ -1,8 +1,7 @@
 import { WidgetModel } from '@jupyter-widgets/base';
+import { LabboxProviderContext, usePlugins } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
-import { usePlugins } from './extensions/labbox';
-import { LabboxProviderContext } from './extensions/labbox/LabboxProvider';
 import { filterPlugins, LabboxPlugin } from './extensions/pluginInterface';
 import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
 import WorkspaceView from './extensions/WorkspaceView';

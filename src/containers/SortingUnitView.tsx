@@ -1,11 +1,10 @@
 import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core';
+import { CalculationPool, createCalculationPool, HitherContext, useLabboxPlugins, WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { useSortingInfo } from '../extensions/common/useSortingInfo';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { useLabboxPlugins, WorkspaceInfo } from '../extensions/labbox';
-import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/labbox/hither';
 import { LabboxPlugin, Recording, Sorting } from '../extensions/pluginInterface';
 import { getPathQuery } from '../kachery';
 

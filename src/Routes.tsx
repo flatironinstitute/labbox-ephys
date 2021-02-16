@@ -1,3 +1,4 @@
+import { WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent } from 'react';
 import { useLocation } from "react-router-dom";
 import About from './components/About';
@@ -5,7 +6,6 @@ import Docs from './components/Docs';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
-import { WorkspaceInfo } from './extensions/labbox';
 import { WorkspaceDispatch, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
 
 

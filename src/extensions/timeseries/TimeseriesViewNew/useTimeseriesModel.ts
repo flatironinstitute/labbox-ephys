@@ -1,6 +1,6 @@
+import { createCalculationPool, HitherContext, HitherInterface } from 'labbox'
 import { useContext, useMemo } from "react"
 import useFetchCache from "../../common/useFetchCache"
-import { createCalculationPool, HitherContext, HitherInterface } from "../../labbox/hither"
 import { RecordingInfo } from "../../pluginInterface"
 
 // it may be important to limit this when using a filter

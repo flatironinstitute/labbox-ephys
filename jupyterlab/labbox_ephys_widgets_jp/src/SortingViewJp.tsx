@@ -1,13 +1,11 @@
 import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
 import { MuiThemeProvider } from '@material-ui/core';
+import { createCalculationPool, LabboxProvider, WorkspaceInfo } from 'labbox';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { WorkspaceInfo } from './extensions/labbox';
-import { createCalculationPool } from './extensions/labbox/hither';
-import { LabboxProvider } from './extensions/labbox/LabboxProvider';
 import { sortingViewPlugins } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import SortingViewPluginComponentWrapper from './SortingViewPluginComponentWrapper';

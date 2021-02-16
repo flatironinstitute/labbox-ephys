@@ -1,7 +1,7 @@
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import { LabboxProviderContext } from 'labbox';
 import { default as React, Fragment, FunctionComponent, useContext } from 'react';
-import { LabboxProviderContext } from '../extensions/labbox/LabboxProvider';
 import ConfigComputeResource from './ConfigComputeResource';
 import ConfigExtensions from './ConfigExtensions';
 import ConfigSharing from './ConfigSharing';

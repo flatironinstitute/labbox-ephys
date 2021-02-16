@@ -1,7 +1,7 @@
 import { IconButton } from '@material-ui/core';
 import { CheckCircleOutline, Sync, SyncProblem } from '@material-ui/icons';
+import { LabboxProviderContext } from 'labbox';
 import React, { FunctionComponent, useCallback, useContext } from 'react';
-import { LabboxProviderContext } from '../extensions/labbox/LabboxProvider';
 
 type Props = {}
 

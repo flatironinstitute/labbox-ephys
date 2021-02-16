@@ -4,14 +4,12 @@ import Toolbar from '@material-ui/core/Toolbar';
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import Typography from '@material-ui/core/Typography';
 import { Home } from '@material-ui/icons';
+import { HitherJob, LabboxProviderContext, WorkspaceInfo } from 'labbox';
 import React, { Fragment, FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import ServerStatusControl from './containers/ServerStatusControl';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
-import { WorkspaceInfo } from './extensions/labbox';
-import { HitherJob } from './extensions/labbox/hither';
-import { LabboxProviderContext } from './extensions/labbox/LabboxProvider';
 import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
 import { getPathQuery } from './kachery';
 import Routes from './Routes';

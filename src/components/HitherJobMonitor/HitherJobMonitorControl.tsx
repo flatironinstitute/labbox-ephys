@@ -1,7 +1,6 @@
+import { HitherContext, HitherJob, WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { WorkspaceInfo } from '../../extensions/labbox';
-import { HitherContext, HitherJob } from '../../extensions/labbox/hither';
 import { getPathQuery } from '../../kachery';
 
 type Props = {

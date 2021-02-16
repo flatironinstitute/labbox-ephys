@@ -1,9 +1,9 @@
+import { HitherContext } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import useBufferedDispatch from '../../common/useBufferedDispatch';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { useSortingInfo } from '../../common/useSortingInfo';
 import { getArrayMax, getArrayMin } from '../../common/Utility';
-import { HitherContext } from '../../labbox/hither';
 import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from "../../pluginInterface";
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';

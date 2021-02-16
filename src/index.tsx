@@ -1,13 +1,12 @@
 // react
 import { MuiThemeProvider } from '@material-ui/core';
+import { createExtensionContext, LabboxProvider, WorkspaceInfo } from 'labbox';
 import QueryString from 'querystring';
 import React, { useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import "../node_modules/react-vis/dist/style.css";
 import AppContainer from './AppContainer';
-import { createExtensionContext, WorkspaceInfo } from './extensions/labbox';
-import { LabboxProvider } from './extensions/labbox/LabboxProvider';
 import { LabboxPlugin } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import { LocationInterface } from './extensions/WorkspaceView/WorkspaceView';

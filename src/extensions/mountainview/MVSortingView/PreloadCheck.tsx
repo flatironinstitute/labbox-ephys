@@ -1,5 +1,5 @@
+import { createCalculationPool, HitherContext } from 'labbox';
 import React, { Fragment, FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createCalculationPool, HitherContext } from '../../labbox/hither';
 import { Recording, Sorting } from "../../pluginInterface";
 
 interface ChildProps {

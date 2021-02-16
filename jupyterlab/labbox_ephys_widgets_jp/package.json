@@ -70,6 +70,7 @@
     "@types/react-vis": "^1.11.5",
     "axios": "^0.21.1",
     "github-markdown-css": "^4.0.0",
+    "labbox": "../../labbox-0.1.4.tgz",
     "markdown-loader": "^6.0.0",
     "mathjs": "^8.1.0",
     "object-hash": "^2.1.1",

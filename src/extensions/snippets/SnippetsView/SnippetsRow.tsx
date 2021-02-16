@@ -1,8 +1,8 @@
 import { GridList, GridListTile } from '@material-ui/core';
+import { createCalculationPool, HitherContext, HitherInterface } from 'labbox';
 import React, { FunctionComponent, useContext, useMemo } from 'react';
 import { getElectrodesAspectRatio } from '../../averagewaveforms/AverageWaveformsView/setupElectrodes';
 import useFetchCache from '../../common/useFetchCache';
-import { createCalculationPool, HitherContext, HitherInterface } from '../../labbox/hither';
 import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import SnippetBox from './SnippetBox';
 

@@ -1,5 +1,5 @@
+import { usePlugins } from 'labbox';
 import React, { Fragment, FunctionComponent, useCallback } from 'react';
-import { usePlugins } from '../../labbox';
 import { LabboxPlugin, SortingSelection, SortingUnitViewPlugin, sortingUnitViewPlugins, SortingViewPlugin, sortingViewPlugins } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 

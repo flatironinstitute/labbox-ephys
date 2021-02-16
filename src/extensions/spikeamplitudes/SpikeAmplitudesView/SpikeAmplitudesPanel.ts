@@ -1,6 +1,6 @@
+import { HitherInterface } from 'labbox'
 import { Brush, CanvasPainter, Font, Pen } from "../../common/CanvasWidget/CanvasPainter"
 import { getArrayMax, getArrayMin } from '../../common/Utility'
-import { HitherInterface } from "../../labbox/hither"
 import { Recording, Sorting } from "../../pluginInterface"
 import { SpikeAmplitudesData } from "./useSpikeAmplitudesData"
 

@@ -1,9 +1,8 @@
 
 import { Button, Paper } from '@material-ui/core';
+import { HitherContext, usePlugins } from 'labbox';
 import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { usePlugins } from '../../labbox';
-import { HitherContext } from '../../labbox/hither';
 import { LabboxPlugin, Recording, SortingUnitMetricPlugin, sortingUnitMetricPlugins, SortingViewProps } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';

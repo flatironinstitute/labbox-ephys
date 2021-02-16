@@ -1,4 +1,4 @@
-import { createExtensionContext } from './extensions/labbox';
+import { createExtensionContext } from 'labbox';
 import { LabboxPlugin } from './extensions/pluginInterface';
 import registerExtensions from './registerExtensions';
   

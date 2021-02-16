@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from '@material-ui/core'
+import { HitherJob } from 'labbox'
 import React, { FunctionComponent } from 'react'
-import { HitherJob } from './HitherInterface'
 
 
 const HitherJobStatusView: FunctionComponent<{job?: HitherJob, message?: string, width?: number, height?: number}> = ({job, message='', width=200, height=200}) => {

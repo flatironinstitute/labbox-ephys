@@ -1,6 +1,5 @@
+import { LabboxProviderContext, WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent, useContext } from 'react';
-import { WorkspaceInfo } from '../extensions/labbox';
-import { LabboxProviderContext } from '../extensions/labbox/LabboxProvider';
 
 type Props = {
     workspaceInfo: WorkspaceInfo | null

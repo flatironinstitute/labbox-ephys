@@ -1,5 +1,5 @@
+import { WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
-import { WorkspaceInfo } from '../labbox';
 import { ExternalSortingUnitMetric } from "../pluginInterface";
 import { SortingCurationWorkspaceAction, WorkspaceDispatch, WorkspaceState } from '../pluginInterface/workspaceReducer';
 import SortingView from './SortingView';

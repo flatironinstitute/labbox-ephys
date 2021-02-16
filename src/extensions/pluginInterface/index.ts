@@ -1,4 +1,4 @@
-import { BasePlugin, CalculationPool, ExtensionContext } from "../labbox";
+import { BasePlugin, CalculationPool, ExtensionContext } from "labbox";
 import { RecordingViewPlugin } from "./RecordingViewPlugin";
 import { SortingUnitMetricPlugin } from "./SortingUnitMetricPlugin";
 import { SortingUnitViewPlugin } from "./SortingUnitViewPlugin";

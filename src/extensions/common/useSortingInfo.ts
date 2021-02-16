@@ -1,5 +1,5 @@
+import { HitherContext, HitherJob, useHitherJob } from 'labbox';
 import { useContext, useRef, useState } from "react";
-import { HitherContext, HitherJob, useHitherJob } from "../labbox/hither";
 import { Sorting, SortingInfo } from "../pluginInterface";
 
 export const useSortingInfo = (sortingObject: any, recordingObject: any): SortingInfo | undefined => {
