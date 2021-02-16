@@ -16,11 +16,6 @@ export interface BasePlugin {
     label: string
 }
 
-export interface BaseViewPlugin extends BasePlugin {
-    component: React.FunctionComponent<any>
-    icon: any
-}
-
 export interface ExtensionContext<Plugin extends BasePlugin> {
     registerPlugin: (p: Plugin) => void
 }
