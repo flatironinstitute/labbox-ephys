@@ -1,24 +1,14 @@
 import { Grid } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import React, { FunctionComponent } from 'react';
 import { useRecordingInfo } from '../extensions/common/useRecordingInfo';
-import { useLabboxPlugins } from '../extensions/labbox';
+import { useLabboxPlugins, WorkspaceInfo } from '../extensions/labbox';
 import { createCalculationPool } from '../extensions/labbox/hither';
 import { LabboxPlugin, Recording, RecordingSelectionAction, recordingViewPlugins, Sorting } from '../extensions/pluginInterface';
 import sortByPriority from '../extensions/sortByPriority';
-import { WorkspaceInfo } from '../extensions/WorkspaceView';
 import RecordingInfoView from '../extensions/WorkspaceView/RecordingInfoView';
 import { Expandable } from '../extensions/WorkspaceView/SortingView';
-import { RootAction, RootState } from '../reducers';
 
-interface StateProps {
-}
-
-interface DispatchProps {
-}
-
-interface OwnProps {
+type Props = {
   recordingId: string
   recording: Recording
   sortings: Sorting[]
@@ -27,9 +17,7 @@ interface OwnProps {
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps
-
-const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, history, workspaceInfo }) => {
+const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sortings, workspaceInfo }) => {
   const plugins = useLabboxPlugins<LabboxPlugin>()
   const recordingInfo = useRecordingInfo(recording.recordingObject)
 
@@ -64,7 +52,6 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
                 recordingInfo={recordingInfo}
                 selection={{}}
                 selectionDispatch={(a: RecordingSelectionAction) => {}}
-                plugins={plugins}
               />
             </Expandable>
           ))
@@ -73,13 +60,4 @@ const RecordingView: FunctionComponent<Props> = ({ recordingId, recording, sorti
   )
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)( RecordingView))
+export default RecordingView

@@ -1,4 +1,4 @@
-import { LabboxPlugin, LabboxViewPlugin } from ".";
+import { LabboxViewPlugin } from ".";
 import { CalculationPool } from "../labbox";
 import { Recording, RecordingInfo } from "./Recording";
 import { Sorting, SortingInfo } from "./Sorting";
@@ -14,7 +14,6 @@ export interface SortingViewProps {
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null
-    plugins: LabboxPlugin[]
     calculationPool: CalculationPool
     width: number
     height: number

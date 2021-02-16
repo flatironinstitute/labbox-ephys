@@ -2,6 +2,7 @@ import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import Splitter from '../common/Splitter';
 import { useRecordingInfo } from '../common/useRecordingInfo';
+import { usePlugins, WorkspaceInfo } from '../labbox';
 import { createCalculationPool } from '../labbox/hither';
 import { LabboxPlugin, Recording, RecordingSelection, recordingSelectionReducer, recordingViewPlugins, Sorting } from "../pluginInterface";
 import sortByPriority from '../sortByPriority';
@@ -9,13 +10,12 @@ import RecordingInfoView from './RecordingInfoView';
 import SortingInstructions from './SortingInstructions';
 import SortingsView from './SortingsView';
 import { Expandable } from './SortingView';
-import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 interface Props {
   recording: Recording
   sortings: Sorting[]
   workspaceInfo: WorkspaceInfo
-  plugins: LabboxPlugin[]
   width: number
   height: number
   workspaceRouteDispatch: WorkspaceRouteDispatch
@@ -25,8 +25,7 @@ interface Props {
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 })
 
-const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings, workspaceInfo, plugins, workspaceRouteDispatch, onDeleteSortings, width, height, defaultFeedId }) => {
-  const { readOnly } = workspaceInfo;
+const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings, workspaceInfo, workspaceRouteDispatch, onDeleteSortings, width, height, defaultFeedId }) => {
   const recordingInfo = useRecordingInfo(recording.recordingObject)
   const [showSpikeSortingInstructions, setShowSpikeSortingInstructions] = useState(false)
 
@@ -49,6 +48,7 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
     })
   }, [workspaceRouteDispatch])
 
+  const plugins = usePlugins<LabboxPlugin>()
   const rvPlugins = useMemo(() => (recordingViewPlugins(plugins)), [plugins])
 
   if (!recordingInfo) return <div>Loading recording info</div>
@@ -83,7 +83,6 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
               recordingInfo={recordingInfo}
               selection={selection}
               selectionDispatch={selectionDispatch}
-              plugins={plugins}
               width={width - 40}
             />
           </Expandable>

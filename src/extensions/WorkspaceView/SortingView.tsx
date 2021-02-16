@@ -3,10 +3,10 @@ import React, { useCallback, useContext, useEffect, useMemo, useReducer, useStat
 import Hyperlink from '../common/Hyperlink';
 import { useRecordingInfo } from '../common/useRecordingInfo';
 import { useSortingInfo } from '../common/useSortingInfo';
-import { createCalculationPool, HitherContext } from '../labbox';
+import { createCalculationPool, HitherContext, usePlugins, WorkspaceInfo } from '../labbox';
 import { ExternalSortingUnitMetric, LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins } from '../pluginInterface';
 import { SortingCurationWorkspaceAction } from '../pluginInterface/workspaceReducer';
-import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -21,7 +21,6 @@ import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
 interface Props {
   sorting: Sorting
   recording: Recording
-  plugins: LabboxPlugin[]
   width: number,
   height: number,
   workspaceRouteDispatch: WorkspaceRouteDispatch
@@ -36,8 +35,8 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { plugins, workspaceInfo, sorting, recording, curationDispatch, onSetExternalUnitMetrics, workspaceRouteDispatch } = props
-  const { workspaceName, feedUri, readOnly } = workspaceInfo;
+  const { workspaceInfo, sorting, recording, curationDispatch, onSetExternalUnitMetrics, workspaceRouteDispatch } = props
+  const { readOnly } = workspaceInfo;
   const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
@@ -91,6 +90,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     height: contentHeight
   }), [contentWidth, contentHeight])
 
+  const plugins = usePlugins<LabboxPlugin>()
   const sv = sortingViewPlugins(plugins).filter(p => (p.name === 'MVSortingView'))[0]
   if (!sv) throw Error('Missing sorting view: MVSortingView')
   const svProps = useMemo(() => (sv.props || {}), [sv.props])
@@ -130,7 +130,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             selectionDispatch={selectionDispatch}
             curationDispatch={curationDispatch}
             readOnly={readOnly}
-            plugins={plugins}
             calculationPool={calculationPool}
             width={contentWidth}
             height={contentHeight}

@@ -3,9 +3,11 @@ import React, { FunctionComponent, useEffect, useMemo, useReducer, useRef, useSt
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
 import { useRecordingInfo } from './extensions/common/useRecordingInfo';
 import { useSortingInfo } from './extensions/common/useSortingInfo';
-import { sortingCurationReducer, SortingCurationWorkspaceAction } from './extensions/common/workspaceReducer';
 import { CalculationPool } from './extensions/labbox/hither';
-import { externalUnitMetricsReducer, Plugins, Recording, Sorting, SortingCuration, sortingSelectionReducer, SortingViewPlugin, useRecordingAnimation } from './extensions/pluginInterface';
+import { Recording, Sorting, SortingCuration, sortingSelectionReducer, SortingViewPlugin } from './extensions/pluginInterface';
+import { externalUnitMetricsReducer } from './extensions/pluginInterface/exteneralUnitMetrics';
+import { useRecordingAnimation } from './extensions/pluginInterface/RecordingSelection';
+import { sortingCurationReducer, SortingCurationWorkspaceAction } from './extensions/pluginInterface/workspaceReducer';
 
 interface Props {
     plugin: SortingViewPlugin
@@ -13,13 +15,12 @@ interface Props {
     recordingObject: any
     sortingInfo: any
     recordingInfo: any
-    plugins: Plugins
     calculationPool: CalculationPool
     model: WidgetModel
     curationUri?: string
 }
 
-const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, sortingObject, recordingObject, plugins, calculationPool, model, curationUri }) => {
+const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, sortingObject, recordingObject, calculationPool, model, curationUri }) => {
     const [sorting, setSorting] = useState<Sorting | null>(null)
     const [recording, setRecording] = useState<Recording | null>(null)
 
@@ -113,8 +114,8 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
     }, [selection.timeRange, recordingInfo])
 
     const [divElement, setDivElement] = useState<HTMLDivElement | null>(null)
-    const [width, setWidth] = useState<number | undefined>(undefined)
-    const [height, setHeight] = useState<number | undefined>(undefined)
+    const [width, setWidth] = useState<number>(600)
+    const [height, setHeight] = useState<number>(600)
     const [pollIndex, setPollIndex] = useState(0)
     const divRef = React.useCallback((elmt: HTMLDivElement) => {
         // this should get called only once after the div has been written to the DOM
@@ -162,7 +163,6 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
                 selection={selection}
                 selectionDispatch={selectionDispatch}
                 readOnly={false}
-                plugins={plugins}
                 calculationPool={calculationPool}
                 width={width}
                 height={height}

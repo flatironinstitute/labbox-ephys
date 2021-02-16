@@ -5,10 +5,10 @@ import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { HitherContext } from './extensions/labbox/hither';
-import { filterPlugins, Plugins } from './extensions/pluginInterface';
+import { WorkspaceInfo } from './extensions/labbox';
+import { LabboxProvider } from './extensions/labbox/LabboxProvider';
+import { LabboxPlugin } from './extensions/pluginInterface';
 import theme from './extensions/theme';
-import initializeHitherForJpWidgetView from './initializeHitherForJpWidgetView';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import WorkspaceViewWrapper from './WorkspaceViewWrapper';
 
@@ -22,26 +22,24 @@ export class WorkspaceViewJp extends DOMWidgetView {
         const feedUri = this.model.get('feedUri')
         const workspaceName = this.model.get('workspaceName')
 
-        const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
-        this._cleanupCallbacks.push(cleanup)
+        // const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
+        // this._cleanupCallbacks.push(cleanup)
 
-        const plugins: Plugins = {
-            recordingViews: extensionContext._recordingViewPlugins,
-            sortingViews: extensionContext._sortingViewPlugins,
-            sortingUnitViews: extensionContext._sortingUnitViewPlugins,
-            sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
+        const plugins: LabboxPlugin[] = extensionContext.plugins
+
+        const workspaceInfo: WorkspaceInfo = {
+            workspaceName,
+            feedUri,
+            readOnly: false
         }
 
         return (
             <MuiThemeProvider theme={theme}>
-                <HitherContext.Provider value={hither}>
+                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo}>
                     <WorkspaceViewWrapper
-                        feedUri={feedUri}
-                        workspaceName={workspaceName}
-                        plugins={filterPlugins(plugins)}
                         model={this.model}
                     />
-                </HitherContext.Provider>
+                </LabboxProvider>
             </MuiThemeProvider>
         )
     }

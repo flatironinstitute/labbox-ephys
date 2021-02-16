@@ -1,25 +1,20 @@
 import { WidgetModel } from '@jupyter-widgets/base';
-import React, { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
-import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/common/workspaceReducer';
-import { Plugins } from './extensions/pluginInterface';
-import WorkspaceView, { WorkspaceInfo } from './extensions/WorkspaceView';
-import { HistoryInterface, LocationInterface } from './extensions/WorkspaceView/WorkspaceView';
+import { usePlugins } from './extensions/labbox';
+import { LabboxProviderContext } from './extensions/labbox/LabboxProvider';
+import { filterPlugins, LabboxPlugin } from './extensions/pluginInterface';
+import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
+import WorkspaceView from './extensions/WorkspaceView';
+import { HistoryInterface, LocationInterface, useWorkspaceRoute } from './extensions/WorkspaceView/WorkspaceView';
 
 interface Props {
-    feedUri: string
-    workspaceName: string
-    plugins: Plugins
     model: WidgetModel
-    curationUri?: string
 }
 
-const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName, plugins, model }) => {
-    // curation
-    // const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
-    const workspaceSubfeed: AppendOnlyLog | null = useMemo(() => (
-        new WorkspaceSubfeed(model, feedUri, workspaceName)
-    ), [model, feedUri, workspaceName])
+const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model }) => {
+    const { workspaceSubfeed, workspaceInfo } = useContext(LabboxProviderContext)
+    const plugins = usePlugins<LabboxPlugin>()
 
     // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
     const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog => {
@@ -70,12 +65,6 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName
         setPollIndex(pollIndex + 1)
     }, 1000)
 
-    const workspaceInfo: WorkspaceInfo = {
-        workspaceName,
-        feedUri,
-        readOnly: false
-    }
-
     const [location, setLocation] = useState<LocationInterface>({pathname: '', search: '?'})
     const [locationHistory, setLocationHistory] = useState<LocationInterface[]>([])
 
@@ -90,6 +79,8 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName
         }
     }, [location, locationHistory])
 
+    const [workspaceRoute, workspaceRouteDispatch] = useWorkspaceRoute(location, history, workspaceInfo)
+
     return (
         <div ref={divRef} className="WorkspaceViewWrapper" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
             <WorkspaceView
@@ -98,9 +89,9 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName
                     defaultFeedId: '',
                     workspace,
                     workspaceDispatch,
-                    plugins,
-                    history,
-                    location,
+                    plugins: filterPlugins(plugins),
+                    workspaceRoute,
+                    workspaceRouteDispatch,
                     width: width || 700,
                     height: height || 700
                 }}
@@ -109,35 +100,33 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ feedUri, workspaceName
     )
 }
 
-
-
-class WorkspaceSubfeed {
-    _messages: any[] = []
-    _onMessageCallbacks: ((msg: any) => void)[] = []
-    constructor(private model: WidgetModel, private feedUri: string, private workspaceName: string) {
-        const watchName = 'workspace-' + randomAlphaId()
-        model.send({ type: 'addSubfeedWatch', watchName, feedUri: feedUri, subfeedName: { workspaceName } }, {})
-        model.on('msg:custom', (msgs: any) => {
-            for (let msg of msgs) {
-                if (msg.type === 'subfeedMessage') {
-                    if (msg.watchName === watchName) {
-                        this._messages.push(msg.message)
-                        this._onMessageCallbacks.forEach(cb => cb(msg.message))
-                    }
-                }
-            }
-        })
-    }
-    appendMessage(message: any) {
-        this.model.send({ type: 'appendSubfeedMessage', feedUri: this.feedUri, subfeedName: { workspaceName: this.workspaceName }, message }, {})
-    }
-    allMessages() {
-        return [...this._messages]
-    }
-    onMessage(cb: (msg: any) => void) {
-        this._onMessageCallbacks.push(cb)
-    }
-}
+// class WorkspaceSubfeed {
+//     _messages: any[] = []
+//     _onMessageCallbacks: ((msg: any) => void)[] = []
+//     constructor(private model: WidgetModel, private feedUri: string, private workspaceName: string) {
+//         const watchName = 'workspace-' + randomAlphaId()
+//         model.send({ type: 'addSubfeedWatch', watchName, feedUri: feedUri, subfeedName: { workspaceName } }, {})
+//         model.on('msg:custom', (msgs: any) => {
+//             for (let msg of msgs) {
+//                 if (msg.type === 'subfeedMessage') {
+//                     if (msg.watchName === watchName) {
+//                         this._messages.push(msg.message)
+//                         this._onMessageCallbacks.forEach(cb => cb(msg.message))
+//                     }
+//                 }
+//             }
+//         })
+//     }
+//     appendMessage(message: any) {
+//         this.model.send({ type: 'appendSubfeedMessage', feedUri: this.feedUri, subfeedName: { workspaceName: this.workspaceName }, message }, {})
+//     }
+//     allMessages() {
+//         return [...this._messages]
+//     }
+//     onMessage(cb: (msg: any) => void) {
+//         this._onMessageCallbacks.push(cb)
+//     }
+// }
 
 // thanks: https://usehooks-typescript.com/react-hook/use-interval
 function useInterval(callback: () => void, delay: number | null) {

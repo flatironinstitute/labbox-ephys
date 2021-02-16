@@ -71,6 +71,7 @@ const queryHash = <QueryType>(query: QueryType) => {
 
 const useFetchCache = <QueryType>(fetchFunction: (query: QueryType) => Promise<any>): FetchCache<QueryType> => {
     const [count, setCount] = useState(0)
+    if (count < 0) console.info(count) // just suppress the unused warning (will never print)
     const prevFetchFunction = useRef<(query: QueryType) => Promise<any>>(fetchFunction)
     const [state, dispatch] = useReducer(fetchCacheReducer, initialFetchCacheState)
     const queriesToFetch = useRef<{[key: string]: QueryType}>({})

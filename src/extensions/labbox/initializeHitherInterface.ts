@@ -1,6 +1,6 @@
 import axios from 'axios'
 import objectHash from 'object-hash'
-import { CalculationPool, createCalculationPool, HitherJob } from "./labbox/hither"
+import { CalculationPool, createCalculationPool, HitherJob } from "./hither"
 
 interface HitherJobOpts {
     useClientCache?: boolean

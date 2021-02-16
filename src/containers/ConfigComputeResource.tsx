@@ -1,24 +1,14 @@
-import React, { Dispatch, FunctionComponent } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
+import React, { FunctionComponent, useContext } from 'react';
 import Markdown from '../extensions/common/Markdown';
-import { RootAction, RootState } from '../reducers';
-import { ServerInfo } from '../reducers/serverInfo';
+import { LabboxProviderContext } from '../extensions/labbox/LabboxProvider';
 import md from './ConfigComputeResource.md.gen';
 
 
-interface StateProps {
-    serverInfo: ServerInfo
-}
+type Props = {}
 
-interface DispatchProps {
-}
-
-interface OwnProps {
-}
-
-type Props = StateProps & DispatchProps & OwnProps
-
-const ConfigComputeResource: FunctionComponent<Props> = ({ serverInfo }) => {
+const ConfigComputeResource: FunctionComponent<Props> = () => {
+    const { serverInfo } = useContext(LabboxProviderContext)
+    if (!serverInfo) return <div>No server info</div>
     const substitute = {
         nodeId: serverInfo.nodeId,
         computeResourceUri: (serverInfo?.labboxConfig)?.compute_resource_uri || 'local'
@@ -31,14 +21,4 @@ const ConfigComputeResource: FunctionComponent<Props> = ({ serverInfo }) => {
     )
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    serverInfo: state.serverInfo
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(ConfigComputeResource)
+export default ConfigComputeResource

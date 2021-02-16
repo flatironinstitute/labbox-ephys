@@ -1,35 +1,21 @@
 import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core';
-import React, { Dispatch, FunctionComponent, useContext, useEffect, useState } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { useSortingInfo } from '../extensions/common/useSortingInfo';
 import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { useLabboxPlugins } from '../extensions/labbox';
+import { useLabboxPlugins, WorkspaceInfo } from '../extensions/labbox';
 import { CalculationPool, createCalculationPool, HitherContext } from '../extensions/labbox/hither';
 import { LabboxPlugin, Recording, Sorting } from '../extensions/pluginInterface';
-import { ExtensionsConfig } from '../extensions/reducers';
-import { WorkspaceInfo } from '../extensions/WorkspaceView';
 import { getPathQuery } from '../kachery';
-import { RootAction, RootState } from '../reducers';
 
-interface StateProps {
-  extensionsConfig: ExtensionsConfig
-}
-
-interface DispatchProps {
-}
-
-interface OwnProps {
+type Props = {
     sortingId: string
-    sorting: Sorting,
-    recording: Recording,
+    sorting: Sorting
+    recording: Recording
     unitId: number
     workspaceInfo: WorkspaceInfo
-}
-
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeMeProps
+} & SizeMeProps
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
@@ -61,7 +47,6 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
             calculationPool={calculationPool}
             width={width}
             sortingInfo={sortingInfo}
-            plugins={plugins}
           />
         </Grid>
         <Grid item key={2}>
@@ -192,17 +177,4 @@ const Expandable: FunctionComponent<{label: string, children: React.ReactChild}>
 //   return state.recordings.filter(s => (s.recordingId === id))[0];
 // }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    // todo: use selector
-    // sorting: findSortingForId(state, ownProps.sortingId),
-    // recording: findRecordingForId(state, (findSortingForId(state, ownProps.sortingId) || {}).recordingId),
-    extensionsConfig: state.extensionsConfig
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default sizeMe()(withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
-  mapStateToProps,
-  mapDispatchToProps
-)(SortingUnitView)))
+export default sizeMe()(SortingUnitView)

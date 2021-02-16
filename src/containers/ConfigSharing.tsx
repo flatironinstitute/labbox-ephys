@@ -1,24 +1,16 @@
-import React, { Dispatch, FunctionComponent } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { WorkspaceInfo } from '../extensions/WorkspaceView';
-import { RootAction, RootState } from '../reducers';
+import React, { FunctionComponent, useContext } from 'react';
+import { WorkspaceInfo } from '../extensions/labbox';
+import { LabboxProviderContext } from '../extensions/labbox/LabboxProvider';
 
-interface StateProps {
-    defaultFeedId: string | null
+type Props = {
+    workspaceInfo: WorkspaceInfo | null
 }
 
-interface DispatchProps {
-}
-
-interface OwnProps {
-    workspaceInfo: WorkspaceInfo
-}
-
-type Props = StateProps & DispatchProps & OwnProps
-
-const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo, defaultFeedId }) => {
-    const {feedUri, workspaceName} = workspaceInfo;
-    const resolvedFeedUri = feedUri || 'feed://' + defaultFeedId;
+const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo }) => {
+    const {feedUri, workspaceName} = workspaceInfo || { feedUri: '', workspaceName: '' };
+    const {serverInfo} = useContext(LabboxProviderContext)
+    if (!serverInfo) return <div>No server info</div>
+    const resolvedFeedUri = feedUri || 'feed://' + serverInfo.defaultFeedId;
     return (
         <div>
             <h1>Sharing</h1>
@@ -36,14 +28,4 @@ const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo, defaultFeedId 
     )
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    defaultFeedId: state.serverInfo?.defaultFeedId || ''
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(ConfigSharing)
+export default ConfigSharing

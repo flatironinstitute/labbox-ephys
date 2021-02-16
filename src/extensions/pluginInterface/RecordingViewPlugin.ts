@@ -1,4 +1,4 @@
-import { LabboxPlugin, LabboxViewPlugin } from ".";
+import { LabboxViewPlugin } from ".";
 import { CalculationPool } from "../labbox";
 import { Recording, RecordingInfo } from "./Recording";
 import { RecordingSelection, RecordingSelectionDispatch } from "./RecordingSelection";
@@ -9,7 +9,6 @@ export interface RecordingViewProps {
     selection: RecordingSelection
     selectionDispatch: RecordingSelectionDispatch
     calculationPool: CalculationPool
-    plugins: LabboxPlugin[]
     width?: number
     height?: number
 }

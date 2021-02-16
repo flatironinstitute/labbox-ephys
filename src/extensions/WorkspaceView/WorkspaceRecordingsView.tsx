@@ -1,10 +1,11 @@
 import { Button } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import Splitter from '../common/Splitter';
+import { WorkspaceInfo } from '../labbox';
 import { Recording, Sorting } from "../pluginInterface";
 import ImportRecordingsInstructions from './ImportRecordingsInstructions';
 import RecordingsTable from './RecordingsTable';
-import { WorkspaceInfo, WorkspaceRouteDispatch } from './WorkspaceView';
+import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 type Props = {
     workspaceInfo: WorkspaceInfo

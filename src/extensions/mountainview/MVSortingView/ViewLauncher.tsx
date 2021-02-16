@@ -1,11 +1,11 @@
 import React, { Fragment, FunctionComponent, useCallback } from 'react';
+import { usePlugins } from '../../labbox';
 import { LabboxPlugin, SortingSelection, SortingUnitViewPlugin, sortingUnitViewPlugins, SortingViewPlugin, sortingViewPlugins } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 
 export type ViewPluginType = 'RecordingView' | 'SortingView' | 'SortingUnitView'
 
 type Props = {
-    plugins: LabboxPlugin[],
     selection: SortingSelection
     onLaunchSortingView: (plugin: SortingViewPlugin) => void
     onLaunchSortingUnitView: (plugin: SortingUnitViewPlugin, unitId: number, label: string) => void
@@ -17,7 +17,8 @@ const buttonStyle: React.CSSProperties = {
     margin: 1
 }
 
-const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, onLaunchSortingUnitView, selection }) => {
+const ViewLauncher: FunctionComponent<Props> = ({ onLaunchSortingView, onLaunchSortingUnitView, selection }) => {
+    const plugins = usePlugins<LabboxPlugin>()
     const sortingUnitViewPlugin = sortingUnitViewPlugins(plugins).filter(p => (p.name === 'MVSortingUnitView'))[0]
     return (
         <Fragment>

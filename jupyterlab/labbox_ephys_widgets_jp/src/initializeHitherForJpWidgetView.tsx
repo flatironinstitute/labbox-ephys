@@ -2,8 +2,8 @@ import { WidgetModel } from '@jupyter-widgets/base';
 import '../css/styles.css';
 import '../css/widget.css';
 import { sleepMsec } from './extensions/common/misc';
-import initializeHitherInterface from './extensions/initializeHitherInterface';
 import { HitherInterface } from './extensions/labbox/hither';
+import initializeHitherInterface from './extensions/labbox/initializeHitherInterface';
 
 const initializeHitherForJpWidgetView = (model: WidgetModel): {hither: HitherInterface, cleanup: () => void} => {
     const baseSha1Url = `/sha1`

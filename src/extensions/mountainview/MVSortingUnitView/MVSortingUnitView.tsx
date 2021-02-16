@@ -1,12 +1,13 @@
 import { Grid } from "@material-ui/core"
 import React, { Fragment, FunctionComponent } from 'react'
 import Expandable from "../../common/Expandable"
-import { sortingUnitViewPlugins, SortingUnitViewProps } from "../../pluginInterface"
+import { usePlugins } from "../../labbox"
+import { LabboxPlugin, sortingUnitViewPlugins, SortingUnitViewProps } from "../../pluginInterface"
 
 
 const MVSortingUnitView: FunctionComponent<SortingUnitViewProps> = (props) => {
     // important to exclude this plugin (not only for this widget but for all children) to avoid infinite recursion
-    const plugins = props.plugins.filter(p => (p.name !== 'MVSortingUnitView'))
+    const plugins = usePlugins<LabboxPlugin>().filter(p => (p.name !== 'MVSortingUnitView'))
     const suvPlugins = sortingUnitViewPlugins(plugins)
     return (
         <Fragment>

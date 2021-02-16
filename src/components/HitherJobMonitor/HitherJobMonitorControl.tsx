@@ -1,11 +1,11 @@
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { WorkspaceInfo } from '../../extensions/labbox';
 import { HitherContext, HitherJob } from '../../extensions/labbox/hither';
-import { WorkspaceInfo } from '../../extensions/WorkspaceView';
 import { getPathQuery } from '../../kachery';
 
 type Props = {
-    workspaceInfo: WorkspaceInfo
+    workspaceInfo: WorkspaceInfo | null
 }
 
 const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo }) => {
@@ -23,14 +23,13 @@ const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo }) =>
         }
     }, [hither])
 
-    const { allJobs, pendingJobs, runningJobs, finishedJobs, erroredJobs } = {
-        allJobs: hitherJobs,
+    const { pendingJobs, runningJobs, finishedJobs, erroredJobs } = {
         pendingJobs: hitherJobs.filter(j => (j.status === 'pending')),
         runningJobs: hitherJobs.filter(j => (j.status === 'running')),
         finishedJobs: hitherJobs.filter(j => (j.status === 'finished')),
         erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
     }
-    const { workspaceName, feedUri } = workspaceInfo;
+    const { workspaceName, feedUri } = workspaceInfo || {workspaceName: '', feedUri: ''};
     const numPending = pendingJobs.length;
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;

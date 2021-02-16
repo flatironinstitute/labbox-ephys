@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 const useBufferedDispatch = <State, Action>(reducer: (s: State, a: Action) => State, state: State, setState: (s: State) => void, t: number): [State, (a: Action) => void] => {
     const [count, setCount] = useState(0) // for triggering state changes (and re-calling this hook)
+    if (count < 0) console.info(count) // just suppress the unused warning (will never print)
     const ref = useRef<{
         internalState: State,
         internalStateDispatched: boolean,

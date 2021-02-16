@@ -1,24 +1,13 @@
-import React, { Dispatch, FunctionComponent } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
+import React, { FunctionComponent } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { useRecordingInfo } from '../extensions/common/useRecordingInfo';
 import { Recording } from '../extensions/pluginInterface';
 import TimeseriesViewNew from '../extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
-import { RootAction, RootState } from '../reducers';
 
-interface StateProps {
-}
-
-interface DispatchProps {
-}
-
-interface OwnProps {
+type Props = {
   recording: Recording
   recordingId: string
-}
-
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps & SizeMeProps
+} & SizeMeProps
 
 const TimeseriesForRecordingView: FunctionComponent<Props> = ({ recordingId, recording, size }) => {
   const recordingInfo = useRecordingInfo(recording?.recordingObject)
@@ -50,13 +39,4 @@ const TimeseriesForRecordingView: FunctionComponent<Props> = ({ recordingId, rec
   )
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default sizeMe()(withRouter(connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(TimeseriesForRecordingView)))
+export default sizeMe()(TimeseriesForRecordingView)

@@ -8,7 +8,7 @@ import spikeextractors as se
 from ._correlograms_phy import compute_correlograms
 
 
-@hi.function('fetch_correlogram_plot_data', '0.2.5')
+@hi.function('fetch_correlogram_plot_data', '0.2.6')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 @le.serialize
@@ -57,7 +57,7 @@ def _get_correlogram_data(*, sorting, unit_id1, unit_id2=None, window_size_msec,
         times = times[inds]
         labels = labels[inds]
     C = compute_correlograms(
-        spike_times=times/sorting.get_sampling_frequency(),
+        spike_times=times / sorting.get_sampling_frequency(),
         spike_clusters=labels,
         cluster_ids=cluster_ids,
         bin_size=bin_size,

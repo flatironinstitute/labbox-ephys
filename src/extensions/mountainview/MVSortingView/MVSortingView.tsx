@@ -6,7 +6,8 @@ import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser'
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import Expandable from '../../common/Expandable'
 import Splitter from '../../common/Splitter'
-import { SortingUnitViewPlugin, SortingViewPlugin, sortingViewPlugins, SortingViewProps } from "../../pluginInterface"
+import { usePlugins } from '../../labbox'
+import { LabboxPlugin, SortingUnitViewPlugin, SortingViewPlugin, sortingViewPlugins, SortingViewProps } from "../../pluginInterface"
 import { RecordingViewPlugin } from '../../pluginInterface/RecordingViewPlugin'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
@@ -129,10 +130,11 @@ interface PreprocessingProps {
 
 const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'waiting' | 'running' | 'finished'} & PreprocessingProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {plugins, recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
+    const {recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const [initializedViews, setInitializedViews] = useState(false)
 
+    const plugins = usePlugins<LabboxPlugin>()
     const UnitsTablePlugin = sortingViewPlugins(plugins).filter(p => (p.name === 'UnitsTable'))[0]
     const AverageWaveformsPlugin = sortingViewPlugins(plugins).filter(p => (p.name === 'AverageWaveforms'))[0]
 
@@ -206,7 +208,6 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                     {/* Launch */}
                     <Expandable icon={launchIcon} label="Open views" defaultExpanded={true} unmountOnExit={false}>
                         <ViewLauncher
-                            plugins={plugins}
                             onLaunchSortingView={handleLaunchSortingView}
                             onLaunchSortingUnitView={handleLaunchSortingUnitView}
                             selection={props.selection}

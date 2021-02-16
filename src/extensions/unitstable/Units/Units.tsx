@@ -2,8 +2,9 @@
 import { Button, Paper } from '@material-ui/core';
 import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { useSortingInfo } from '../../common/useSortingInfo';
+import { usePlugins } from '../../labbox';
 import { HitherContext } from '../../labbox/hither';
-import { Recording, SortingUnitMetricPlugin, sortingUnitMetricPlugins, SortingViewProps } from "../../pluginInterface";
+import { LabboxPlugin, Recording, SortingUnitMetricPlugin, sortingUnitMetricPlugins, SortingViewProps } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 import UnitsTable from './UnitsTable';
 
@@ -59,7 +60,7 @@ interface OwnProps {
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     const hither = useContext(HitherContext)
-    const { sorting, recording, selection, selectionDispatch, plugins, width, height } = props
+    const { sorting, recording, selection, selectionDispatch, width, height } = props
     const [expandedTable, setExpandedTable] = useState(false)
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState)
     const [previousRecording, setPreviousRecording] = useState<Recording | null>(null)
@@ -99,6 +100,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
         }
     }, [metrics, sorting.sortingObject, recording.recordingObject, hither]);
 
+    const plugins = usePlugins<LabboxPlugin>()
     useEffect(() => { 
         sortByPriority(sortingUnitMetricPlugins(plugins)).filter(p => (!p.disabled)).forEach(async mp => await fetchMetric(mp));
     }, [plugins, metrics, fetchMetric]);

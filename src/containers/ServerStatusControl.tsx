@@ -1,31 +1,17 @@
 import { IconButton } from '@material-ui/core';
 import { CheckCircleOutline, Sync, SyncProblem } from '@material-ui/icons';
-import React, { Dispatch, FunctionComponent, useCallback } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { setPersistStatus } from '../actions';
-import { RootAction, RootState } from '../reducers';
-import { ServerConnectionState } from '../reducers/serverConnection';
+import React, { FunctionComponent, useCallback, useContext } from 'react';
+import { LabboxProviderContext } from '../extensions/labbox/LabboxProvider';
 
-interface StateProps {
-    serverConnection: ServerConnectionState
-}
+type Props = {}
 
-interface DispatchProps {
-    onSetPersistStatus: (status: string) => void
-}
+const ServerStatusControl: FunctionComponent<Props> = () => {
+    const { websocketStatus, onReconnectWebsocket } = useContext(LabboxProviderContext)
 
-interface OwnProps {
-    onReconnect: () => void
-}
-
-type Props = StateProps & DispatchProps & OwnProps
-
-const ServerStatusControl: FunctionComponent<Props> = ({ serverConnection, onReconnect }) => {
     let icon;
     let title;
-    if (serverConnection.websocketStatus)
-    switch (serverConnection.websocketStatus) {
-        case 'pending': {
+    switch (websocketStatus) {
+        case 'waiting': {
             icon = <Sync style={{color: 'blue'}} />
             title = 'Loading...'
             break
@@ -43,25 +29,14 @@ const ServerStatusControl: FunctionComponent<Props> = ({ serverConnection, onRec
     }
 
     const handleClick = useCallback(() => {
-        if (serverConnection.websocketStatus === 'disconnected') {
-            onReconnect()
+        if (websocketStatus === 'disconnected') {
+            onReconnectWebsocket()
         }
-    }, [serverConnection.websocketStatus, onReconnect])
+    }, [websocketStatus, onReconnectWebsocket])
 
     return (
         <IconButton title={title} onClick={handleClick}>{icon}</IconButton>
     );
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-    serverConnection: state.serverConnection
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-    onSetPersistStatus: (status) => dispatch(setPersistStatus(status))
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(ServerStatusControl)
+export default ServerStatusControl
