@@ -105,7 +105,7 @@ const AppContainer: FunctionComponent<Props> = () => {
         <div className={"TheAppBar"}>
             <AppBar position="static" style={{height: appBarHeight}}>
                 <Toolbar>
-                    <ToolBarContent workspaceInfo={workspaceInfo} />
+                    <ToolBarContent workspaceInfo={workspaceInfo || {workspaceName: '', feedUri: '', readOnly: true}} />
                 </Toolbar>
             </AppBar>
             <div className={"AppContent"} style={{padding: 0, position: 'absolute', top: appBarHeight, height: H, left: hMargin, width: W, overflowY: 'auto', overflowX: 'hidden'}}>

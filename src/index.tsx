@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import "../node_modules/react-vis/dist/style.css";
 import AppContainer from './AppContainer';
+import config from './config.json';
 import { LabboxPlugin } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import { LocationInterface } from './extensions/WorkspaceView/WorkspaceView';
@@ -46,13 +47,22 @@ const useWorkspaceInfo = (location: LocationInterface): WorkspaceInfo => {
   }), [workspaceName, feedUri, readOnly])
 }
 
+const apiConfig = {
+  webSocketUrl: `ws://${window.location.hostname}:${config.webSocketPort}`,
+  baseSha1Url: `http://${window.location.hostname}:${config.httpPort}/sha1`
+}
+
 const Content = () => {
   const location = useLocation()
   const workspaceInfo = useWorkspaceInfo(location)
   return (
     // <React.StrictMode> // there's an annoying error when strict mode is enabled. See for example: https://github.com/styled-components/styled-components/issues/2154   
     <MuiThemeProvider theme={theme}>
-      <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo}>
+      <LabboxProvider
+        extensionContext={extensionContext}
+        workspaceInfo={workspaceInfo}
+        apiConfig={apiConfig}
+      >
         <AppContainer />
       </LabboxProvider>
     </MuiThemeProvider>

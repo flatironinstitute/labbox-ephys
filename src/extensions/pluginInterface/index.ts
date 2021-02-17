@@ -43,22 +43,22 @@ export const filterPlugins = (plugins: LabboxPlugin[]) => {
 }
 
 export const sortingViewPlugins = (plugins: LabboxPlugin[]): SortingViewPlugin[] => {
-    return plugins.filter(p => (p.type === 'SortingView'))
+    return filterPlugins(plugins).filter(p => (p.type === 'SortingView'))
         .map(p => (p as any as SortingViewPlugin))
 }
 
 export const recordingViewPlugins = (plugins: LabboxPlugin[]): RecordingViewPlugin[] => {
-    return plugins.filter(p => (p.type === 'RecordingView'))
+    return filterPlugins(plugins).filter(p => (p.type === 'RecordingView'))
         .map(p => (p as any as RecordingViewPlugin))
 }
 
 export const sortingUnitViewPlugins = (plugins: LabboxPlugin[]): SortingUnitViewPlugin[] => {
-    return plugins.filter(p => (p.type === 'SortingUnitView'))
+    return filterPlugins(plugins).filter(p => (p.type === 'SortingUnitView'))
         .map(p => (p as any as SortingUnitViewPlugin))
 }
 
 export const sortingUnitMetricPlugins = (plugins: LabboxPlugin[]): SortingUnitMetricPlugin[] => {
-    return plugins.filter(p => (p.type === 'SortingUnitMetric'))
+    return filterPlugins(plugins).filter(p => (p.type === 'SortingUnitMetric'))
         .map(p => (p as any as SortingUnitMetricPlugin))
 }
 

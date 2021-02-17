@@ -31,7 +31,7 @@ const Config: FunctionComponent<Props> = () => {
   })
   tabs.push({
     label: 'Sharing',
-    component: <ConfigSharing workspaceInfo={workspaceInfo} />
+    component: <ConfigSharing workspaceInfo={workspaceInfo || {workspaceName: '', feedUri: '', readOnly: true}} />
   })
   tabs.push({
     label: 'Extensions',

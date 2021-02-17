@@ -6,14 +6,13 @@ import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { LabboxPlugin } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import WorkspaceViewWrapper from './WorkspaceViewWrapper';
 
 export class WorkspaceViewJp extends DOMWidgetView {
     // _hitherJobManager: HitherJobManager
-    _cleanupCallbacks: (() => void)[] = []
+    _status = {active: true}
     initialize() {
         // this._hitherJobManager = new HitherJobManager(this.model)
     }
@@ -21,20 +20,22 @@ export class WorkspaceViewJp extends DOMWidgetView {
         const feedUri = this.model.get('feedUri')
         const workspaceName = this.model.get('workspaceName')
 
-        // const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
-        // this._cleanupCallbacks.push(cleanup)
-
-        const plugins: LabboxPlugin[] = extensionContext.plugins
-
         const workspaceInfo: WorkspaceInfo = {
             workspaceName,
             feedUri,
             readOnly: false
         }
 
+        const apiConfig = {
+            webSocketUrl: '',
+            baseSha1Url: `/sha1`,
+            jupyterMode: true,
+            jupyterModel: this.model
+        }
+
         return (
             <MuiThemeProvider theme={theme}>
-                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo}>
+                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo} apiConfig={apiConfig} status={this._status}>
                     <WorkspaceViewWrapper
                         model={this.model}
                     />
@@ -52,7 +53,7 @@ export class WorkspaceViewJp extends DOMWidgetView {
         renderJpWidget(this, reactElement, widgetHeight)
     }
     remove() {
-        this._cleanupCallbacks.forEach(cb => cb())
+        this._status.active = false
     }
 }
 

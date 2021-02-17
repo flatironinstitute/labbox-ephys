@@ -51,7 +51,6 @@ echo -e "\e[32m-----------------------------------------------------\e[39m"
 
 export LABBOX_EXTENSIONS_DIR=/labbox-ephys/src/extensions
 export LABBOX_EPHYS_PYTHON_MODULE_DIR=/labbox-ephys/python/labbox_ephys
-export LABBOX_DEFAULT_FEED_NAME=labbox-ephys-default
 set -x
 
 # gunicorn maybe has some advantages, but by default it only handles one request at a time

@@ -8,8 +8,8 @@ import hither as hi
 import kachery_p2p as kp
 # this is how the hither functions get registered
 import labbox_ephys as le
+import labbox as lb
 from labbox_ephys.workspace.workspace import Workspace
-import numpy as np
 from hither.job import Job as HitherJob
 from ipywidgets import DOMWidget
 from traitlets import Dict as DictTrait
@@ -61,7 +61,7 @@ def create_workspace_view(
         def __init__(self) -> None:
             super().__init__()
             self.on_msg(self._handle_message)
-            self._worker_session = le.WorkerSession(labbox_config=labbox_config)
+            self._worker_session = lb.WorkerSession(labbox_config=labbox_config)
             def on_msgs(msgs):
                 self.send(msgs)
             self._worker_session.on_messages(on_msgs)

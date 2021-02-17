@@ -7,7 +7,7 @@ import WorkspaceRecordingsView from './WorkspaceRecordingsView';
 import WorkspaceRecordingView from './WorkspaceRecordingView';
 
 type Props = {
-    workspaceInfo: WorkspaceInfo
+    workspaceInfo?: WorkspaceInfo
     defaultFeedId: string
     workspace: WorkspaceState
     workspaceDispatch: WorkspaceDispatch
@@ -91,7 +91,7 @@ const routeFromLocation = (location: LocationInterface): WorkspaceRoute => {
     push: (x: LocationInterface) => void
   }
   
-  export const useWorkspaceRoute = (location: LocationInterface, history: HistoryInterface, workspaceInfo: WorkspaceInfo): [WorkspaceRoute, WorkspaceRouteDispatch] => {
+  export const useWorkspaceRoute = (location: LocationInterface, history: HistoryInterface, workspaceInfo: WorkspaceInfo | undefined): [WorkspaceRoute, WorkspaceRouteDispatch] => {
     const workspaceRouteDispatch = useMemo(() => ((a: WorkspaceRouteAction) => {
       const route = routeFromLocation(history.location)
       let newRoute: WorkspaceRoute | null = null
@@ -113,7 +113,7 @@ const routeFromLocation = (location: LocationInterface): WorkspaceRoute => {
         }; break
       }
       if (newRoute) {
-        history.push(locationFromRoute(newRoute, workspaceInfo))
+        history.push(locationFromRoute(newRoute, workspaceInfo || {workspaceName: '', feedUri: '', readOnly: true}))
       }
     }), [history, workspaceInfo])
   
@@ -155,8 +155,8 @@ const routeFromLocation = (location: LocationInterface): WorkspaceRoute => {
   }
 
 const WorkspaceView: FunctionComponent<Props> = ({ width, height, workspace, workspaceDispatch, workspaceInfo, defaultFeedId, workspaceRoute, workspaceRouteDispatch }) => {
-    if (workspaceRoute.workspaceName !== workspaceInfo.workspaceName) {
-        throw Error(`Mismatch in workspace name: ${workspaceRoute.workspaceName} <> ${workspaceInfo.workspaceName}`)
+    if (workspaceRoute.workspaceName !== workspaceInfo?.workspaceName) {
+        throw Error(`Mismatch in workspace name: ${workspaceRoute.workspaceName} <> ${workspaceInfo?.workspaceName}`)
     }
 
     const handleDeleteRecordings = useCallback((recordingIds: string[]) => {

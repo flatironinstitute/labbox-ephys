@@ -1,6 +1,5 @@
 
 // !begin-code-generation!
-import { ExtensionContext } from 'labbox'
 import { activate as activateaveragewaveforms } from './extensions/averagewaveforms/averagewaveforms'
 import { activate as activateclusters } from './extensions/clusters/clusters'
 import { activate as activatecorrelograms } from './extensions/correlograms/correlograms'
@@ -10,7 +9,7 @@ import { activate as activateexample } from './extensions/example/example'
 import { activate as activatefiretrack } from './extensions/firetrack/firetrack'
 import { activate as activatemountainview } from './extensions/mountainview/mountainview'
 import { activate as activateaveragewaveformsold } from './extensions/old/averagewaveformsold/averagewaveformsold'
-import { LabboxPlugin } from './extensions/pluginInterface'
+import { LabboxExtensionContext } from './extensions/pluginInterface'
 import { activate as activatepythonsnippets } from './extensions/pythonsnippets/pythonsnippets'
 import { activate as activatesnippets } from './extensions/snippets/snippets'
 import { activate as activatespikeamplitudes } from './extensions/spikeamplitudes/spikeamplitudes'
@@ -29,7 +28,7 @@ Use the following to also include the extension in the jupyterlab extension:
 */
 
 
-const registerExtensions = (context: ExtensionContext<LabboxPlugin>) => {
+const registerExtensions = (context: LabboxExtensionContext) => {
     // !begin-code-generation!
     activatemountainview(context)
     activatedevel(context)
