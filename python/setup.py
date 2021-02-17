@@ -39,6 +39,7 @@ setuptools.setup(
         'spiketoolkit>=0.7.1',
         'hither>=0.4.2',
         'kachery-p2p>=0.5.24',
+        'labbox==0.1.9',
         'websockets',
         'pyyaml'
     ],

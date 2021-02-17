@@ -1,14 +1,14 @@
 import { Button, Grid } from '@material-ui/core';
+import { createCalculationPool } from 'labbox';
 import React, { FunctionComponent, useState } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { createCalculationPool } from '../../common/hither';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { SortingViewProps } from '../../extensionInterface';
+import { SortingViewProps } from "../../pluginInterface";
 import IndividualUnit from './IndividualUnit';
 
 const individualUnitsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection, plugins }) => {
+const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ size, sorting, recording, selection }) => {
     const maxUnitsVisibleIncrement = 4;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(4);
     // const { workspaceName, feedUri, readOnly } = workspaceInfo || {};
@@ -52,7 +52,6 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
                             calculationPool={individualUnitsCalculationPool}
                             width={width}
                             sortingInfo={sortingInfo}
-                            plugins={plugins}
                         />
                         {/* <Link to={`/${workspaceName}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
                             More details for unit {id}

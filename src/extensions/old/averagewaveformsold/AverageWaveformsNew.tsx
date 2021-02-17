@@ -1,7 +1,7 @@
+import { createCalculationPool } from 'labbox';
 import React, { useCallback } from 'react';
-import { createCalculationPool } from '../../common/hither';
 import PlotGrid from '../../common/PlotGrid';
-import { SortingViewProps } from '../../extensionInterface';
+import { SortingViewProps } from "../../pluginInterface";
 import AverageWaveformPlotNew from './AverageWaveformPlotNew';
 
 const averageWaveformsCalculationPool = createCalculationPool({maxSimultaneous: 6});

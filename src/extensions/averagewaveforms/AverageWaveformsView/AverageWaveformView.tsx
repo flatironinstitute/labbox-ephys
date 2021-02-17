@@ -1,7 +1,8 @@
+import { createCalculationPool, useHitherJob } from 'labbox';
 import React, { FunctionComponent, useMemo } from 'react';
-import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../../common/hither';
+import HitherJobStatusView from '../../common/HitherJobStatusView';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
-import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
 type PlotData = {

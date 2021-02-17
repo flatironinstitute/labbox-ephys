@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react'
-import { Recording } from '../../extensionInterface'
+import { Recording } from "../../pluginInterface"
 
 interface Props {
     recording: Recording

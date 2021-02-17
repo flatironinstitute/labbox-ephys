@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import Markdown from '../../common/Markdown';
-import { SortingViewProps } from '../../extensionInterface';
+import { SortingViewProps } from "../../pluginInterface";
 import snippetMd from './load_sorting.md.gen';
 
 

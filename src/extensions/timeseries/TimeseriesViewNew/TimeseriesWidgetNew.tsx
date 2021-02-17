@@ -3,7 +3,7 @@ import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { PainterPath } from '../../common/CanvasWidget'
 import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
 import useBufferedDispatch from '../../common/useBufferedDispatch'
-import { RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from '../../extensionInterface'
+import { RecordingSelection, RecordingSelectionDispatch, recordingSelectionReducer } from "../../pluginInterface"
 import TimeWidgetNew, { TimeWidgetAction } from '../TimeWidgetNew/TimeWidgetNew'
 import { TimeseriesData } from './useTimeseriesModel'
 // import TimeseriesModelNew from './TimeseriesModelNew'

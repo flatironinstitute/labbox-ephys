@@ -2,9 +2,9 @@
 // LABBOX-EXTENSION-TAGS: jupyter
 
 import GrainIcon from '@material-ui/icons/Grain';
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { useRecordingInfo } from '../common/useRecordingInfo';
-import { ExtensionContext, RecordingViewProps, SortingViewProps } from "../extensionInterface";
+import { LabboxExtensionContext, RecordingViewProps, SortingViewProps } from "../pluginInterface";
 import ElectrodeGeometryWidget from './ElectrodeGeometryWidget/ElectrodeGeometryWidget';
 
 const zipElectrodes = (locations: number[][], ids: number[]) => {
@@ -20,11 +20,11 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     const visibleElectrodeIds = selection.visibleElectrodeIds
     const electrodes = useMemo(() => (ri ? zipElectrodes(ri.geom, ri.channel_ids) : []).filter(a => ((!visibleElectrodeIds) || (visibleElectrodeIds.includes(a.id)))), [ri, visibleElectrodeIds])
 
-    const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
-        selectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
-    }, [selectionDispatch])
+    // const handleSelectedElectrodeIdsChanged = useCallback((x: number[]) => {
+    //     selectionDispatch({type: 'SetSelectedElectrodeIds', selectedElectrodeIds: x})
+    // }, [selectionDispatch])
 
-    const selectedElectrodeIds = useMemo(() => (selection.selectedElectrodeIds || []), [selection.selectedElectrodeIds])
+    // const selectedElectrodeIds = useMemo(() => (selection.selectedElectrodeIds || []), [selection.selectedElectrodeIds])
 
     // const [selectedElectrodeIds, setSelectedElectrodeIds] = useState<number[]>([]);
     if (!ri) {
@@ -43,16 +43,17 @@ const ElectrodeGeometryRecordingView: FunctionComponent<RecordingViewProps> = ({
     );
 }
 
-const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, recordingInfo, plugins, calculationPool, width, height, selection, selectionDispatch}) => {
+const ElectrodeGeometrySortingView: FunctionComponent<SortingViewProps> = ({recording, recordingInfo, calculationPool, width, height, selection, selectionDispatch}) => {
     return (
         <ElectrodeGeometryRecordingView
-            {...{recording, recordingInfo, plugins, calculationPool, width, height, selection, selectionDispatch}}
+            {...{recording, recordingInfo, calculationPool, width, height, selection, selectionDispatch}}
         />
     )
 }
 
-export function activate(context: ExtensionContext) {
-    context.registerRecordingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'RecordingView',
         name: 'ElectrodeGeometryRecordingView',
         label: 'Electrode geometry',
         priority: 50,
@@ -61,7 +62,8 @@ export function activate(context: ExtensionContext) {
         singleton: true,
         icon: <GrainIcon />
     })
-    context.registerSortingView({
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'ElectrodeGeometrySortingView',
         label: 'Electrode geometry',
         priority: 50,

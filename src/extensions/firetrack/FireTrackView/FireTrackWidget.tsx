@@ -3,7 +3,7 @@ import CanvasWidget from "../../common/CanvasWidget"
 import { useLayer, useLayers } from "../../common/CanvasWidget/CanvasWidgetLayer"
 import { useRecordingInfo } from '../../common/useRecordingInfo'
 import { createElectrodeGeometryLayer, ElectrodeLayerProps } from "../../electrodegeometry/ElectrodeGeometryWidget/electrodeGeometryLayer"
-import { Recording, SortingSelection } from "../../extensionInterface"
+import { Recording, SortingSelection } from "../../pluginInterface"
 import { TimeseriesData } from "../../timeseries/TimeseriesViewNew/useTimeseriesModel"
 
 const updateIndexReducer = (state: number, action: {type: 'increment'}) => {

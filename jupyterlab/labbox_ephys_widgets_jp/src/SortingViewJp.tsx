@@ -1,14 +1,13 @@
 import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
 import { MuiThemeProvider } from '@material-ui/core';
+import { createCalculationPool, LabboxProvider, WorkspaceInfo } from 'labbox';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { createCalculationPool, HitherContext } from './extensions/common/hither';
-import { filterPlugins, Plugins } from './extensions/extensionInterface';
+import { sortingViewPlugins } from './extensions/pluginInterface';
 import theme from './extensions/theme';
-import initializeHitherForJpWidgetView from './initializeHitherForJpWidgetView';
 import SortingViewPluginComponentWrapper from './SortingViewPluginComponentWrapper';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
@@ -16,7 +15,7 @@ const calculationPool = createCalculationPool({ maxSimultaneous: 6 })
 
 export class SortingViewJp extends DOMWidgetView {
     // _hitherJobManager: HitherJobManager
-    _cleanupCallbacks: (() => void)[] = []
+    _status = {active: false}
     initialize() {
         // this._hitherJobManager = new HitherJobManager(this.model)
     }
@@ -27,35 +26,33 @@ export class SortingViewJp extends DOMWidgetView {
         const recordingInfo = this.model.get('recordingInfo')
         const sortingInfo = this.model.get('sortingInfo')
         const curationUri = this.model.get('curationUri')
-        const plugin = extensionContext._sortingViewPlugins[pluginName]
+        const plugin = sortingViewPlugins(extensionContext.plugins).filter(p => (p.name === pluginName))[0]
 
         if (!plugin) return <div>Plugin not found: {pluginName}</div>
 
-        const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
-        this._cleanupCallbacks.push(cleanup)
-
-        const plugins: Plugins = {
-            recordingViews: extensionContext._recordingViewPlugins,
-            sortingViews: extensionContext._sortingViewPlugins,
-            sortingUnitViews: extensionContext._sortingUnitViewPlugins,
-            sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
+        const apiConfig = {
+            webSocketUrl: '',
+            baseSha1Url: `/sha1`,
+            jupyterMode: true,
+            jupyterModel: this.model
         }
+
+        const workspaceInfo: WorkspaceInfo = {workspaceName: null, feedUri: null, readOnly: null}
 
         return (
             <MuiThemeProvider theme={theme}>
-                <HitherContext.Provider value={hither}>
+                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo} apiConfig={apiConfig} status={this._status}>
                     <SortingViewPluginComponentWrapper
                         plugin={plugin}
                         sortingObject={sortingObject}
                         recordingObject={recordingObject}
                         sortingInfo={sortingInfo}
                         recordingInfo={recordingInfo}
-                        plugins={filterPlugins(plugins)}
                         calculationPool={calculationPool}
                         model={this.model}
                         curationUri={curationUri}
                     />
-                </HitherContext.Provider>
+                </LabboxProvider>
             </MuiThemeProvider>
         )
     }
@@ -65,7 +62,7 @@ export class SortingViewJp extends DOMWidgetView {
         const pluginName = this.model.get('pluginName')
         const widgetHeight = this.model.get('widgetHeight')
 
-        const plugin = extensionContext._sortingViewPlugins[pluginName]
+        const plugin = sortingViewPlugins(extensionContext.plugins).filter(p => (p.name === pluginName))[0]
         if (!plugin) throw Error(`Plugin not found: ${pluginName}`)
 
         this.el.classList.add('plugin-' + pluginName)
@@ -73,7 +70,7 @@ export class SortingViewJp extends DOMWidgetView {
         renderJpWidget(this, reactElement, widgetHeight || plugin.notebookCellHeight || 500)
     }
     remove() {
-        this._cleanupCallbacks.forEach(cb => cb())
+        this._status.active = false
     }
 }
 

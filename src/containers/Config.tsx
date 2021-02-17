@@ -1,37 +1,23 @@
-import { makeStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import { default as React, Dispatch, Fragment, FunctionComponent } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { ExtensionsConfig } from '../extensions/reducers';
-import { WorkspaceInfo } from '../extensions/WorkspaceView';
-import { RootAction, RootState } from '../reducers';
+import { LabboxProviderContext } from 'labbox';
+import { default as React, Fragment, FunctionComponent, useContext } from 'react';
 import ConfigComputeResource from './ConfigComputeResource';
 import ConfigExtensions from './ConfigExtensions';
 import ConfigSharing from './ConfigSharing';
 
 
-interface StateProps {
-  extensionsConfig: ExtensionsConfig
-}
+type Props = {}
 
-interface DispatchProps {
-}
+// const useStyles = makeStyles({
+//   root: {
+//     flexGrow: 1,
+//   },
+// });
 
-interface OwnProps {
-  workspaceInfo: WorkspaceInfo
-}
-
-type Props = StateProps & DispatchProps & OwnProps
-
-const useStyles = makeStyles({
-  root: {
-    flexGrow: 1,
-  },
-});
-
-const Config: FunctionComponent<Props> = ({ extensionsConfig, workspaceInfo }) => {
-  const classes = useStyles()
+const Config: FunctionComponent<Props> = () => {
+  // const classes = useStyles()
+  const { workspaceInfo } = useContext(LabboxProviderContext)
   const [currentTabLabel, setCurrentTabLabel] = React.useState<string | null>(null)
 
   let tabs: {label: string, component: React.ComponentElement<any, any>}[] = []
@@ -45,7 +31,7 @@ const Config: FunctionComponent<Props> = ({ extensionsConfig, workspaceInfo }) =
   })
   tabs.push({
     label: 'Sharing',
-    component: <ConfigSharing workspaceInfo={workspaceInfo} />
+    component: <ConfigSharing workspaceInfo={workspaceInfo || {workspaceName: '', feedUri: '', readOnly: true}} />
   })
   tabs.push({
     label: 'Extensions',
@@ -87,14 +73,4 @@ const Config: FunctionComponent<Props> = ({ extensionsConfig, workspaceInfo }) =
   );
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-  extensionsConfig: state.extensionsConfig
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(Config)
+export default Config

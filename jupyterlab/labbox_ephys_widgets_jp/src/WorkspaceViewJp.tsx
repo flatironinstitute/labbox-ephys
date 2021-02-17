@@ -1,20 +1,18 @@
 import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
 import { MuiThemeProvider } from '@material-ui/core';
+import { LabboxProvider, WorkspaceInfo } from 'labbox';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { HitherContext } from './extensions/common/hither';
-import { filterPlugins, Plugins } from './extensions/extensionInterface';
 import theme from './extensions/theme';
-import initializeHitherForJpWidgetView from './initializeHitherForJpWidgetView';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import WorkspaceViewWrapper from './WorkspaceViewWrapper';
 
 export class WorkspaceViewJp extends DOMWidgetView {
     // _hitherJobManager: HitherJobManager
-    _cleanupCallbacks: (() => void)[] = []
+    _status = {active: true}
     initialize() {
         // this._hitherJobManager = new HitherJobManager(this.model)
     }
@@ -22,26 +20,26 @@ export class WorkspaceViewJp extends DOMWidgetView {
         const feedUri = this.model.get('feedUri')
         const workspaceName = this.model.get('workspaceName')
 
-        const {hither, cleanup} = initializeHitherForJpWidgetView(this.model)
-        this._cleanupCallbacks.push(cleanup)
+        const workspaceInfo: WorkspaceInfo = {
+            workspaceName,
+            feedUri,
+            readOnly: false
+        }
 
-        const plugins: Plugins = {
-            recordingViews: extensionContext._recordingViewPlugins,
-            sortingViews: extensionContext._sortingViewPlugins,
-            sortingUnitViews: extensionContext._sortingUnitViewPlugins,
-            sortingUnitMetrics: extensionContext._sortingUnitMetricPlugins
+        const apiConfig = {
+            webSocketUrl: '',
+            baseSha1Url: `/sha1`,
+            jupyterMode: true,
+            jupyterModel: this.model
         }
 
         return (
             <MuiThemeProvider theme={theme}>
-                <HitherContext.Provider value={hither}>
+                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo} apiConfig={apiConfig} status={this._status}>
                     <WorkspaceViewWrapper
-                        feedUri={feedUri}
-                        workspaceName={workspaceName}
-                        plugins={filterPlugins(plugins)}
                         model={this.model}
                     />
-                </HitherContext.Provider>
+                </LabboxProvider>
             </MuiThemeProvider>
         )
     }
@@ -55,7 +53,7 @@ export class WorkspaceViewJp extends DOMWidgetView {
         renderJpWidget(this, reactElement, widgetHeight)
     }
     remove() {
-        this._cleanupCallbacks.forEach(cb => cb())
+        this._status.active = false
     }
 }
 

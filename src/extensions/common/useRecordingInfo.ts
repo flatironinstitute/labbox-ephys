@@ -1,6 +1,6 @@
+import { HitherContext, HitherInterface, HitherJob, useHitherJob } from 'labbox';
 import { useContext, useRef, useState } from "react";
-import { Recording, RecordingInfo } from "../extensionInterface";
-import { HitherContext, HitherInterface, HitherJob, useHitherJob } from "./hither";
+import { Recording, RecordingInfo } from "../pluginInterface";
 
 export const getRecordingInfo = async (a: {recordingObject: any, hither: HitherInterface}): Promise<RecordingInfo> => {
     const recordingInfoJob = a.hither.createHitherJob(

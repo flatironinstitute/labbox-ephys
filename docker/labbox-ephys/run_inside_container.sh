@@ -49,10 +49,12 @@ echo -e "\e[32mPoint your browser to \e[1mhttp://localhost:15310\e[21m\e[39m"
 echo -e "\e[32m-----------------------------------------------------\e[39m"
 
 
-cd /labbox-ephys/python/api
+export LABBOX_EXTENSIONS_DIR=/labbox-ephys/src/extensions
+export LABBOX_EPHYS_PYTHON_MODULE_DIR=/labbox-ephys/python/labbox_ephys
 set -x
 
 # gunicorn maybe has some advantages, but by default it only handles one request at a time
 # exec gunicorn -b 127.0.0.1:15307 api:app
 
-exec python -u api.py
+labbox_api
+# exec python -u api.py

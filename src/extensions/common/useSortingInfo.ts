@@ -1,6 +1,6 @@
+import { HitherContext, HitherJob, useHitherJob } from 'labbox';
 import { useContext, useRef, useState } from "react";
-import { Sorting, SortingInfo } from "../extensionInterface";
-import { HitherContext, HitherJob, useHitherJob } from "./hither";
+import { Sorting, SortingInfo } from "../pluginInterface";
 
 export const useSortingInfo = (sortingObject: any, recordingObject: any): SortingInfo | undefined => {
     const {result: sortingInfo} = useHitherJob<SortingInfo>(

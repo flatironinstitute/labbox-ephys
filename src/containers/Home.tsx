@@ -1,22 +1,12 @@
-import React, { Dispatch, FunctionComponent } from 'react';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { useHistory, useLocation } from 'react-router';
-import { WorkspaceDispatch, WorkspaceState } from '../extensions/common/workspaceReducer';
-import { filterPlugins, Plugins } from '../extensions/extensionInterface';
-import WorkspaceView, { WorkspaceInfo } from '../extensions/WorkspaceView';
-import { RootAction, RootState } from '../reducers';
-import { ServerInfo } from '../reducers/serverInfo';
+import { LabboxProviderContext, useLabboxPlugins, WorkspaceInfo } from 'labbox';
+import React, { FunctionComponent, useContext } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import { LabboxPlugin } from '../extensions/pluginInterface';
+import { WorkspaceDispatch, WorkspaceState } from '../extensions/pluginInterface/workspaceReducer';
+import WorkspaceView, { useWorkspaceRoute } from '../extensions/WorkspaceView/WorkspaceView';
 import './Home.css';
 
-interface StateProps {
-  plugins: Plugins
-  serverInfo: ServerInfo
-}
-
-interface DispatchProps {
-}
-
-interface OwnProps {
+type Props = {
   workspaceInfo: WorkspaceInfo
   workspace: WorkspaceState
   workspaceDispatch: WorkspaceDispatch
@@ -24,9 +14,8 @@ interface OwnProps {
   height?: number
 }
 
-type Props = StateProps & DispatchProps & OwnProps
-
-const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, height, workspace, workspaceDispatch, plugins }) => {
+const Home: FunctionComponent<Props> = ({ workspaceInfo, width, height, workspace, workspaceDispatch }) => {
+  const plugins = useLabboxPlugins<LabboxPlugin>()
   const hMargin = 30
   const vMargin = 20
   const W = (width || 600) - hMargin * 2
@@ -36,8 +25,12 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
   const history = useHistory()
   const location = useLocation()
 
+  const { serverInfo } = useContext(LabboxProviderContext)
+
+  const [workspaceRoute, workspaceRouteDispatch] = useWorkspaceRoute(location, history, workspaceInfo)
+
   return (
-    <div style={{marginLeft: hMargin, marginRight: hMargin, marginTop: vMargin, marginBottom: vMargin}}>
+    <div style={{ marginLeft: hMargin, marginRight: hMargin, marginTop: vMargin, marginBottom: vMargin }}>
       {/* {
         readOnly && (
           <Typography component="p" style={{fontStyle: "italic"}}>
@@ -49,28 +42,19 @@ const Home: FunctionComponent<Props> = ({ workspaceInfo, serverInfo, width, heig
         Analysis and visualization of neurophysiology recordings and spike sorting results.
       </Typography> */}
       <div
-        style={{position: 'absolute', top: headerHeight + vMargin, width: W, height: H - headerHeight}}
+        style={{ position: 'absolute', top: headerHeight + vMargin, width: W, height: H - headerHeight }}
       >
         <WorkspaceView
           width={W}
           height={H - headerHeight}
-          defaultFeedId={serverInfo.defaultFeedId || ''}
-          {...{workspaceInfo, workspace, workspaceDispatch, plugins, history, location}}
+          defaultFeedId={serverInfo?.defaultFeedId || ''}
+          workspaceRoute={workspaceRoute}
+          workspaceRouteDispatch={workspaceRouteDispatch}
+          {...{ workspaceInfo, workspace, workspaceDispatch, plugins }}
         />
       </div>
     </div>
   );
 }
 
-const mapStateToProps: MapStateToProps<StateProps, OwnProps, RootState> = (state: RootState, ownProps: OwnProps): StateProps => ({
-  plugins: filterPlugins(state.plugins),
-  serverInfo: state.serverInfo
-})
-  
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = (dispatch: Dispatch<RootAction>, ownProps: OwnProps) => ({
-})
-
-export default connect<StateProps, DispatchProps, OwnProps, RootState>(
-    mapStateToProps,
-    mapDispatchToProps
-)(Home)
+export default Home

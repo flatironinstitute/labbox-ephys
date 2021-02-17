@@ -33,7 +33,7 @@ def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None
                 sorting_format='mda',
                 data=dict(
                     firings=arg['firings'],
-                    samplerate=arg.get('samplerate', None)
+                    samplerate=arg.get('samplerate', 30000)
                 )
             )
     

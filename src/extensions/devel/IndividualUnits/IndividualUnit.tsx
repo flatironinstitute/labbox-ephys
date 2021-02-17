@@ -1,6 +1,6 @@
+import { CalculationPool } from 'labbox';
 import React, { FunctionComponent } from 'react';
-import { CalculationPool } from '../../common/hither';
-import { Plugins, Recording, Sorting, SortingInfo } from '../../extensionInterface';
+import { Recording, Sorting, SortingInfo } from "../../pluginInterface";
 
 interface Props {
     sorting: Sorting
@@ -9,7 +9,6 @@ interface Props {
     width: number
     calculationPool: CalculationPool
     sortingInfo: SortingInfo
-    plugins: Plugins
 }
 
 // const PcaFeatures: FunctionComponent<{sorting: Sorting, recording: Recording, unitId: number, calculationPool: CalculationPool, onSelectedSpikeIndexChanged: (index: number | null) => void}> = ({ sorting, recording, unitId, calculationPool, onSelectedSpikeIndexChanged }) => {
@@ -88,7 +87,7 @@ interface Props {
 //     )
 // }
 
-const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo, plugins }) => {
+const IndividualUnit: FunctionComponent<Props> = ({ sorting, recording, unitId, width, calculationPool, sortingInfo }) => {
     return <div>IndividualUnit: obsolete</div>
     // const [selectedSpikeIndex, setSelectedSpikeIndex] = useState<number | null>(null);
     // const handleSelectedPointIndexChanged = useCallback(

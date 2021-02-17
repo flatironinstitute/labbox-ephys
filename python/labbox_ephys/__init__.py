@@ -1,9 +1,8 @@
 __version__ = "0.4.14"
 
 import os
-import sys
+os.environ['LABBOX_DEFAULT_FEED_NAME'] = 'labbox-ephys-default'
 
-from .api._workersession import WorkerSession
 from .serialize import serialize
 from .extensions import *
 from .extractors import (LabboxEphysRecordingExtractor,

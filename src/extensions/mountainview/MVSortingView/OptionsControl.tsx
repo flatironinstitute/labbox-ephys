@@ -1,6 +1,6 @@
 import { Checkbox } from '@material-ui/core';
 import React, { FunctionComponent, useCallback } from 'react';
-import { SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 
 type Props = {
     selection: SortingSelection

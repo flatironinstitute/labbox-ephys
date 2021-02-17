@@ -1,13 +1,13 @@
 
 // !begin-code-generation!
-import { ExtensionContext } from './extensions/extensionInterface';
+import { ExtensionContext } from './extensions/pluginInterface';
 
 {% for extension in extensions if ('jupyter' in extension.tags) -%}
 import { activate as activate{{ extension.name }} } from '{{ extension.relPath }}'
 {% endfor -%}
 // !end-code-generation!
 
-const registerExtensions = (context: ExtensionContext) => {
+const registerExtensions = (context: ExtensionContext<LabboxPlugin>) => {
     // !begin-code-generation!
     {% for extension in extensions if ('jupyter' in extension.tags) -%}
     activate{{ extension.name }}(context)

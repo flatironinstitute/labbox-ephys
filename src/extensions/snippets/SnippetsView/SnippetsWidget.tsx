@@ -2,7 +2,7 @@ import { Grid } from '@material-ui/core';
 import React, { Fragment, FunctionComponent, useCallback, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
-import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import SnippetsRow from './SnippetsRow';
 
 type Props = {

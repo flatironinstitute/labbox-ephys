@@ -1,5 +1,5 @@
 import React from 'react';
-import { SortingUnitMetricPlugin } from '../../../extensionInterface';
+import { SortingUnitMetricPlugin } from "../../../pluginInterface";
 
 const UnitSnrs = (record: any) => {
     return (
@@ -8,6 +8,7 @@ const UnitSnrs = (record: any) => {
 }
 
 const plugin: SortingUnitMetricPlugin = {
+    type: 'SortingUnitMetric',
     name: 'UnitSnrs',
     label: 'SNR',
     columnLabel: 'SNR',

@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { isMergeGroupRepresentative, Sorting, SortingSelection, SortingSelectionDispatch } from '../../extensionInterface';
+import { isMergeGroupRepresentative, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import UnitsTable from '../../unitstable/Units/UnitsTable';
 
 type Props = {

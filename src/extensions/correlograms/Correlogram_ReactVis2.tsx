@@ -1,7 +1,8 @@
+import { createCalculationPool, useHitherJob } from 'labbox';
 import React, { FunctionComponent } from 'react';
 import { VerticalBarSeries, XAxis, XYPlot, YAxis } from 'react-vis';
-import { createCalculationPool, HitherJobStatusView, useHitherJob } from '../common/hither';
-import { applyMergesToUnit, Sorting, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
+import HitherJobStatusView from '../common/HitherJobStatusView';
+import { applyMergesToUnit, Sorting, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
 
 type PlotData = {
     bins: number[]

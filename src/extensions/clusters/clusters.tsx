@@ -3,11 +3,12 @@
 
 import { BubbleChart } from '@material-ui/icons';
 import React from 'react';
-import { ExtensionContext } from '../extensionInterface';
+import { LabboxExtensionContext } from "../pluginInterface";
 import IndividualClustersView from './IndividualClustersView/IndividualClustersView';
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'IndividualClustersView',
         label: 'Clusters',
         priority: 50,

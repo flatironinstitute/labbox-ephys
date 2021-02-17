@@ -1,6 +1,6 @@
+import { createCalculationPool, HitherContext } from 'labbox';
 import React, { Fragment, FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createCalculationPool, HitherContext } from '../../common/hither';
-import { Recording, Sorting } from '../../extensionInterface';
+import { Recording, Sorting } from "../../pluginInterface";
 
 interface ChildProps {
     preloadStatus?: 'waiting' | 'running' | 'finished'

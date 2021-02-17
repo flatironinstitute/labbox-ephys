@@ -1,11 +1,11 @@
+import { usePlugins } from 'labbox';
 import React, { Fragment, FunctionComponent, useCallback } from 'react';
-import { Plugins, SortingSelection, SortingUnitViewPlugin, SortingViewPlugin } from '../../extensionInterface';
+import { LabboxPlugin, SortingSelection, SortingUnitViewPlugin, sortingUnitViewPlugins, SortingViewPlugin, sortingViewPlugins } from "../../pluginInterface";
 import sortByPriority from '../../sortByPriority';
 
 export type ViewPluginType = 'RecordingView' | 'SortingView' | 'SortingUnitView'
 
 type Props = {
-    plugins: Plugins,
     selection: SortingSelection
     onLaunchSortingView: (plugin: SortingViewPlugin) => void
     onLaunchSortingUnitView: (plugin: SortingUnitViewPlugin, unitId: number, label: string) => void
@@ -17,13 +17,14 @@ const buttonStyle: React.CSSProperties = {
     margin: 1
 }
 
-const ViewLauncher: FunctionComponent<Props> = ({ plugins, onLaunchSortingView, onLaunchSortingUnitView, selection }) => {
-    const sortingUnitViewPlugin = plugins.sortingUnitViews.MVSortingUnitView
+const ViewLauncher: FunctionComponent<Props> = ({ onLaunchSortingView, onLaunchSortingUnitView, selection }) => {
+    const plugins = usePlugins<LabboxPlugin>()
+    const sortingUnitViewPlugin = sortingUnitViewPlugins(plugins).filter(p => (p.name === 'MVSortingUnitView'))[0]
     return (
         <Fragment>
             <div key="sortingViews" style={{flexFlow: 'wrap'}}>
                 {
-                    sortByPriority(plugins.sortingViews).filter(p => (p.name !== 'MVSortingView')).map(sv => (
+                    sortByPriority(sortingViewPlugins(plugins)).filter(p => (p.name !== 'MVSortingView')).map(sv => (
                         <LaunchSortingViewButton key={sv.name} plugin={sv} onLaunch={onLaunchSortingView} />
                     ))
                 }

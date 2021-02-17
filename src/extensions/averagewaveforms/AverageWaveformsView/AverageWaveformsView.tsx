@@ -5,7 +5,7 @@ import Splitter from '../../common/Splitter';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import ViewToolbar from '../../common/ViewToolbar';
-import { SortingViewProps } from "../../extensionInterface";
+import { SortingViewProps } from "../../pluginInterface";
 import AverageWaveformView from './AverageWaveformView';
 
 export type AverageWaveformAction = ActionItem | DividerItem

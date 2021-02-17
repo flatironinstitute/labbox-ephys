@@ -3,7 +3,7 @@ import { CanvasPainter } from '../../common/CanvasWidget/CanvasPainter'
 import CanvasWidget from '../../common/CanvasWidget/CanvasWidget'
 import { useLayer, useLayers } from '../../common/CanvasWidget/CanvasWidgetLayer'
 import { ActionItem, DividerItem } from '../../common/Toolbars'
-import { RecordingSelection, RecordingSelectionDispatch } from '../../extensionInterface'
+import { RecordingSelection, RecordingSelectionDispatch } from "../../pluginInterface"
 import { createCursorLayer } from './cursorLayer'
 import { createMainLayer } from './mainLayer'
 import { createPanelLabelLayer } from './panelLabelLayer'

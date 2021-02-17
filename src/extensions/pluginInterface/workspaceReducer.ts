@@ -1,4 +1,6 @@
-import { Recording, Sorting, SortingCuration } from "../extensionInterface"
+import { Recording } from "./Recording"
+import { Sorting } from "./Sorting"
+import { SortingCuration } from "./SortingCuration"
 
 export type WorkspaceState = {
     recordings: Recording[]

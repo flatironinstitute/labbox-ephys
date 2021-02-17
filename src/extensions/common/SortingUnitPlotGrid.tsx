@@ -1,6 +1,6 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
-import { isMergeGroupRepresentative, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from '../extensionInterface';
+import { isMergeGroupRepresentative, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
 import { useSortingInfo } from './useSortingInfo';
 
 type Props = {

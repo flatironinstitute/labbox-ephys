@@ -4,12 +4,12 @@
 
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import React from 'react';
-import { ExtensionContext } from "../extensionInterface";
+import { LabboxExtensionContext } from "../pluginInterface";
 import RawRecordingView from "./RawViews/RawRecordingView";
 import RawSortingView from "./RawViews/RawSortingView";
 
 
-export function activate(context: ExtensionContext) {
+export function activate(context: LabboxExtensionContext) {
     // context.registerSortingView({
     //     name: 'ElectrodeGeometryTest',
     //     label: 'Electrode geometry test',
@@ -26,7 +26,8 @@ export function activate(context: ExtensionContext) {
     //     component: IndividualUnits
     // })
 
-    context.registerSortingView({
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'RawSortingView',
         label: 'Raw sorting object',
         priority: -10,
@@ -35,7 +36,8 @@ export function activate(context: ExtensionContext) {
         icon: <AccountTreeIcon />
     })
 
-    context.registerSortingView({
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'RawRecordingView',
         label: 'Raw recording object',
         priority: -10,

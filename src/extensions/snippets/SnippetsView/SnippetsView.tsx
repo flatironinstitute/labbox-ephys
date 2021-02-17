@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react'
 import Splitter from '../../common/Splitter'
-import { SortingViewProps } from "../../extensionInterface"
+import { SortingViewProps } from "../../pluginInterface"
 import SelectUnitsWidget from '../../spikeamplitudes/SpikeAmplitudesView/SelectUnitsWidget'
 import SnippetsWidget from './SnippetsWidget'
 

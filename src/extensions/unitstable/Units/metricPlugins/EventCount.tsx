@@ -1,5 +1,5 @@
 import React from 'react';
-import { SortingUnitMetricPlugin } from '../../../extensionInterface';
+import { SortingUnitMetricPlugin } from "../../../pluginInterface";
 
 const EventCount = (record: any) => {
     return (
@@ -8,6 +8,7 @@ const EventCount = (record: any) => {
 }
 
 const plugin: SortingUnitMetricPlugin = {
+    type: 'SortingUnitMetric',
     name: 'EventCount',
     label: 'Num. events',
     columnLabel: 'Num. events',

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import ElectrodeGeometryWidget from "../../electrodegeometry/ElectrodeGeometryWidget/ElectrodeGeometryWidget";
-import { RecordingInfo, RecordingSelection, RecordingSelectionDispatch } from "../../extensionInterface";
+import { RecordingInfo, RecordingSelection, RecordingSelectionDispatch } from "../../pluginInterface";
 
 
 interface Props {

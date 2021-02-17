@@ -3,26 +3,29 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { GraphicEq, Settings, Visibility } from '@material-ui/icons'
 import GrainIcon from '@material-ui/icons/Grain'
 import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser'
+import { usePlugins } from 'labbox'
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import Expandable from '../../common/Expandable'
 import Splitter from '../../common/Splitter'
-import { SortingUnitViewPlugin, SortingViewPlugin, SortingViewProps, ViewPlugin } from "../../extensionInterface"
+import { LabboxPlugin, SortingUnitViewPlugin, SortingViewPlugin, sortingViewPlugins, SortingViewProps } from "../../pluginInterface"
+import { RecordingViewPlugin } from '../../pluginInterface/RecordingViewPlugin'
 import '../mountainview.css'
 import CurationControl from './CurationControl'
 import OptionsControl from './OptionsControl'
 import PreloadCheck from './PreloadCheck'
 import PreprocessingControl, { PreprocessingSelection, PreprocessingSelectionAction, preprocessingSelectionReducer } from './PreprocessingControl'
 import ViewContainer from './ViewContainer'
-import ViewLauncher, { ViewPluginType } from './ViewLauncher'
+import ViewLauncher from './ViewLauncher'
 import ViewWidget from './ViewWidget'
 import VisibleElectrodesControl from './VisibleElectrodesControl'
 import VisibleUnitsControl from './VisibleUnitsControl'
 
 const initialLeftPanelWidth = 320
 
+type ViewPlugin = SortingViewPlugin | RecordingViewPlugin | SortingUnitViewPlugin
+
 type AddViewAction = {
     type: 'AddView'
-    pluginType: ViewPluginType
     plugin: ViewPlugin
     label: string
     area: 'north' | 'south' | ''
@@ -43,7 +46,7 @@ type SetViewAreaAction = {
 export class View {
     activate: boolean = false // signal to set this tab as active
     area: 'north' | 'south' | '' = ''
-    constructor(public pluginType: ViewPluginType, public plugin: ViewPlugin, public extraProps: {[key: string]: any}, public label: string, public viewId: string) {
+    constructor(public plugin: ViewPlugin, public extraProps: {[key: string]: any}, public label: string, public viewId: string) {
 
     }
 
@@ -64,7 +67,7 @@ export const openViewsReducer: React.Reducer<View[], OpenViewsAction> = (state: 
             }
         }
         lastViewIdNum ++
-        const v = new View(action.pluginType, plugin, action.extraProps || {}, action.label, lastViewIdNum + '')
+        const v = new View(plugin, action.extraProps || {}, action.label, lastViewIdNum + '')
         v.activate = true // signal to set this as active
         v.area = action.area
         return [...state, v].sort((a, b) => (a.plugin.label > b.plugin.label ? 1 : a.plugin.label < b.plugin.label ? -1 : 0))
@@ -127,13 +130,18 @@ interface PreprocessingProps {
 
 const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'waiting' | 'running' | 'finished'} & PreprocessingProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {plugins, recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
+    const {recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const [initializedViews, setInitializedViews] = useState(false)
-    const initialPluginViews: {plugin: SortingViewPlugin, area: 'north' | 'south'}[] = useMemo(() => ([
-        {plugin: plugins.sortingViews.UnitsTable, area: area('north')},
-        {plugin: plugins.sortingViews.AverageWaveforms, area: area('south')}
-    ]).filter(x => (x.plugin !== undefined)), [plugins])
+
+    const plugins = usePlugins<LabboxPlugin>()
+    const UnitsTablePlugin = sortingViewPlugins(plugins).filter(p => (p.name === 'UnitsTable'))[0]
+    const AverageWaveformsPlugin = sortingViewPlugins(plugins).filter(p => (p.name === 'AverageWaveforms'))[0]
+
+    const initialPluginViews: {plugin: SortingViewPlugin | undefined, area: 'north' | 'south'}[] = useMemo(() => ([
+        {plugin: UnitsTablePlugin, area: area('north')},
+        {plugin: AverageWaveformsPlugin, area: area('south')}
+    ]).filter(x => (x.plugin !== undefined)), [UnitsTablePlugin, AverageWaveformsPlugin])
     // const electrodeGeometryPlugin = plugins.sortingViews.ElectrodeGeometrySortingView
     useEffect(() => {
         if ((preloadStatus === 'finished') && (openViews.length === 0) && (!initializedViews)) {
@@ -152,7 +160,6 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
     const handleLaunchSortingView = useCallback((plugin: SortingViewPlugin) => {
         openViewsDispatch({
             type: 'AddView',
-            pluginType: 'SortingView',
             plugin,
             label: plugin.label,
             area: ''
@@ -161,7 +168,6 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
     const handleLaunchSortingUnitView = useCallback((plugin: SortingUnitViewPlugin, unitId: number, label: string) => {
         openViewsDispatch({
             type: 'AddView',
-            pluginType: 'SortingUnitView',
             plugin,
             label,
             area: '',
@@ -202,7 +208,6 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                     {/* Launch */}
                     <Expandable icon={launchIcon} label="Open views" defaultExpanded={true} unmountOnExit={false}>
                         <ViewLauncher
-                            plugins={plugins}
                             onLaunchSortingView={handleLaunchSortingView}
                             onLaunchSortingUnitView={handleLaunchSortingUnitView}
                             selection={props.selection}

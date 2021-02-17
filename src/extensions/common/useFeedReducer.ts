@@ -6,6 +6,12 @@ export interface AppendOnlyLog {
     onMessage: (callback: (msg: any) => void) => void
 }
 
+export const dummyAppendOnlyLog = {
+  appendMessage: (msg: any) => {},
+  allMessages: () => ([]),
+  onMessage: (callback: (msg: any) => void) => {}
+}
+
 export const useFeedReducer = <State, Action>(reducer: (s: State, a: Action) => State, initialState: State, subfeed: AppendOnlyLog | null): [State, (a: Action) => void] => {
     const [state, stateDispatch] = useReducer(reducer, initialState)
   

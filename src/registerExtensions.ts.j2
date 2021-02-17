@@ -1,6 +1,6 @@
 
 // !begin-code-generation!
-import { ExtensionContext } from './extensions/extensionInterface'
+import { ExtensionContext } from './extensions/pluginInterface'
 
 {% for extension in extensions -%}
 import { activate as activate{{ extension.name }} } from '{{ extension.relPath }}'
@@ -17,7 +17,7 @@ Use the following to also include the extension in the jupyterlab extension:
 */
 
 
-const registerExtensions = (context: ExtensionContext) => {
+const registerExtensions = (context: ExtensionContext<LabboxPlugin>) => {
     // !begin-code-generation!
     {% for extension in extensions -%}
     activate{{ extension.name }}(context)

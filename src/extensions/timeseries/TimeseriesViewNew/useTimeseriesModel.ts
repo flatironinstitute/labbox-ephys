@@ -1,7 +1,7 @@
+import { createCalculationPool, HitherContext, HitherInterface } from 'labbox'
 import { useContext, useMemo } from "react"
-import { createCalculationPool, HitherContext, HitherInterface } from "../../common/hither"
 import useFetchCache from "../../common/useFetchCache"
-import { RecordingInfo } from "../../extensionInterface"
+import { RecordingInfo } from "../../pluginInterface"
 
 // it may be important to limit this when using a filter
 const timeseriesCalculationPool = createCalculationPool({maxSimultaneous: 4, method: 'stack'})

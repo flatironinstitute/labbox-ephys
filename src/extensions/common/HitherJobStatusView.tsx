@@ -1,8 +1,6 @@
-import { faWater } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, CircularProgress } from '@material-ui/core'
+import { HitherJob } from 'labbox'
 import React, { FunctionComponent } from 'react'
-import { HitherJob } from './HitherInterface'
 
 
 const HitherJobStatusView: FunctionComponent<{job?: HitherJob, message?: string, width?: number, height?: number}> = ({job, message='', width=200, height=200}) => {
@@ -16,7 +14,7 @@ const HitherJobStatusView: FunctionComponent<{job?: HitherJob, message?: string,
                     ): job.status === 'error' ? (
                         <span>Error: {job.error_message} [{message}]</span>
                     ) : job.status === 'pending' ? (
-                        <span>[{message}]<FontAwesomeIcon icon={faWater} /></span>
+                        <span>{message}</span>
                     ) : (
                         <span>[{message}] {job.status}</span>
                     )

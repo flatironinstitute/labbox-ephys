@@ -1,11 +1,12 @@
 // LABBOX-EXTENSION: snippets
 // LABBOX-EXTENSION-TAGS: jupyter
 
-import { ExtensionContext } from '../extensionInterface';
+import { LabboxExtensionContext } from "../pluginInterface";
 import SnippetsView from './SnippetsView/SnippetsView';
 
-export function activate(context: ExtensionContext) {
-    context.registerSortingView({
+export function activate(context: LabboxExtensionContext) {
+    context.registerPlugin({
+        type: 'SortingView',
         name: 'SnippetsView',
         label: 'Snippets',
         priority: 50,

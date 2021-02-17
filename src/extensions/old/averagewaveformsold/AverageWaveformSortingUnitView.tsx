@@ -1,7 +1,7 @@
+import { CalculationPool } from 'labbox'
 import React, { FunctionComponent } from 'react'
 import ClientSidePlot from '../../common/ClientSidePlot'
-import { CalculationPool } from '../../common/hither'
-import { Recording, Sorting } from '../../extensionInterface'
+import { Recording, Sorting } from "../../pluginInterface"
 import AverageWaveform_rv from './AverageWaveform_ReactVis'
 
 

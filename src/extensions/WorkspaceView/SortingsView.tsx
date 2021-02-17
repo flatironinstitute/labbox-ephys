@@ -1,7 +1,7 @@
 import { Paper } from "@material-ui/core";
+import { WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent } from 'react';
-import { WorkspaceInfo } from ".";
-import { Sorting } from "../extensionInterface";
+import { Sorting } from "../pluginInterface";
 import SortingsTable from './SortingsTable';
 import { WorkspaceRouteDispatch } from "./WorkspaceView";
 
