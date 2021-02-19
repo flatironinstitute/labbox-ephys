@@ -22,7 +22,7 @@
     "global": "^4.4.0",
     "js-sha1": "^0.6.0",
     "json-stable-stringify": "^1.0.1",
-    "labbox": "./labbox-0.1.16.tgz",
+    "labbox": "0.1.17",
     "markdown-loader": "^5.1.0",
     "material-table": "^1.64.0",
     "object-hash": "^2.1.1",
