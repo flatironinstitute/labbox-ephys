@@ -1,12 +1,12 @@
 import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
 import { MuiThemeProvider } from '@material-ui/core';
-import { createCalculationPool, LabboxProvider, WorkspaceInfo } from 'labbox';
+import { createCalculationPool, LabboxProvider } from 'labbox';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { sortingViewPlugins } from './extensions/pluginInterface';
+import { sortingViewPlugins, WorkspaceInfo } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import SortingViewPluginComponentWrapper from './SortingViewPluginComponentWrapper';
 import { MODULE_NAME, MODULE_VERSION } from './version';
@@ -33,15 +33,16 @@ export class SortingViewJp extends DOMWidgetView {
         const apiConfig = {
             webSocketUrl: '',
             baseSha1Url: `/sha1`,
+            baseFeedUrl: `/feed`,
             jupyterMode: true,
             jupyterModel: this.model
         }
 
-        const workspaceInfo: WorkspaceInfo = {workspaceName: null, feedUri: null, readOnly: null}
+        const workspaceInfo: WorkspaceInfo = {workspaceName: 'default', feedUri: '', readOnly: false}
 
         return (
             <MuiThemeProvider theme={theme}>
-                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo} apiConfig={apiConfig} status={this._status}>
+                <LabboxProvider extensionContext={extensionContext} apiConfig={apiConfig} status={this._status}>
                     <SortingViewPluginComponentWrapper
                         plugin={plugin}
                         sortingObject={sortingObject}

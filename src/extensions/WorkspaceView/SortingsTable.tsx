@@ -1,9 +1,8 @@
 import { CircularProgress } from '@material-ui/core';
-import { WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import NiceTable from '../common/NiceTable';
 import { useSortingInfos } from '../common/useSortingInfo';
-import { Sorting } from "../pluginInterface";
+import { Sorting, WorkspaceInfo } from "../pluginInterface";
 import { WorkspaceRouteDispatch } from './WorkspaceView';
 
 interface Props {

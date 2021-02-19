@@ -1,4 +1,3 @@
-import { WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent } from 'react';
 import { useLocation } from "react-router-dom";
 import About from './components/About';
@@ -6,6 +5,7 @@ import Docs from './components/Docs';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
+import { WorkspaceInfo } from './extensions/pluginInterface';
 import { WorkspaceDispatch, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
 
 
@@ -26,7 +26,7 @@ const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: W
     switch(page) {
         case 'about': return <About />
         case 'docs': return <Docs />
-        case 'config': return <Config />
+        case 'config': return <Config workspaceInfo={workspaceInfo} />
         case 'hitherJobMonitor': return <HitherJobMonitor />
         default: return <Home width={width} height={height} workspaceInfo={workspaceInfo} workspace={workspace} workspaceDispatch={workspaceDispatch} />
     }

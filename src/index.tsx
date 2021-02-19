@@ -1,6 +1,6 @@
 // react
 import { MuiThemeProvider } from '@material-ui/core';
-import { createExtensionContext, LabboxProvider, WorkspaceInfo } from 'labbox';
+import { createExtensionContext, LabboxProvider } from 'labbox';
 import QueryString from 'querystring';
 import React, { useMemo } from 'react';
 import ReactDOM from 'react-dom';
@@ -8,7 +8,7 @@ import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import "../node_modules/react-vis/dist/style.css";
 import AppContainer from './AppContainer';
 import config from './config.json';
-import { LabboxPlugin } from './extensions/pluginInterface';
+import { LabboxPlugin, WorkspaceInfo } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import { LocationInterface } from './extensions/WorkspaceView/WorkspaceView';
 import './index.css';
@@ -32,7 +32,7 @@ const useWorkspaceInfo = (location: LocationInterface): WorkspaceInfo => {
           })
       )
       const query = QueryString.parse(location.search.slice(1));
-      const feedUri = (query.feed as string) || null
+      const feedUri = (query.feed as string) || ''
       const readOnly = ((feedUri) && (feedUri.startsWith('sha1://'))) ? true : false;
       return {
           workspaceName,
@@ -49,7 +49,8 @@ const useWorkspaceInfo = (location: LocationInterface): WorkspaceInfo => {
 
 const apiConfig = {
   webSocketUrl: `ws://${window.location.hostname}:${config.webSocketPort}`,
-  baseSha1Url: `http://${window.location.hostname}:${config.httpPort}/sha1`
+  baseSha1Url: `http://${window.location.hostname}:${config.httpPort}/sha1`,
+  baseFeedUrl: `http://${window.location.hostname}:${config.httpPort}/feed`
 }
 
 const Content = () => {
@@ -60,10 +61,9 @@ const Content = () => {
     <MuiThemeProvider theme={theme}>
       <LabboxProvider
         extensionContext={extensionContext}
-        workspaceInfo={workspaceInfo}
         apiConfig={apiConfig}
       >
-        <AppContainer />
+        <AppContainer workspaceInfo={workspaceInfo} />
       </LabboxProvider>
     </MuiThemeProvider>
     // </React.StrictMode>

@@ -1,40 +1,55 @@
 import { WidgetModel } from '@jupyter-widgets/base';
-import { LabboxProviderContext, usePlugins } from 'labbox';
-import React, { FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
-import { filterPlugins, LabboxPlugin } from './extensions/pluginInterface';
-import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
+import { usePlugins, useSubfeed } from 'labbox';
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { filterPlugins, LabboxPlugin, WorkspaceInfo } from './extensions/pluginInterface';
+import workspaceReducer, { WorkspaceAction } from './extensions/pluginInterface/workspaceReducer';
 import WorkspaceView from './extensions/WorkspaceView';
 import { HistoryInterface, LocationInterface, useWorkspaceRoute } from './extensions/WorkspaceView/WorkspaceView';
 
 interface Props {
     model: WidgetModel
+    workspaceInfo: WorkspaceInfo
 }
 
-const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model }) => {
-    const { workspaceSubfeed, workspaceInfo } = useContext(LabboxProviderContext)
+const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model, workspaceInfo }) => {
+    // const { serverInfo } = useContext(LabboxProviderContext)
     const plugins = usePlugins<LabboxPlugin>()
 
-    // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
-    const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog => {
-        return {
-            appendMessage: (msg: any) => {
-                workspaceSubfeed.appendMessage({ action: msg })
-            },
-            allMessages: () => (workspaceSubfeed.allMessages().map(m => (m.action || {}))),
-            onMessage: (callback: (msg: any) => void) => {
-                workspaceSubfeed.onMessage((m: any) => {
-                    callback(m.action || {})
-                })
+    const handleWorkspaceSubfeedMessages = useCallback((messages: any[]) => {
+        messages.forEach(msg => {
+            if (msg.action) {
+                workspaceDispatch2(msg.action)
             }
-        }
-    }, [workspaceSubfeed])
+        })
+    }, [])
+    const subfeedName = useMemo(() => ({workspaceName: workspaceInfo.workspaceName || ''}), [workspaceInfo.workspaceName])
+    const {appendMessages: appendWorkspaceMessages, loadedInitialMessages: initialLoadComplete} = useSubfeed({feedUri: workspaceInfo.feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages})
+    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, {recordings: [], sortings: []})
+    // const workspaceSubfeed = useAppendOnlyLog({feedUri: '', subfeedName})
+    const workspaceDispatch = useCallback((a: WorkspaceAction) => {
+        appendWorkspaceMessages([{action: a}])
+    }, [appendWorkspaceMessages])
 
-    const [workspace, workspaceDispatch] = useFeedReducer<WorkspaceState, WorkspaceAction>(
-        workspaceReducer,
-        { recordings: [], sortings: [] },
-        workspaceSubfeedForReducer
-    )
+    // // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
+    // const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog => {
+    //     return {
+    //         appendMessage: (msg: any) => {
+    //             workspaceSubfeed.appendMessage({ action: msg })
+    //         },
+    //         allMessages: () => (workspaceSubfeed.allMessages().map(m => (m.action || {}))),
+    //         onMessage: (callback: (msg: any) => void) => {
+    //             workspaceSubfeed.onMessage((m: any) => {
+    //                 callback(m.action || {})
+    //             })
+    //         }
+    //     }
+    // }, [workspaceSubfeed])
+
+    // const [workspace, workspaceDispatch] = useFeedReducer<WorkspaceState, WorkspaceAction>(
+    //     workspaceReducer,
+    //     { recordings: [], sortings: [] },
+    //     workspaceSubfeedForReducer
+    // )
 
     // externalUnitMetrics
 
@@ -148,13 +163,13 @@ function useInterval(callback: () => void, delay: number | null) {
     }, [delay])
 }
 
-function randomAlphaId() {
-    const num_chars = 10;
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    let text = "";
-    for (let i = 0; i < num_chars; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
-}
+// function randomAlphaId() {
+//     const num_chars = 10;
+//     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+//     let text = "";
+//     for (let i = 0; i < num_chars; i++)
+//         text += possible.charAt(Math.floor(Math.random() * possible.length));
+//     return text;
+// }
 
 export default WorkspaceViewWrapper

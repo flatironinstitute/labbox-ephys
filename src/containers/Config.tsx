@@ -1,13 +1,15 @@
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import { LabboxProviderContext } from 'labbox';
-import { default as React, Fragment, FunctionComponent, useContext } from 'react';
+import { default as React, Fragment, FunctionComponent } from 'react';
+import { WorkspaceInfo } from '../extensions/pluginInterface';
 import ConfigComputeResource from './ConfigComputeResource';
 import ConfigExtensions from './ConfigExtensions';
 import ConfigSharing from './ConfigSharing';
 
 
-type Props = {}
+type Props = {
+  workspaceInfo: WorkspaceInfo
+}
 
 // const useStyles = makeStyles({
 //   root: {
@@ -15,9 +17,8 @@ type Props = {}
 //   },
 // });
 
-const Config: FunctionComponent<Props> = () => {
+const Config: FunctionComponent<Props> = ({ workspaceInfo }) => {
   // const classes = useStyles()
-  const { workspaceInfo } = useContext(LabboxProviderContext)
   const [currentTabLabel, setCurrentTabLabel] = React.useState<string | null>(null)
 
   let tabs: {label: string, component: React.ComponentElement<any, any>}[] = []
@@ -31,7 +32,7 @@ const Config: FunctionComponent<Props> = () => {
   })
   tabs.push({
     label: 'Sharing',
-    component: <ConfigSharing workspaceInfo={workspaceInfo || {workspaceName: '', feedUri: '', readOnly: true}} />
+    component: <ConfigSharing workspaceInfo={workspaceInfo} />
   })
   tabs.push({
     label: 'Extensions',

@@ -4,18 +4,18 @@ import Toolbar from '@material-ui/core/Toolbar';
 // LABBOX-CUSTOM /////////////////////////////////////////////
 import Typography from '@material-ui/core/Typography';
 import { Home } from '@material-ui/icons';
-import { HitherJob, LabboxProviderContext, WorkspaceInfo } from 'labbox';
-import React, { Fragment, FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
+import { HitherJob, useSubfeed } from 'labbox';
+import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import ServerStatusControl from './containers/ServerStatusControl';
-import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
-import workspaceReducer, { WorkspaceAction, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
+import { WorkspaceInfo } from './extensions/pluginInterface';
+import workspaceReducer, { WorkspaceAction } from './extensions/pluginInterface/workspaceReducer';
 import { getPathQuery } from './kachery';
 import Routes from './Routes';
 
 type ToolBarContentProps = {
-    workspaceInfo: WorkspaceInfo | null
+    workspaceInfo: WorkspaceInfo
 }
 
 const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo }) => {
@@ -40,6 +40,7 @@ const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo 
         </Fragment>
     )
 }
+
 //////////////////////////////////////////////////////////////
 
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
@@ -67,39 +68,55 @@ function useWindowDimensions() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-type Props = {}
+type Props = {
+    workspaceInfo: WorkspaceInfo
+}
 
-const AppContainer: FunctionComponent<Props> = () => {
+const AppContainer: FunctionComponent<Props> = ({ workspaceInfo }) => {
     const { width, height } = useWindowDimensions()
-    const {workspaceSubfeed, workspaceInfo} = useContext(LabboxProviderContext)
 
     const appBarHeight = 48 // hard-coded for now - must agree with theme.ts
     const H = height - appBarHeight - 2
     const hMargin = 0
     const W = width - hMargin * 2 - 2
 
-    // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
-    const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog | null => {
-        return workspaceSubfeed ? {
-            appendMessage: (msg: any) => {
-                workspaceSubfeed.appendMessage({action: msg})
-            },
-            allMessages: () => (workspaceSubfeed.allMessages().map(m => (m.action || {}))),
-            onMessage: (callback: (msg: any) => void) => {
-                workspaceSubfeed.onMessage((m: any) => {
-                    callback(m.action || {})
-                })
+    const handleWorkspaceSubfeedMessages = useCallback((messages: any[]) => {
+        messages.forEach(msg => {
+            if (msg.action) {
+                workspaceDispatch2(msg.action)
             }
-        } : null
-    }, [workspaceSubfeed])
+        })
+    }, [])
+    const subfeedName = useMemo(() => ({workspaceName: workspaceInfo?.workspaceName || ''}), [workspaceInfo?.workspaceName])
+    const {appendMessages: appendWorkspaceMessages, loadedInitialMessages: initialLoadComplete} = useSubfeed({feedUri: workspaceInfo.feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages})
+    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, {recordings: [], sortings: []})
+    // const workspaceSubfeed = useAppendOnlyLog({feedUri: '', subfeedName})
+    const workspaceDispatch = useCallback((a: WorkspaceAction) => {
+        appendWorkspaceMessages([{action: a}])
+    }, [appendWorkspaceMessages])
 
-    const [workspace, workspaceDispatch] = useFeedReducer<WorkspaceState, WorkspaceAction>(
-        workspaceReducer,
-        {recordings: [], sortings: []},
-        workspaceSubfeedForReducer
-    )
+    // // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
+    // const workspaceSubfeedForReducer = useMemo((): AppendOnlyLog | null => {
+    //     return workspaceSubfeed ? {
+    //         appendMessages: (msgs: any[]) => {
+    //             workspaceSubfeed.appendMessages(msgs.map(msg => ({action: msg})))
+    //         },
+    //         allMessages: () => (workspaceSubfeed.allMessages().map(m => (m.action || {}))),
+    //         onMessages: (callback: (position: number, msgs: any[]) => void) => {
+    //             workspaceSubfeed.onMessages((pos2: number, msgs2: any[]) => {
+    //                 callback(pos2, msgs2.map(m => (m.action || {})))
+    //             })
+    //         }
+    //     } : null
+    // }, [workspaceSubfeed])
 
-    const {initialLoadComplete} = useContext(LabboxProviderContext)
+    // const [workspace, workspaceDispatch] = useFeedReducer<WorkspaceState, WorkspaceAction>(
+    //     workspaceReducer,
+    //     {recordings: [], sortings: []},
+    //     workspaceSubfeedForReducer
+    // )
+
+    // const {initialLoadComplete} = useContext(LabboxProviderContext)
 
     return (
         <div className={"TheAppBar"}>

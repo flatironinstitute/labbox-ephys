@@ -1,8 +1,9 @@
-import { LabboxProviderContext, WorkspaceInfo } from 'labbox';
+import { LabboxProviderContext } from 'labbox';
 import React, { FunctionComponent, useContext } from 'react';
+import { WorkspaceInfo } from '../extensions/pluginInterface';
 
 type Props = {
-    workspaceInfo: WorkspaceInfo | null
+    workspaceInfo: WorkspaceInfo
 }
 
 const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo }) => {

@@ -1,7 +1,7 @@
-import { LabboxProviderContext, useLabboxPlugins, WorkspaceInfo } from 'labbox';
+import { LabboxProviderContext, useLabboxPlugins } from 'labbox';
 import React, { FunctionComponent, useContext } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { LabboxPlugin } from '../extensions/pluginInterface';
+import { LabboxPlugin, WorkspaceInfo } from '../extensions/pluginInterface';
 import { WorkspaceDispatch, WorkspaceState } from '../extensions/pluginInterface/workspaceReducer';
 import WorkspaceView, { useWorkspaceRoute } from '../extensions/WorkspaceView/WorkspaceView';
 import './Home.css';

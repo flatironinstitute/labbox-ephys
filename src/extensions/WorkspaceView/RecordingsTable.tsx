@@ -1,9 +1,8 @@
 import { CircularProgress } from '@material-ui/core';
-import { WorkspaceInfo } from 'labbox';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import NiceTable from '../common/NiceTable';
 import { useRecordingInfos } from '../common/useRecordingInfo';
-import { Recording, RecordingInfo, Sorting, SortingInfo } from "../pluginInterface";
+import { Recording, RecordingInfo, Sorting, SortingInfo, WorkspaceInfo } from "../pluginInterface";
 import { WorkspaceRouteDispatch } from './WorkspaceView';
 import './WorkspaceView.css';
 
