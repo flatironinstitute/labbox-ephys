@@ -68,20 +68,8 @@ def create_workspace_view(
         def _handle_message(self, widget, msg, buffers):
             if msg['type'] == 'iterate':
                 self._worker_session.iterate()
-            elif msg['type'] == 'appendSubfeedMessage':
-                feed_uri = msg['feedUri']
-                subfeed_name = msg['subfeedName']
-                f = kp.load_feed(feed_uri)
-                sf = f.get_subfeed(subfeed_name)
-                sf.append_message(msg['message'])
-                self._worker_session.iterate()
-            elif msg['type'] == 'addSubfeedWatch':
-                self._worker_session.add_subfeed_watch(
-                    watch_name=msg['watchName'],
-                    feed_uri=msg['feedUri'],
-                    subfeed_name= msg['subfeedName']
-                )
             else:
                 self._worker_session.handle_message(msg)
+                self._worker_session.iterate()
     X = WorkspaceViewJp()
     return X

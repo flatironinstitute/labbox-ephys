@@ -130,7 +130,7 @@ interface PreprocessingProps {
 
 const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'waiting' | 'running' | 'finished'} & PreprocessingProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch} = props
+    const {recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch, curationDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const [initializedViews, setInitializedViews] = useState(false)
 
@@ -233,15 +233,18 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                     </Expandable>
                     
                     {/* Curation */}
-                    <Expandable icon={curationIcon} label="Curation" defaultExpanded={false} unmountOnExit={false}>
-                        <CurationControl
-                            sortingId={sorting.sortingId}
-                            curation={props.sorting.curation || {}}
-                            curationDispatch={props.curationDispatch}
-                            selection={props.selection}
-                            selectionDispatch={props.selectionDispatch}
-                        />
-                    </Expandable>
+                    { curationDispatch && (
+                        <Expandable icon={curationIcon} label="Curation" defaultExpanded={false} unmountOnExit={false}>
+                                
+                            <CurationControl
+                                sortingId={sorting.sortingId}
+                                curation={props.sorting.curation || {}}
+                                curationDispatch={curationDispatch}
+                                selection={props.selection}
+                                selectionDispatch={props.selectionDispatch}
+                            />
+                        </Expandable>
+                    )}
 
                     {/* Options */}
                     <Expandable icon={optionsIcon} label="Options" defaultExpanded={false} unmountOnExit={false}>

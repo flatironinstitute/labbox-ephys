@@ -1,13 +1,11 @@
 import { WidgetModel } from '@jupyter-widgets/base';
 import { CalculationPool } from 'labbox';
-import React, { FunctionComponent, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { AppendOnlyLog, useFeedReducer } from './extensions/common/useFeedReducer';
+import React, { FunctionComponent, useEffect, useReducer, useRef, useState } from 'react';
 import { useRecordingInfo } from './extensions/common/useRecordingInfo';
 import { useSortingInfo } from './extensions/common/useSortingInfo';
-import { Recording, Sorting, SortingCuration, sortingSelectionReducer, SortingViewPlugin } from './extensions/pluginInterface';
+import { Recording, Sorting, sortingSelectionReducer, SortingViewPlugin } from './extensions/pluginInterface';
 import { externalUnitMetricsReducer } from './extensions/pluginInterface/exteneralUnitMetrics';
 import { useRecordingAnimation } from './extensions/pluginInterface/RecordingSelection';
-import { sortingCurationReducer, SortingCurationWorkspaceAction } from './extensions/pluginInterface/workspaceReducer';
 
 interface Props {
     plugin: SortingViewPlugin
@@ -26,27 +24,6 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
 
     const sortingInfo = useSortingInfo(sorting?.sortingObject, sorting?.recordingObject)
     const recordingInfo = useRecordingInfo(recording?.recordingObject)
-
-    // curation
-    // const [curation, curationDispatch] = useReducer(sortingCurationReducer, model.get('curation'))
-    const curationSubfeed: AppendOnlyLog | null = useMemo(() => (curationUri ? new Subfeed(model, curationUri) : null), [curationUri, model])
-    const [curation, curationDispatch] = useFeedReducer<SortingCuration, SortingCurationWorkspaceAction>(sortingCurationReducer, curationSubfeed ? {} : model.get('curation'), curationSubfeed)
-    useEffect(() => {
-        if (model.get('curation') !== curation) {
-            model.set('curation', curation)
-            model.save_changes()
-        }
-    }, [curation, model])
-    useEffect(() => {
-        model.on('change:curation', () => {
-            if (!curationSubfeed) {
-                curationDispatch({
-                    type: 'SET_CURATION',
-                    curation: model.get('curation')
-                })
-            }
-        }, null)
-    }, [model, curationDispatch, curationSubfeed])
 
     // externalUnitMetrics
     const [externalUnitMetrics, externalUnitMetricsDispatch] = useReducer(externalUnitMetricsReducer, model.get('externalUnitMetrics') ? model.get('externalUnitMetrics') : [])
@@ -74,7 +51,6 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
             recordingId: '',
             recordingPath: '',
             recordingObject,
-            curation,
             externalUnitMetrics
         })
         setRecording({
@@ -83,7 +59,7 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
             recordingObject,
             recordingPath: ''
         })
-    }, [setSorting, sortingObject, recordingObject, curation, externalUnitMetrics])
+    }, [setSorting, sortingObject, recordingObject, externalUnitMetrics])
 
     // selection
     const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, model.get('selection').selectedUnitIds ? model.get('selection') : {})
@@ -159,7 +135,6 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
                 sortingInfo={sortingInfo}
                 recording={recording}
                 recordingInfo={recordingInfo}
-                curationDispatch={curationDispatch}
                 selection={selection}
                 selectionDispatch={selectionDispatch}
                 readOnly={false}
@@ -171,46 +146,46 @@ const SortingViewPluginComponentWrapper: FunctionComponent<Props> = ({ plugin, s
     )
 }
 
-const parseSubfeedUri = (uri: string): {feedId: string, subfeedHash: string} => {
-    // feed://<feed-id>/~<subfeed-hash>
-    const vals = uri.split('/')
-    if (vals[0] !== 'feed:') throw Error(`Problem with subfeed uri: ${uri}`)
-    if (vals[1] !== '') throw Error(`Problem with subfeed uri: ${uri}`)
-    const feedId = vals[2]
-    if (!vals[3].startsWith('~')) throw Error(`Problem with subfeed uri: ${uri}`)
-    const subfeedHash = vals[3].slice(1)
-    return {feedId, subfeedHash}
-  }
+// const parseSubfeedUri = (uri: string): {feedId: string, subfeedHash: string} => {
+//     // feed://<feed-id>/~<subfeed-hash>
+//     const vals = uri.split('/')
+//     if (vals[0] !== 'feed:') throw Error(`Problem with subfeed uri: ${uri}`)
+//     if (vals[1] !== '') throw Error(`Problem with subfeed uri: ${uri}`)
+//     const feedId = vals[2]
+//     if (!vals[3].startsWith('~')) throw Error(`Problem with subfeed uri: ${uri}`)
+//     const subfeedHash = vals[3].slice(1)
+//     return {feedId, subfeedHash}
+//   }
   
-  class Subfeed {
-    _messages: any[] = []
-    _onMessageCallbacks: ((msg: any) => void)[] = []
-    constructor(private model: WidgetModel, private uri: string) {
-      const {feedId, subfeedHash} = parseSubfeedUri(uri)
-      const watchName = randomAlphaId()
-      model.send({type: 'addSubfeedWatch', watchName, feedUri: `feed://${feedId}`, subfeedName: `~${subfeedHash}`}, {})
-      model.on('msg:custom', (msgs: any) => {
-        for (let msg of msgs) {
-          if (msg.type === 'subfeedMessage') {
-            if (msg.watchName === watchName) {
-              this._messages.push(msg.message)
-              this._onMessageCallbacks.forEach(cb => cb(msg.message))
-            }
-          }
-        }
-      })
-    }
-    appendMessage(message: any) {
-      const {feedId, subfeedHash} = parseSubfeedUri(this.uri)
-      this.model.send({type: 'appendSubfeedMessage', feedUri: `feed://${feedId}`, subfeedName: `~${subfeedHash}`, message}, {})
-    }
-    allMessages() {
-      return [...this._messages]
-    }
-    onMessage(cb: (msg: any) => void) {
-      this._onMessageCallbacks.push(cb)
-    }
-}
+//   class Subfeed {
+//     _messages: any[] = []
+//     _onMessageCallbacks: ((msg: any) => void)[] = []
+//     constructor(private model: WidgetModel, private uri: string) {
+//       const {feedId, subfeedHash} = parseSubfeedUri(uri)
+//       const watchName = randomAlphaId()
+//       model.send({type: 'addSubfeedWatch', watchName, feedUri: `feed://${feedId}`, subfeedName: `~${subfeedHash}`}, {})
+//       model.on('msg:custom', (msgs: any) => {
+//         for (let msg of msgs) {
+//           if (msg.type === 'subfeedMessage') {
+//             if (msg.watchName === watchName) {
+//               this._messages.push(msg.message)
+//               this._onMessageCallbacks.forEach(cb => cb(msg.message))
+//             }
+//           }
+//         }
+//       })
+//     }
+//     appendMessage(message: any) {
+//       const {feedId, subfeedHash} = parseSubfeedUri(this.uri)
+//       this.model.send({type: 'appendSubfeedMessage', feedUri: `feed://${feedId}`, subfeedName: `~${subfeedHash}`, message}, {})
+//     }
+//     allMessages() {
+//       return [...this._messages]
+//     }
+//     onMessage(cb: (msg: any) => void) {
+//       this._onMessageCallbacks.push(cb)
+//     }
+// }
 
 // thanks: https://usehooks-typescript.com/react-hook/use-interval
 function useInterval(callback: () => void, delay: number | null) {
@@ -233,13 +208,13 @@ function useInterval(callback: () => void, delay: number | null) {
     }, [delay])
 }
 
-function randomAlphaId() {
-    const num_chars = 10;
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    let text = "";
-    for (let i = 0; i < num_chars; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
-}
+// function randomAlphaId() {
+//     const num_chars = 10;
+//     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+//     let text = "";
+//     for (let i = 0; i < num_chars; i++)
+//         text += possible.charAt(Math.floor(Math.random() * possible.length));
+//     return text;
+// }
 
 export default SortingViewPluginComponentWrapper

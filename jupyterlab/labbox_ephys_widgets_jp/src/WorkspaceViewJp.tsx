@@ -1,11 +1,12 @@
 import { DOMWidgetModel, DOMWidgetView, ISerializers } from '@jupyter-widgets/base';
 import { MuiThemeProvider } from '@material-ui/core';
-import { LabboxProvider, WorkspaceInfo } from 'labbox';
+import { LabboxProvider } from 'labbox';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
+import { WorkspaceInfo } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import WorkspaceViewWrapper from './WorkspaceViewWrapper';
@@ -29,14 +30,16 @@ export class WorkspaceViewJp extends DOMWidgetView {
         const apiConfig = {
             webSocketUrl: '',
             baseSha1Url: `/sha1`,
+            baseFeedUrl: `/feed`,
             jupyterMode: true,
             jupyterModel: this.model
         }
 
         return (
             <MuiThemeProvider theme={theme}>
-                <LabboxProvider extensionContext={extensionContext} workspaceInfo={workspaceInfo} apiConfig={apiConfig} status={this._status}>
+                <LabboxProvider extensionContext={extensionContext} apiConfig={apiConfig} status={this._status}>
                     <WorkspaceViewWrapper
+                        workspaceInfo={workspaceInfo}
                         model={this.model}
                     />
                 </LabboxProvider>

@@ -1,34 +1,39 @@
-import { useEffect, useMemo, useReducer } from "react"
+import { useEffect, useMemo, useReducer, useRef } from "react"
 
 export interface AppendOnlyLog {
-    appendMessage: (msg: any) => void
+    appendMessages: (messages: any[]) => void
     allMessages: () => any[]
-    onMessage: (callback: (msg: any) => void) => void
+    onMessages: (callback: (position: number, messages: any[]) => void) => void
 }
 
 export const dummyAppendOnlyLog = {
-  appendMessage: (msg: any) => {},
+  appendMessages: (messages: any[]) => {},
   allMessages: () => ([]),
-  onMessage: (callback: (msg: any) => void) => {}
+  onMessages: (callback: (position: number, messages: any[]) => void) => {}
 }
 
 export const useFeedReducer = <State, Action>(reducer: (s: State, a: Action) => State, initialState: State, subfeed: AppendOnlyLog | null): [State, (a: Action) => void] => {
     const [state, stateDispatch] = useReducer(reducer, initialState)
+    const ref = useRef({messageCount: 0})
   
     useEffect(() => {
       if (subfeed) {
-        subfeed.allMessages().forEach(msg => {
-          stateDispatch(msg)
-        })
-        subfeed.onMessage(msg => {
-          stateDispatch(msg)
+        // subfeed.allMessages().forEach(msg => {
+        //   stateDispatch(msg)
+        // })
+        subfeed.onMessages((position, msgs) => {
+          if (position < ref.current.messageCount) msgs = msgs.slice(ref.current.messageCount - position)
+          if (msgs.length > 0) {
+            msgs.forEach(msg => stateDispatch(msg))
+            ref.current.messageCount += msgs.length
+          }
         })
       }
     }, [subfeed])
   
     const newDispatch = useMemo(() => ((a: Action) => {
       if (subfeed) {
-        subfeed.appendMessage(a)
+        subfeed.appendMessages([a])
       }
       else {
         stateDispatch(a)

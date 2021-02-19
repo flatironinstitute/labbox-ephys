@@ -115,9 +115,9 @@ export const sortingCurationReducer = (state: SortingCuration, action: SortingCu
 
 const workspaceReducer = (s: WorkspaceState, a: WorkspaceAction): WorkspaceState => {
     switch (a.type) {
-        case 'ADD_RECORDING': return { ...s, recordings: [...s.recordings, a.recording] }
+        case 'ADD_RECORDING': return { ...s, recordings: [...s.recordings.filter(r => (r.recordingId !== a.recording.recordingId)), a.recording] }
         case 'DELETE_RECORDINGS': return { ...s, recordings: s.recordings.filter(x => !a.recordingIds.includes(x.recordingId)) }
-        case 'ADD_SORTING': return { ...s, sortings: [...s.sortings, a.sorting] }
+        case 'ADD_SORTING': return { ...s, sortings: [...s.sortings.filter(x => (x.sortingId !== a.sorting.sortingId)), a.sorting] }
         case 'DELETE_SORTINGS': return { ...s, sortings: s.sortings.filter(x => !a.sortingIds.includes(x.sortingId)) }
         case 'DELETE_SORTINGS_FOR_RECORDINGS': return { ...s, sortings: s.sortings.filter(x => !a.recordingIds.includes(x.recordingId)) }
         case 'ADD_UNIT_LABEL':

@@ -10,7 +10,7 @@ export interface SortingViewProps {
     recording: Recording
     sortingInfo: SortingInfo
     recordingInfo: RecordingInfo
-    curationDispatch: (action: SortingCurationWorkspaceAction) => void
+    curationDispatch?: (action: SortingCurationWorkspaceAction) => void
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null

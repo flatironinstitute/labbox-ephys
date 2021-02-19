@@ -1,9 +1,9 @@
 import { Button, Grid } from '@material-ui/core';
-import { createCalculationPool, usePlugins, WorkspaceInfo } from 'labbox';
+import { createCalculationPool, usePlugins } from 'labbox';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import Splitter from '../common/Splitter';
 import { useRecordingInfo } from '../common/useRecordingInfo';
-import { LabboxPlugin, Recording, RecordingSelection, recordingSelectionReducer, recordingViewPlugins, Sorting } from "../pluginInterface";
+import { LabboxPlugin, Recording, RecordingSelection, recordingSelectionReducer, recordingViewPlugins, Sorting, WorkspaceInfo } from "../pluginInterface";
 import sortByPriority from '../sortByPriority';
 import RecordingInfoView from './RecordingInfoView';
 import SortingInstructions from './SortingInstructions';
