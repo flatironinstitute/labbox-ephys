@@ -5,6 +5,6 @@ set -ex
 exec .vscode/tasks/yarn-build.sh
 
 cd src/python
-rm -r dist
+rm -rf dist
 python setup.py sdist
 twine upload dist/*

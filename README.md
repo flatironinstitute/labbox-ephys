@@ -24,7 +24,7 @@ When you run the compute resource you will get a compute resource URI. See the C
 
 ## Information for developers
 
-[Instructions on opening labbox-ephys in a development environment](doc/development-environment.md)
+[Instructions for developers](./doc/developer_instructions.md)
 
 ## Primary developers
 

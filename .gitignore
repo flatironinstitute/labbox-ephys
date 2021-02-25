@@ -12,6 +12,7 @@ Untitled*.ipynb
 dist
 tmp
 .eslintcache
+build
 
 # Duplicated/codesynced files
 jupyterlab/labbox_ephys_widgets_jp/src/extensions

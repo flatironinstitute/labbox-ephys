@@ -6,31 +6,23 @@ In the future, this Jupyterlab extension will be pip-installable through PyPI an
 
 ## Prerequisites
 
-This has been tested on Linux, OS X, and Windows Subsystem for Linux. If you have any trouble, please submit an issue report.
+Follow [these instructions](./labbox_ephys_web_server.md) to set up the prerequisites and start a kachery-p2p daemon.
 
-**Step 1.** You must having a running kachery-p2p daemon. See [kachery-p2p](https://github.com/flatironinstitute/kachery-p2p) for information on setting this up.
+## Install jupyterlab
 
-**Step 2.** Create and activate a fresh conda environment (ideally with python=3.8). For example: `conda create -n labbox-ephys-widgets python=3.8` and then `conda activate labbox-ephys-widgets`
-
-**Step 3.** Install a recent version of jupyterlab:
+Install a recent version of jupyterlab:
 
 ```
 conda install jupyterlab
 ```
 
-Also install a recent version of nodejs (preferably >=15):
-
-```
-conda install -c conda-forge nodejs
-```
-
-### Installation
+## Building the jupyterlab extension
 
 After you install the prerequisites above, clone this repository and then install the python packages in development mode
 
-```
+```bash
 cd labbox-ephys
-pip install -e ./python
+pip install -e ./src/python
 
 export NODE_OPTIONS="--max-old-space-size=8192"
 pip install -e jupyterlab/labbox_ephys_widgets_jp
@@ -40,7 +32,7 @@ In addition to installing the Python package, the latter command will also build
 
 Next, activate the compiled jupyterlab extension:
 
-```
+```bash
 jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
 jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
 jupyter labextension install jupyterlab/labbox_ephys_widgets_jp

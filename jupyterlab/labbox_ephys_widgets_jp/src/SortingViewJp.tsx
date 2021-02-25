@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 import '../css/styles.css';
 import '../css/widget.css';
 import extensionContext from './extensionContext';
-import { sortingViewPlugins, WorkspaceInfo } from './extensions/pluginInterface';
+import { sortingViewPlugins } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import SortingViewPluginComponentWrapper from './SortingViewPluginComponentWrapper';
 import { MODULE_NAME, MODULE_VERSION } from './version';
@@ -38,7 +38,7 @@ export class SortingViewJp extends DOMWidgetView {
             jupyterModel: this.model
         }
 
-        const workspaceInfo: WorkspaceInfo = {workspaceName: 'default', feedUri: '', readOnly: false}
+        // const workspaceInfo: WorkspaceInfo = {workspaceName: 'default', feedUri: '', readOnly: false}
 
         return (
             <MuiThemeProvider theme={theme}>
