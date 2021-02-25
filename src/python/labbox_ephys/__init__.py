@@ -1,4 +1,4 @@
-__version__ = "0.4.14"
+__version__ = "0.5.0"
 
 import os
 os.environ['LABBOX_DEFAULT_FEED_NAME'] = 'labbox-ephys-default'
