@@ -2,7 +2,7 @@
 
 set -ex
 
-exec .vscode/tasks/yarn-build.sh
+.vscode/tasks/yarn-build.sh
 
 cd src/python
 rm -rf dist
