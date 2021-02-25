@@ -4,7 +4,6 @@ import os
 os.environ['LABBOX_DEFAULT_FEED_NAME'] = 'labbox-ephys-default'
 
 from .serialize import serialize
-from .extensions import *
 from .extractors import (LabboxEphysRecordingExtractor,
                          LabboxEphysSortingExtractor, MdaRecordingExtractor,
                          MdaSortingExtractor, writemda32)
@@ -19,5 +18,10 @@ from .register_views import (_recording_views, register_recording_view,
                              register_sorting_view, _sorting_views)
 
 from .workspace import load_workspace, Workspace
+
+from .start_app import start_app
+
+# important to do this at the bottom
+from .extensions import *
 
 dummy = 0

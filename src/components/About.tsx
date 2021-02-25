@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import Markdown from '../extensions/common/Markdown';
+import Markdown from '../python/labbox_ephys/extensions/common/Markdown';
 import aboutMd from './about.md.gen';
 
 interface Props {

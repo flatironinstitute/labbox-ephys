@@ -1,6 +1,6 @@
 import { LabboxProviderContext } from 'labbox';
 import React, { FunctionComponent, useContext } from 'react';
-import { WorkspaceInfo } from '../extensions/pluginInterface';
+import { WorkspaceInfo } from '../python/labbox_ephys/extensions/pluginInterface';
 
 type Props = {
     workspaceInfo: WorkspaceInfo

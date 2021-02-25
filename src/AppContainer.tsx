@@ -9,9 +9,9 @@ import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, us
 import { Link } from 'react-router-dom';
 import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
 import ServerStatusControl from './containers/ServerStatusControl';
-import { WorkspaceInfo } from './extensions/pluginInterface';
-import workspaceReducer, { WorkspaceAction } from './extensions/pluginInterface/workspaceReducer';
 import { getPathQuery } from './kachery';
+import { WorkspaceInfo } from './python/labbox_ephys/extensions/pluginInterface';
+import workspaceReducer, { WorkspaceAction } from './python/labbox_ephys/extensions/pluginInterface/workspaceReducer';
 import Routes from './Routes';
 
 type ToolBarContentProps = {

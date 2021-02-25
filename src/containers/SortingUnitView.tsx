@@ -3,10 +3,10 @@ import { CalculationPool, createCalculationPool, HitherContext } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { useSortingInfo } from '../extensions/common/useSortingInfo';
-import IndividualUnit from '../extensions/devel/IndividualUnits/IndividualUnit';
-import { Recording, Sorting, WorkspaceInfo } from '../extensions/pluginInterface';
 import { getPathQuery } from '../kachery';
+import { useSortingInfo } from '../python/labbox_ephys/extensions/common/useSortingInfo';
+import IndividualUnit from '../python/labbox_ephys/extensions/devel/IndividualUnits/IndividualUnit';
+import { Recording, Sorting, WorkspaceInfo } from '../python/labbox_ephys/extensions/pluginInterface';
 
 type Props = {
     sortingId: string

@@ -5,69 +5,100 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "start dev api",
+            "label": "yarn-install",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_dev_api.sh",
-            "problemMatcher": []
+            "command": "bash -ic .vscode/tasks/yarn-install.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Install the node dependencies (do this once, or whenever the node dependencies have changed)"
         },
         {
-            "label": "start dev client",
+            "label": "yarn-build",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_dev_client.sh"
+            "command": "bash -ic .vscode/tasks/yarn-build.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Build the node package and copy it to the appropriate location"
         },
         {
-            "label": "_start_dev",
+            "label": "pip-install-dev",
             "type": "shell",
-            "command": "echo 'Starting the dev api and client tasks...' && sleep 3 && echo 'Point your browser to http://localhost:15351'"
+            "command": "bash -ic .vscode/tasks/pip-install-dev.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Install labbox-ephys in development mode using `pip install -e .`"
+        },
+        {
+            "label": "Publish PyPI",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/publish-pypi.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Publish package to PyPI"
+        },
+        {
+            "label": "start-client-dev",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-client-dev.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the client web server in development mode"
+        },
+        {
+            "label": "start-client-prod",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-client-prod.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the client web server in production mode (uses the built .tgz node package)"
+        },
+        {
+            "label": "start-api-websocket",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-api-websocket.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the api websocket server"
+        },
+        {
+            "label": "start-api-http",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-api-http.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the api http server"
         },
         {
             "label": "START DEV",
             "type": "shell",
-            "command": "echo 'Starting the dev api and client tasks...' && sleep 3 && echo 'Point your browser to http://localhost:15351'",
+            "command": "echo \"START DEV\"",
             "dependsOn": [
-                "start dev api",
-                "start dev client",
+                "start-client-dev",
+                "start-api-websocket",
+                "start-api-http",
                 "_start_dev"
-            ]
+            ],
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Run all three development server tasks: client-dev, api-websocket, api-http"
         },
         {
-            "label": "start test prod api",
+            "label": "_start_dev",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_test_prod_api.sh"
-        },
-        {
-            "label": "start test prod client",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_test_prod_client.sh"
-        },
-        {
-            "label": "_start_test_prod",
-            "type": "shell",
-            "command": "echo 'This will start the test prod api and client as well as the nginx server. Point your browser to http://localhost:15371'"
-        },
-        {
-            "label": "START TEST PROD",
-            "dependsOn": [
-                "start test prod api",
-                "start test prod client",
-                "start nginx",
-                "_start_test_prod"
-            ]
-        },
-        {
-            "label": "build test prod client",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/build_test_prod_client.sh"
-        },
-        {
-            "label": "yarn install",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/yarn_install.sh"
-        },
-        {
-            "label": "start jupyter lab",
-            "type": "shell",
-            "command": "bash -ic .vscode/tasks/start_jupyter_lab.sh"
+            "command": "echo 'Starting the client-dev, api-websocket, and api-http tasks...' && sleep 3 && echo 'Point your browser to http://localhost:10407'",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Used internally"
         },
         {
             "label": "code generation",
@@ -80,24 +111,6 @@
             // You must install unison and unison-fsmonitor
             // curl -L -o unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor
             "command": "bash -ic .vscode/tasks/start_code_sync.sh"
-        },
-        {
-            "label": "jupyterlab dev",
-            "type": "shell",
-            // run jupyter lab in watch mode
-            "command": "jupyter lab --watch"
-        },
-        {
-            "label": "labextension install",
-            "type": "shell",
-            // install the jupyter lab extension
-            "command": "cd jupyterlab/labbox_ephys_widgets_jp && pip install -e . && jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix && jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build && jupyter labextension install ."
-        },
-        {
-            "label": "labextension dev",
-            "type": "shell",
-            // run jupyter lab in watch mode
-            "command": "cd jupyterlab/labbox_ephys_widgets_jp && npm run watch"
         }
     ]
 }

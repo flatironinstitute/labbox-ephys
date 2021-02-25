@@ -30,6 +30,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     scripts=[
+        "bin/labbox-ephys"
     ],
     install_requires=[
         'numpy',
@@ -39,9 +40,9 @@ setuptools.setup(
         'spiketoolkit>=0.7.1',
         'hither>=0.4.2',
         'kachery-p2p>=0.5.24',
-        'labbox==0.1.17',
-        'websockets',
-        'pyyaml'
+        "aiohttp",
+        "aiohttp_cors",
+        'labbox==0.1.20'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

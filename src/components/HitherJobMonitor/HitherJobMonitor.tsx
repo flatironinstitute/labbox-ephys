@@ -2,7 +2,7 @@ import { Button, IconButton, Link as LinkMui, Table, TableBody, TableCell, Table
 import { Delete } from '@material-ui/icons';
 import { HitherContext, HitherJob } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
-import NiceTable from '../../extensions/common/NiceTable';
+import NiceTable from '../../python/labbox_ephys/extensions/common/NiceTable';
 
 type Props = {}
 

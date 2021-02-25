@@ -1,6 +1,6 @@
 import { LabboxProviderContext } from 'labbox';
 import React, { FunctionComponent, useContext } from 'react';
-import Markdown from '../extensions/common/Markdown';
+import Markdown from '../python/labbox_ephys/extensions/common/Markdown';
 import md from './ConfigComputeResource.md.gen';
 
 

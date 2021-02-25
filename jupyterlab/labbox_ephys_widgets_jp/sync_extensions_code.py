@@ -49,7 +49,7 @@ def sync_extensions_code():
         
     thisdir = os.path.dirname(os.path.realpath(__file__))
     development_workspace = os.path.exists('../codesync.txt')
-    E1 = thisdir + '/../../src/extensions'
+    E1 = thisdir + '/../../src/python/labbox_ephys/extensions'
     E2 = thisdir + '/src/extensions'
     if check_identical_dir_content(E1, E2):
         print('Code for extensions/ already in sync')

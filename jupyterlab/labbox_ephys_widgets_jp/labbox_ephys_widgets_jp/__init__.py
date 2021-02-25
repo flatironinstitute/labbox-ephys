@@ -11,16 +11,9 @@ from .create_workspace_view import create_workspace_view, WorkspaceView
 
 from .request_handlers import load_jupyter_server_extension
 
-# this is how the python functions in the extensions get registered
 import os
 import sys
 thisdir = os.path.dirname(os.path.realpath(__file__))
 os.environ['LABBOX_EPHYS_PYTHON_MODULE_DIR'] = f'{thisdir}/../../../labbox_ephys'
-sys.path.insert(0, f'{thisdir}/../src')
-import extensions
-
-extensions # just keep the linter happy - we only need to import extensions to register the hither functions
-# remove the prepended path so we don't have side-effects
-sys.path.remove(f'{thisdir}/../src')
 
 from labbox_ephys import _sorting_views as sorting_views, _recording_views as recording_views
