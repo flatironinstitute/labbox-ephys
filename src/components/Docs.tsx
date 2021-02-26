@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import Markdown from '../extensions/common/Markdown';
+import Markdown from '../python/labbox_ephys/extensions/common/Markdown';
 import docsMd from './docs.md.gen';
 
 const Docs: FunctionComponent<{}> = () => {

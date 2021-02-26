@@ -5,8 +5,8 @@ import Docs from './components/Docs';
 import HitherJobMonitor from './components/HitherJobMonitor/HitherJobMonitor';
 import Config from './containers/Config';
 import Home from "./containers/Home";
-import { WorkspaceInfo } from './extensions/pluginInterface';
-import { WorkspaceDispatch, WorkspaceState } from './extensions/pluginInterface/workspaceReducer';
+import { WorkspaceInfo } from './python/labbox_ephys/extensions/pluginInterface';
+import { WorkspaceDispatch, WorkspaceState } from './python/labbox_ephys/extensions/pluginInterface/workspaceReducer';
 
 
 const Routes: FunctionComponent<{width: number, height: number, workspaceInfo: WorkspaceInfo, workspace: WorkspaceState, workspaceDispatch: WorkspaceDispatch}> = ({width, height, workspaceInfo, workspace, workspaceDispatch}) => {

@@ -1,7 +1,7 @@
 import { Checkbox } from '@material-ui/core';
 import { useLabboxPlugins } from 'labbox';
 import React, { Fragment, FunctionComponent } from 'react';
-import { LabboxPlugin, recordingViewPlugins, sortingUnitMetricPlugins, sortingUnitViewPlugins, sortingViewPlugins } from '../extensions/pluginInterface';
+import { LabboxPlugin, recordingViewPlugins, sortingUnitMetricPlugins, sortingUnitViewPlugins, sortingViewPlugins } from '../python/labbox_ephys/extensions/pluginInterface';
 
 type Props = {}
 

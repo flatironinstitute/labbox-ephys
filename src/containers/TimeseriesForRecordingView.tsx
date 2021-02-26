@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { useRecordingInfo } from '../extensions/common/useRecordingInfo';
-import { Recording } from '../extensions/pluginInterface';
-import TimeseriesViewNew from '../extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
+import { useRecordingInfo } from '../python/labbox_ephys/extensions/common/useRecordingInfo';
+import { Recording } from '../python/labbox_ephys/extensions/pluginInterface';
+import TimeseriesViewNew from '../python/labbox_ephys/extensions/timeseries/TimeseriesViewNew/TimeseriesViewNew';
 
 type Props = {
   recording: Recording

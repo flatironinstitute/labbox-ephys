@@ -2,4 +2,4 @@
 
 set -ex
 
-yarn build
+exec yarn install
