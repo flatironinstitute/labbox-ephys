@@ -43,7 +43,7 @@ Ensure that these environment variables are set with each new terminal session b
 Open a new terminal and start a kachery-p2p daemon, selecting a `<node-label>` for display purposes:
 
 ```
-kachery-p2p-daemon --label <node-label>
+kachery-p2p-start-daemon --label <node-label>
 ```
 
 Keep this running. It allows communication between the Python script and the GUI. For more information, see [kachery-p2p](https://github.com/flatironinstitute/kachery-p2p).
