@@ -1,9 +1,12 @@
+from typing import Union
 import uuid
 import kachery_p2p as kp
 import spikeextractors as se
 
 class Workspace:
-    def __init__(self, *, feed: kp.Feed, workspace_name: str) -> None:
+    def __init__(self, *, feed: Union[kp.Feed, None], workspace_name: str) -> None:
+        if feed is None:
+            feed = kp.load_feed('labbox-ephys-default')
         self._feed = feed
         self._workspace_name = workspace_name
         workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
