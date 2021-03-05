@@ -127,7 +127,7 @@ const ViewContainer: FunctionComponent<Props> = ({ children, views, onViewClosed
                     active={activeArea === 'south'}
                 />
             </div>
-            <div key="splitter" style={{position: 'absolute', ...splitterStyle, zIndex: 9999}}>
+            <div key="splitter" style={{position: 'absolute', ...splitterStyle, zIndex: 9998}}>
                 <SplitterGrip onDelta={handleSplitterDelta} width={W} height={splitterHeight} />
             </div>
             {

@@ -1,9 +1,8 @@
 import { LabboxProviderContext } from 'labbox';
 import React, { FunctionComponent, useContext } from 'react';
-import { WorkspaceInfo } from '../python/labbox_ephys/extensions/pluginInterface';
 
 type Props = {
-    workspaceInfo: WorkspaceInfo
+    workspaceInfo: any
 }
 
 const ConfigSharing: FunctionComponent<Props> = ({ workspaceInfo }) => {

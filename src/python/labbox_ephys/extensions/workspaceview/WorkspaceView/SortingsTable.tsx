@@ -32,7 +32,6 @@ const SortingsTable: FunctionComponent<Props> = ({ sortings, onDeleteSortings, r
                 sortingLabel: {
                     text: s.sortingLabel,
                     element: <ViewSortingLink sorting={s} onClick={handleViewSorting} />
-                    // element: <Link title={"View this sorting"} to={`/${workspaceName}/sorting/${s.sortingId}${getPathQuery({feedUri})}`}>{s.sortingLabel}</Link>,
                 },
                 numUnits: sortingInfo ? sortingInfo.unit_ids.length : {element: <CircularProgress />}
             }

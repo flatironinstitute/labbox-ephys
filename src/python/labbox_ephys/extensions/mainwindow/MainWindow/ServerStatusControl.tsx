@@ -3,9 +3,11 @@ import { CheckCircleOutline, Sync, SyncProblem } from '@material-ui/icons';
 import { LabboxProviderContext } from 'labbox';
 import React, { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 
-type Props = {}
+type Props = {
+    color: any
+}
 
-const ServerStatusControl: FunctionComponent<Props> = () => {
+const ServerStatusControl: FunctionComponent<Props> = ({ color }) => {
     const { websocketStatus, onReconnectWebsocket } = useContext(LabboxProviderContext)
 
     const { icon, title } = useMemo(() => {
@@ -14,7 +16,7 @@ const ServerStatusControl: FunctionComponent<Props> = () => {
                 return {icon: <Sync style={{color: 'blue'}} />, title: 'Loading...'}
             }
             case 'connected': {
-                return {icon: <CheckCircleOutline style={{color: ''}} />, title: 'Connected'}
+                return {icon: <CheckCircleOutline style={{color}} />, title: 'Connected'}
             }
             case 'disconnected': {
                 return {icon: <SyncProblem style={{color: 'red'}} />, title: `Disconnected from server. Click to attempt reconnect.`}

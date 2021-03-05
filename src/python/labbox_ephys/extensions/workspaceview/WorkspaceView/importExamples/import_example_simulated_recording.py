@@ -4,8 +4,7 @@ import labbox_ephys as le
 import kachery_p2p as kp
 
 # adjust these values
-feed_uri = '{feedUri}'
-workspace_name = '{workspaceName}'
+workspace_uri = '{workspaceUri}'
 recording_label = 'simulated_recording'
 duration_sec = 50 # duration of simulated recording
 num_channels = 8 # num. channels in simulated recording
@@ -21,8 +20,7 @@ def prepare_recording_sorting():
 
 recording, sorting_true = prepare_recording_sorting()
 sorting_label = 'true'
-feed = kp.load_feed(feed_uri)
-workspace = le.load_workspace(workspace_name=workspace_name, feed=feed)
-print(f'Feed URI: {feed.get_uri()}')
+workspace = le.load_workspace(workspace_uri)
+print(f'Workspace URI: {workspace.get_uri()}')
 R_id = workspace.add_recording(recording=recording, label=recording_label)
 S_id = workspace.add_sorting(sorting=sorting_true, recording_id=R_id, label=sorting_label)

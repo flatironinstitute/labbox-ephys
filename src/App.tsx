@@ -1,3 +1,4 @@
+import { MuiThemeProvider } from '@material-ui/core';
 import { LabboxProviderContext, usePlugins } from 'labbox';
 import QueryString from 'querystring';
 import React, { useCallback, useContext, useMemo } from 'react';
@@ -5,6 +6,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import './App.css';
 import { LabboxPlugin, MainWindowPlugin, WorkspaceRoute } from './python/labbox_ephys/extensions/pluginInterface';
 import { locationFromRoute, routeFromLocation, WorkspaceRouteAction, workspaceRouteReducer } from './python/labbox_ephys/extensions/pluginInterface/WorkspaceRoute';
+import theme from './python/labbox_ephys/extensions/theme';
 
 function App() {
   const plugins = usePlugins<LabboxPlugin>()
@@ -41,13 +43,15 @@ function App() {
   )
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <mainWindowPlugin.component
-          {...{workspaceUri, workspaceRoute, workspaceRouteDispatch}}
-        />
-      </header>
-    </div>
+    <MuiThemeProvider theme={theme}>
+      <div className="App">
+        <header className="App-header">
+          <mainWindowPlugin.component
+            {...{workspaceUri, workspaceRoute, workspaceRouteDispatch}}
+          />
+        </header>
+      </div>
+    </MuiThemeProvider>
   );
 }
 

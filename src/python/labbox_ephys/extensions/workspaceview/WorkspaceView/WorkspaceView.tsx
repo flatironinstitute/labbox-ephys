@@ -1,29 +1,10 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { ExternalSortingUnitMetric, WorkspaceRoute, WorkspaceRouteDispatch } from "../../pluginInterface";
-import { SortingCurationWorkspaceAction, WorkspaceDispatch, WorkspaceState } from '../../pluginInterface/workspaceReducer';
+import { ExternalSortingUnitMetric } from "../../pluginInterface";
+import { SortingCurationWorkspaceAction } from '../../pluginInterface/workspaceReducer';
+import { WorkspaceViewProps } from '../../pluginInterface/WorkspaceViewPlugin';
 import SortingView from './SortingView';
 import WorkspaceRecordingsView from './WorkspaceRecordingsView';
 import WorkspaceRecordingView from './WorkspaceRecordingView';
-
-// type Props = {
-//   workspaceInfo?: WorkspaceInfo
-//   defaultFeedId: string
-//   workspace: WorkspaceState
-//   workspaceDispatch: WorkspaceDispatch
-//   workspaceRoute: WorkspaceRoute
-//   workspaceRouteDispatch: WorkspaceRouteDispatch
-//   width: number
-//   height: number
-// }
-
-type Props = {
-  workspace: WorkspaceState
-  workspaceDispatch: WorkspaceDispatch
-  workspaceRoute: WorkspaceRoute
-  workspaceRouteDispatch: WorkspaceRouteDispatch
-  width?: number
-  height?: number
-}
 
 export interface LocationInterface {
   pathname: string
@@ -67,7 +48,7 @@ export interface HistoryInterface {
 //   return [workspaceRoute, workspaceRouteDispatch]
 // }
 
-const WorkspaceView: FunctionComponent<Props> = ({ workspace, workspaceDispatch, workspaceRoute, workspaceRouteDispatch, width=500, height=500 }) => {
+const WorkspaceView: FunctionComponent<WorkspaceViewProps> = ({ workspace, workspaceDispatch, workspaceRoute, workspaceRouteDispatch, width=500, height=500 }) => {
   const handleDeleteRecordings = useCallback((recordingIds: string[]) => {
     workspaceDispatch({
       type: 'DELETE_RECORDINGS',

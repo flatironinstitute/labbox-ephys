@@ -4,9 +4,10 @@ import React, { FunctionComponent, useCallback, useMemo } from 'react';
 
 type Props = {
     onOpenSettings: () => void
+    color: any
 }
 
-const SettingsControl: FunctionComponent<Props> = ({ onOpenSettings }) => {
+const SettingsControl: FunctionComponent<Props> = ({ onOpenSettings, color }) => {
     const { icon, title } = useMemo(() => {
         return {icon: <Settings />, title: 'Open settings'}
     }, [])
@@ -16,7 +17,7 @@ const SettingsControl: FunctionComponent<Props> = ({ onOpenSettings }) => {
     }, [onOpenSettings])
 
     return (
-        <IconButton title={title} onClick={handleClick}>{icon}</IconButton>
+        <IconButton style={{color}} title={title} onClick={handleClick}>{icon}</IconButton>
     );
 }
 

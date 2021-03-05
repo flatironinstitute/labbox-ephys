@@ -1,10 +1,9 @@
 import React, { FunctionComponent } from 'react';
-import { WorkspaceInfo } from '../python/labbox_ephys/extensions/pluginInterface';
 import { WorkspaceDispatch, WorkspaceState } from '../python/labbox_ephys/extensions/pluginInterface/workspaceReducer';
 import './Home.css';
 
 type Props = {
-  workspaceInfo: WorkspaceInfo
+  workspaceInfo: any
   workspace: WorkspaceState
   workspaceDispatch: WorkspaceDispatch
   width?: number

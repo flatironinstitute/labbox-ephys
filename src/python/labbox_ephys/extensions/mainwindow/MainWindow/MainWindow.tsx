@@ -1,21 +1,50 @@
 import { Modal } from '@material-ui/core';
 import { useSubfeed } from 'labbox';
-import React, { FunctionComponent, useCallback, useMemo, useReducer, useState } from 'react';
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { MainWindowProps, useWorkspaceViewPlugins } from '../../pluginInterface';
 import { parseWorkspaceUri } from '../../pluginInterface/misc';
 import workspaceReducer, { WorkspaceAction } from '../../pluginInterface/workspaceReducer';
 import ApplicationBar from './ApplicationBar';
 import SettingsWindow from './SettingsWindow';
 
+// Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
+function getWindowDimensions() {
+    const { innerWidth: width, innerHeight: height } = window;
+    return {
+        width,
+        height
+    };
+}
+function useWindowDimensions() {
+    const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+    useEffect(() => {
+        function handleResize() {
+            setWindowDimensions(getWindowDimensions());
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowDimensions;
+}
+
 const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspaceRoute, workspaceRouteDispatch }) => {
+    const { width, height } = useWindowDimensions()
+    const appBarHeight = 52 // hard-coded for now - must agree with theme
+    const H = height - appBarHeight - 2
+    const hMargin = 0
+    const W = width - hMargin * 2 - 2
+
     const workspaceViewPlugin = useWorkspaceViewPlugins().filter(p => (p.name === 'WorkspaceView'))[0]
     if (!workspaceViewPlugin) throw Error('Unable to find workspace view plugin')
 
     const [settingsVisible, setSettingsVisible] = useState(false)
 
-    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, {recordings: [], sortings: []})
+    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, useMemo(() => ({recordings: [], sortings: []}), []))
     const handleWorkspaceSubfeedMessages = useCallback((messages: any[]) => {
-        messages.forEach(msg => workspaceDispatch2(msg))
+        messages.filter(msg => msg.action).forEach(msg => workspaceDispatch2(msg.action))
     }, [])
 
     const {feedUri, workspaceName} = parseWorkspaceUri(workspaceUri)
@@ -39,13 +68,15 @@ const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspac
         <div style={{margin: 0}}>
             <ApplicationBar
                 onOpenSettings={handleOpenSettings}
+                workspaceRouteDispatch={workspaceRouteDispatch}
             />
-            <div style={{margin: 30}}>
-                <workspaceViewPlugin.component workspace={workspace} workspaceDispatch={workspaceDispatch} workspaceRoute={workspaceRoute} workspaceRouteDispatch={workspaceRouteDispatch} />
+            <div style={{position: 'absolute', top: appBarHeight}}>
+                <workspaceViewPlugin.component width={W} height={H} workspace={workspace} workspaceDispatch={workspaceDispatch} workspaceRoute={workspaceRoute} workspaceRouteDispatch={workspaceRouteDispatch} />
             </div>
             <Modal
                 open={settingsVisible}
                 onClose={handleCloseSettings}
+                style={{zIndex: 9999}}
             >
                 <span>
                     <SettingsWindow

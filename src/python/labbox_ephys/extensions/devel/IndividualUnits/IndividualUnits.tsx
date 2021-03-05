@@ -53,9 +53,6 @@ const IndividualUnits: FunctionComponent<SortingViewProps & SizeMeProps> = ({ si
                             width={width}
                             sortingInfo={sortingInfo}
                         />
-                        {/* <Link to={`/${workspaceName}/sortingUnit/${sorting.sortingId}/${id}/${getPathQuery({feedUri})}`}>
-                            More details for unit {id}
-                        </Link> */}
                     </Grid>
                 ))
             }

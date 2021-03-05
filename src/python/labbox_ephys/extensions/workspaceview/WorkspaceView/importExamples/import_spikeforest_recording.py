@@ -24,8 +24,7 @@ X3 = {
 
 # Adjust these values ###########################
 X = X1 # Select example from above
-feed_uri = '{feedUri}'
-workspace_name = '{workspaceName}'
+workspace_uri = '{workspaceUri}'
 #################################################
 
 recording_label = X['label']
@@ -35,8 +34,7 @@ recording = le.LabboxEphysRecordingExtractor(recording_uri, download=True)
 sorting_true = le.LabboxEphysSortingExtractor(sorting_true_uri, samplerate=30000)
 
 sorting_label = 'true'
-feed = kp.load_feed(feed_uri)
-workspace = le.load_workspace(workspace_name=workspace_name, feed=feed)
-print(f'Feed URI: {feed.get_uri()}')
+workspace = le.load_workspace(workspace_uri)
+print(f'Workspace URI: {workspace.get_uri()}')
 R_id = workspace.add_recording(recording=recording, label=recording_label)
 S_id = workspace.add_sorting(sorting=sorting_true, recording_id=R_id, label=sorting_label)

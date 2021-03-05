@@ -61,7 +61,6 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
         </Grid>
 
         <Grid item xs={12} xl={6}>
-          {/* <Link to={`/${workspaceName}/runSpikeSortingForRecording/${recordingId}${getPathQuery({feedUri})}`}>Run spike sorting</Link> */}
           <SortingsView
             sortings={sortings}
             workspaceRouteDispatch={workspaceRouteDispatch}

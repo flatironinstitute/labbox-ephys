@@ -33,12 +33,6 @@ export interface MainWindowPlugin extends BaseLabboxPlugin {
     component: FunctionComponent<MainWindowProps>
 }
 
-export type WorkspaceInfo = {
-    feedUri: string
-    workspaceName: string
-    readOnly: boolean
-}
-
 export interface BaseLabboxPlugin extends BasePlugin {
     priority?: number
     disabled?: boolean

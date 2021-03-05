@@ -2,6 +2,7 @@
 
 import os
 import json
+from typing import List
 import yaml
 from jinja2 import Template
 
@@ -22,6 +23,24 @@ def main():
     template_folder = f'{thisdir}/templates'
     dest_folder = f'{thisdir}/..'
     generate(template_folder=template_folder, dest_folder=dest_folder, template_kwargs=template_kwargs)
+
+    create_text_ts_files(f'{thisdir}/../src')
+
+# For every file that also has a .gen.ts file, generate the .gen.ts file so that the text can be imported via `import x from './---.gen'`
+# The previous raw.macro solution did not work with jupyter extension
+def create_text_ts_files(folder: str) -> None:
+    ret: List[str] = []
+    for a in os.listdir(folder):
+        fname = folder + '/' + a
+        fname2 = fname + '.gen.ts'
+        if os.path.exists(fname2):
+            with open(fname, 'r') as f:
+                txt = f.read()
+            new_txt = f'const text: string = {json.dumps(txt)}\n\nexport default text'
+            _write_file_if_changed(fname2, new_txt)
+        if os.path.isdir(fname):
+            if a not in ['node_modules', '.git', '.vscode', '__pycache__']:
+                create_text_ts_files(folder + '/' + a)
 
 def generate(*, template_folder: str, dest_folder: str, template_kwargs: dict):
     template_fnames = os.listdir(template_folder)
@@ -71,6 +90,17 @@ def add_gen_header(fname: str, code: str):
         return f'# {msg}\n\n{code}'
     else:
         return code
+
+def _write_file_if_changed(fname, txt):
+    if os.path.exists(fname):
+        with open(fname, 'r') as f:
+            old_text = f.read()
+    else:
+        old_text = None
+    if txt != old_text:
+        print(f'Writing {fname}')
+        with open(fname, 'w') as f:
+            f.write(txt)
 
 if __name__ == '__main__':
     main()

@@ -7,6 +7,8 @@ export type WorkspaceViewProps = {
     workspaceDispatch: WorkspaceDispatch
     workspaceRoute: WorkspaceRoute
     workspaceRouteDispatch: WorkspaceRouteDispatch
+    width: number
+    height: number
 }
 
 export interface WorkspaceViewPlugin extends BaseLabboxPlugin {

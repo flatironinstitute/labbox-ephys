@@ -30,7 +30,7 @@ const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri }) => {
     const { serverInfo } = useContext(LabboxProviderContext)
     const { feedUri, workspaceName } = parseWorkspaceUri(workspaceUri)
     return (
-        <div className={classes.paper}>
+        <div className={classes.paper} style={{zIndex: 9999}}>
             <h2>Labbox Ephys 0.5.3</h2>
             <Table>
                 <TableRow>

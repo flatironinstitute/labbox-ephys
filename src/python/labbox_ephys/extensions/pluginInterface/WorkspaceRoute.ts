@@ -65,13 +65,13 @@ export const routeFromLocation = (location: LocationInterface, serverInfo: Serve
         case 'recording': return {
             workspaceUri,
             page,
-            recordingId: pathList[3]
+            recordingId: pathList[2]
         }
         case 'sorting': return {
             workspaceUri,
             page,
-            recordingId: pathList[3] || '',
-            sortingId: pathList[4] || ''
+            recordingId: pathList[2] || '',
+            sortingId: pathList[3] || ''
         }
         default: return {
             workspaceUri,
@@ -87,7 +87,7 @@ export const locationFromRoute = (route: WorkspaceRoute, workspaceUri: string | 
     }
     switch (route.page) {
         case 'recordings': return {
-            pathname: ``,
+            pathname: `/`,
             search: queryString(queryParams)
         }
         case 'recording': return {

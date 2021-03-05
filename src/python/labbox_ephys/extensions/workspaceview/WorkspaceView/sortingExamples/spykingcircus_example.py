@@ -14,12 +14,10 @@ import kachery_p2p as kp
 
 if __name__ == '__main__':
     # adjust these values
-    feed_uri = '{feedUri}'
-    workspace_name = '{workspaceName}'
+    workspace_uri = '{workspaceUri}'
     recording_id = '{recordingId}' # {recordingLabel}
 
-    feed = kp.load_feed(feed_uri)
-    workspace = le.load_workspace(workspace_name=workspace_name, feed=feed)
+    workspace = le.load_workspace(workspace_uri)
     le_recording = workspace.get_recording(recording_id)
     recording_object = le_recording['recordingObject']
 
