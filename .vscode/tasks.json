@@ -5,6 +5,15 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Code generation",
+            "type": "shell",
+            "command": "bash -ic devel/code_generation.py",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Run code generation"
+        },
+        {
             "label": "yarn-install",
             "type": "shell",
             "command": "bash -ic .vscode/tasks/yarn-install.sh",
@@ -101,16 +110,31 @@
             "detail": "Used internally"
         },
         {
-            "label": "code generation",
+            "label": "build-docker",
             "type": "shell",
-            "command": "bash -ic .vscode/tasks/code_generation.sh"
+            "command": "bash -ic .vscode/tasks/build-docker.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Build the docker image"
         },
         {
-            "label": "start code sync",
+            "label": "push-docker",
             "type": "shell",
-            // You must install unison and unison-fsmonitor
-            // curl -L -o unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor
-            "command": "bash -ic .vscode/tasks/start_code_sync.sh"
+            "command": "bash -ic .vscode/tasks/push-docker.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Push the docker image"
+        },
+        {
+            "label": "run-docker-local",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/run-docker-local.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Run the docker image locally"
         }
     ]
 }

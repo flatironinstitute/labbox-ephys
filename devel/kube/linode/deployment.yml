@@ -1,36 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: labbox-ephys-ephys1-deployment
+  name: labbox-ephys-1-deployment
   labels:
-    app: labbox-ephys-ephys1
+    app: labbox-ephys-1
 spec:
   replicas: 1
   selector:
     matchLabels:
-        app: labbox-ephys-ephys1
+        app: labbox-ephys-1
   template:
     metadata:
       labels:
-        app: labbox-ephys-ephys1
+        app: labbox-ephys-1
     spec:
       volumes:
-        - name: labbox-ephys-ephys1-pv-storage
+        - name: labbox-ephys-1-pv-storage
           persistentVolumeClaim:
-            claimName: pvc-labbox-ephys-ephys1-b
+            claimName: pvc-labbox-ephys-1
       containers:
-      - name: labbox-ephys-ephys1
-        image: magland/labbox-ephys:0.5.2
+      - name: labbox-ephys-1
+        image: magland/labbox-ephys:0.5.3
         imagePullPolicy: Always
         env:
         - name: HOME
           value: /tmp
         - name: KACHERY_P2P_START_DAEMON_OPTS
-          value: --port 14207 --websocket-port 14208 --label xxxxxx --host xxxxxx --config xxxxxx --noudp
-        - name: LABBOX_EPHYS_CONFIG
-          value: xxxxxx
+          value: --label xxxxxx --noudp --static-config xxxxxx
+        - name: KACHERY_STORAGE_DIR
+          value: /data/kachery-storage
         ports:
-        - containerPort: 15310
+        - containerPort: 
         volumeMounts:
           - mountPath: "/data"
-            name: labbox-ephys-ephys1-pv-storage
+            name: labbox-ephys-1-pv-storage

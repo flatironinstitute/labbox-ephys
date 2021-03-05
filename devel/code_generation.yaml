@@ -1,0 +1,11 @@
+dockerUser: magland
+webSocketPort: 15308
+httpPort: 15309
+classPrefix: Labbox
+extensions:
+    -
+        name: mainwindow
+        relPath: mainwindow/mainwindow
+    -
+        name: workspaceview
+        relPath: workspaceview/workspaceview

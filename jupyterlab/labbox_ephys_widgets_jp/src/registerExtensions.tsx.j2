@@ -7,7 +7,7 @@ import { activate as activate{{ extension.name }} } from '{{ extension.relPath }
 {% endfor -%}
 // !end-code-generation!
 
-const registerExtensions = (context: ExtensionContext<LabboxPlugin>) => {
+const registerExtensions = (context: LabboxExtensionContext) => {
     // !begin-code-generation!
     {% for extension in extensions if ('jupyter' in extension.tags) -%}
     activate{{ extension.name }}(context)

@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+
+import click
+import {{ projectNameUnderscore }}
+
+@click.command()
+def cli():
+    {{ projectNameUnderscore }}.start_app(api_websocket=True, api_http=True, client_prod=True)
+
+if __name__ == '__main__':
+    cli()

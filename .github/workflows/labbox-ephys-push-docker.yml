@@ -36,4 +36,4 @@ jobs:
           context: .
           file: ./docker/labbox-ephys/Dockerfile
           push: true
-          tags: magland/labbox-ephys:0.5.2
+          tags: magland/labbox-ephys:0.5.3
