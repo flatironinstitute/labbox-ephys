@@ -1,6 +1,6 @@
 {
   "name": "labbox-ephys",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-regular-svg-icons": "^5.15.1",

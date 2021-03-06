@@ -1,17 +1,34 @@
 import { WidgetModel } from '@jupyter-widgets/base';
 import { usePlugins, useSubfeed } from 'labbox';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { filterPlugins, LabboxPlugin, WorkspaceInfo } from './extensions/pluginInterface';
+import { filterPlugins, LabboxPlugin } from './extensions/pluginInterface';
+import { parseWorkspaceUri } from './extensions/pluginInterface/misc';
 import workspaceReducer, { WorkspaceAction } from './extensions/pluginInterface/workspaceReducer';
-import WorkspaceView from './extensions/WorkspaceView';
-import { HistoryInterface, LocationInterface, useWorkspaceRoute } from './extensions/WorkspaceView/WorkspaceView';
+import { HistoryInterface, locationFromRoute, LocationInterface, routeFromLocation, WorkspaceRoute, WorkspaceRouteAction, WorkspaceRouteDispatch, workspaceRouteReducer } from './extensions/pluginInterface/WorkspaceRoute';
+import WorkspaceView from './extensions/workspaceview/WorkspaceView';
 
 interface Props {
     model: WidgetModel
-    workspaceInfo: WorkspaceInfo
+    workspaceUri: string
 }
 
-const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model, workspaceInfo }) => {
+export const useWorkspaceRoute = (location: LocationInterface, history: HistoryInterface, workspaceUri: string | undefined): [WorkspaceRoute, WorkspaceRouteDispatch] => {
+    const workspaceRouteDispatch = useMemo(() => ((a: WorkspaceRouteAction) => {
+        const route = routeFromLocation(history.location, {})
+        let newRoute: WorkspaceRoute = workspaceRouteReducer(route, a)
+        const newLocation = locationFromRoute(newRoute)
+        if ((newLocation.pathname !== location.pathname) || (newLocation.search !== location.search)) {
+            history.push(newLocation)
+        }
+    }), [location, history])
+
+    const workspaceRoute = useMemo(() => {
+        return routeFromLocation(location, {})
+    }, [location])
+    return [workspaceRoute, workspaceRouteDispatch]
+}
+
+const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model, workspaceUri }) => {
     // const { serverInfo } = useContext(LabboxProviderContext)
     const plugins = usePlugins<LabboxPlugin>()
 
@@ -22,12 +39,13 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model, workspaceInfo }
             }
         })
     }, [])
-    const subfeedName = useMemo(() => ({workspaceName: workspaceInfo.workspaceName || ''}), [workspaceInfo.workspaceName])
-    const {appendMessages: appendWorkspaceMessages, loadedInitialMessages: initialLoadComplete} = useSubfeed({feedUri: workspaceInfo.feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages})
-    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, {recordings: [], sortings: []})
+    const { feedUri, workspaceName } = parseWorkspaceUri(workspaceUri)
+    const subfeedName = useMemo(() => ({ workspaceName: workspaceName || '' }), [workspaceName])
+    const { appendMessages: appendWorkspaceMessages, loadedInitialMessages: initialLoadComplete } = useSubfeed({ feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages })
+    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, { recordings: [], sortings: [] })
     // const workspaceSubfeed = useAppendOnlyLog({feedUri: '', subfeedName})
     const workspaceDispatch = useCallback((a: WorkspaceAction) => {
-        appendWorkspaceMessages([{action: a}])
+        appendWorkspaceMessages([{ action: a }])
     }, [appendWorkspaceMessages])
 
     // // We need to wrap the workspaceSubfeed in workspaceSubfeedForReducer because the messages in the subfeed are of the form {action: x}, whereas the reducer just takes the actions (ie x)
@@ -79,7 +97,7 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model, workspaceInfo }
         setPollIndex(pollIndex + 1)
     }, 1000)
 
-    const [location, setLocation] = useState<LocationInterface>({pathname: '', search: '?'})
+    const [location, setLocation] = useState<LocationInterface>({ pathname: '', search: '?' })
     const [locationHistory, setLocationHistory] = useState<LocationInterface[]>([])
 
     const history: HistoryInterface = useMemo(() => {
@@ -93,13 +111,12 @@ const WorkspaceViewWrapper: FunctionComponent<Props> = ({ model, workspaceInfo }
         }
     }, [location, locationHistory])
 
-    const [workspaceRoute, workspaceRouteDispatch] = useWorkspaceRoute(location, history, workspaceInfo)
+    const [workspaceRoute, workspaceRouteDispatch] = useWorkspaceRoute(location, history, workspaceUri)
 
     return (
         <div ref={divRef} className="WorkspaceViewWrapper" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
             <WorkspaceView
                 {...{
-                    workspaceInfo,
                     defaultFeedId: '',
                     workspace,
                     workspaceDispatch,

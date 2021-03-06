@@ -1,0 +1,18 @@
+
+// !begin-code-generation!
+import { {{ classPrefix }}ExtensionContext } from './extensions/pluginInterface';
+
+{% for extension in extensions -%}
+import { activate as activate_{{ extension.name }} } from './extensions/{{ extension.relPath }}'
+{% endfor -%}
+// !end-code-generation!
+
+const registerExtensions = (context: {{ classPrefix }}ExtensionContext) => {
+    // !begin-code-generation!
+    {% for extension in extensions -%}
+    activate_{{ extension.name }}(context)
+    {% endfor -%}
+    // !end-code-generation!
+}
+
+export default registerExtensions

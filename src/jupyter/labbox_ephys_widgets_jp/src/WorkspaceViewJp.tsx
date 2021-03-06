@@ -3,10 +3,9 @@ import { MuiThemeProvider } from '@material-ui/core';
 import { LabboxProvider } from 'labbox';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import '../css/styles.css';
-import '../css/widget.css';
+import './css/styles.css';
+import './css/widget.css';
 import extensionContext from './extensionContext';
-import { WorkspaceInfo } from './extensions/pluginInterface';
 import theme from './extensions/theme';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import WorkspaceViewWrapper from './WorkspaceViewWrapper';
@@ -18,14 +17,7 @@ export class WorkspaceViewJp extends DOMWidgetView {
         // this._hitherJobManager = new HitherJobManager(this.model)
     }
     element() {
-        const feedUri = this.model.get('feedUri')
-        const workspaceName = this.model.get('workspaceName')
-
-        const workspaceInfo: WorkspaceInfo = {
-            workspaceName,
-            feedUri,
-            readOnly: false
-        }
+        const workspaceUri: string = this.model.get('workspaceUri')
 
         const apiConfig = {
             webSocketUrl: '',
@@ -39,7 +31,7 @@ export class WorkspaceViewJp extends DOMWidgetView {
             <MuiThemeProvider theme={theme}>
                 <LabboxProvider extensionContext={extensionContext} apiConfig={apiConfig} status={this._status}>
                     <WorkspaceViewWrapper
-                        workspaceInfo={workspaceInfo}
+                        workspaceUri={workspaceUri}
                         model={this.model}
                     />
                 </LabboxProvider>
@@ -81,8 +73,7 @@ export class WorkspaceViewJpModel extends DOMWidgetModel {
             _view_name: WorkspaceViewJpModel.view_name,
             _view_module: WorkspaceViewJpModel.view_module,
             _view_module_version: WorkspaceViewJpModel.view_module_version,
-            feedUri: '',
-            workspaceName: ''
+            workspaceUri: ''
         };
     }
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from genericpath import exists
 import os
 import json
 from typing import List
@@ -23,6 +24,8 @@ def main():
     template_folder = f'{thisdir}/templates'
     dest_folder = f'{thisdir}/..'
     generate(template_folder=template_folder, dest_folder=dest_folder, template_kwargs=template_kwargs)
+
+    generate2(dest_folder=dest_folder, template_kwargs=template_kwargs)
 
     create_text_ts_files(f'{thisdir}/../src')
 
@@ -90,6 +93,37 @@ def add_gen_header(fname: str, code: str):
         return f'# {msg}\n\n{code}'
     else:
         return code
+
+def add_gen_header2(fname: str, code: str):
+    msg = 'This file was automatically generated. Do not edit directly.'
+    if is_js_type(fname):
+        return f'// {msg}\n\n{code}'
+    elif is_py_type(fname) or is_sh_type(fname):
+        return f'# {msg}\n\n{code}'
+    else:
+        return code
+
+def generate2(*, dest_folder: str, template_kwargs: dict):
+    dest_fnames = os.listdir(dest_folder)
+    for fname in dest_fnames:
+        dest_path = f'{dest_folder}/{fname}'
+        if os.path.isdir(dest_path):
+            generate2(dest_folder=dest_path, template_kwargs=template_kwargs)
+        elif os.path.isfile(dest_path):
+            if dest_path.endswith('.ts') or dest_path.endswith('.tsx') or dest_path.endswith('.py'):
+                template_path = dest_path + '.j2'
+                if os.path.exists(template_path):
+                    with open(template_path, 'r') as f:
+                        template_code = f.read()
+                    with open(dest_path, 'r') as f:
+                        dest_code = f.read()
+                    t = Template(template_code, keep_trailing_newline=True)
+                    gen_code = t.render(**template_kwargs)
+                    gen_code = add_gen_header2(fname, gen_code)
+                    if gen_code != dest_code:
+                        with open(dest_path, 'w') as f:
+                            print(f'Writing {dest_path}')
+                            f.write(gen_code)
 
 def _write_file_if_changed(fname, txt):
     if os.path.exists(fname):

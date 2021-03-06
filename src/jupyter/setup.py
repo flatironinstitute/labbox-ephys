@@ -49,9 +49,6 @@ data_files_spec = [
 
 ################################################################################
 # extensions code sync
-# Checks if the folders are identical. If so we are good. If not:
-# If we are in a dev workspace (as evidenced by a file existing), then we raise an exception.
-# If we are not in a dev workspace, then we remove any existing extensions/ folder and replace it with a new one.
 sync_extensions_code()
 
 cmdclass = create_cmdclass('jsdeps', package_data_spec=package_data_spec,
@@ -88,7 +85,7 @@ setup_args = dict(
     ],
     include_package_data = True,
     install_requires = [
-        'ipywidgets>=7.0.0',
+        'ipywidgets>=7.0.0'
     ],
     extras_require = {
         'test': [

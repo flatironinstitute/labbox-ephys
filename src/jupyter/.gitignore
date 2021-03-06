@@ -1,3 +1,6 @@
+labbox_ephys_widgets_jp/src/extensions
+MANIFEST
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

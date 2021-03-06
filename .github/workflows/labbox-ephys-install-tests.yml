@@ -30,9 +30,9 @@ jobs:
       - run: conda install -c conda-forge nodejs
       - run: conda list
       - run: pip install -e ./src/python
-      - run: pip --version && python --version && pip install -e jupyterlab/labbox_ephys_widgets_jp
+      - run: pip install -e ./src/jupyter
       - run: conda list
       - run: jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
       - run: jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
-      - run: jupyter labextension install jupyterlab/labbox_ephys_widgets_jp
+      - run: jupyter labextension install src/jupyter
       - run: jupyter labextension list

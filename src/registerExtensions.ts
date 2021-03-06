@@ -1,41 +1,50 @@
-// This file was automatically generated. Do not edit directly. See devel/templates.
+// This file was automatically generated. Do not edit directly.
 
-import { LabboxExtensionContext } from './python/labbox_ephys/extensions/pluginInterface'
 
-////////////////////////////////////////////////////////////////////////////////////
-// The list of extensions is configured in devel/code_generation.yaml
-import { activate as activate_mainwindow } from './python/labbox_ephys/extensions/mainwindow/mainwindow'
-import { activate as activate_workspaceview } from './python/labbox_ephys/extensions/workspaceview/workspaceview'
-import { activate as activate_mountainview } from './python/labbox_ephys/extensions/mountainview/mountainview'
-import { activate as activate_averagewaveforms } from './python/labbox_ephys/extensions/averagewaveforms/averagewaveforms'
-import { activate as activate_clusters } from './python/labbox_ephys/extensions/clusters/clusters'
-import { activate as activate_correlograms } from './python/labbox_ephys/extensions/correlograms/correlograms'
-import { activate as activate_electrodegeometry } from './python/labbox_ephys/extensions/electrodegeometry/electrodegeometry'
-import { activate as activate_firetrack } from './python/labbox_ephys/extensions/firetrack/firetrack'
-import { activate as activate_pythonsnippets } from './python/labbox_ephys/extensions/pythonsnippets/pythonsnippets'
-import { activate as activate_snippets } from './python/labbox_ephys/extensions/snippets/snippets'
-import { activate as activate_spikeamplitudes } from './python/labbox_ephys/extensions/spikeamplitudes/spikeamplitudes'
-import { activate as activate_timeseries } from './python/labbox_ephys/extensions/timeseries/timeseries'
-import { activate as activate_unitstable } from './python/labbox_ephys/extensions/unitstable/unitstable'
-////////////////////////////////////////////////////////////////////////////////////
+// !begin-code-generation!
+import { ExtensionContext } from './extensions/pluginInterface'
+
+import { activate as activatemainwindow } from 'mainwindow/mainwindow'
+import { activate as activateworkspaceview } from 'workspaceview/workspaceview'
+import { activate as activatemountainview } from 'mountainview/mountainview'
+import { activate as activateaveragewaveforms } from 'averagewaveforms/averagewaveforms'
+import { activate as activateclusters } from 'clusters/clusters'
+import { activate as activatecorrelograms } from 'correlograms/correlograms'
+import { activate as activateelectrodegeometry } from 'electrodegeometry/electrodegeometry'
+import { activate as activatefiretrack } from 'firetrack/firetrack'
+import { activate as activatepythonsnippets } from 'pythonsnippets/pythonsnippets'
+import { activate as activatesnippets } from 'snippets/snippets'
+import { activate as activatespikeamplitudes } from 'spikeamplitudes/spikeamplitudes'
+import { activate as activatetimeseries } from 'timeseries/timeseries'
+import { activate as activateunitstable } from 'unitstable/unitstable'
+// !end-code-generation!
+
+/*
+Extensions are automatically detected and added to this file via code generation (see task configured in vscode)
+They must be .tsx files with the following appearing at the top of the file
+// LABBOX-EXTENSION: <name>
+And they must include an activate() function
+Use the following to also include the extension in the jupyterlab extension:
+// LABBOX-EXTENSION-TAGS: jupyter
+*/
+
 
 const registerExtensions = (context: LabboxExtensionContext) => {
-    ////////////////////////////////////////////////////////////////////////////////
-    // The list of extensions is configured in devel/code_generation.yaml
-    activate_mainwindow(context)
-    activate_workspaceview(context)
-    activate_mountainview(context)
-    activate_averagewaveforms(context)
-    activate_clusters(context)
-    activate_correlograms(context)
-    activate_electrodegeometry(context)
-    activate_firetrack(context)
-    activate_pythonsnippets(context)
-    activate_snippets(context)
-    activate_spikeamplitudes(context)
-    activate_timeseries(context)
-    activate_unitstable(context)
-    ////////////////////////////////////////////////////////////////////////////////
+    // !begin-code-generation!
+    activatemainwindow(context)
+    activateworkspaceview(context)
+    activatemountainview(context)
+    activateaveragewaveforms(context)
+    activateclusters(context)
+    activatecorrelograms(context)
+    activateelectrodegeometry(context)
+    activatefiretrack(context)
+    activatepythonsnippets(context)
+    activatesnippets(context)
+    activatespikeamplitudes(context)
+    activatetimeseries(context)
+    activateunitstable(context)
+    // !end-code-generation!
 }
 
 export default registerExtensions

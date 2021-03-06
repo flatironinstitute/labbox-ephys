@@ -26,7 +26,7 @@ module.exports = [
    * the notebook.
    */
   {
-    entry: './src/extension.ts',
+    entry: './labbox_ephys_widgets_jp/src/extension.ts',
     output: {
       filename: 'index.js',
       path: path.resolve(__dirname, 'labbox_ephys_widgets_jp', 'nbextension', 'static'),
@@ -54,7 +54,7 @@ module.exports = [
    * the custom widget embedder.
    */
   {
-    entry: './src/index.ts',
+    entry: './labbox_ephys_widgets_jp/src/index.ts',
     output: {
         filename: 'index.js',
         path: path.resolve(__dirname, 'dist'),
@@ -80,7 +80,7 @@ module.exports = [
    * This bundle is used to embed widgets in the package documentation.
    */
   {
-    entry: './src/index.ts',
+    entry: './labbox_ephys_widgets_jp/src/index.ts',
     output: {
       filename: 'embed-bundle.js',
       path: path.resolve(__dirname, 'docs', 'source', '_static'),

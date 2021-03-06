@@ -1,7 +1,7 @@
 import { WidgetModel } from '@jupyter-widgets/base';
 import { HitherInterface, initializeHitherInterface } from 'labbox';
-import '../css/styles.css';
-import '../css/widget.css';
+import './css/styles.css';
+import './css/widget.css';
 import { sleepMsec } from './extensions/common/misc';
 
 const initializeHitherForJpWidgetView = (model: WidgetModel): {hither: HitherInterface, cleanup: () => void} => {

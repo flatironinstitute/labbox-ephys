@@ -80,10 +80,10 @@ export const routeFromLocation = (location: LocationInterface, serverInfo: Serve
     }
 }
 
-export const locationFromRoute = (route: WorkspaceRoute, workspaceUri: string | undefined) => {
+export const locationFromRoute = (route: WorkspaceRoute) => {
     const queryParams: { [key: string]: string } = {}
-    if (workspaceUri) {
-        queryParams['workspace'] = workspaceUri
+    if (route.workspaceUri) {
+        queryParams['workspace'] = route.workspaceUri
     }
     switch (route.page) {
         case 'recordings': return {

@@ -1,7 +1,7 @@
 import { Table, TableCell, TableRow } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { LabboxProviderContext } from 'labbox';
-import { FunctionComponent, useContext } from "react";
+import React, { FunctionComponent, useContext } from 'react';
 import { parseWorkspaceUri } from '../../pluginInterface/misc';
 import { WorkspaceState } from '../../pluginInterface/workspaceReducer';
 
@@ -31,7 +31,7 @@ const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri }) => {
     const { feedUri, workspaceName } = parseWorkspaceUri(workspaceUri)
     return (
         <div className={classes.paper} style={{zIndex: 9999}}>
-            <h2>Labbox Ephys 0.5.3</h2>
+            <h2>Labbox Ephys 0.5.4</h2>
             <Table>
                 <TableRow>
                     <TableCell>Workspace URI</TableCell>

@@ -1,6 +1,6 @@
 {
   "name": "labbox_ephys_widgets_jp",
-  "version": "0.1.0",
+  "version": "0.5.4",
   "description": "Labbox ephys widgets for jupyter",
   "keywords": [
     "jupyter",
@@ -51,7 +51,7 @@
     "watch": "npm-run-all -p watch:*",
     "watch:lib": "npm run copy-files && tsc -w",
     "watch:nbextension": "webpack --watch",
-    "copy-files": "copyfiles -u 1 src/**/*.css lib/"
+    "copy-files": "copyfiles -u 2 labbox_ephys_widgets_jp/src/**/*.css lib/"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",

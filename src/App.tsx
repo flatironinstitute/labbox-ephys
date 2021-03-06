@@ -34,12 +34,12 @@ function App() {
   const workspaceRouteDispatch = useCallback(
     (a: WorkspaceRouteAction) => {
       const newRoute: WorkspaceRoute = workspaceRouteReducer(workspaceRoute, a)
-      const newLocation = locationFromRoute(newRoute, workspaceUri)
+      const newLocation = locationFromRoute(newRoute)
       if ((location.pathname !== newLocation.pathname) || (location.search !== newLocation.search)) {
         history.push({...location, ...newLocation})
       }
     },
-    [workspaceRoute, history, workspaceUri, location]
+    [workspaceRoute, history, location]
   )
 
   return (

@@ -40,12 +40,11 @@ labbox_config = {
     }
 
 def WorkspaceView(*, workspace: Workspace, height: float=0):
-    return create_workspace_view(feed_uri=workspace.get_feed_uri(), workspace_name=workspace.get_workspace_name(), height=height)
+    return create_workspace_view(workspace_uri=workspace.get_uri(), height=height)
 
 def create_workspace_view(
     *,
-    feed_uri: str,
-    workspace_name: str,
+    workspace_uri: str,
     height: float=0
 ):
     class WorkspaceViewJp(DOMWidget):
@@ -55,8 +54,7 @@ def create_workspace_view(
         _view_name = Unicode('WorkspaceViewJp').tag(sync=True)
         _view_module = Unicode(module_name).tag(sync=True)
         _view_module_version = Unicode(module_version).tag(sync=True)
-        feedUri = Unicode(feed_uri).tag(sync=True)
-        workspaceName = Unicode(workspace_name).tag(sync=True)
+        workspaceUri = Unicode(workspace_uri).tag(sync=True)
         widgetHeight = FloatTrait(height).tag(sync=True)
         def __init__(self) -> None:
             super().__init__()

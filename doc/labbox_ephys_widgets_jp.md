@@ -25,7 +25,7 @@ cd labbox-ephys
 pip install -e ./src/python
 
 export NODE_OPTIONS="--max-old-space-size=8192"
-pip install -e jupyterlab/labbox_ephys_widgets_jp
+pip install -e ./src/jupyter
 ```
 
 In addition to installing the Python package, the latter command will also build the typescript project (the front-end code that runs in the browser and renders the widgets). The `NODE_OPTIONS` command may be needed in order to avoid an out-of-memory error during compilation.
@@ -35,10 +35,10 @@ Next, activate the compiled jupyterlab extension:
 ```bash
 jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
 jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
-jupyter labextension install jupyterlab/labbox_ephys_widgets_jp
+jupyter labextension install src/jupyter
 ```
 
-The first of these commands installs a different jupyterlab extension and only needs to be run the first time.
+The jupyterlab-manager command installs a different jupyterlab extension and only needs to be run the first time.
 
 Verify that the extension has been installed:
 

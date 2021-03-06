@@ -4,7 +4,6 @@
 import { ExportData, IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 import { Application, IPlugin } from '@phosphor/application';
 import { Widget } from '@phosphor/widgets';
-import { SortingViewJp, SortingViewJpModel } from './SortingViewJp';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import { WorkspaceViewJp, WorkspaceViewJpModel } from './WorkspaceViewJp';
 
@@ -24,7 +23,7 @@ const examplePlugin: IPlugin<Application<Widget>, void> = ({
 
 export default examplePlugin;
 
-const exports: ExportData = {SortingViewJp, SortingViewJpModel, WorkspaceViewJp, WorkspaceViewJpModel}
+const exports: ExportData = {WorkspaceViewJp, WorkspaceViewJpModel}
 
 /**
  * Activate the widget extension.

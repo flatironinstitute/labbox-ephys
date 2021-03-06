@@ -9,7 +9,7 @@
     "noUnusedLocals": false,
     "outDir": "lib",
     "resolveJsonModule": true,
-    "rootDir": "src",
+    "rootDir": "labbox_ephys_widgets_jp/src",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
@@ -24,8 +24,8 @@
     "types" : ["node"] // see: https://github.com/Microsoft/TypeScript/issues/13992#issuecomment-385168781
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.css"
+    "labbox_ephys_widgets_jp/src/**/*.ts",
+    "labbox_ephys_widgets_jp/src/src/**/*.tsx",
+    "labbox_ephys_widgets_jp/src/src/**/*.css"
   ]
 }
