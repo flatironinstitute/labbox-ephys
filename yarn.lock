@@ -8366,10 +8366,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-labbox@0.1.17:
-  version "0.1.17"
-  resolved "https://registry.yarnpkg.com/labbox/-/labbox-0.1.17.tgz#772d1b20d8ecd1b03166887ce1e2f1f88c6fe0b8"
-  integrity sha512-kYr7HuhoiepAxkc6yMmBO8uT/VnDNTEryyb9cjDoNT0Ma+JmIVMc22QxbYhKfaV4eNv2Mzle56IxMEB4MtpWgg==
+labbox@0.1.22:
+  version "0.1.22"
+  resolved "https://registry.yarnpkg.com/labbox/-/labbox-0.1.22.tgz#6c8c239b3d9925c0276c04ceb301432f8f72e95e"
+  integrity sha512-qIgu4eW5KlLziqmZJI1Qcbpk1ZM4WkMlLaZZexN599hhZYsZ/p33mAXGly0TNypmlycRSM4n8LDOC1c8qzNl2Q==
   dependencies:
     axios "^0.21.1"
     object-hash "^2.1.1"
