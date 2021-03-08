@@ -1,28 +1,29 @@
 import { Accordion, AccordionDetails, AccordionSummary, Button, Grid } from '@material-ui/core';
 import { CalculationPool, createCalculationPool, HitherContext } from 'labbox';
-import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
-import { getPathQuery } from '../kachery';
+import Hyperlink from '../python/labbox_ephys/extensions/common/Hyperlink';
 import { useSortingInfo } from '../python/labbox_ephys/extensions/common/useSortingInfo';
 import IndividualUnit from '../python/labbox_ephys/extensions/devel/IndividualUnits/IndividualUnit';
-import { Recording, Sorting, WorkspaceInfo } from '../python/labbox_ephys/extensions/pluginInterface';
+import { Recording, Sorting, WorkspaceRouteDispatch } from '../python/labbox_ephys/extensions/pluginInterface';
 
 type Props = {
     sortingId: string
     sorting: Sorting
     recording: Recording
     unitId: number
-    workspaceInfo: WorkspaceInfo
+    workspaceRouteDispatch: WorkspaceRouteDispatch
 } & SizeMeProps
 
 const calculationPool = createCalculationPool({ maxSimultaneous: 6 });
 
-const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, workspaceInfo, size }) => {
+const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting, recording, workspaceRouteDispatch, size }) => {
   // const plugins = useLabboxPlugins<LabboxPlugin>()
-  const { workspaceName, feedUri } = workspaceInfo;
 
   const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+  const handleClickSorting = useCallback(() => {
+    workspaceRouteDispatch({type: 'gotoSortingPage', recordingId: recording.recordingId, sortingId})
+  }, [workspaceRouteDispatch, sortingId, recording])
   
   const width = size.width
   if (!width) return <div>No width</div>
@@ -32,9 +33,9 @@ const SortingUnitView: FunctionComponent<Props> = ({ sortingId, unitId, sorting,
     <div>
       <h3>
         {recording.recordingLabel} {` `}
-        <Link to={`/${workspaceName}/sorting/${sorting.sortingId}/${getPathQuery({feedUri})}`}>
+        <Hyperlink onClick={handleClickSorting}>
           {sorting.sortingLabel}
-        </Link>
+        </Hyperlink>
         {` Unit: `} {unitId}
       </h3>
       <Grid container direction="column">

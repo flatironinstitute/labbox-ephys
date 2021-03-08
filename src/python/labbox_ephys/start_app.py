@@ -1,9 +1,23 @@
+# This file was automatically generated. Do not edit directly. See devel/templates.
+
 import os
 import signal
 from typing import List, Union
 import hither as hi
 
-def start_app(*, api_websocket: bool, api_http: bool, client_dev: bool, client_prod: bool):
+class KeyboardInterruptHandler(object):
+    def __enter__(self):
+        self.signal_received = False
+        self.old_handler = signal.signal(signal.SIGINT, self.handler)
+
+    def handler(self, sig, frame):
+        self.signal_received = (sig, frame)
+        print('SIGINT received. Preventing KeyboardInterrupt.')
+
+    def __exit__(self, type, value, traceback):
+        signal.signal(signal.SIGINT, self.old_handler)
+
+def start_app(*, api_websocket: bool=False, api_http: bool=False, client_dev: bool=False, client_prod: bool=False, kachery_daemon_run_opts: Union[None, str]=None):
     thisdir = os.path.dirname(os.path.realpath(__file__))
 
     scripts: List[hi.ShellScript] = []
@@ -34,7 +48,7 @@ def start_app(*, api_websocket: bool, api_http: bool, client_dev: bool, client_p
         #!/bin/bash
 
         cd {thisdir}/../..
-        export PORT=15351
+        export PORT=
         exec yarn start
         ''')
         scripts.append(s)
@@ -44,7 +58,16 @@ def start_app(*, api_websocket: bool, api_http: bool, client_dev: bool, client_p
         #!/bin/bash
 
         cd {thisdir}
-        exec serve -l 15351 build
+        exec serve -l  -s build
+        ''')
+        scripts.append(s)
+    
+    if kachery_daemon_run_opts:
+        s = hi.ShellScript(f'''
+        #!/bin/bash
+
+        cd {thisdir}
+        exec kachery-p2p-start-daemon {kachery_daemon_run_opts}
         ''')
         scripts.append(s)
     

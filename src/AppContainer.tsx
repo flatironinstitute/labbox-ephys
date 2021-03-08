@@ -1,44 +1,36 @@
 import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
-// LABBOX-CUSTOM /////////////////////////////////////////////
-import Typography from '@material-ui/core/Typography';
-import { Home } from '@material-ui/icons';
-import { HitherJob, useSubfeed } from 'labbox';
-import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { Link } from 'react-router-dom';
-import HitherJobMonitorControl from './components/HitherJobMonitor/HitherJobMonitorControl';
-import ServerStatusControl from './containers/ServerStatusControl';
-import { getPathQuery } from './kachery';
-import { WorkspaceInfo } from './python/labbox_ephys/extensions/pluginInterface';
+import { useSubfeed } from 'labbox';
+import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import workspaceReducer, { WorkspaceAction } from './python/labbox_ephys/extensions/pluginInterface/workspaceReducer';
 import Routes from './Routes';
 
 type ToolBarContentProps = {
-    workspaceInfo: WorkspaceInfo
+    workspaceInfo: any
 }
 
 const ToolBarContent: FunctionComponent<ToolBarContentProps> = ({ workspaceInfo }) => {
-    const { workspaceName, feedUri } = workspaceInfo || {workspaceName: '', feedUri: ''};
-    const hitherJobs: HitherJob[] = []
-    return (
-        <Fragment>
-            <Button color="inherit" component={Link} to={`/${workspaceName}${getPathQuery({feedUri})}`}>
-                <Home />&nbsp;
-                <Typography variant="h6">
-                    Labbox-ephys
-                </Typography>
-            </Button>
-            <span style={{marginLeft: 'auto'}} />
-            <Button color="inherit" component={Link} to="/docs" style={{marginLeft: 'auto'}}>Docs</Button>
-            <Button color="inherit" component={Link} to={`/${workspaceName}/config${getPathQuery({feedUri})}`} >Config</Button>
-            <Button color="inherit" component={Link} to="/about">About</Button>
-            <ServerStatusControl />
-            <HitherJobMonitorControl
-                {...{workspaceInfo, hitherJobs}}
-            />
-        </Fragment>
-    )
+    return <div>ToolBarContent</div>
+    // const { workspaceName, feedUri } = workspaceInfo || {workspaceName: '', feedUri: ''};
+    // const hitherJobs: HitherJob[] = []
+    // return (
+    //     <Fragment>
+    //         <Button color="inherit" component={Link} to={`/${workspaceName}${getPathQuery({feedUri})}`}>
+    //             <Home />&nbsp;
+    //             <Typography variant="h6">
+    //                 Labbox-ephys
+    //             </Typography>
+    //         </Button>
+    //         <span style={{marginLeft: 'auto'}} />
+    //         <Button color="inherit" component={Link} to="/docs" style={{marginLeft: 'auto'}}>Docs</Button>
+    //         <Button color="inherit" component={Link} to={`/${workspaceName}/config${getPathQuery({feedUri})}`} >Config</Button>
+    //         <Button color="inherit" component={Link} to="/about">About</Button>
+    //         <ServerStatusControl />
+    //         <HitherJobMonitorControl
+    //             {...{workspaceInfo, hitherJobs}}
+    //         />
+    //     </Fragment>
+    // )
 }
 
 //////////////////////////////////////////////////////////////
@@ -69,7 +61,7 @@ function useWindowDimensions() {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 type Props = {
-    workspaceInfo: WorkspaceInfo
+    workspaceInfo: any
 }
 
 const AppContainer: FunctionComponent<Props> = ({ workspaceInfo }) => {

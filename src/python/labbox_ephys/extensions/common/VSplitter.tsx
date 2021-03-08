@@ -68,7 +68,7 @@ const VSplitter: FunctionComponent<Props> = (props) => {
         height: gripThickness + 2 * gripMargin,
         backgroundColor: 'transparent',
         cursor: 'row-resize',
-        zIndex: 9999
+        zIndex: 9998
     };
     let styleGrip: React.CSSProperties = {
         left: 0,

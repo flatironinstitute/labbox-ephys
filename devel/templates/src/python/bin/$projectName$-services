@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import click
+import {{ projectNameUnderscore }}
+
+@click.command()
+@click.option('--api-websocket', is_flag=True, help='Run the api websocket')
+@click.option('--api-http', is_flag=True, help='Run the api http server')
+@click.option('--client-dev', is_flag=True, help='Run the dev client')
+@click.option('--client-prod', is_flag=True, help='Run the prod client')
+@click.option('--kachery-daemon-run-opts', default=None, help='Run a kachery daemon and provide these opts')
+def cli_services(api_websocket, api_http, client_dev, client_prod, kachery_daemon_run_opts):
+    {{ projectNameUnderscore }}.start_app(api_websocket=api_websocket, api_http=api_http, client_dev=client_dev, client_prod=client_prod, kachery_daemon_run_opts=kachery_daemon_run_opts)
+
+if __name__ == '__main__':
+    cli_services()

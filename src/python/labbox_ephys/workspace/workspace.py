@@ -3,15 +3,26 @@ import uuid
 import kachery_p2p as kp
 import spikeextractors as se
 
+def parse_workspace_uri(workspace_uri: str):
+    if not workspace_uri.startswith('workspace://'):
+        raise Exception(f'Invalid workspace uri: {workspace_uri}')
+    a = workspace_uri.split('/')
+    return a[2], a[3]
+
 class Workspace:
-    def __init__(self, *, feed: Union[kp.Feed, None], workspace_name: str) -> None:
-        if feed is None:
-            feed = kp.load_feed('labbox-ephys-default')
-        self._feed = feed
+    def __init__(self, *, workspace_uri: str) -> None:
+        if not workspace_uri.startswith('workspace://'):
+            default_feed = kp.load_feed('labbox-ephys-default', create=True)
+            workspace_uri = f'workspace://{default_feed.get_feed_id()}/{workspace_uri}'
+        self._workspace_uri = workspace_uri
+        feed_id, workspace_name = parse_workspace_uri(self._workspace_uri)
+        self._feed = kp.load_feed(f'feed://{feed_id}')
         self._workspace_name = workspace_name
         workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         self._recordings = _get_recordings_from_subfeed(workspace_subfeed)
         self._sortings = _get_sortings_from_subfeed(workspace_subfeed)
+    def get_uri(self):
+        return self._workspace_uri
     def get_feed_uri(self):
         return self._feed.get_uri()
     def get_workspace_name(self):
@@ -74,8 +85,8 @@ class Workspace:
         return self._sortings
 
 
-def load_workspace(*, workspace_name: str='default', feed: kp.Feed=None):
-    return Workspace(workspace_name=workspace_name, feed=feed)
+def load_workspace(workspace_uri: str='default'):
+    return Workspace(workspace_uri=workspace_uri)
 
 def _random_id():
     return str(uuid.uuid4())[-12:]

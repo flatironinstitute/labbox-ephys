@@ -1,14 +1,13 @@
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { default as React, Fragment, FunctionComponent } from 'react';
-import { WorkspaceInfo } from '../python/labbox_ephys/extensions/pluginInterface';
 import ConfigComputeResource from './ConfigComputeResource';
 import ConfigExtensions from './ConfigExtensions';
 import ConfigSharing from './ConfigSharing';
 
 
 type Props = {
-  workspaceInfo: WorkspaceInfo
+  workspaceInfo: any
 }
 
 // const useStyles = makeStyles({

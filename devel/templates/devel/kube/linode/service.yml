@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ projectName }}-1-service
+spec:
+    selector:
+        app: {{ projectName }}-1
+    ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: {{ clientPort }}
+    - name: websocket
+      protocol: TCP
+      port: 10408
+      targetPort: {{ webSocketPort }}
+    - name: api-http
+      protocol: TCP
+      port: 10409
+      targetPort: {{ httpPort }}
+    type: LoadBalancer

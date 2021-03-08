@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ projectName }}-1-deployment
+  labels:
+    app: {{ projectName }}-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: {{ projectName }}-1
+  template:
+    metadata:
+      labels:
+        app: {{ projectName }}-1
+    spec:
+      volumes:
+        - name: {{ projectName }}-1-pv-storage
+          persistentVolumeClaim:
+            claimName: pvc-{{ projectName }}-1
+      containers:
+      - name: {{ projectName }}-1
+        image: magland/{{ projectName }}:{{ projectVersion }}
+        imagePullPolicy: Always
+        env:
+        - name: HOME
+          value: /tmp
+        - name: KACHERY_P2P_START_DAEMON_OPTS
+          value: --label xxxxxx --noudp --static-config xxxxxx
+        - name: KACHERY_STORAGE_DIR
+          value: /data/kachery-storage
+        ports:
+        - containerPort: {{ clientPort }}
+        volumeMounts:
+          - mountPath: "/data"
+            name: {{ projectName }}-1-pv-storage

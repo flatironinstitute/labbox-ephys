@@ -1,7 +1,6 @@
 /* eslint-disable no-use-before-define */
 import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+//import Autocomplete from '@material-ui/lab/Autocomplete';
 import React, { FunctionComponent } from 'react';
 // TODO: Import own css styling?
 
@@ -36,7 +35,7 @@ const MultiComboBox: FunctionComponent<{
 
   return (
     <div className={classes.root}>
-      <Autocomplete
+      {/* <Autocomplete
         multiple
         freeSolo
         id={id}
@@ -53,7 +52,7 @@ const MultiComboBox: FunctionComponent<{
             placeholder={placeholder}
           />
         )}
-      />
+      /> */}
     </div>
   );
 }

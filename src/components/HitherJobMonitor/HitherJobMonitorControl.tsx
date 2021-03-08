@@ -2,10 +2,9 @@ import { HitherContext, HitherJob } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getPathQuery } from '../../kachery';
-import { WorkspaceInfo } from '../../python/labbox_ephys/extensions/pluginInterface';
 
 type Props = {
-    workspaceInfo: WorkspaceInfo
+    workspaceInfo: any
 }
 
 const HitherJobMonitorControl: FunctionComponent<Props> = ({ workspaceInfo }) => {

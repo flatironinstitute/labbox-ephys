@@ -6,11 +6,6 @@ import labbox_ephys as le
 import numpy as np
 
 
-@le.register_sorting_view(name='IndividualClustersView')
-def IndividualClustersView(*, sorting: le.LabboxEphysSortingExtractor, recording: le.LabboxEphysRecordingExtractor):
-    import labbox_ephys_widgets_jp as lew
-    return lew.create_sorting_view('IndividualClustersView', sorting=sorting, recording=recording)
-
 @hi.function('createjob_individual_cluster_features', '0.1.0')
 @hi.container('docker://magland/labbox-ephys-processing:0.3.19')
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])

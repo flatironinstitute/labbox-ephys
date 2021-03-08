@@ -5,11 +5,6 @@ import labbox_ephys as le
 import numpy as np
 
 
-@le.register_sorting_view(name='SnippetsView')
-def SnippetsView(*, sorting: le.LabboxEphysSortingExtractor, recording: le.LabboxEphysRecordingExtractor):
-    import labbox_ephys_widgets_jp as lew
-    return lew.create_sorting_view('SnippetsView', sorting=sorting, recording=recording)
-
 @hi.function('createjob_get_sorting_unit_snippets', '0.1.0')
 def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object, unit_id, time_range, max_num_snippets):
     from labbox_ephys import prepare_snippets_h5

@@ -5,11 +5,6 @@ import hither as hi
 import kachery_p2p as kp
 
 
-@le.register_sorting_view(name='MVSortingView')
-def MVSortingView(*, sorting: le.LabboxEphysSortingExtractor, recording: le.LabboxEphysRecordingExtractor, curation_subfeed: Union[kp.Subfeed, None]=None, height: float=0):
-    import labbox_ephys_widgets_jp as lew
-    return lew.create_sorting_view('MVSortingView', sorting=sorting, recording=recording, curation_subfeed=curation_subfeed, height=height)
-
 ###################################################################################
 # preload_check_sorting_downloaded
 @hi.function('preload_check_sorting_downloaded', '0.1.0')

@@ -1,0 +1,44 @@
+dockerUser: magland
+webSocketPort: 15308
+httpPort: 15309
+classPrefix: Labbox
+extensions:
+    -
+        name: mainwindow
+        relPath: mainwindow/mainwindow
+    -
+        name: workspaceview
+        relPath: workspaceview/workspaceview
+    -
+        name: mountainview
+        relPath: mountainview/mountainview
+    -
+        name: averagewaveforms
+        relPath: averagewaveforms/averagewaveforms
+    -
+        name: clusters
+        relPath: clusters/clusters
+    -
+        name: correlograms
+        relPath: correlograms/correlograms
+    -
+        name: electrodegeometry
+        relPath: electrodegeometry/electrodegeometry
+    -
+        name: firetrack
+        relPath: firetrack/firetrack
+    -
+        name: pythonsnippets
+        relPath: pythonsnippets/pythonsnippets
+    -
+        name: snippets
+        relPath: snippets/snippets
+    -
+        name: spikeamplitudes
+        relPath: spikeamplitudes/spikeamplitudes
+    -
+        name: timeseries
+        relPath: timeseries/timeseries
+    -
+        name: unitstable
+        relPath: unitstable/unitstable

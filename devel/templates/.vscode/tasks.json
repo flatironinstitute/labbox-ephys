@@ -1,0 +1,140 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    // The "bash -ic" is needed here so that our ~/.bashrc gets sourced. See: https://github.com/microsoft/vscode/issues/29412
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Code generation",
+            "type": "shell",
+            "command": "bash -ic devel/code_generation.py",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Run code generation"
+        },
+        {
+            "label": "yarn-install",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/yarn-install.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Install the node dependencies (do this once, or whenever the node dependencies have changed)"
+        },
+        {
+            "label": "yarn-build",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/yarn-build.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Build the node package and copy it to the appropriate location"
+        },
+        {
+            "label": "pip-install-dev",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/pip-install-dev.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Install {{ projectName }} in development mode using `pip install -e .`"
+        },
+        {
+            "label": "Publish PyPI",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/publish-pypi.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Publish package to PyPI"
+        },
+        {
+            "label": "start-client-dev",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-client-dev.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the client web server in development mode"
+        },
+        {
+            "label": "start-client-prod",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-client-prod.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the client web server in production mode (uses the built .tgz node package)"
+        },
+        {
+            "label": "start-api-websocket",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-api-websocket.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the api websocket server"
+        },
+        {
+            "label": "start-api-http",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/start-api-http.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Start just the api http server"
+        },
+        {
+            "label": "START DEV",
+            "type": "shell",
+            "command": "echo \"START DEV\"",
+            "dependsOn": [
+                "start-client-dev",
+                "start-api-websocket",
+                "start-api-http",
+                "_start_dev"
+            ],
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Run all three development server tasks: client-dev, api-websocket, api-http"
+        },
+        {
+            "label": "_start_dev",
+            "type": "shell",
+            "command": "echo 'Starting the client-dev, api-websocket, and api-http tasks...' && sleep 3 && echo 'Point your browser to http://localhost:10407'",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Used internally"
+        },
+        {
+            "label": "build-docker",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/build-docker.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Build the docker image"
+        },
+        {
+            "label": "push-docker",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/push-docker.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Push the docker image"
+        },
+        {
+            "label": "run-docker-local",
+            "type": "shell",
+            "command": "bash -ic .vscode/tasks/run-docker-local.sh",
+            "presentation": {
+                "clear": true
+            },
+            "detail": "Run the docker image locally"
+        }
+    ]
+}

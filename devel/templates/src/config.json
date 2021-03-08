@@ -1,0 +1,4 @@
+{
+    "webSocketPort": {{ webSocketPort }},
+    "httpPort": {{ httpPort }}
+}

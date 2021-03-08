@@ -79,7 +79,7 @@ const Splitter: FunctionComponent<Props> = (props) => {
         height: height,
         backgroundColor: 'transparent',
         cursor: 'col-resize',
-        zIndex: 9999
+        zIndex: 9998
     };
     let styleGrip: React.CSSProperties = {
         left: gripMargin,

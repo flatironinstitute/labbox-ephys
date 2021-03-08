@@ -1,29 +1,21 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: labbox-ephys-ephys1-service
+    name: labbox-ephys-1-service
 spec:
     selector:
-        app: labbox-ephys-ephys1
+        app: labbox-ephys-1
     ports:
     - name: http
       protocol: TCP
       port: 80
-      targetPort: 15310
+      targetPort: 
     - name: websocket
       protocol: TCP
-      port: 15308
+      port: 10408
       targetPort: 15308
     - name: api-http
       protocol: TCP
-      port: 15309
+      port: 10409
       targetPort: 15309
-    - name: kacherynode
-      protocol: TCP
-      port: 14207
-      targetPort: 14207
-    - name: kacherynode-websocket
-      protocol: TCP
-      port: 14208
-      targetPort: 14208
     type: LoadBalancer

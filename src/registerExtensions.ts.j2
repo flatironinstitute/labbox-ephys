@@ -1,28 +1,11 @@
 
-// !begin-code-generation!
-import { ExtensionContext } from './extensions/pluginInterface'
+import { {{ classPrefix }}ExtensionContext } from './python/{{ projectNameUnderscore }}/extensions/pluginInterface'
 
-{% for extension in extensions -%}
-import { activate as activate{{ extension.name }} } from '{{ extension.relPath }}'
-{% endfor -%}
-// !end-code-generation!
-
-/*
-Extensions are automatically detected and added to this file via code generation (see task configured in vscode)
-They must be .tsx files with the following appearing at the top of the file
-// LABBOX-EXTENSION: <name>
-And they must include an activate() function
-Use the following to also include the extension in the jupyterlab extension:
-// LABBOX-EXTENSION-TAGS: jupyter
-*/
-
-
-const registerExtensions = (context: ExtensionContext<LabboxPlugin>) => {
-    // !begin-code-generation!
+const registerExtensions = async (context: {{ classPrefix }}ExtensionContext) => {
     {% for extension in extensions -%}
-    activate{{ extension.name }}(context)
+    const {activate: activate_{{ extension.name }}} = await import('./python/{{ projectNameUnderscore }}/extensions/{{ extension.relPath }}')
+    activate_{{ extension.name }}(context)
     {% endfor -%}
-    // !end-code-generation!
 }
 
 export default registerExtensions

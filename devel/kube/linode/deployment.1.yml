@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: labbox-ephys-1-deployment
+  labels:
+    app: labbox-ephys-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: labbox-ephys-1
+  template:
+    metadata:
+      labels:
+        app: labbox-ephys-1
+    spec:
+      volumes:
+        - name: labbox-ephys-1-pv-storage
+          persistentVolumeClaim:
+            claimName: pvc-labbox-ephys-1
+      containers:
+      - name: labbox-ephys-1
+        image: magland/labbox-ephys:0.1.5
+        imagePullPolicy: Always
+        env:
+        - name: HOME
+          value: /tmp
+        - name: KACHERY_DAEMON_RUN_OPTS
+          value: --label labbox-ephys-1 --noudp --static-config https://gist.githubusercontent.com/magland/392e08a83118955194f24808649283dd/raw/kachery-config.mcmc-monitor.yml
+        - name: KACHERY_STORAGE_DIR
+          value: /data/kachery-storage
+        - name: KACHERY_P2P_CONFIG_DIR
+          value: /data/kachery-storage
+        ports:
+        - containerPort: 
+        volumeMounts:
+          - mountPath: "/data"
+            name: labbox-ephys-1-pv-storage
