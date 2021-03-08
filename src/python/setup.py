@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name='labbox-ephys',
-    version='0.5.4',
+    version='0.5.5',
     author='Jeremy Magland and Jeff Soules',
     author_email="jmagland@flatironinstitute.org",
     description="",
@@ -24,7 +24,7 @@ setuptools.setup(
         'spiketoolkit>=0.7.1',
         "aiohttp",
         "aiohttp_cors",
-        'labbox==0.1.21'
+        'labbox==0.1.22'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

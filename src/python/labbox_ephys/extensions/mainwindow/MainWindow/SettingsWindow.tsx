@@ -31,7 +31,7 @@ const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri }) => {
     const { workspaceName } = parseWorkspaceUri(workspaceUri)
     return (
         <div className={classes.paper} style={{zIndex: 9999}}>
-            <h2>Labbox Ephys 0.5.4</h2>
+            <h2>Labbox Ephys 0.5.5</h2>
             <Table>
                 <TableRow>
                     <TableCell>Workspace URI</TableCell>
