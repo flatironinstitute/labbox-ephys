@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
+import Expandable from '../../common/Expandable';
 import Markdown from '../../common/Markdown';
 import { WorkspaceRoute } from '../../pluginInterface';
 import spykingcircus_example_py from './sortingExamples/spykingcircus_example.py.gen';
 import instructionsMd from './SortingInstructions.md.gen';
-import { Expandable } from './SortingView';
 
 type Props = {
     workspaceRoute: WorkspaceRoute

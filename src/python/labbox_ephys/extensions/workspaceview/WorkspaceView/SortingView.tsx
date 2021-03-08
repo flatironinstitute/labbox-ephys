@@ -1,4 +1,3 @@
-import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import { createCalculationPool, HitherContext, usePlugins } from 'labbox';
 import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import Hyperlink from '../../common/Hyperlink';
@@ -141,21 +140,6 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       </div>
     </div>
   );
-}
-
-export const Expandable = (props: { label: string, children: React.ReactNode[] | React.ReactNode, defaultExpanded?: boolean }) => {
-  return (
-    <Accordion TransitionProps={{ unmountOnExit: true }} defaultExpanded={props.defaultExpanded}>
-      <AccordionSummary>
-        {props.label}
-      </AccordionSummary>
-      <AccordionDetails>
-        <div style={{width: "100%"}}>
-          {props.children}
-        </div>
-      </AccordionDetails>
-    </Accordion>
-  )
 }
 
 export default SortingView

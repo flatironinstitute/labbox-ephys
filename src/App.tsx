@@ -11,7 +11,6 @@ import theme from './python/labbox_ephys/extensions/theme';
 function App() {
   const plugins = usePlugins<LabboxPlugin>()
   const mainWindowPlugin = plugins.filter(p => (p.name === 'MainWindow'))[0] as any as MainWindowPlugin
-  if (!mainWindowPlugin) throw Error('Unable to find main window plugin.')
 
   const { serverInfo } = useContext(LabboxProviderContext)
 
@@ -46,9 +45,13 @@ function App() {
     <MuiThemeProvider theme={theme}>
       <div className="App">
         <header className="App-header">
-          <mainWindowPlugin.component
-            {...{workspaceUri, workspaceRoute, workspaceRouteDispatch}}
-          />
+          {
+            mainWindowPlugin ? (
+              <mainWindowPlugin.component
+                {...{workspaceUri, workspaceRoute, workspaceRouteDispatch}}
+              />
+            ) : (<div>No main window plugin</div>)
+          }
         </header>
       </div>
     </MuiThemeProvider>

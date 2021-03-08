@@ -1,11 +1,11 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
+import Expandable from '../../common/Expandable';
 import Markdown from '../../common/Markdown';
 import { WorkspaceRoute } from '../../pluginInterface';
 import import_example_simulated_recording_py from './importExamples/import_example_simulated_recording.py.gen';
 import import_nwb_recording_py from './importExamples/import_nwb_recording.py.gen';
 import import_spikeforest_recording_py from './importExamples/import_spikeforest_recording.py.gen';
 import instructionsMd from './ImportRecordingsInstructions.md.gen';
-import { Expandable } from './SortingView';
 
 type Props = {
     workspaceRoute: WorkspaceRoute

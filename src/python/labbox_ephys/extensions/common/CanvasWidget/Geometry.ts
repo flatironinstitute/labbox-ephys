@@ -1,4 +1,4 @@
-import { abs, inv, matrix, multiply } from 'mathjs'
+import { abs, inv, matrix, Matrix, multiply } from 'mathjs'
 
 export type Vec2 = number[]
 export const isVec2 = (x: any): x is Vec2 => {
@@ -49,7 +49,7 @@ export const isVec2H = (x: any): x is Vec2H => {
 export const homogenizeVec2 = (v: Vec2): Vec2H => {
     return [v[0], v[1], 1]
 }
-export const Vec2HToVector = (v: Vec2H): math.Matrix => {
+export const Vec2HToVector = (v: Vec2H): Matrix => {
     // mathjs uses geometric dimensions. If we pass a 1-dimensional array, the resulting
     // vector is treated as a column vector for matrix multiplication.
     return matrix(v);
@@ -135,7 +135,7 @@ export const isTransformationMatrix = (x: any): x is TransformationMatrix => {
     }
     return false
 }
-export const toTransformationMatrix = (x: math.Matrix): TransformationMatrix => {
+export const toTransformationMatrix = (x: Matrix): TransformationMatrix => {
     if (JSON.stringify(x.size()) === JSON.stringify([3, 3])) {
         const asArray = x.toArray() as number[][]
         if (JSON.stringify(asArray[2]) === JSON.stringify([0, 0, 1])){

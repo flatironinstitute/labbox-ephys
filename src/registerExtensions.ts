@@ -1,50 +1,35 @@
 // This file was automatically generated. Do not edit directly.
 
 
-// !begin-code-generation!
-import { ExtensionContext } from './extensions/pluginInterface'
+import { LabboxExtensionContext } from './python/labbox_ephys/extensions/pluginInterface'
 
-import { activate as activatemainwindow } from 'mainwindow/mainwindow'
-import { activate as activateworkspaceview } from 'workspaceview/workspaceview'
-import { activate as activatemountainview } from 'mountainview/mountainview'
-import { activate as activateaveragewaveforms } from 'averagewaveforms/averagewaveforms'
-import { activate as activateclusters } from 'clusters/clusters'
-import { activate as activatecorrelograms } from 'correlograms/correlograms'
-import { activate as activateelectrodegeometry } from 'electrodegeometry/electrodegeometry'
-import { activate as activatefiretrack } from 'firetrack/firetrack'
-import { activate as activatepythonsnippets } from 'pythonsnippets/pythonsnippets'
-import { activate as activatesnippets } from 'snippets/snippets'
-import { activate as activatespikeamplitudes } from 'spikeamplitudes/spikeamplitudes'
-import { activate as activatetimeseries } from 'timeseries/timeseries'
-import { activate as activateunitstable } from 'unitstable/unitstable'
-// !end-code-generation!
-
-/*
-Extensions are automatically detected and added to this file via code generation (see task configured in vscode)
-They must be .tsx files with the following appearing at the top of the file
-// LABBOX-EXTENSION: <name>
-And they must include an activate() function
-Use the following to also include the extension in the jupyterlab extension:
-// LABBOX-EXTENSION-TAGS: jupyter
-*/
-
-
-const registerExtensions = (context: LabboxExtensionContext) => {
-    // !begin-code-generation!
-    activatemainwindow(context)
-    activateworkspaceview(context)
-    activatemountainview(context)
-    activateaveragewaveforms(context)
-    activateclusters(context)
-    activatecorrelograms(context)
-    activateelectrodegeometry(context)
-    activatefiretrack(context)
-    activatepythonsnippets(context)
-    activatesnippets(context)
-    activatespikeamplitudes(context)
-    activatetimeseries(context)
-    activateunitstable(context)
-    // !end-code-generation!
-}
+const registerExtensions = async (context: LabboxExtensionContext) => {
+    const {activate: activate_mainwindow} = await import('./python/labbox_ephys/extensions/mainwindow/mainwindow')
+    activate_mainwindow(context)
+    const {activate: activate_workspaceview} = await import('./python/labbox_ephys/extensions/workspaceview/workspaceview')
+    activate_workspaceview(context)
+    const {activate: activate_mountainview} = await import('./python/labbox_ephys/extensions/mountainview/mountainview')
+    activate_mountainview(context)
+    const {activate: activate_averagewaveforms} = await import('./python/labbox_ephys/extensions/averagewaveforms/averagewaveforms')
+    activate_averagewaveforms(context)
+    const {activate: activate_clusters} = await import('./python/labbox_ephys/extensions/clusters/clusters')
+    activate_clusters(context)
+    const {activate: activate_correlograms} = await import('./python/labbox_ephys/extensions/correlograms/correlograms')
+    activate_correlograms(context)
+    const {activate: activate_electrodegeometry} = await import('./python/labbox_ephys/extensions/electrodegeometry/electrodegeometry')
+    activate_electrodegeometry(context)
+    const {activate: activate_firetrack} = await import('./python/labbox_ephys/extensions/firetrack/firetrack')
+    activate_firetrack(context)
+    const {activate: activate_pythonsnippets} = await import('./python/labbox_ephys/extensions/pythonsnippets/pythonsnippets')
+    activate_pythonsnippets(context)
+    const {activate: activate_snippets} = await import('./python/labbox_ephys/extensions/snippets/snippets')
+    activate_snippets(context)
+    const {activate: activate_spikeamplitudes} = await import('./python/labbox_ephys/extensions/spikeamplitudes/spikeamplitudes')
+    activate_spikeamplitudes(context)
+    const {activate: activate_timeseries} = await import('./python/labbox_ephys/extensions/timeseries/timeseries')
+    activate_timeseries(context)
+    const {activate: activate_unitstable} = await import('./python/labbox_ephys/extensions/unitstable/unitstable')
+    activate_unitstable(context)
+    }
 
 export default registerExtensions

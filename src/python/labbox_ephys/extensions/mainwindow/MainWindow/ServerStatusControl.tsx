@@ -25,7 +25,7 @@ const ServerStatusControl: FunctionComponent<Props> = ({ color }) => {
                 throw Error('Unexpected.')
             }
         }
-    }, [websocketStatus])
+    }, [websocketStatus, color])
 
     const handleClick = useCallback(() => {
         if (websocketStatus === 'disconnected') {
