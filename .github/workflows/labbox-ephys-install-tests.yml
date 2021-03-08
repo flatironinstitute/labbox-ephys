@@ -17,8 +17,6 @@ jobs:
       matrix:
         # os: ["ubuntu-latest", "macos-latest"] - macos-latest not working on the node compile step: ld: library not found for -lstdc++
         os: ["ubuntu-latest"]
-    env:
-      NODE_OPTIONS: --max-old-space-size=8192
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
@@ -26,13 +24,4 @@ jobs:
           python-version: '3.8'
           activate-environment: test
       - run: python --version && conda info && conda list
-      - run: conda install jupyterlab
-      - run: conda install -c conda-forge nodejs
-      - run: conda list
       - run: pip install -e ./src/python
-      - run: pip install -e ./src/jupyter
-      - run: conda list
-      - run: jupyter serverextension enable labbox_ephys_widgets_jp --sys-prefix
-      - run: jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
-      - run: jupyter labextension install src/jupyter
-      - run: jupyter labextension list
