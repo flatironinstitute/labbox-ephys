@@ -1,4 +1,5 @@
 dockerUser: magland
+clientPort: 15351
 webSocketPort: 15308
 httpPort: 15309
 classPrefix: Labbox

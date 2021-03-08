@@ -9,7 +9,7 @@ spec:
     - name: http
       protocol: TCP
       port: 80
-      targetPort: 
+      targetPort: 15351
     - name: websocket
       protocol: TCP
       port: 10408

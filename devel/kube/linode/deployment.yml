@@ -30,7 +30,7 @@ spec:
         - name: KACHERY_STORAGE_DIR
           value: /data/kachery-storage
         ports:
-        - containerPort: 
+        - containerPort: 15351
         volumeMounts:
           - mountPath: "/data"
             name: labbox-ephys-1-pv-storage

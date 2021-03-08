@@ -48,7 +48,7 @@ def start_app(*, api_websocket: bool=False, api_http: bool=False, client_dev: bo
         #!/bin/bash
 
         cd {thisdir}/../..
-        export PORT=
+        export PORT=15351
         exec yarn start
         ''')
         scripts.append(s)
@@ -58,7 +58,7 @@ def start_app(*, api_websocket: bool=False, api_http: bool=False, client_dev: bo
         #!/bin/bash
 
         cd {thisdir}
-        exec serve -l  -s build
+        exec serve -l 15351 -s build
         ''')
         scripts.append(s)
     
