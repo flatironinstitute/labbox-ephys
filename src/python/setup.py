@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name='labbox-ephys',
-    version='0.5.5',
+    version='0.5.6',
     author='Jeremy Magland and Jeff Soules',
     author_email="jmagland@flatironinstitute.org",
     description="",
