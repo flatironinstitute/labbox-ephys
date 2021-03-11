@@ -1,6 +1,4 @@
-# This file was automatically generated. Do not edit directly.
-
-name: labbox-ephys-install-tests
+name: {{ projectName }}-install-tests
 on:
   pull_request:
     types: [opened, synchronize]
@@ -12,8 +10,8 @@ defaults:
     shell: bash -l {0}
 jobs:
   install_jupyterlab:
-    name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    {% raw %}name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }}){% endraw %}
+    {% raw %}runs-on: ${{ matrix.os }}{% endraw %}
     strategy:
       fail-fast: false
       matrix:

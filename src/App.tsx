@@ -8,7 +8,7 @@ import { LabboxPlugin, MainWindowPlugin, WorkspaceRoute } from './python/labbox_
 import { locationFromRoute, routeFromLocation, WorkspaceRouteAction, workspaceRouteReducer } from './python/labbox_ephys/extensions/pluginInterface/WorkspaceRoute';
 import theme from './python/labbox_ephys/extensions/theme';
 
-function App() {
+function App({version}: {version: string}) {
   const plugins = usePlugins<LabboxPlugin>()
   const mainWindowPlugin = plugins.filter(p => (p.name === 'MainWindow'))[0] as any as MainWindowPlugin
 
@@ -48,7 +48,7 @@ function App() {
           {
             mainWindowPlugin ? (
               <mainWindowPlugin.component
-                {...{workspaceUri, workspaceRoute, workspaceRouteDispatch}}
+                {...{workspaceUri, workspaceRoute, workspaceRouteDispatch, version}}
               />
             ) : (<div>No main window plugin</div>)
           }

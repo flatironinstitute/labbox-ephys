@@ -1,3 +1,5 @@
+<!-- This file was automatically generated. Do not edit directly. See devel/templates. -->
+
 # Deploying to linode
 
 ## Create a linode account

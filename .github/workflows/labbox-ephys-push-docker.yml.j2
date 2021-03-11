@@ -1,6 +1,4 @@
-# This file was automatically generated. Do not edit directly.
-
-name: labbox-ephys-push-docker
+name: {{ projectName }}-push-docker
 on:
   push:
     tags:
@@ -22,8 +20,8 @@ jobs:
         name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          {% raw %}username: ${{ secrets.DOCKERHUB_USERNAME }}{% endraw %}
+          {% raw %}password: ${{ secrets.DOCKERHUB_TOKEN }}{% endraw %}
       -
         name: Use Node.js
         uses: actions/setup-node@v1
@@ -36,6 +34,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./docker/labbox-ephys/Dockerfile
+          file: ./docker/{{ projectName }}/Dockerfile
           push: true
-          tags: magland/labbox-ephys:0.5.7
+          tags: magland/{{ projectName }}:{{ projectVersion }}

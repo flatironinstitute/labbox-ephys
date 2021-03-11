@@ -1,3 +1,5 @@
+<!-- This file was automatically generated. Do not edit directly. -->
+
 # labbox-ephys web server
 
 Tested on Linux, should also run on macOS and Windows Subsystem for Linux.

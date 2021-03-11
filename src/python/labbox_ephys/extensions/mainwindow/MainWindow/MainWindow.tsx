@@ -30,7 +30,7 @@ function useWindowDimensions() {
     return windowDimensions;
 }
 
-const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspaceRoute, workspaceRouteDispatch }) => {
+const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspaceRoute, workspaceRouteDispatch, version }) => {
     const { width, height } = useWindowDimensions()
     const appBarHeight = 52 // hard-coded for now - must agree with theme
     const H = height - appBarHeight - 2
@@ -82,6 +82,7 @@ const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspac
                     <SettingsWindow
                         workspace={workspace}
                         workspaceUri={workspaceUri}
+                        version={version}
                     />
                 </span>
             </Modal>

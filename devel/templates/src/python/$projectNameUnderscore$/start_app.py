@@ -26,6 +26,7 @@ def start_app(*, api_websocket: bool=False, api_http: bool=False, client_dev: bo
 
         export LABBOX_EXTENSIONS_DIR={thisdir}/extensions
         export LABBOX_WEBSOCKET_PORT={{ webSocketPort }}
+        export LABBOX_DEFAULT_FEED_NAME={{ projectName }}-default
 
         exec labbox_start_api_websocket
         ''')

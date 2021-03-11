@@ -25,7 +25,7 @@ registerExtensions(extensionContext).then(() => {
         extensionContext={extensionContext}
         apiConfig={apiConfig}
       >
-        <BrowserRouter><App /></BrowserRouter>
+        <BrowserRouter><App version="0.5.7" /></BrowserRouter>
       </LabboxProvider>,
     // </React.StrictMode>,
     document.getElementById('root')
@@ -36,4 +36,5 @@ registerExtensions(extensionContext).then(() => {
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
 

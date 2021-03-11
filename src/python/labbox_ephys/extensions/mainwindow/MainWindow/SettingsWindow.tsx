@@ -23,15 +23,16 @@ const useStyles = makeStyles((theme) => ({
 type Props = {
     workspace: WorkspaceState
     workspaceUri: string | undefined
+    version: string
 }
 
-const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri }) => {
+const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri, version }) => {
     const classes = useStyles();
     const { serverInfo } = useContext(LabboxProviderContext)
     const { workspaceName } = parseWorkspaceUri(workspaceUri)
     return (
         <div className={classes.paper} style={{zIndex: 9999}}>
-            <h2>Labbox Ephys 0.5.6</h2>
+            <h2>Labbox Ephys {version}</h2>
             <Table>
                 <TableRow>
                     <TableCell>Workspace URI</TableCell>

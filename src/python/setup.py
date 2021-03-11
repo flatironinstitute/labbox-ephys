@@ -4,12 +4,6 @@ import os.path
 import setuptools
 
 setuptools.setup(
-    name='labbox-ephys',
-    version='0.5.6',
-    author='Jeremy Magland and Jeff Soules',
-    author_email="jmagland@flatironinstitute.org",
-    description="",
-    url="https://github.com/flatironinstitute/labbox-ephys",
     packages=setuptools.find_packages(),
     include_package_data=True,
     scripts=[

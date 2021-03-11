@@ -1,3 +1,5 @@
+# This file was automatically generated. Do not edit directly. See devel/templates.
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,7 +22,7 @@ spec:
             claimName: pvc-labbox-ephys-1
       containers:
       - name: labbox-ephys-1
-        image: magland/labbox-ephys:0.5.6
+        image: magland/labbox-ephys:0.5.7
         imagePullPolicy: Always
         env:
         - name: HOME
