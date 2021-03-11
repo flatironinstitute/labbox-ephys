@@ -19,7 +19,7 @@ setuptools.setup(
         "aiohttp",
         "aiohttp_cors",
         'labbox==0.1.22',
-        'jinjaroot>=0.0.1' # for code generation
+        'jinjaroot>=0.0.2' # for code generation
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
