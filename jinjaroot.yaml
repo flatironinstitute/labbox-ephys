@@ -1,4 +1,5 @@
 projectName: labbox-ephys
+projectNameUnderscore: labbox_ephys
 projectVersion: 0.5.7
 projectDescription:
 projectUrl: https://github.com/flatironinstitute/labbox-ephys

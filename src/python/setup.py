@@ -18,7 +18,8 @@ setuptools.setup(
         'spiketoolkit>=0.7.1',
         "aiohttp",
         "aiohttp_cors",
-        'labbox==0.1.22'
+        'labbox==0.1.22',
+        'jinjaroot>=0.0.1' # for code generation
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -7,7 +7,7 @@
         {
             "label": "Code generation",
             "type": "shell",
-            "command": "bash -ic devel/code_generation.py",
+            "command": "bash -ic .vscode/tasks/code-generation.sh",
             "presentation": {
                 "clear": true
             },
