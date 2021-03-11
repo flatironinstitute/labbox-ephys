@@ -3,6 +3,7 @@ clientPort: 15351
 webSocketPort: 15308
 httpPort: 15309
 classPrefix: Labbox
+additionalWebServerDocs: On the first run, this should display an empty workspace with instructions on importing recordings and sortings.
 extensions:
     -
         name: mainwindow

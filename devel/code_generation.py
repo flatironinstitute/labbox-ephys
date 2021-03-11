@@ -110,7 +110,7 @@ def generate2(*, dest_folder: str, template_kwargs: dict):
         if os.path.isdir(dest_path):
             generate2(dest_folder=dest_path, template_kwargs=template_kwargs)
         elif os.path.isfile(dest_path):
-            if dest_path.endswith('.ts') or dest_path.endswith('.tsx') or dest_path.endswith('.py'):
+            if dest_path.endswith('.ts') or dest_path.endswith('.tsx') or dest_path.endswith('.py') or dest_path.endswith('.md'):
                 template_path = dest_path + '.j2'
                 if os.path.exists(template_path):
                     with open(template_path, 'r') as f:

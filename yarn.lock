@@ -8073,6 +8073,11 @@ jest@26.6.0:
     import-local "^3.0.2"
     jest-cli "^26.6.0"
 
+js-cookie@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.2.1.tgz#69e106dc5d5806894562902aa5baec3744e9b2b8"
+  integrity sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==
+
 js-sha1@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/js-sha1/-/js-sha1-0.6.0.tgz#adbee10f0e8e18aa07cdea807cf08e9183dbc7f9"
@@ -8366,12 +8371,13 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-labbox@0.1.22:
-  version "0.1.22"
-  resolved "https://registry.yarnpkg.com/labbox/-/labbox-0.1.22.tgz#6c8c239b3d9925c0276c04ceb301432f8f72e95e"
-  integrity sha512-qIgu4eW5KlLziqmZJI1Qcbpk1ZM4WkMlLaZZexN599hhZYsZ/p33mAXGly0TNypmlycRSM4n8LDOC1c8qzNl2Q==
+labbox@0.1.23:
+  version "0.1.23"
+  resolved "https://registry.yarnpkg.com/labbox/-/labbox-0.1.23.tgz#f720191518f575fa4f970b906de935fd324f4b57"
+  integrity sha512-yd+GW53eRzhUqdgeUkio0mc4ehAx+GIplrRILkzvKDv/QjqRNKln8Vh5xHb7GhHWnzy3khAnZVFU78p+3jJrUw==
   dependencies:
     axios "^0.21.1"
+    js-cookie "^2.2.1"
     object-hash "^2.1.1"
 
 language-subtag-registry@~0.3.2:
