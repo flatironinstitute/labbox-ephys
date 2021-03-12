@@ -60,6 +60,22 @@ def start_app(*, api_websocket: bool=False, api_http: bool=False, client_dev: bo
         exec serve -l {{ clientPort }} -s build
         ''')
         scripts.append(s)
+
+        s = hi.ShellScript(f'''
+        #!/bin/bash
+
+        sleep 1
+        echo "Please wait..."
+        sleep 2
+        echo "Open {{ projectName }} in your browser: http://localhost:14101"
+
+        # wait for use to press CTRL+c
+        while true
+        do
+            sleep 1
+        done
+        ''')
+        scripts.append(s)
     
     if kachery_daemon_run_opts:
         s = hi.ShellScript(f'''
