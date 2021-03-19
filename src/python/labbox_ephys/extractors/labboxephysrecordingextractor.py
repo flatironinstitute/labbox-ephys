@@ -297,7 +297,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
     def get_sampling_frequency(self) -> float:
         return float(self._recording.get_sampling_frequency())
 
-    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None) -> np.ndarray:
+    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None, return_scaled=True) -> np.ndarray:
         return self._recording.get_traces(channel_ids=channel_ids, start_frame=start_frame, end_frame=end_frame)
     
     @staticmethod
@@ -436,7 +436,7 @@ class NrsRecordingExtractor(se.RecordingExtractor):
     def get_sampling_frequency(self):
         return self._rec.get_sampling_frequency()
 
-    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None):
+    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None, return_scaled=True):
         if channel_ids is None:
             channel_ids = self._channel_ids
         return self._rec.get_traces(channel_ids=channel_ids, start_frame=start_frame, end_frame=end_frame)

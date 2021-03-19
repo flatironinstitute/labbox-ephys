@@ -31,7 +31,7 @@ class Bin1RecordingExtractor(se.RecordingExtractor):
     def get_sampling_frequency(self):
         return self._samplerate
 
-    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None):
+    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None, return_scaled=True):
         if start_frame is None:
             start_frame = 0
         if end_frame is None:

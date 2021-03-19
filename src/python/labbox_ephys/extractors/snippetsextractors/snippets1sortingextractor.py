@@ -47,7 +47,7 @@ class Snippets1SortingExtractor(se.SortingExtractor):
             else:
                 return unit_spike_train
 
-    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None):
+    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None, return_scaled=True):
         if start_frame is None:
             start_frame = 0
         if end_frame is None:
