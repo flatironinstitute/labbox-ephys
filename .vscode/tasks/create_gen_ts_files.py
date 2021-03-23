@@ -35,4 +35,4 @@ def _write_file_if_changed(fname, txt):
 
 if __name__ == '__main__':
     thisdir = os.path.dirname(os.path.realpath(__file__))
-    create_gen_ts_files(f'{thisdir}/..')
+    create_gen_ts_files(f'{thisdir}/../..')

@@ -1,5 +1,5 @@
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import spikeextractors as se
 import numpy as np
 
@@ -40,8 +40,8 @@ def mountainsort4(*,
             'sorting_format': 'npy1',
             'data': {
                 'samplerate': recording.get_sampling_frequency(),
-                'times_npy_uri': ka.store_npy(times.astype(np.float64)),
-                'labels_npy_uri': ka.store_npy(labels.astype(np.int32))
+                'times_npy_uri': kp.store_npy(times.astype(np.float64)),
+                'labels_npy_uri': kp.store_npy(labels.astype(np.int32))
             }
         }
         return sorting_object

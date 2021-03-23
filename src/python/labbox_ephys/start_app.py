@@ -2,7 +2,7 @@
 import os
 import signal
 from typing import List, Union
-import hither as hi
+import hither2 as hi
 
 class KeyboardInterruptHandler(object):
     def __enter__(self):

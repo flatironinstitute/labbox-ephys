@@ -1,7 +1,7 @@
+from typing import Union
 from spikeextractors import RecordingExtractor
 from spikeextractors import SortingExtractor
 
-import kachery as ka
 import kachery_p2p as kp
 import json
 import numpy as np
@@ -10,7 +10,7 @@ import os
 
 
 class MdaRecordingExtractor(RecordingExtractor):
-    def __init__(self, *, recording_directory=None, timeseries_path=None, download=False, samplerate=None, geom=None, geom_path=None, params_path=None):
+    def __init__(self, *, recording_directory=None, timeseries_path: Union[str, None]=None, download=False, samplerate=None, geom=None, geom_path=None, params_path=None):
         RecordingExtractor.__init__(self)
         if recording_directory:
             if timeseries_path is None:
@@ -30,6 +30,7 @@ class MdaRecordingExtractor(RecordingExtractor):
             self._samplerate = samplerate
         
         if download:
+            assert self._timeseries_path is not None
             path0 = kp.load_file(self._timeseries_path)
             if not path0:
                 raise Exception('Unable to download file: ' + self._timeseries_path)
@@ -61,15 +62,15 @@ class MdaRecordingExtractor(RecordingExtractor):
             print('WARNING: Incompatible dimensions between geom.csv and timeseries file {} <> {}'.format(self._geom.shape[0], X.N1()))
             self._geom = np.zeros((X.N1(), 2))
         
-        if self._timeseries_path.startswith('sha1://') or self._timeseries_path.startswith('sha1dir://'):
-            timeseries_hash_path = self._timeseries_path
-        else:
-            timeseries_hash_path = 'sha1://' + ka.get_file_hash(self._timeseries_path)
-        self._hash = ka.get_object_hash(dict(
-            timeseries=timeseries_hash_path,
-            samplerate=self._samplerate,
-            geom=_json_serialize(self._geom)
-        ))
+        # if self._timeseries_path.startswith('sha1://') or self._timeseries_path.startswith('sha1dir://'):
+        #     timeseries_hash_path = self._timeseries_path
+        # else:
+        #     timeseries_hash_path = 'sha1://' + ka.get_file_hash(self._timeseries_path)
+        # self._hash = ka.get_object_hash(dict(
+        #     timeseries=timeseries_hash_path,
+        #     samplerate=self._samplerate,
+        #     geom=_json_serialize(self._geom)
+        # ))
 
         self._num_channels = X.N1()
         self._num_timepoints = X.N2()
@@ -98,8 +99,8 @@ class MdaRecordingExtractor(RecordingExtractor):
         recordings = recordings[channel_ids, :]
         return recordings
     
-    def hash(self):
-        return self._hash
+    # def hash(self):
+    #     return self._hash
 
     @staticmethod
     def write_recording(recording, save_path, params=dict(), raw_fname='raw.mda', params_fname='params.json', 
@@ -156,11 +157,11 @@ class MdaSortingExtractor(SortingExtractor):
     def get_sampling_frequency(self):
         return self._sampling_frequency
 
-    def hash(self):
-        return ka.get_object_hash(dict(
-            firings=ka.get_file_hash(self._firings_path),
-            samplerate=self._sampling_frequency
-        ))
+    # def hash(self):
+    #     return ka.get_object_hash(dict(
+    #         firings=ka.get_file_hash(self._firings_path),
+    #         samplerate=self._sampling_frequency
+    #     ))
     
     @staticmethod
     def can_read(firings_file: str) -> bool:

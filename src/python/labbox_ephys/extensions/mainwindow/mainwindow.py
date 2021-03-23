@@ -1,4 +1,4 @@
-import hither as hi
+import hither2 as hi
 import numpy as np
 
 # @hi.function('createjob_test_hello_ext1', '0.1.0')
@@ -8,7 +8,7 @@ import numpy as np
 #     with hi.Config(
 #         job_cache=jc,
 #         job_handler=jh,
-#         container=jh.is_remote
+#         container=jh.is_remote()
 #     ):
 #         return test_hello_ext1.run(x=x)
 

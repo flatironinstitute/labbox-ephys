@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import spikeextractors as se
 import numpy as np
-import kachery as ka
 
 
 class FilterRecording(se.RecordingExtractor):
@@ -13,16 +12,6 @@ class FilterRecording(se.RecordingExtractor):
 
     def paramsForHash(self):
         return None
-
-    def hash(self):
-        params = self.paramsForHash()  # pylint: disable=assignment-from-none
-        if params is None:
-            raise Exception('Cannot compute hash. Params for hash not implemented.')
-        return ka.get_object_hash(dict(
-            name='FilterRecording',
-            params=params,
-            recording=self._recording.hash()
-        ))
 
     def get_channel_ids(self):
         return self._recording.get_channel_ids()

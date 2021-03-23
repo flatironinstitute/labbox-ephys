@@ -1,9 +1,11 @@
 import os
-import hither as hi
+import hither2 as hi
 
-@hi.function('get_firing_data', '0.1.2')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'get_firing_data', '0.1.2',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 def get_firing_data(sorting_object, recording_object, configuration):
     from decimal import Decimal
     S, R = get_structure(sorting_object, recording_object)
@@ -16,14 +18,14 @@ def get_firing_data(sorting_object, recording_object, configuration):
           'rate': f"{Decimal(t / elapsed).quantize(Decimal('.01'))}"} for t in train]))
     return keyedCount
 
-@hi.function('createjob_get_firing_data', '')
+@hi.function('createjob_get_firing_data', '', register_globally=True)
 def createjob_get_firing_data(labbox, sorting_object, recording_object, configuration):
     jh = labbox.get_job_handler('partition1')
     jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         return get_firing_data.run(
             sorting_object=sorting_object,

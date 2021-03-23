@@ -1,5 +1,5 @@
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import spikeextractors as se
 import numpy as np
 
@@ -42,6 +42,6 @@ def spykingcircus(*,
         return {
             'sorting_format': 'h5_v1',
             'data': {
-                'h5_path': ka.store_file(h5_output_fname)
+                'h5_path': kp.store_file(h5_output_fname)
             }
         }

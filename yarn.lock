@@ -8371,10 +8371,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-labbox@0.1.23:
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/labbox/-/labbox-0.1.23.tgz#f720191518f575fa4f970b906de935fd324f4b57"
-  integrity sha512-yd+GW53eRzhUqdgeUkio0mc4ehAx+GIplrRILkzvKDv/QjqRNKln8Vh5xHb7GhHWnzy3khAnZVFU78p+3jJrUw==
+labbox@^0.1.31:
+  version "0.1.31"
+  resolved "https://registry.yarnpkg.com/labbox/-/labbox-0.1.31.tgz#7afaf5097f53717c0ac8dd193470bc23157cbb27"
+  integrity sha512-WWai7/OECwK8rkM78bFgIBttnPCbGaHZwIt8r09+aN+IvxVoYvP1/YeT/9+DjpEHNc/7RA7wC9fcVNAda1XImQ==
   dependencies:
     axios "^0.21.1"
     js-cookie "^2.2.1"

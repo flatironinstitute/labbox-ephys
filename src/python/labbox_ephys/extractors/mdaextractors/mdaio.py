@@ -1,10 +1,7 @@
 import numpy as np
 import struct
 import os
-import requests
-import tempfile
 import traceback
-import kachery as ka
 import kachery_p2p as kp
 import io
 
@@ -132,11 +129,7 @@ class DiskReadMda:
         try:
             bytes0 = kp.load_bytes(self._path, start=int(start_byte), end=int(end_byte))
         except:
-            info0 = ka.get_file_info(self._path)
-            if info0 is None:
-                print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} (no info)')
-            else:
-                print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} of size {info0["size"]}')
+            print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path}')
             raise
         return np.frombuffer(bytes0, dtype=self._header.dt, count=N)
 

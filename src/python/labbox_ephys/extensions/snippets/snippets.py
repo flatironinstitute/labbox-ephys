@@ -1,11 +1,11 @@
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import labbox_ephys as le
 import numpy as np
 
 
-@hi.function('createjob_get_sorting_unit_snippets', '0.1.0')
+@hi.function('createjob_get_sorting_unit_snippets', '0.1.0', register_globally=True)
 def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object, unit_id, time_range, max_num_snippets):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition1')
@@ -13,7 +13,7 @@ def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return get_sorting_unit_snippets.run(
@@ -23,13 +23,16 @@ def createjob_get_sorting_unit_snippets(labbox, recording_object, sorting_object
             max_num_snippets=max_num_snippets
         )
 
-@hi.function('get_sorting_unit_snippets', '0.1.8')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'get_sorting_unit_snippets', '0.1.8',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 @le.serialize
 def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     # with h5py.File(h5_path, 'r') as f:
     #     unit_ids = np.array(f.get('unit_ids'))
     #     channel_ids = np.array(f.get('channel_ids'))
@@ -62,7 +65,7 @@ def get_sorting_unit_snippets(snippets_h5, unit_id, time_range, max_num_snippets
         snippets=snippets[:max_num_snippets]
     )
 
-@hi.function('createjob_get_sorting_unit_info', '0.1.0')
+@hi.function('createjob_get_sorting_unit_info', '0.1.0', register_globally=True)
 def createjob_get_sorting_unit_info(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition1')
@@ -70,7 +73,7 @@ def createjob_get_sorting_unit_info(labbox, recording_object, sorting_object, un
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return get_sorting_unit_info.run(
@@ -78,13 +81,16 @@ def createjob_get_sorting_unit_info(labbox, recording_object, sorting_object, un
             unit_id=unit_id
         )
 
-@hi.function('get_sorting_unit_info', '0.1.1')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'get_sorting_unit_info', '0.1.1',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 @le.serialize
 def get_sorting_unit_info(snippets_h5, unit_id):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     # with h5py.File(h5_path, 'r') as f:
     #     unit_ids = np.array(f.get('unit_ids'))
     #     channel_ids = np.array(f.get('channel_ids'))

@@ -1,13 +1,13 @@
 from typing import Dict
 
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import numpy as np
 import labbox_ephys as le
 
 
-@hi.function('createjob_fetch_spike_amplitudes', '0.1.1')
+@hi.function('createjob_fetch_spike_amplitudes', '0.1.1', register_globally=True)
 def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition1')
@@ -15,7 +15,7 @@ def createjob_fetch_spike_amplitudes(labbox, recording_object, sorting_object, u
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return fetch_spike_amplitudes.run(
@@ -30,13 +30,16 @@ def _compute_peak_channel_index_from_average_waveform(average_waveform):
     peak_channel_index = np.argmax(channel_amplitudes)
     return peak_channel_index
 
-@hi.function('fetch_spike_amplitudes', '0.1.6')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'fetch_spike_amplitudes', '0.1.6',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 @le.serialize
 def fetch_spike_amplitudes(snippets_h5, unit_id):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     # with h5py.File(h5_path, 'r') as f:
     #     unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))
     #     unit_waveforms = np.array(f.get(f'unit_waveforms/{unit_id}/waveforms'))    

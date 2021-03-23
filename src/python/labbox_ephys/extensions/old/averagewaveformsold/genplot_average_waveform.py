@@ -1,8 +1,8 @@
 from typing import Dict
 
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import numpy as np
 import spikeextractors as se
 import spiketoolkit as st
@@ -18,7 +18,7 @@ def test_func_1():
 
 
 
-@hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0')
+@hi.function('createjob_fetch_average_waveform_plot_data', '0.1.0', register_globally=True)
 def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition1')
@@ -26,7 +26,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return fetch_average_waveform_plot_data.run(
@@ -34,12 +34,15 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
             unit_id=unit_id
         )
 
-@hi.function('fetch_average_waveform_plot_data', '0.2.4')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'fetch_average_waveform_plot_data', '0.2.4',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))
         sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
@@ -62,9 +65,11 @@ def fetch_average_waveform_plot_data(snippets_h5, unit_id):
         average_waveform=average_waveform[maxchan_index, :].astype(np.float32)
     )
 
-@hi.function('old_fetch_average_waveform_plot_data', '0.1.14')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'old_fetch_average_waveform_plot_data', '0.1.14',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 def old_fetch_average_waveform_plot_data(recording_object, sorting_object, unit_id):
     import labbox_ephys as le
     R = le.LabboxEphysRecordingExtractor(recording_object)

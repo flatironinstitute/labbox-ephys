@@ -1,14 +1,13 @@
 import os
 import math
-import hither as hi
-import kachery as ka
+import hither2 as hi
+from hither2.dockerimage import RemoteDockerImage
+import kachery_p2p as kp
 import labbox_ephys as le
 import numpy as np
 
 
-@hi.function('createjob_individual_cluster_features', '0.1.0')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function('createjob_individual_cluster_features', '0.1.0', register_globally=True)
 def createjob_individual_cluster_features(labbox, recording_object, sorting_object, unit_id):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition1')
@@ -16,7 +15,7 @@ def createjob_individual_cluster_features(labbox, recording_object, sorting_obje
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return individual_cluster_features.run(
@@ -30,13 +29,16 @@ def subsample_inds(n, m):
     incr = n / m
     return [int(math.floor(i * incr)) for i in range(m)]
 
-@hi.function('individual_cluster_features', '0.1.4')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'individual_cluster_features', '0.1.4',
+    image=RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 @le.serialize
 def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     # with h5py.File(h5_path, 'r') as f:
     #     unit_ids = np.array(f.get('unit_ids'))
     #     channel_ids = np.array(f.get('channel_ids'))

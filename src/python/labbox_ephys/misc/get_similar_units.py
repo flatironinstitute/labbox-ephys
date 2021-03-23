@@ -1,9 +1,9 @@
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import numpy as np
 
-@hi.function('createjob_get_similar_units', '0.1.0')
+@hi.function('createjob_get_similar_units', '0.1.0', register_globally=True)
 def createjob_get_similar_units(labbox, recording_object, sorting_object):
     from labbox_ephys import prepare_snippets_h5
     jh = labbox.get_job_handler('partition1')
@@ -11,19 +11,22 @@ def createjob_get_similar_units(labbox, recording_object, sorting_object):
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return get_similar_units.run(
             snippets_h5=snippets_h5
         )
 
-@hi.function('get_similar_units', '0.1.10')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'get_similar_units', '0.1.10',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 def get_similar_units(snippets_h5):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))
         unit_infos = {}

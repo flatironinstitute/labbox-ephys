@@ -1,15 +1,17 @@
 from typing import Dict, Union
 
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import numpy as np
 import spikeextractors as se
 
 
-@hi.function('prepare_snippets_h5', '0.2.6')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.environ.get('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'prepare_snippets_h5', '0.2.6',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 def prepare_snippets_h5(
     recording_object,
     sorting_object,
@@ -36,7 +38,7 @@ def prepare_snippets_h5(
             max_events_per_unit=max_events_per_unit,
             max_neighborhood_size=max_neighborhood_size
         )
-        return ka.store_file(save_path)
+        return kp.store_file(save_path)
 
 def prepare_snippets_h5_from_extractors(
     recording: se.RecordingExtractor,

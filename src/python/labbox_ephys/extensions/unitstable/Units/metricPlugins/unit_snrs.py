@@ -1,17 +1,20 @@
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
+import kachery_p2p as kp
 import numpy as np
 
 from labbox_ephys import prepare_snippets_h5
 from labbox_ephys.helpers.get_unit_waveforms import get_unit_waveforms
 
-@hi.function('get_unit_snrs', '0.1.0')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'get_unit_snrs', '0.1.0',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 def get_unit_snrs(snippets_h5):
     import h5py
-    h5_path = ka.load_file(snippets_h5)
+    h5_path = kp.load_file(snippets_h5, p2p=False)
+    assert h5_path is not None
     ret = {}
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))
@@ -30,14 +33,14 @@ def _compute_unit_snr_from_waveforms(waveforms):
     snr = peak_channel_amplitude / est_noise_level
     return snr
 
-@hi.function('createjob_get_unit_snrs', '')
+@hi.function('createjob_get_unit_snrs', '', register_globally=True)
 def createjob_get_unit_snrs(labbox, sorting_object, recording_object, configuration={}):
     jh = labbox.get_job_handler('partition1')
     jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         snippets_h5 = prepare_snippets_h5.run(recording_object=recording_object, sorting_object=sorting_object)
         return get_unit_snrs.run(

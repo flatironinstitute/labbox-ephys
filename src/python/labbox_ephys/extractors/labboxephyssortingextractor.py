@@ -1,9 +1,8 @@
 from copy import deepcopy
 from os.path import basename
-from typing import Union
+from typing import Any, Dict, Union
 
-import hither as hi
-import kachery as ka
+import hither2 as hi
 import kachery_p2p as kp
 import spikeextractors as se
 
@@ -79,10 +78,10 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
 
         if 'firings' in self._object:
             sorting_format = 'mda'
-            data={'firings': self._object['firings'], 'samplerate': self._object.get('samplerate', 30000)}
+            data: Dict[str, Any]={'firings': self._object['firings'], 'samplerate': self._object.get('samplerate', 30000)}
         else:
             sorting_format = self._object['sorting_format']
-            data: dict = self._object['data']
+            data: Dict[str, Any] = self._object['data']
         if sorting_format == 'mda':
             firings_path = kp.load_file(data['firings'])
             assert firings_path is not None, f'Unable to load firings file: {data["firings"]}'
@@ -126,9 +125,6 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
     
     def object(self):
         return deepcopy(self._object)
-    
-    def hash(self) -> str:
-        return ka.get_object_hash(self.object())
 
     def get_unit_ids(self):
         return self._sorting.get_unit_ids()
@@ -148,8 +144,8 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             with hi.TemporaryDirectory() as tmpdir:
                 fname = tmpdir + '/' + _random_string(10) + '_firings.mda'
                 MdaSortingExtractor.write_sorting(sorting=sorting, save_path=fname)
-                with ka.config(use_hard_links=True):
-                    uri = ka.store_file(fname, basename='firings.mda')
+                # with ka.config(use_hard_links=True):
+                uri = kp.store_file(fname, basename='firings.mda')
                 sorting = LabboxEphysSortingExtractor({
                     'sorting_format': 'mda',
                     'data': {

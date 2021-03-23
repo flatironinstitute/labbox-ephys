@@ -1,6 +1,5 @@
 import os
-import hither as hi
-import kachery as ka
+import hither2 as hi
 import numpy as np
 import labbox_ephys as le
 import spikeextractors as se
@@ -8,9 +7,11 @@ import spikeextractors as se
 from ._correlograms_phy import compute_correlograms
 
 
-@hi.function('fetch_correlogram_plot_data', '0.2.6')
-@hi.container('docker://magland/labbox-ephys-processing:0.3.19')
-@hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
+@hi.function(
+    'fetch_correlogram_plot_data', '0.2.6',
+    image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
+    modules=['labbox_ephys']
+)
 @le.serialize
 def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
     S = le.LabboxEphysSortingExtractor(sorting_object)
@@ -18,14 +19,14 @@ def fetch_correlogram_plot_data(sorting_object, unit_x, unit_y=None):
         window_size_msec=50, bin_size_msec=1)
     return data
 
-@hi.function('createjob_fetch_correlogram_plot_data', '')
+@hi.function('createjob_fetch_correlogram_plot_data', '0.1.0', register_globally=True)
 def createjob_fetch_correlogram_plot_data(labbox, sorting_object, unit_x, unit_y=None):
     jh = labbox.get_job_handler('partition1')
     jc = labbox.get_job_cache()
     with hi.Config(
         job_cache=jc,
         job_handler=jh,
-        container=jh.is_remote
+        use_container=jh.is_remote()
     ):
         return fetch_correlogram_plot_data.run(
             sorting_object=sorting_object,

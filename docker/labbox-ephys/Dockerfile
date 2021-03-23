@@ -55,7 +55,7 @@ RUN npm install -g kachery-p2p-daemon@0.5.24
 
 # #########################################
 # ### Install hither
-RUN pip install hither==0.4.2
+RUN pip install hither==0.5.2
 
 RUN yarn global add serve
 
