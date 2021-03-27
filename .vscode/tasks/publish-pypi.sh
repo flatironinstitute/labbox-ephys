@@ -18,6 +18,8 @@ jinjaroot verify
 # run pre-publish-tasks.sh
 .vscode/tasks/pre-publish-tasks.sh
 
+cd {{ pythonPackageDir }}
+
 # remove the dist folder
 rm -rf dist
 # create the package for dist

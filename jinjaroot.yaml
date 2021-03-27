@@ -5,6 +5,7 @@ projectDescription:
 projectUrl: https://github.com/flatironinstitute/labbox-ephys
 projectAuthor: Jeremy Magland and Jeff Soules
 projectAuthorEmail: jmagland@flatironinstitute.org
+pythonPackageDir: ./src/python
 dockerUser: magland
 clientPort: 15351
 webSocketPort: 15308
