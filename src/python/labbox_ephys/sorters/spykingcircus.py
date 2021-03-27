@@ -1,7 +1,5 @@
 import hither2 as hi
 import kachery_p2p as kp
-import spikeextractors as se
-import numpy as np
 
 from ..extractors import LabboxEphysRecordingExtractor, H5SortingExtractorV1
 
@@ -35,7 +33,7 @@ def spykingcircus(*,
     sorting_params['whitening_max_elts'] = whitening_max_elts
     sorting_params['clustering_max_elts'] = clustering_max_elts
     print('Using sorting parameters:', sorting_params)
-    with hi.TemporaryDirectory() as tmpdir:
+    with kp.TemporaryDirectory() as tmpdir:
         sorting = ss.run_spykingcircus(recording, output_folder=tmpdir + '/sc_output', delete_output_folder=False, verbose=True, **sorting_params)
         h5_output_fname = tmpdir + '/sorting.h5'
         H5SortingExtractorV1.write_sorting(sorting=sorting, save_path=h5_output_fname)

@@ -32,7 +32,7 @@ def mountainsort4(*,
     )
     if num_workers is not None:
         MS4.setNumWorkers(num_workers)
-    with hi.TemporaryDirectory() as tmpdir:
+    with kp.TemporaryDirectory() as tmpdir:
         MS4.setTemporaryDirectory(tmpdir)
         MS4.sort()
         times, labels, channels = MS4.eventTimesLabelsChannels()

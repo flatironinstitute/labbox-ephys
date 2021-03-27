@@ -3,9 +3,10 @@ import spikeextractors as se
 import spiketoolkit as st
 import labbox_ephys as le
 import hither as hi
+import kachery_p2p as kp
 
 # Create a temporary directory where SI will dump the data
-with hi.TemporaryDirectory(remove=True) as tmpdir:
+with kp.TemporaryDirectory(remove=True) as tmpdir:
     # Create a dumpable SpikeInterface recording extractor
     R, S = se.example_datasets.toy_example(dumpable=True, dump_folder=tmpdir, seed=1)
     R2 = se.SubRecordingExtractor(parent_recording=R, start_frame=10)

@@ -1,10 +1,12 @@
+import os
+import stat
 from copy import deepcopy
-from os.path import basename
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 import hither2 as hi
 import kachery_p2p as kp
 import spikeextractors as se
+from spikeextractors.sortingextractor import SortingExtractor
 
 from ._in_memory import (_random_string, get_in_memory_object,
                          register_in_memory_object)
@@ -54,9 +56,9 @@ def _create_object_for_arg(arg: Union[str, dict], samplerate=None) -> Union[dict
     # if arg is a string ending with .json then replace arg by the object
     if (isinstance(arg, str)) and (arg.endswith('.json')):
         path = arg
-        obj = kp.load_object(path)
+        obj = kp.load_json(path)
         if obj is None:
-            raise Exception(f'Unable to load object: {path}')
+            raise Exception(f'Unable to load json object: {path}')
         return obj
     
     # See if it has format 'mda'
@@ -126,7 +128,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
     def object(self):
         return deepcopy(self._object)
 
-    def get_unit_ids(self):
+    def get_unit_ids(self) -> List[int]:
         return self._sorting.get_unit_ids()
 
     def get_unit_spike_train(self, unit_id, start_frame=None, end_frame=None):
@@ -141,7 +143,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
     @staticmethod
     def from_memory(sorting: se.SortingExtractor, serialize=False):
         if serialize:
-            with hi.TemporaryDirectory() as tmpdir:
+            with kp.TemporaryDirectory() as tmpdir:
                 fname = tmpdir + '/' + _random_string(10) + '_firings.mda'
                 MdaSortingExtractor.write_sorting(sorting=sorting, save_path=fname)
                 # with ka.config(use_hard_links=True):
@@ -161,8 +163,35 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
         return LabboxEphysSortingExtractor(obj)
     
     @staticmethod
-    def write_sorting(sorting, save_path):
-        with hi.TemporaryDirectory() as tmpdir:
+    def write_sorting(sorting, save_path=None):
+        if save_path is not None:
+            print('WARNING: save_path not used in LabboxEphysSortingExtractor.write_sorting')
+        with kp.TemporaryDirectory() as tmpdir:
             H5SortingExtractorV1.write_sorting(sorting=sorting, save_path=tmpdir + '/' + _random_string(10) + '_sorting.h5')
+    
+    @staticmethod
+    def store_sorting(sorting: SortingExtractor):
+        with kp.TemporaryDirectory() as tmpdir:
+            save_path = tmpdir + '/sorting.h5'
+            H5SortingExtractorV1.write_sorting(sorting=sorting, save_path=save_path)
 
+            # in case we are in a container, the daemon needs to be able to access this file
+            _add_read_permissions(tmpdir)
+            _add_exec_permissions(tmpdir)
+            _add_read_permissions(save_path)
 
+            uri =kp.store_file(save_path)
+            return {
+                'sorting_format': 'h5_v1',
+                'data': {
+                    'h5_path': uri
+                }
+            }
+
+def _add_read_permissions(fname: str):
+    st = os.stat(fname)
+    os.chmod(fname, st.st_mode | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+
+def _add_exec_permissions(fname: str):
+    st = os.stat(fname)
+    os.chmod(fname, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)

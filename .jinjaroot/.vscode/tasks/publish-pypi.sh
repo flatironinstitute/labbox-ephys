@@ -1,7 +1,44 @@
 #!/bin/bash
 
-set -ex
+set -e
 
-.vscode/tasks/build-py-dist.sh
+# check that we have a clean working directory
+if [ -z "$(git status --porcelain)" ]; then 
+  echo "Working directory is clean"
+else
+  echo "Working directory is not clean (use git status)"
+  exit 1
+fi
 
-twine upload src/python/dist/*
+# verify that code generation is up-to-date (if not throws an error)
+jinjaroot verify
+
+# run pre-publish-tasks.sh
+.vscode/tasks/pre-publish-tasks.sh
+
+# remove the dist folder
+rm -rf dist
+# create the package for dist
+python setup.py sdist
+# Show size of dist
+du -sh dist
+
+# Confirm publish
+while true; do
+    read -p "Publish version {{ projectVersion }} (y/n)?" yn
+    case $yn in
+        [Yy]* ) break;;
+        [Nn]* ) echo "aborting"; exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+
+# upload the package to pypi
+twine upload ./dist/*
+
+# Tag this commit
+git tag v{{ projectVersion }}
+
+echo "Tagged as v{{ projectVersion }}"
+echo "You should increment the version now in jinjaroot.yaml"

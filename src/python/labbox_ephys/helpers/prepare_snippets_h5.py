@@ -27,7 +27,7 @@ def prepare_snippets_h5(
     recording = le.LabboxEphysRecordingExtractor(recording_object)
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
 
-    with hi.TemporaryDirectory() as tmpdir:
+    with kp.TemporaryDirectory() as tmpdir:
         save_path = tmpdir + '/snippets.h5'
         prepare_snippets_h5_from_extractors(
             recording=recording,

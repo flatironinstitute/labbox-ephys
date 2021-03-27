@@ -2,7 +2,6 @@ from copy import deepcopy
 from os.path import basename
 from typing import Union
 
-import hither2 as hi
 import kachery_p2p as kp
 import numpy as np
 import spikeextractors as se
@@ -304,7 +303,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         if serialize:
             if serialize_dtype is None:
                 raise Exception('You must specify the serialize_dtype when serializing recording extractor in from_memory()')
-            with hi.TemporaryDirectory() as tmpdir:
+            with kp.TemporaryDirectory() as tmpdir:
                 fname = tmpdir + '/' + _random_string(10) + '_recording.mda'
                 se.BinDatRecordingExtractor.write_recording(recording=recording, save_path=fname, time_axis=0, dtype=serialize_dtype)
                 # with ka.config(use_hard_links=True):
@@ -341,7 +340,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
 
     # @staticmethod
     # def get_recording_object(recording):
-    #     with hi.TemporaryDirectory() as tmpdir:
+    #     with kp.TemporaryDirectory() as tmpdir:
     #         MdaRecordingExtractor.write_recording(recording=recording, save_path=tmpdir)
     #         raw = ka.store_file(tmpdir + '/raw.mda')
     #         params = ka.load_object(tmpdir + '/params.json')
