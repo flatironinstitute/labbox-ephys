@@ -53,7 +53,7 @@ const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspac
 
     const {appendMessages: appendWorkspaceMessages} = useSubfeed({feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages })
     const workspaceDispatch = useCallback((a: WorkspaceAction) => {
-        appendWorkspaceMessages([a])
+        appendWorkspaceMessages([{action: a}])
     }, [appendWorkspaceMessages])
 
     const handleOpenSettings = useCallback(() => {

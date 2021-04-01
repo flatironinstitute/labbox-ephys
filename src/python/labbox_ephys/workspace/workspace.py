@@ -2,6 +2,7 @@ from typing import Union
 import uuid
 import kachery_p2p as kp
 import spikeextractors as se
+from ..extractors import LabboxEphysRecordingExtractor, LabboxEphysSortingExtractor
 
 def parse_workspace_uri(workspace_uri: str):
     if not workspace_uri.startswith('workspace://'):
@@ -27,14 +28,14 @@ class Workspace:
         return self._feed.get_uri()
     def get_workspace_name(self):
         return self._workspace_name
-    def add_recording(self, *, label: str, recording: se.RecordingExtractor):
+    def add_recording(self, *, label: str, recording: LabboxEphysRecordingExtractor):
         recording_id = 'R-' + _random_id()
         if recording_id in self._recordings:
             raise Exception(f'Duplicate recording ID: {recording_id}')
         x = {
             'recordingId': recording_id,
             'recordingLabel': label,
-            'recordingPath': kp.store_object(recording.object(), basename=f'{label}.json'),
+            'recordingPath': kp.store_json(recording.object(), basename=f'{label}.json'),
             'recordingObject': recording.object(),
             'description': f'Imported from Python: {label}'
         }
@@ -42,7 +43,7 @@ class Workspace:
         _import_le_recording(workspace_subfeed, x)
         self._recordings[recording_id] = x
         return recording_id
-    def add_sorting(self, *, recording_id: str, label: str, sorting: se.SortingExtractor):
+    def add_sorting(self, *, recording_id: str, label: str, sorting: LabboxEphysSortingExtractor):
         sorting_id = 'S-' + _random_id()
         if recording_id not in self._recordings:
             raise Exception(f'Recording not found: {recording_id}')
@@ -52,7 +53,7 @@ class Workspace:
         x = {
             'sortingId': sorting_id,
             'sortingLabel': label,
-            'sortingPath': kp.store_object(sorting.object(), basename=f'{label}.json'),
+            'sortingPath': kp.store_json(sorting.object(), basename=f'{label}.json'),
             'sortingObject': sorting.object(),
 
             'recordingId': recording_id,

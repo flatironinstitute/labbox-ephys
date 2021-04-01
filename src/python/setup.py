@@ -18,7 +18,7 @@ setuptools.setup(
         'spiketoolkit>=0.7.1',
         "aiohttp",
         "aiohttp_cors",
-        'labbox>=0.1.27',
+        'labbox>=0.1.32',
         'jinjaroot>=0.0.2' # for code generation
     ],
     classifiers=[

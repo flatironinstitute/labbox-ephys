@@ -17,15 +17,12 @@ After activating the new environment (`conda activate labbox-ephys`), install th
 conda install -c conda-forge nodejs
 npm install -g serve
 pip install labbox-ephys
+
+# On macOS you may need to use the following to get a recent version of nodejs:
+# conda install nodejs -c conda-forge --repodata-fn=repodata.json
 ```
 
-**Important:** On macOS you may need to use the following to get a recent version of nodejs:
-
-```bash
-conda install nodejs -c conda-forge --repodata-fn=repodata.json
-```
-
-Choose an existing directory where temporary kachery files will be stored and set the KACHERY_STORAGE_DIR environment variable:
+Choose an existing directory where temporary kachery files will be stored and set the KACHERY_STORAGE_DIR environment variable (if not set, `$HOME/kachery-storage` will be used):
 
 ```
 # This should be the full path to an existing directory.
@@ -76,7 +73,7 @@ export KACHERY_P2P_CONFIG_DIR="<Config directory for kachery-p2p>"
 
 # KACHERY_P2P_API_PORT
 # This should correspond to the port being used by the kachery-p2p daemon
-# By default it is 20431
+# By default it is 15351
 export KACHERY_P2P_API_PORT="<Port number used by kachery-p2p daemon>"
 ```
 

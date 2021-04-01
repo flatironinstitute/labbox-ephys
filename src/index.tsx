@@ -24,7 +24,7 @@ registerExtensions(extensionContext).then(() => {
         extensionContext={extensionContext}
         apiConfig={apiConfig}
       >
-        <BrowserRouter><App version="0.5.8" /></BrowserRouter>
+        <BrowserRouter><App version="0.5.9" /></BrowserRouter>
       </LabboxProvider>,
     // </React.StrictMode>,
     document.getElementById('root')
