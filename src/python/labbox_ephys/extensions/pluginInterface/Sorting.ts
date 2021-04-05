@@ -1,6 +1,6 @@
-import { ExternalSortingUnitMetric } from "./exteneralUnitMetrics";
 import { SortingCuration } from "./SortingCuration";
 
+export type ExternalSortingUnitMetric = {name: string, label: string, tooltip?: string, data: {[key: string]: number}}
 export interface SortingInfo {
     unit_ids: number[]
     samplerate: number
@@ -14,8 +14,7 @@ export interface Sorting {
     recordingId: string
     recordingPath: string
     recordingObject: any
-    externalUnitMetricsUri?: string
 
-    externalUnitMetrics?: ExternalSortingUnitMetric[]
+    unitMetricsUri?: string
     curation?: SortingCuration
 }

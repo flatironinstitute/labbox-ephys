@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useReducer, useStat
 import Hyperlink from '../../common/Hyperlink';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { ExternalSortingUnitMetric, LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins, WorkspaceRouteDispatch } from '../../pluginInterface';
+import { LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins, WorkspaceRouteDispatch } from '../../pluginInterface';
 import { SortingCurationWorkspaceAction } from '../../pluginInterface/workspaceReducer';
 
 // const intrange = (a: number, b: number) => {
@@ -23,7 +23,7 @@ interface Props {
   height: number,
   workspaceRouteDispatch: WorkspaceRouteDispatch
   readOnly: boolean
-  onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
+  // onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
   curationDispatch: (a: SortingCurationWorkspaceAction) => void
 }
 
@@ -33,8 +33,8 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { readOnly, sorting, recording, curationDispatch, onSetExternalUnitMetrics, workspaceRouteDispatch } = props
-  const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
+  const { readOnly, sorting, recording, curationDispatch, workspaceRouteDispatch } = props
+  // const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
@@ -49,19 +49,19 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
     }
   }, [selection, recordingInfo])
 
-  useEffect(() => {
-    if ((sorting) && (sorting.externalUnitMetricsUri) && (!sorting.externalUnitMetrics) && (externalUnitMetricsStatus === 'waiting')) {
-      setExternalUnitMetricsStatus('computing');
-      hither.createHitherJob(
-        'fetch_external_sorting_unit_metrics',
-        { uri: sorting.externalUnitMetricsUri },
-        { useClientCache: true }
-      ).wait().then((externalUnitMetrics: any) => {
-        onSetExternalUnitMetrics({ sortingId, externalUnitMetrics: externalUnitMetrics as ExternalSortingUnitMetric[] });
-        setExternalUnitMetricsStatus('finished');
-      })
-    }
-  }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId, hither])
+  // useEffect(() => {
+  //   if ((sorting) && (sorting.externalUnitMetricsUri) && (!sorting.externalUnitMetrics) && (externalUnitMetricsStatus === 'waiting')) {
+  //     setExternalUnitMetricsStatus('computing');
+  //     hither.createHitherJob(
+  //       'fetch_external_sorting_unit_metrics',
+  //       { uri: sorting.externalUnitMetricsUri },
+  //       { useClientCache: true }
+  //     ).wait().then((externalUnitMetrics: any) => {
+  //       onSetExternalUnitMetrics({ sortingId, externalUnitMetrics: externalUnitMetrics as ExternalSortingUnitMetric[] });
+  //       setExternalUnitMetricsStatus('finished');
+  //     })
+  //   }
+  // }, [onSetExternalUnitMetrics, setExternalUnitMetricsStatus, externalUnitMetricsStatus, sorting, sortingId, hither])
 
   const W = props.width || 800
   const H = props.height || 800

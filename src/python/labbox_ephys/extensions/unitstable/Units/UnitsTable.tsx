@@ -1,5 +1,7 @@
+import { useHitherJob } from 'labbox';
 import React, { FunctionComponent, useCallback } from 'react';
-import { ExternalSortingUnitMetric, mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from "../../pluginInterface";
+import { mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from "../../pluginInterface";
+import { ExternalSortingUnitMetric } from '../../pluginInterface/Sorting';
 import sortByPriority from '../../sortByPriority';
 import '../unitstable.css';
 import TableWidget, { Column, Row } from './TableWidget';
@@ -112,7 +114,9 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
         }
     })
 
-    ;(sorting.externalUnitMetrics || []).forEach((m: ExternalSortingUnitMetric) => {
+    const {result: externalUnitMetrics, job: externalUnitMetricsJob} = useHitherJob<ExternalSortingUnitMetric[]>('createjob_fetch_unit_metrics', {unit_metrics_uri: sorting.unitMetricsUri || ''}, {useClientCache: true})
+
+    ;(externalUnitMetrics || []).forEach((m: ExternalSortingUnitMetric) => {
         const columnName = 'external-metric-' + m.name
         columns.push({
             columnName,

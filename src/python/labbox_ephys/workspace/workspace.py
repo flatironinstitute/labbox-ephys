@@ -1,6 +1,7 @@
-from typing import Union
+from typing import List, Union
 import uuid
 import kachery_p2p as kp
+from numpy import intersect1d, number, unique
 import spikeextractors as se
 from ..extractors import LabboxEphysRecordingExtractor, LabboxEphysSortingExtractor
 
@@ -22,6 +23,7 @@ class Workspace:
         workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         self._recordings = _get_recordings_from_subfeed(workspace_subfeed)
         self._sortings = _get_sortings_from_subfeed(workspace_subfeed)
+        self._unit_metrics_for_sortings = _get_unit_metrics_for_sortings_from_subfeed(workspace_subfeed)
     def get_uri(self):
         return self._workspace_uri
     def get_feed_uri(self):
@@ -65,7 +67,16 @@ class Workspace:
         workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
         _import_le_sorting(workspace_subfeed, x)
         self._sortings[sorting_id] = x
-        return x
+        return sorting_id
+    def set_unit_metrics_for_sorting(self, *, sorting_id: str, metrics: List[dict]):
+        metrics_uri = kp.store_json(metrics, basename='unit_metrics.json')
+        x = {
+            'sortingId': sorting_id,
+            'metricsUri': metrics_uri
+        }
+        workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
+        _set_unit_metrics_for_sorting(workspace_subfeed, x)
+        self._unit_metrics_for_sortings[sorting_id] = metrics
     def delete_recording(self, recording_id: str):
         if recording_id not in self._recordings:
             raise Exception(f'Recording not found: {recording_id}')
@@ -79,11 +90,32 @@ class Workspace:
     def get_recording(self, recording_id: str):
         return self._recordings[recording_id]
     def get_sorting(self, sorting_id: str):
-        return self._recordings[sorting_id]
-    def get_recordings(self):
-        return self._recordings
-    def get_sortings(self):
-        return self._sortings
+        return self._sortings[sorting_id]
+    def get_recording_ids(self):
+        return list(self._recordings.keys())
+    def get_sorting_ids(self):
+        return list(self._sortings.keys())
+    def get_sorting_ids_for_recording(self, recording_id: str):
+        return [sid for sid in self.get_sorting_ids() if self.get_sorting(sid)['recordingId'] == recording_id]
+    def get_recording_extractor(self, recording_id):
+        r = self.get_recording(recording_id)
+        return LabboxEphysRecordingExtractor(r['recordingObject'])
+    def get_sorting_extractor(self, sorting_id):
+        s = self.get_sorting(sorting_id)
+        return LabboxEphysSortingExtractor(s['sortingObject'])
+    def get_sorting_curation(self, sorting_id: str):
+        workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
+        return _get_sorting_curation(workspace_subfeed, sorting_id=sorting_id)
+    def get_curated_sorting_extractor(self, sorting_id):
+        s = self.get_sorting(sorting_id)
+        sc = self.get_sorting_curation(sorting_id)
+        return LabboxEphysSortingExtractor({
+            'sorting_format': 'curated',
+            'data': {
+                'sorting': s['sortingObject'],
+                'merge_groups': sc.get('mergeGroups', [])
+            }
+        })
 
 
 def load_workspace(workspace_uri: str='default'):
@@ -132,7 +164,83 @@ def _get_sortings_from_subfeed(subfeed: kp.Subfeed):
                     for sid in sids:
                         if le_sortings[sid]['recordingId'] == rid:
                             del le_sortings[sid]
+            elif a.get('type', '') == 'DELETE_RECORDINGS':
+                for rid in a.get('recordingIds', []):
+                    sids = list(le_sortings.keys())
+                    for sid in sids:
+                        if le_sortings[sid]['recordingId'] == rid:
+                            del le_sortings[sid]
     return le_sortings
+
+def _get_unit_metrics_for_sortings_from_subfeed(subfeed: kp.Subfeed):
+    subfeed.set_position(0)
+    sortings = _get_sortings_from_subfeed(subfeed)
+    le_unit_metrics_for_sortings = {}
+    while True:
+        msg = subfeed.get_next_message(wait_msec=0)
+        if msg is None: break
+        if 'action' in msg:
+            a = msg['action']
+            if a.get('type', '') == 'SET_UNIT_METRICS_FOR_SORTING':
+                x = a.get('unitMetricsForSorting', {})
+                sid = x.get('sortingId', '')
+                uri = x.get('metricsUri')
+                if sid in sortings:
+                    le_unit_metrics_for_sortings[sid] = kp.load_json(uri)
+    return le_unit_metrics_for_sortings
+
+def _mg_intersection(g1: List[number], g2: List[number]):
+    return [x for x in g1 if x in g2]
+
+def _mg_union(g1: List[number], g2: List[number]):
+    return sorted(list(set(g1 + g2)))
+
+def _simplify_merge_groups(merge_groups: List[List[number]]):
+    new_merge_groups = [[x for x in g] for g in merge_groups] # make a copy
+    something_changed = True
+    while something_changed:
+        something_changed = False
+        for i in range(len(new_merge_groups)):
+            g1 = new_merge_groups[i]
+            for j in range(i + 1, len(new_merge_groups)):
+                g2 = new_merge_groups[j]
+                if len(_mg_intersection(g1, g2)) > 0:
+                    new_merge_groups[i] = _mg_union(g1, g2)
+                    new_merge_groups[j] = []
+                    something_changed = True
+    return [sorted(mg) for mg in new_merge_groups if len(mg) >= 2]
+
+def _get_sorting_curation(subfeed: kp.Subfeed, sorting_id: str):
+    subfeed.set_position(0)
+    labels_by_unit = {}
+    merge_groups = []
+    while True:
+        msg = subfeed.get_next_message(wait_msec=0)
+        if msg is None: break
+        if 'action' in msg:
+            a = msg['action']
+            if a.get('type', '') == 'ADD_UNIT_LABEL':
+                unit_id = a.get('unitId', '')
+                label = a.get('label', '')
+                if unit_id not in labels_by_unit:
+                    labels_by_unit[unit_id] = []
+                labels_by_unit[unit_id].append(label)
+                labels_by_unit[unit_id] = sorted(list(set(labels_by_unit[unit_id])))
+            elif a.get('type', '') == 'REMOVE_UNIT_LABEL':
+                unit_id = a.get('unitId', '')
+                label = a.get('label', '')
+                if unit_id in labels_by_unit:
+                    labels_by_unit[unit_id] = [x for x in labels_by_unit[unit_id] if x != label]
+            elif a.get('type', 'MERGE_UNITS'):
+                unit_ids = a.get('unitIds', [])
+                merge_groups = _simplify_merge_groups(merge_groups + [unit_ids])
+            elif a.get('type', 'UNMERGE_UNITS'):
+                unit_ids = a.get('unitIds', [])
+                merge_groups = _simplify_merge_groups([[u for u in mg if (u not in unit_ids)] for mg in merge_groups])
+    return {
+        'labelsByUnit': labels_by_unit,
+        'mergeGroups': merge_groups
+    }
 
 def _import_le_recording(subfeed: kp.Subfeed, le_recording):
     le_recordings = _get_recordings_from_subfeed(subfeed)
@@ -159,6 +267,16 @@ def _import_le_sorting(subfeed: kp.Subfeed, le_sorting):
         'action': {
             'type': 'ADD_SORTING',
             'sorting': le_sorting
+        }
+    })
+
+def _set_unit_metrics_for_sorting(subfeed: kp.Subfeed, le_unit_metrics_for_sorting):
+    sid = le_unit_metrics_for_sorting['sortingId']
+    print(f'Setting unit metrics for sorting {sid}')
+    subfeed.submit_message({
+        'action': {
+            'type': 'SET_UNIT_METRICS_FOR_SORTING',
+            'unitMetricsForSorting': le_unit_metrics_for_sorting
         }
     })
 

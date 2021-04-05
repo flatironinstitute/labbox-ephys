@@ -7,7 +7,6 @@ import { SortingViewPlugin } from "./SortingViewPlugin";
 import { WorkspaceRoute, WorkspaceRouteDispatch } from './WorkspaceRoute';
 import { WorkspaceViewPlugin } from "./WorkspaceViewPlugin";
 
-export type { ExternalSortingUnitMetric } from './exteneralUnitMetrics';
 export type { Recording, RecordingInfo } from './Recording';
 export { recordingSelectionReducer } from './RecordingSelection';
 export type { RecordingSelection, RecordingSelectionAction, RecordingSelectionDispatch } from './RecordingSelection';

@@ -1,7 +1,7 @@
 import os
 import stat
 from copy import deepcopy
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, cast
 
 import hither2 as hi
 import kachery_p2p as kp
@@ -13,6 +13,7 @@ from ._in_memory import (_random_string, get_in_memory_object,
 from .h5extractors.h5sortingextractorv1 import H5SortingExtractorV1
 from .mdaextractors import MdaSortingExtractor
 from .snippetsextractors import Snippets1SortingExtractor
+from .curatedsortingextractor import CuratedSortingExtractor
 
 
 def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None, dict]:
@@ -120,6 +121,11 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             if S is None:
                 raise Exception('Unable to find in-memory object for sorting')
             self._sorting = S
+        elif sorting_format == 'curated':
+            parent_sorting = LabboxEphysSortingExtractor(data['sorting'])
+            merge_groups = data.get('merge_groups', [])
+            S = CuratedSortingExtractor(parent_sorting=parent_sorting, merge_groups=merge_groups)
+            self._sorting = S
         else:
             raise Exception(f'Unexpected sorting format: {sorting_format}')
 
@@ -129,7 +135,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
         return deepcopy(self._object)
 
     def get_unit_ids(self) -> List[int]:
-        return self._sorting.get_unit_ids()
+        return cast(List[int], self._sorting.get_unit_ids())
 
     def get_unit_spike_train(self, unit_id, start_frame=None, end_frame=None):
         return self._sorting.get_unit_spike_train(unit_id=unit_id, start_frame=start_frame, end_frame=end_frame)

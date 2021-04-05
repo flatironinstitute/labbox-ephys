@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { ExternalSortingUnitMetric } from "../../pluginInterface";
 import { SortingCurationWorkspaceAction } from '../../pluginInterface/workspaceReducer';
 import { WorkspaceViewProps } from '../../pluginInterface/WorkspaceViewPlugin';
 import SortingView from './SortingView';
@@ -97,7 +96,7 @@ const WorkspaceView: FunctionComponent<WorkspaceViewProps> = ({ workspace, works
         <SortingView
           sorting={sorting}
           recording={recording}
-          onSetExternalUnitMetrics={(a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => { }}
+          // onSetExternalUnitMetrics={(a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => { }}
           curationDispatch={curationDispatch}
           width={width}
           height={height}

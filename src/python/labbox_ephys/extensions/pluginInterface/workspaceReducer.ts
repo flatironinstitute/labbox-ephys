@@ -63,8 +63,16 @@ export interface SetSortingCurationWorkspaceAction {
     curation: SortingCuration
 }
 
+export interface SetUnitMetricsForSortingWorkspaceAction {
+    type: 'SET_UNIT_METRICS_FOR_SORTING'
+    unitMetricsForSorting: {
+        sortingId: string
+        metricsUri: string
+    }
+}
+
 export type SortingCurationWorkspaceAction = AddUnitLabelWorkspaceAction | RemoveUnitLabelWorkspaceAction | SetSortingCurationWorkspaceAction | MergeUnitsAction | UnmergeUnitsAction
-export type WorkspaceAction = AddRecordingWorkspaceAction | DeleteRecordingsWorkspaceAction | AddSortingsWorkspaceAction | DeleteSortingsWorkspaceAction | DeleteSortingsForRecordingsWorkspaceAction | SortingCurationWorkspaceAction
+export type WorkspaceAction = AddRecordingWorkspaceAction | DeleteRecordingsWorkspaceAction | AddSortingsWorkspaceAction | DeleteSortingsWorkspaceAction | DeleteSortingsForRecordingsWorkspaceAction | SortingCurationWorkspaceAction | SetUnitMetricsForSortingWorkspaceAction
 
 export const sortingCurationReducer = (state: SortingCuration, action: SortingCurationWorkspaceAction): SortingCuration => {
     if (action.type === 'SET_CURATION') {
@@ -125,6 +133,8 @@ const workspaceReducer = (s: WorkspaceState, a: WorkspaceAction): WorkspaceState
         case 'MERGE_UNITS':
         case 'UNMERGE_UNITS':
             return {...s, sortings: s.sortings.map(x => (x.sortingId === a.sortingId) ? {...x, curation: sortingCurationReducer(x.curation || {}, a)} : x)}
+        case 'SET_UNIT_METRICS_FOR_SORTING':
+            return {...s, sortings: s.sortings.map(x => (x.sortingId === a.unitMetricsForSorting.sortingId) ? {...x, unitMetricsUri: a.unitMetricsForSorting.metricsUri} : x)}
         default: return s
     }
 }

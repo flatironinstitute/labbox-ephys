@@ -103,7 +103,7 @@
         {
             "label": "_start_dev",
             "type": "shell",
-            "command": "echo 'Starting the client-dev, api-websocket, and api-http tasks...' && sleep 3 && echo 'Point your browser to http://localhost:10407'",
+            "command": "echo 'Starting the client-dev, api-websocket, and api-http tasks...' && sleep 3 && echo 'Point your browser to http://localhost:{{ clientPort }}'",
             "presentation": {
                 "clear": true
             },
