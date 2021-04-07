@@ -5,10 +5,10 @@ import CorrelogramRv2 from './Correlogram_ReactVis2';
 
 // const autocorrelogramsCalculationPool = createCalculationPool({maxSimultaneous: 6});
 
-const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selection, selectionDispatch }) => {
+const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, selection, curation, selectionDispatch }) => {
     const unitComponent = useMemo(() => (unitId: number) => (
         <CorrelogramRv2
-            {...{sorting, unitId1: unitId, selection, selectionDispatch}}
+            {...{sorting, unitId1: unitId, selection, curation, selectionDispatch}}
             width={180}
             height={180}
         />
@@ -18,6 +18,7 @@ const AutoCorrelograms: React.FunctionComponent<SortingViewProps> = ({ sorting, 
         <SortingUnitPlotGrid
             sorting={sorting}
             selection={selection}
+            curation={curation}
             selectionDispatch={selectionDispatch}
             unitComponent={unitComponent}
         />

@@ -1,12 +1,13 @@
 import { createCalculationPool, useHitherJob } from 'labbox';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import HitherJobStatusView from '../../common/HitherJobStatusView';
-import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
+import { applyMergesToUnit, Recording, Sorting, SortingCuration, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import IndividualClusterWidget from './IndividualClusterWidget';
 
 type Props = {
     recording: Recording
     sorting: Sorting
+    curation: SortingCuration
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
     unitId: number
@@ -22,13 +23,13 @@ type Result = {
     y: number[]
 }
 
-const IndividualClusterView: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, width, height }) => {
+const IndividualClusterView: FunctionComponent<Props> = ({ recording, sorting, curation, selection, selectionDispatch, unitId, width, height }) => {
     const {result: features, job} = useHitherJob<Result>(
         'createjob_individual_cluster_features',
         {
             recording_object: recording.recordingObject,
             sorting_object: sorting.sortingObject,
-            unit_id: applyMergesToUnit(unitId, sorting.curation, selection.applyMerges)
+            unit_id: applyMergesToUnit(unitId, curation, selection.applyMerges)
         },
         {
             useClientCache: true,

@@ -59,7 +59,7 @@ interface OwnProps {
 
 const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
     const hither = useContext(HitherContext)
-    const { sorting, recording, selection, selectionDispatch, width, height } = props
+    const { sorting, recording, selection, selectionDispatch, curation, width, height } = props
     const [expandedTable, setExpandedTable] = useState(false)
     const [metrics, updateMetrics] = useReducer(updateMetricData, initialMetricDataState)
     const [previousRecording, setPreviousRecording] = useState<Recording | null>(null)
@@ -126,6 +126,7 @@ const Units: React.FunctionComponent<SortingViewProps & OwnProps> = (props) => {
                     selection={selection}
                     selectionDispatch={selectionDispatch}
                     sorting={sorting}
+                    curation={curation}
                     height={height}
                 />
                 {

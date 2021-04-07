@@ -130,7 +130,7 @@ interface PreprocessingProps {
 
 const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'waiting' | 'running' | 'finished'} & PreprocessingProps> = (props) => {
     // useCheckForChanges('MVSortingView', props)
-    const {recording, sorting, recordingInfo, selection, selectionDispatch, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch, curationDispatch} = props
+    const {recording, sorting, recordingInfo, selection, selectionDispatch, curation, preloadStatus, preprocessingSelection, preprocessingSelectionDispatch, curationDispatch} = props
     const [openViews, openViewsDispatch] = useReducer(openViewsReducer, [])
     const [initializedViews, setInitializedViews] = useState(false)
 
@@ -216,7 +216,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
 
                     {/* Visible units */}
                     <Expandable icon={visibleUnitsIcon} label="Visible units" defaultExpanded={false} unmountOnExit={false}>
-                        <VisibleUnitsControl sorting={sorting} recording={recording} selection={selection} selectionDispatch={selectionDispatch} />
+                        <VisibleUnitsControl sorting={sorting} recording={recording} selection={selection} selectionDispatch={selectionDispatch} curation={curation} />
                     </Expandable>
 
                     {/* Visible electrodes */}
@@ -238,7 +238,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                                 
                             <CurationControl
                                 sortingId={sorting.sortingId}
-                                curation={props.sorting.curation || {}}
+                                curation={props.curation || {}}
                                 curationDispatch={curationDispatch}
                                 selection={props.selection}
                                 selectionDispatch={props.selectionDispatch}

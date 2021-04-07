@@ -1,6 +1,7 @@
 import { Recording } from "./Recording"
 import { Sorting } from "./Sorting"
-import { SortingCuration } from "./SortingCuration"
+import { SortingCuration, SortingCurationAction } from "./SortingCuration"
+
 
 export type WorkspaceState = {
     recordings: Recording[]
@@ -32,37 +33,6 @@ type DeleteSortingsForRecordingsWorkspaceAction = {
     recordingIds: string[]
 }
 
-export interface AddUnitLabelWorkspaceAction {
-    type: 'ADD_UNIT_LABEL'
-    sortingId: string
-    unitId: number
-    label: string
-}
-
-export interface RemoveUnitLabelWorkspaceAction {
-    type: 'REMOVE_UNIT_LABEL'
-    sortingId: string
-    unitId: number
-    label: string
-}
-
-export interface MergeUnitsAction {
-    type: 'MERGE_UNITS'
-    sortingId: string
-    unitIds: number[]
-}
-
-export interface UnmergeUnitsAction {
-    type: 'UNMERGE_UNITS'
-    sortingId: string
-    unitIds: number[]
-}
-
-export interface SetSortingCurationWorkspaceAction {
-    type: 'SET_CURATION'
-    curation: SortingCuration
-}
-
 export interface SetUnitMetricsForSortingWorkspaceAction {
     type: 'SET_UNIT_METRICS_FOR_SORTING'
     unitMetricsForSorting: {
@@ -71,10 +41,9 @@ export interface SetUnitMetricsForSortingWorkspaceAction {
     }
 }
 
-export type SortingCurationWorkspaceAction = AddUnitLabelWorkspaceAction | RemoveUnitLabelWorkspaceAction | SetSortingCurationWorkspaceAction | MergeUnitsAction | UnmergeUnitsAction
-export type WorkspaceAction = AddRecordingWorkspaceAction | DeleteRecordingsWorkspaceAction | AddSortingsWorkspaceAction | DeleteSortingsWorkspaceAction | DeleteSortingsForRecordingsWorkspaceAction | SortingCurationWorkspaceAction | SetUnitMetricsForSortingWorkspaceAction
+export type WorkspaceAction = AddRecordingWorkspaceAction | DeleteRecordingsWorkspaceAction | AddSortingsWorkspaceAction | DeleteSortingsWorkspaceAction | DeleteSortingsForRecordingsWorkspaceAction | SetUnitMetricsForSortingWorkspaceAction
 
-export const sortingCurationReducer = (state: SortingCuration, action: SortingCurationWorkspaceAction): SortingCuration => {
+export const sortingCurationReducer = (state: SortingCuration, action: SortingCurationAction): SortingCuration => {
     if (action.type === 'SET_CURATION') {
         return action.curation
     }
@@ -128,11 +97,11 @@ const workspaceReducer = (s: WorkspaceState, a: WorkspaceAction): WorkspaceState
         case 'ADD_SORTING': return { ...s, sortings: [...s.sortings.filter(x => (x.sortingId !== a.sorting.sortingId)), a.sorting] }
         case 'DELETE_SORTINGS': return { ...s, sortings: s.sortings.filter(x => !a.sortingIds.includes(x.sortingId)) }
         case 'DELETE_SORTINGS_FOR_RECORDINGS': return { ...s, sortings: s.sortings.filter(x => !a.recordingIds.includes(x.recordingId)) }
-        case 'ADD_UNIT_LABEL':
-        case 'REMOVE_UNIT_LABEL':
-        case 'MERGE_UNITS':
-        case 'UNMERGE_UNITS':
-            return {...s, sortings: s.sortings.map(x => (x.sortingId === a.sortingId) ? {...x, curation: sortingCurationReducer(x.curation || {}, a)} : x)}
+        // case 'ADD_UNIT_LABEL':
+        // case 'REMOVE_UNIT_LABEL':
+        // case 'MERGE_UNITS':
+        // case 'UNMERGE_UNITS':
+        //     return {...s, sortings: s.sortings.map(x => (x.sortingId === a.sortingId) ? {...x, curation: sortingCurationReducer(x.curation || {}, a)} : x)}
         case 'SET_UNIT_METRICS_FOR_SORTING':
             return {...s, sortings: s.sortings.map(x => (x.sortingId === a.unitMetricsForSorting.sortingId) ? {...x, unitMetricsUri: a.unitMetricsForSorting.metricsUri} : x)}
         default: return s

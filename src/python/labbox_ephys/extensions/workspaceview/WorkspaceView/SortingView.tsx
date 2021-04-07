@@ -1,10 +1,12 @@
-import { createCalculationPool, HitherContext, usePlugins } from 'labbox';
+import { createCalculationPool, HitherContext, usePlugins, useSubfeed } from 'labbox';
 import React, { useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import Hyperlink from '../../common/Hyperlink';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins, WorkspaceRouteDispatch } from '../../pluginInterface';
-import { SortingCurationWorkspaceAction } from '../../pluginInterface/workspaceReducer';
+import { LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins, WorkspaceRoute, WorkspaceRouteDispatch } from '../../pluginInterface';
+import { parseWorkspaceUri } from '../../pluginInterface/misc';
+import { SortingCurationAction } from '../../pluginInterface/SortingCuration';
+import { sortingCurationReducer } from '../../pluginInterface/workspaceReducer';
 
 // const intrange = (a: number, b: number) => {
 //   const lower = a < b ? a : b;
@@ -21,10 +23,10 @@ interface Props {
   recording: Recording
   width: number,
   height: number,
+  workspaceRoute: WorkspaceRoute
   workspaceRouteDispatch: WorkspaceRouteDispatch
   readOnly: boolean
   // onSetExternalUnitMetrics: (a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => void
-  curationDispatch: (a: SortingCurationWorkspaceAction) => void
 }
 
 type CalcStatus = 'waiting' | 'computing' | 'finished'
@@ -33,7 +35,7 @@ const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
 const SortingView: React.FunctionComponent<Props> = (props) => {
   const hither = useContext(HitherContext)
-  const { readOnly, sorting, recording, curationDispatch, workspaceRouteDispatch } = props
+  const { workspaceRoute, readOnly, sorting, recording, workspaceRouteDispatch } = props
   // const [externalUnitMetricsStatus, setExternalUnitMetricsStatus] = useState<CalcStatus>('waiting');
   //const initialSortingSelection: SortingSelection = {currentTimepoint: 1000, animation: {currentTimepointVelocity: 100, lastUpdateTimestamp: Number(new Date())}}
   const initialSortingSelection: SortingSelection = {}
@@ -42,6 +44,18 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
   const recordingInfo = useRecordingInfo(recording.recordingObject)
   const sortingId = sorting.sortingId
+
+  const {feedUri, workspaceName} = parseWorkspaceUri(workspaceRoute.workspaceUri)
+
+  const [curation, curationDispatch2] = useReducer(sortingCurationReducer, useMemo(() => ({}), []))
+  const handleCurationSubfeedMessages = useCallback((messages: any[]) => {
+    messages.forEach(msg => curationDispatch2(msg))
+  }, [])
+  const curationSubfeedName = useMemo(() => ({name: 'sortingCuration', workspaceName, sortingId}), [workspaceName, sortingId])
+  const {appendMessages: appendCurationMessages} = useSubfeed({feedUri, subfeedName: curationSubfeedName, onMessages: handleCurationSubfeedMessages })
+  const curationDispatch = useCallback((a: SortingCurationAction) => {
+      appendCurationMessages([a])
+  }, [appendCurationMessages])
 
   useEffect(() => {
     if ((!selection.timeRange) && (recordingInfo)) {
@@ -125,6 +139,7 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
             recordingInfo={recordingInfo}
             selection={selection}
             selectionDispatch={selectionDispatch}
+            curation={curation}
             curationDispatch={curationDispatch}
             readOnly={readOnly}
             calculationPool={calculationPool}

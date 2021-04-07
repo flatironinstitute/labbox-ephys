@@ -4,34 +4,36 @@ export type SortingCuration = {
     mergeGroups?: (number[])[]
 }
 
-export type SortingCurationDispatch = (action: SortingCurationAction) => void
+export interface AddUnitLabelCurationAction {
+    type: 'ADD_UNIT_LABEL'
+    unitId: number
+    label: string
+}
 
-type SetCurationSortingCurationAction = {
-    type: 'SetCuration',
+export interface RemoveUnitLabelCurationAction {
+    type: 'REMOVE_UNIT_LABEL'
+    unitId: number
+    label: string
+}
+
+export interface MergeUnitsCurationAction {
+    type: 'MERGE_UNITS'
+    unitIds: number[]
+}
+
+export interface UnmergeUnitsCurationAction {
+    type: 'UNMERGE_UNITS'
+    unitIds: number[]
+}
+
+export interface SetCurationCurationAction {
+    type: 'SET_CURATION'
     curation: SortingCuration
 }
 
-type AddLabelSortingCurationAction = {
-    type: 'AddLabel',
-    unitId: number
-    label: string
-}
+export type SortingCurationAction = AddUnitLabelCurationAction | RemoveUnitLabelCurationAction | MergeUnitsCurationAction | UnmergeUnitsCurationAction | SetCurationCurationAction
 
-type RemoveLabelSortingCurationAction = {
-    type: 'RemoveLabel',
-    unitId: number
-    label: string
-}
-type MergeUnitsSortingCurationAction = {
-    type: 'MergeUnits',
-    unitIds: number[]
-}
-type UnmergeUnitsSortingCurationAction = {
-    type: 'UnmergeUnits',
-    unitIds: number[]
-}
-
-export type SortingCurationAction = SetCurationSortingCurationAction | AddLabelSortingCurationAction | RemoveLabelSortingCurationAction | MergeUnitsSortingCurationAction | UnmergeUnitsSortingCurationAction
+export type SortingCurationDispatch = (action: SortingCurationAction) => void
 
 export const mergeGroupForUnitId = (unitId: number, curation: SortingCuration | undefined) => {
     const mergeGroups = (curation || {}).mergeGroups || []

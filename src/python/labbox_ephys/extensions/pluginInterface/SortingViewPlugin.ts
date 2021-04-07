@@ -2,15 +2,16 @@ import { CalculationPool } from 'labbox';
 import { LabboxViewPlugin } from ".";
 import { Recording, RecordingInfo } from "./Recording";
 import { Sorting, SortingInfo } from "./Sorting";
+import { SortingCuration, SortingCurationAction } from './SortingCuration';
 import { SortingSelection, SortingSelectionAction } from "./SortingSelection";
-import { SortingCurationWorkspaceAction } from "./workspaceReducer";
 
 export interface SortingViewProps {
     sorting: Sorting
     recording: Recording
     sortingInfo: SortingInfo
     recordingInfo: RecordingInfo
-    curationDispatch?: (action: SortingCurationWorkspaceAction) => void
+    curation: SortingCuration
+    curationDispatch: (action: SortingCurationAction) => void
     selection: SortingSelection
     selectionDispatch: (a: SortingSelectionAction) => void
     readOnly: boolean | null

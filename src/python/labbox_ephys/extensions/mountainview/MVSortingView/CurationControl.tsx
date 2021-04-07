@@ -2,12 +2,12 @@ import { Checkbox, Grid, Paper } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import sizeMe, { SizeMeProps } from 'react-sizeme';
 import { SortingCuration, SortingSelection, SortingSelectionDispatch } from '../../pluginInterface';
-import { SortingCurationWorkspaceAction } from '../../pluginInterface/workspaceReducer';
+import { SortingCurationAction } from '../../pluginInterface/SortingCuration';
 
 type Props = {
     sortingId: string
     curation: SortingCuration
-    curationDispatch: (a: SortingCurationWorkspaceAction) => void
+    curationDispatch: (a: SortingCurationAction) => void
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
 }
@@ -16,7 +16,7 @@ const buttonStyle = {
     paddingTop: 3, paddingBottom: 3, border: 1, borderStyle: 'solid', borderColor: 'gray'
 }
 
-const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ sortingId, selection, selectionDispatch, curation, curationDispatch, size }) => {
+const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ selection, selectionDispatch, curation, curationDispatch, size }) => {
     const width = size.width || 300
     const selectedUnitIds = useMemo(() => (selection.selectedUnitIds || []), [selection.selectedUnitIds])
     const _handleApplyLabel = useCallback(
@@ -24,13 +24,12 @@ const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ sortingId, se
             for (let unitId of selectedUnitIds) {
                 curationDispatch({
                     type: 'ADD_UNIT_LABEL',
-                    sortingId: sortingId,
                     unitId,
                     label
                 })
             }
         },
-        [curationDispatch, selectedUnitIds, sortingId],
+        [curationDispatch, selectedUnitIds],
     )
 
     const _handleRemoveLabel = useCallback(
@@ -38,30 +37,27 @@ const CurationControl: FunctionComponent<Props & SizeMeProps> = ({ sortingId, se
             for (let unitId of selectedUnitIds) {
                 curationDispatch({
                     type: 'REMOVE_UNIT_LABEL',
-                    sortingId,
                     unitId,
                     label
                 })
             }
         },
-        [curationDispatch, selectedUnitIds, sortingId]
+        [curationDispatch, selectedUnitIds]
     )
 
     const handleMergeSelected = useCallback(() => {
         curationDispatch({
             type: 'MERGE_UNITS',
-            sortingId,
             unitIds: selectedUnitIds
         })
-    }, [curationDispatch, selectedUnitIds, sortingId])
+    }, [curationDispatch, selectedUnitIds])
 
     const handleUnmergeSelected = useCallback(() => {
         curationDispatch({
             type: 'UNMERGE_UNITS',
-            sortingId,
             unitIds: selectedUnitIds
         })
-    }, [curationDispatch, selectedUnitIds, sortingId])
+    }, [curationDispatch, selectedUnitIds])
 
     const handleToggleApplyMerges = useCallback(() => {
         selectionDispatch({type: 'ToggleApplyMerges', curation})

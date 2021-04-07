@@ -1,6 +1,6 @@
 import { useHitherJob } from 'labbox';
 import React, { FunctionComponent, useCallback } from 'react';
-import { mergeGroupForUnitId, Sorting, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from "../../pluginInterface";
+import { mergeGroupForUnitId, Sorting, SortingCuration, SortingSelection, SortingSelectionDispatch, SortingUnitMetricPlugin } from "../../pluginInterface";
 import { ExternalSortingUnitMetric } from '../../pluginInterface/Sorting';
 import sortByPriority from '../../sortByPriority';
 import '../unitstable.css';
@@ -13,11 +13,12 @@ interface Props {
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
     sorting: Sorting
+    curation: SortingCuration
     height?: number
 }
 
 const UnitsTable: FunctionComponent<Props> = (props) => {
-    const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, sorting, height } = props
+    const { sortingUnitMetrics, units, metrics, selection, selectionDispatch, curation, sorting, height } = props
     const selectedUnitIds = ((selection || {}).selectedUnitIds || [])
     const sortingUnitMetricsList = sortByPriority(Object.values(sortingUnitMetrics || {})).filter(p => (!p.disabled))
 
@@ -92,7 +93,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     rows.forEach(row => {
         const unitId = Number(row.rowId)
         row.data['_unit_id'] = {
-            value: {unitId, mergeGroup: mergeGroupForUnitId(unitId, sorting.curation)},
+            value: {unitId, mergeGroup: mergeGroupForUnitId(unitId, curation)},
             sortValue: unitId
         }
     })
@@ -107,7 +108,7 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     })
     rows.forEach(row => {
         const unitId = Number(row.rowId)
-        const labels = getLabelsForUnitId(unitId, sorting)
+        const labels = getLabelsForUnitId(unitId, curation)
         row.data['_labels'] = {
             value: labels,
             sortValue: labels.join(', ')
@@ -175,8 +176,8 @@ const UnitsTable: FunctionComponent<Props> = (props) => {
     )
 }
 
-const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
-    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {};
+const getLabelsForUnitId = (unitId: number, curation: SortingCuration) => {
+    const labelsByUnit = (curation || {}).labelsByUnit || {};
     return labelsByUnit[unitId] || []
 }
 

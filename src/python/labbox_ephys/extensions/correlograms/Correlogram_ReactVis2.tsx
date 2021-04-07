@@ -2,7 +2,7 @@ import { createCalculationPool, useHitherJob } from 'labbox';
 import React, { FunctionComponent } from 'react';
 import { VerticalBarSeries, XAxis, XYPlot, YAxis } from 'react-vis';
 import HitherJobStatusView from '../common/HitherJobStatusView';
-import { applyMergesToUnit, Sorting, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
+import { applyMergesToUnit, Sorting, SortingCuration, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
 
 type PlotData = {
     bins: number[]
@@ -15,6 +15,7 @@ type Props = {
     unitId1: number
     unitId2?: number
     selection: SortingSelection
+    curation: SortingCuration
     selectionDispatch: SortingSelectionDispatch
     width: number
     height: number
@@ -22,14 +23,14 @@ type Props = {
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const Correlogram_rv2: FunctionComponent<Props> = ({ sorting, unitId1, unitId2, selection, selectionDispatch, width, height }) => {
+const Correlogram_rv2: FunctionComponent<Props> = ({ sorting, unitId1, unitId2, selection, curation, selectionDispatch, width, height }) => {
     
     const {result: plotData, job} = useHitherJob<PlotData>(
         'createjob_fetch_correlogram_plot_data',
         {
             sorting_object: sorting.sortingObject,
-            unit_x: applyMergesToUnit(unitId1, sorting.curation, selection.applyMerges),
-            unit_y: unitId2 !== undefined ? applyMergesToUnit(unitId2, sorting.curation, selection.applyMerges) : null
+            unit_x: applyMergesToUnit(unitId1, curation, selection.applyMerges),
+            unit_y: unitId2 !== undefined ? applyMergesToUnit(unitId2, curation, selection.applyMerges) : null
         },
         {useClientCache: false, calculationPool}
     )

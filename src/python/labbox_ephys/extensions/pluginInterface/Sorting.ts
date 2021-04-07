@@ -16,5 +16,4 @@ export interface Sorting {
     recordingObject: any
 
     unitMetricsUri?: string
-    curation?: SortingCuration
 }

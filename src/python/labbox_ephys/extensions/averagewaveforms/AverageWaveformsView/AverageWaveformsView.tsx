@@ -14,7 +14,7 @@ export type AverageWaveformAction = ActionItem | DividerItem
 const TOOLBAR_INITIAL_WIDTH = 36 // hard-coded for now
 
 const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
-    const {recording, sorting, selection, selectionDispatch, width=600, height=650} = props
+    const {recording, sorting, curation, selection, selectionDispatch, width=600, height=650} = props
     const recordingInfo = useRecordingInfo(recording.recordingObject)
     const boxHeight = 250
     const boxWidth = 180
@@ -22,7 +22,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
     const [scalingActions, setScalingActions] = useState<AverageWaveformAction[] | null>(null)
     const unitComponent = useMemo(() => (unitId: number) => (
         <AverageWaveformView
-            {...{sorting, recording, unitId, selection, selectionDispatch}}
+            {...{sorting, curation, recording, unitId, selection, selectionDispatch}}
             width={boxWidth}
             height={boxHeight}
             noiseLevel={noiseLevel}
@@ -76,6 +76,7 @@ const AverageWaveformsView: FunctionComponent<SortingViewProps> = (props) => {
                     <SortingUnitPlotGrid
                         sorting={sorting}
                         selection={selection}
+                        curation={curation}
                         selectionDispatch={selectionDispatch}
                         unitComponent={unitComponent}
                     />

@@ -1,16 +1,17 @@
 import { Button, Grid } from '@material-ui/core';
 import React, { FunctionComponent, useCallback, useState } from 'react';
-import { isMergeGroupRepresentative, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
+import { isMergeGroupRepresentative, Sorting, SortingCuration, SortingInfo, SortingSelection, SortingSelectionDispatch } from "../pluginInterface";
 import { useSortingInfo } from './useSortingInfo';
 
 type Props = {
     sorting: Sorting
     selection: SortingSelection
+    curation: SortingCuration
     selectionDispatch: SortingSelectionDispatch
     unitComponent: (unitId: number) => React.ReactElement
 }
 
-const SortingUnitPlotGrid: FunctionComponent<Props> = ({ sorting, selection, selectionDispatch, unitComponent }) => {
+const SortingUnitPlotGrid: FunctionComponent<Props> = ({ sorting, selection, curation, selectionDispatch, unitComponent }) => {
     const maxUnitsVisibleIncrement = 60;
     const [maxUnitsVisible, setMaxUnitsVisible] = useState(30);
     const sortingInfo: SortingInfo | undefined = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
@@ -18,7 +19,7 @@ const SortingUnitPlotGrid: FunctionComponent<Props> = ({ sorting, selection, sel
     const visibleUnitIds = selection.visibleUnitIds
     let unit_ids: number[] = (sortingInfo ? sortingInfo.unit_ids : [])
         .filter(uid => ((!visibleUnitIds) || (visibleUnitIds.includes(uid))))
-        .filter(uid => ((!selection.applyMerges) || (isMergeGroupRepresentative(uid, sorting.curation))))
+        .filter(uid => ((!selection.applyMerges) || (isMergeGroupRepresentative(uid, curation))))
     let showExpandButton = false;
     if (unit_ids.length > maxUnitsVisible) {
         unit_ids = unit_ids.slice(0, maxUnitsVisible);

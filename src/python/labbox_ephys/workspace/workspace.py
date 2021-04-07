@@ -104,8 +104,8 @@ class Workspace:
         s = self.get_sorting(sorting_id)
         return LabboxEphysSortingExtractor(s['sortingObject'])
     def get_sorting_curation(self, sorting_id: str):
-        workspace_subfeed = self._feed.get_subfeed(dict(workspaceName=self._workspace_name))
-        return _get_sorting_curation(workspace_subfeed, sorting_id=sorting_id)
+        curation_subfeed = self._feed.get_subfeed(dict(name='sortingCuration', workspaceName=self._workspace_name, sortingId=sorting_id))
+        return _get_sorting_curation(curation_subfeed, sorting_id=sorting_id)
     def get_curated_sorting_extractor(self, sorting_id):
         s = self.get_sorting(sorting_id)
         sc = self.get_sorting_curation(sorting_id)
@@ -215,28 +215,26 @@ def _get_sorting_curation(subfeed: kp.Subfeed, sorting_id: str):
     labels_by_unit = {}
     merge_groups = []
     while True:
-        msg = subfeed.get_next_message(wait_msec=0)
-        if msg is None: break
-        if 'action' in msg:
-            a = msg['action']
-            if a.get('type', '') == 'ADD_UNIT_LABEL':
-                unit_id = a.get('unitId', '')
-                label = a.get('label', '')
-                if unit_id not in labels_by_unit:
-                    labels_by_unit[unit_id] = []
-                labels_by_unit[unit_id].append(label)
-                labels_by_unit[unit_id] = sorted(list(set(labels_by_unit[unit_id])))
-            elif a.get('type', '') == 'REMOVE_UNIT_LABEL':
-                unit_id = a.get('unitId', '')
-                label = a.get('label', '')
-                if unit_id in labels_by_unit:
-                    labels_by_unit[unit_id] = [x for x in labels_by_unit[unit_id] if x != label]
-            elif a.get('type', 'MERGE_UNITS'):
-                unit_ids = a.get('unitIds', [])
-                merge_groups = _simplify_merge_groups(merge_groups + [unit_ids])
-            elif a.get('type', 'UNMERGE_UNITS'):
-                unit_ids = a.get('unitIds', [])
-                merge_groups = _simplify_merge_groups([[u for u in mg if (u not in unit_ids)] for mg in merge_groups])
+        a = subfeed.get_next_message(wait_msec=0)
+        if a is None: break
+        if a.get('type', '') == 'ADD_UNIT_LABEL':
+            unit_id = a.get('unitId', '')
+            label = a.get('label', '')
+            if unit_id not in labels_by_unit:
+                labels_by_unit[unit_id] = []
+            labels_by_unit[unit_id].append(label)
+            labels_by_unit[unit_id] = sorted(list(set(labels_by_unit[unit_id])))
+        elif a.get('type', '') == 'REMOVE_UNIT_LABEL':
+            unit_id = a.get('unitId', '')
+            label = a.get('label', '')
+            if unit_id in labels_by_unit:
+                labels_by_unit[unit_id] = [x for x in labels_by_unit[unit_id] if x != label]
+        elif a.get('type', 'MERGE_UNITS'):
+            unit_ids = a.get('unitIds', [])
+            merge_groups = _simplify_merge_groups(merge_groups + [unit_ids])
+        elif a.get('type', 'UNMERGE_UNITS'):
+            unit_ids = a.get('unitIds', [])
+            merge_groups = _simplify_merge_groups([[u for u in mg if (u not in unit_ids)] for mg in merge_groups])
     return {
         'labelsByUnit': labels_by_unit,
         'mergeGroups': merge_groups

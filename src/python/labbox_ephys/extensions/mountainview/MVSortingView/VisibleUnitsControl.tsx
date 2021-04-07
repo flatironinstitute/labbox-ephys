@@ -2,18 +2,19 @@ import { Checkbox } from '@material-ui/core';
 import { useHitherJob } from 'labbox';
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { Recording, Sorting, SortingInfo, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
+import { Recording, Sorting, SortingCuration, SortingInfo, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 
 type Props = {
     sorting: Sorting
     recording: Recording
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
+    curation: SortingCuration
 }
 
 type PeakElectrodeIds = {[key: string]: number}
 
-const VisibleUnitsControl: FunctionComponent<Props> = ({ sorting, recording, selection, selectionDispatch }) => {
+const VisibleUnitsControl: FunctionComponent<Props> = ({ sorting, recording, selection, selectionDispatch, curation }) => {
     const sortingInfo: SortingInfo | undefined = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
     const [hideRejected, setHideRejected] = useState(false)
     const [showAcceptedOnly, setShowAcceptedOnly] = useState(false)
@@ -38,10 +39,10 @@ const VisibleUnitsControl: FunctionComponent<Props> = ({ sorting, recording, sel
                 if (!visibleElectrodeIds.includes(peakElectrodeId)) return false
             }
             if (showAcceptedOnly) {
-                return getLabelsForUnitId(uid, sorting).includes('accept')
+                return getLabelsForUnitId(uid, curation).includes('accept')
             }
             else if (hideRejected) {
-                return !getLabelsForUnitId(uid, sorting).includes('reject')
+                return !getLabelsForUnitId(uid, curation).includes('reject')
             }
             else {
                 return true
@@ -60,8 +61,8 @@ const VisibleUnitsControl: FunctionComponent<Props> = ({ sorting, recording, sel
     )
 }
 
-const getLabelsForUnitId = (unitId: number, sorting: Sorting) => {
-    const labelsByUnit = (sorting.curation || {}).labelsByUnit || {};
+const getLabelsForUnitId = (unitId: number, curation: SortingCuration) => {
+    const labelsByUnit = (curation || {}).labelsByUnit || {};
     return labelsByUnit[unitId] || []
 }
 

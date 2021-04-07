@@ -3,7 +3,7 @@ import { createCalculationPool, HitherContext, HitherInterface } from 'labbox';
 import React, { FunctionComponent, useContext, useMemo } from 'react';
 import { getElectrodesAspectRatio } from '../../averagewaveforms/AverageWaveformsView/setupElectrodes';
 import useFetchCache from '../../common/useFetchCache';
-import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
+import { applyMergesToUnit, Recording, Sorting, SortingCuration, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import SnippetBox from './SnippetBox';
 
 
@@ -13,6 +13,7 @@ type Props = {
     noiseLevel: number
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
+    curation: SortingCuration
     unitId: number
     height: number
 }
@@ -110,21 +111,21 @@ const createTimeSegments = (timeRange: {min: number, max: number} | null, opts: 
     return ret
 }
 
-const useSnippets = (args: {recording: Recording, sorting: Sorting, visibleElectrodeIds: number[] | undefined, selection: SortingSelection, unitId: number, timeRange: {min: number, max: number} | null}) => {
+const useSnippets = (args: {recording: Recording, sorting: Sorting, curation: SortingCuration, visibleElectrodeIds: number[] | undefined, selection: SortingSelection, unitId: number, timeRange: {min: number, max: number} | null}) => {
     const hither = useContext(HitherContext)
-    const { recording, sorting, selection, visibleElectrodeIds, unitId, timeRange } = args
+    const { recording, sorting, selection, curation, visibleElectrodeIds, unitId, timeRange } = args
     const fetchFunction = useMemo(() => (
         async (query: QueryType) => {
             switch(query.type) {
                 case 'info':
-                    const uid1 = applyMergesToUnit(query.unitId, sorting.curation, selection.applyMerges)
+                    const uid1 = applyMergesToUnit(query.unitId, curation, selection.applyMerges)
                     return await getSnippetsInfo({recording: query.recording, sorting: query.sorting, unitId: uid1, hither})
                 case 'snippets':
-                    const uid2 = applyMergesToUnit(query.unitId, sorting.curation, selection.applyMerges)
+                    const uid2 = applyMergesToUnit(query.unitId, curation, selection.applyMerges)
                     return await getSnippets({recording: query.recording, sorting: query.sorting, unitId: uid2, timeRange: query.timeRange, hither})
             }
         }
-    ), [hither, sorting.curation, selection.applyMerges])
+    ), [hither, curation, selection.applyMerges])
     const data = useFetchCache<QueryType>(fetchFunction)
     return useMemo(() => {
         const infoQuery: InfoQuery = {type: 'info', recording, sorting, unitId}
@@ -168,8 +169,8 @@ const filterSnippetVisibleElectrodes = (s: Snippet, electrodeIds: number[] | und
     }
 }
 
-const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, unitId, height, noiseLevel }) => {
-    const {snippets, info} = useSnippets({recording, sorting, selection, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
+const SnippetsRow: FunctionComponent<Props> = ({ recording, sorting, selection, selectionDispatch, curation, unitId, height, noiseLevel }) => {
+    const {snippets, info} = useSnippets({recording, sorting, selection, curation, visibleElectrodeIds: selection.visibleElectrodeIds, unitId, timeRange: selection.timeRange || null})
     const electrodeLocations = info?.channel_locations
     const boxWidth = useMemo(() => {
         if (selection.waveformsMode === 'geom') {

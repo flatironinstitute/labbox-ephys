@@ -2,7 +2,7 @@ import { createCalculationPool, useHitherJob } from 'labbox';
 import React, { FunctionComponent, useMemo } from 'react';
 import HitherJobStatusView from '../../common/HitherJobStatusView';
 import { ActionItem, DividerItem } from '../../common/Toolbars';
-import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
+import { applyMergesToUnit, Recording, Sorting, SortingCuration, SortingSelection, SortingSelectionDispatch } from "../../pluginInterface";
 import WaveformWidget, { ElectrodeOpts } from './WaveformWidget';
 
 type PlotData = {
@@ -18,6 +18,7 @@ type Props = {
     unitId: number
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
+    curation: SortingCuration
     width: number
     height: number
     noiseLevel: number
@@ -26,13 +27,13 @@ type Props = {
 
 const calculationPool = createCalculationPool({maxSimultaneous: 6})
 
-const AverageWaveformView: FunctionComponent<Props> = ({ sorting, recording, unitId, selection, selectionDispatch, width, height, noiseLevel, customActions }) => {
+const AverageWaveformView: FunctionComponent<Props> = ({ sorting, curation, recording, unitId, selection, selectionDispatch, width, height, noiseLevel, customActions }) => {
     const {result: plotData, job} = useHitherJob<PlotData>(
         'createjob_fetch_average_waveform_2',
         {
             sorting_object: sorting.sortingObject,
             recording_object: recording.recordingObject,
-            unit_id: applyMergesToUnit(unitId, sorting.curation, selection.applyMerges)
+            unit_id: applyMergesToUnit(unitId, curation, selection.applyMerges)
         },
         {useClientCache: true, calculationPool}
     )

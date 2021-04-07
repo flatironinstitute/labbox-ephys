@@ -4,7 +4,7 @@ import useBufferedDispatch from '../../common/useBufferedDispatch';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { useSortingInfo } from '../../common/useSortingInfo';
 import { getArrayMax, getArrayMin } from '../../common/Utility';
-import { applyMergesToUnit, Recording, Sorting, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from "../../pluginInterface";
+import { applyMergesToUnit, Recording, Sorting, SortingCuration, SortingSelection, SortingSelectionDispatch, sortingSelectionReducer } from "../../pluginInterface";
 import TimeWidgetNew from '../../timeseries/TimeWidgetNew/TimeWidgetNew';
 import SpikeAmplitudesPanel, { combinePanels } from './SpikeAmplitudesPanel';
 import { SpikeAmplitudesData } from './useSpikeAmplitudesData';
@@ -18,9 +18,10 @@ type Props = {
     height: number,
     selection: SortingSelection
     selectionDispatch: SortingSelectionDispatch
+    curation: SortingCuration
 }
 
-const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesData, recording, sorting, unitIds, width, height, selection: externalSelection, selectionDispatch: externalSelectionDispatch }) => {
+const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesData, recording, sorting, curation, unitIds, width, height, selection: externalSelection, selectionDispatch: externalSelectionDispatch }) => {
     const hither = useContext(HitherContext)
     const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
     const recordingInfo = useRecordingInfo(recording.recordingObject)
@@ -35,7 +36,7 @@ const SpikeAmplitudesTimeWidget: FunctionComponent<Props> = ({ spikeAmplitudesDa
         const allMaxs: number[] = []
 
         unitIds.forEach(unitId => {
-            const uid = applyMergesToUnit(unitId, sorting.curation, selection.applyMerges)
+            const uid = applyMergesToUnit(unitId, curation, selection.applyMerges)
             const p = new SpikeAmplitudesPanel({spikeAmplitudesData, recording, sorting, unitId: uid, hither})
             const amps = spikeAmplitudesData.getSpikeAmplitudes(uid)
             if (amps) {

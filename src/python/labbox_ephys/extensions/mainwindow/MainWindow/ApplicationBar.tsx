@@ -14,6 +14,11 @@ type Props = {
     logo?: any
 }
 
+const homeButtonStyle: React.CSSProperties = {
+    paddingBottom: 0, color: 'white', fontFamily: 'sans-serif', fontWeight: 'bold',
+    cursor: 'pointer'
+}
+
 const ApplicationBar: FunctionComponent<Props> = ({ onOpenSettings, workspaceRouteDispatch, logo }) => {
     const handleHome = useCallback(() => {
         workspaceRouteDispatch({type: 'gotoRecordingsPage'})
@@ -24,7 +29,7 @@ const ApplicationBar: FunctionComponent<Props> = ({ onOpenSettings, workspaceRou
             {
                 logo && (<img src={logo} className="App-logo" alt="logo" height={30} style={{paddingBottom: 5, cursor: 'pointer'}} onClick={handleHome} />)
             }
-            &nbsp;&nbsp;&nbsp;<span style={{paddingBottom: 0, color: 'white', fontFamily: 'sans-serif', fontWeight: 'bold'}}>Labbox Ephys</span>
+            &nbsp;&nbsp;&nbsp;<div style={homeButtonStyle} onClick={handleHome}>Labbox Ephys</div>
             <span style={{marginLeft: 'auto'}} />
             <span style={{paddingBottom: 0, color: 'white'}}>
                 <SettingsControl onOpenSettings={onOpenSettings} color={'white'} />

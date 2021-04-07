@@ -1,6 +1,6 @@
 projectName: labbox-ephys
 projectNameUnderscore: labbox_ephys
-projectVersion: 0.5.10
+projectVersion: 0.5.11
 projectDescription:
 projectUrl: https://github.com/flatironinstitute/labbox-ephys
 projectAuthor: Jeremy Magland and Jeff Soules
