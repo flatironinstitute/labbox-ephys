@@ -170,6 +170,7 @@ class NwbRecordingExtractor(se.RecordingExtractor):
         """
         assert HAVE_NWB, self.installation_mesg
         se.RecordingExtractor.__init__(self)
+        self.has_unscaled = False # Needed by spikeinterface?
         self._path = str(file_path)
         import time
         with NWBHDF5IO(self._path, 'r') as io:
