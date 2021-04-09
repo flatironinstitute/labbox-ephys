@@ -21,7 +21,7 @@ spec:
             claimName: pvc-labbox-ephys-1
       containers:
       - name: labbox-ephys-1
-        image: magland/labbox-ephys:0.5.12
+        image: magland/labbox-ephys:0.5.13
         imagePullPolicy: Always
         env:
         - name: HOME

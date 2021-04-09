@@ -1,14 +1,16 @@
 import { MuiThemeProvider } from '@material-ui/core';
-import { LabboxProviderContext, usePlugins } from 'labbox';
+import { LabboxProviderContext, usePlugins, useSubfeed } from 'labbox';
 import QueryString from 'querystring';
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo, useReducer } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import './App.css';
 import { LabboxPlugin, MainWindowPlugin, WorkspaceRoute } from './python/labbox_ephys/extensions/pluginInterface';
+import { parseWorkspaceUri } from './python/labbox_ephys/extensions/pluginInterface/misc';
+import workspaceReducer, { WorkspaceAction } from './python/labbox_ephys/extensions/pluginInterface/workspaceReducer';
 import { locationFromRoute, routeFromLocation, WorkspaceRouteAction, workspaceRouteReducer } from './python/labbox_ephys/extensions/pluginInterface/WorkspaceRoute';
 import theme from './python/labbox_ephys/extensions/theme';
 
-function App({version}: {version: string}) {
+function App({ version }: { version: string }) {
   const plugins = usePlugins<LabboxPlugin>()
   const mainWindowPlugin = plugins.filter(p => (p.name === 'MainWindow'))[0] as any as MainWindowPlugin
 
@@ -27,7 +29,7 @@ function App({version}: {version: string}) {
   const workspaceRoute: WorkspaceRoute = useMemo(() => {
     return routeFromLocation(location, serverInfo)
   }, [location, serverInfo])
-  
+
   // const [workspaceRoute, workspaceRouteDispatch] = useReducer(workspaceRouteReducer, {page: 'main'})
 
   const workspaceRouteDispatch = useCallback(
@@ -35,11 +37,25 @@ function App({version}: {version: string}) {
       const newRoute: WorkspaceRoute = workspaceRouteReducer(workspaceRoute, a)
       const newLocation = locationFromRoute(newRoute)
       if ((location.pathname !== newLocation.pathname) || (location.search !== newLocation.search)) {
-        history.push({...location, ...newLocation})
+        history.push({ ...location, ...newLocation })
       }
     },
     [workspaceRoute, history, location]
   )
+
+  const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, useMemo(() => ({ recordings: [], sortings: [] }), []))
+  const handleWorkspaceSubfeedMessages = useCallback((messages: any[]) => {
+    messages.filter(msg => msg.action).forEach(msg => workspaceDispatch2(msg.action))
+  }, [])
+
+  const { feedUri, workspaceName } = parseWorkspaceUri(workspaceUri)
+
+  const subfeedName = useMemo(() => ({ workspaceName }), [workspaceName])
+
+  const { appendMessages: appendWorkspaceMessages } = useSubfeed({ feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages })
+  const workspaceDispatch = useCallback((a: WorkspaceAction) => {
+    appendWorkspaceMessages([{ action: a }])
+  }, [appendWorkspaceMessages])
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -48,7 +64,7 @@ function App({version}: {version: string}) {
           {
             mainWindowPlugin ? (
               <mainWindowPlugin.component
-                {...{workspaceUri, workspaceRoute, workspaceRouteDispatch, version}}
+                {...{ workspace, workspaceDispatch, workspaceRoute, workspaceRouteDispatch, version }}
               />
             ) : (<div>No main window plugin</div>)
           }

@@ -17,4 +17,5 @@ export interface RecordingViewPlugin extends LabboxViewPlugin {
     type: 'RecordingView'
     component: React.ComponentType<RecordingViewProps>
     icon?: any
+    notebookCellHeight?: number
 }

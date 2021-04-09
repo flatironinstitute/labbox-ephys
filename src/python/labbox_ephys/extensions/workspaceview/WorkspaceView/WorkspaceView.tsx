@@ -86,20 +86,36 @@ const WorkspaceView: FunctionComponent<WorkspaceViewProps> = ({ workspace, works
       const recording = workspace.recordings.filter(r => (r.recordingId === rid))[0]
       if (!recording) return <div>Recording not found: {rid}</div>
       const sid = workspaceRoute.sortingId
-      const sorting = workspace.sortings.filter(s => (s.recordingId === rid && s.sortingId === sid))[0]
-      if (!sorting) return <div>Sorting not found: {rid}/{sid}</div>
-      return (
-        <SortingView
-          sorting={sorting}
-          recording={recording}
-          // onSetExternalUnitMetrics={(a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => { }}
-          width={width}
-          height={height}
-          readOnly={false}
-          workspaceRoute={workspaceRoute}
-          workspaceRouteDispatch={workspaceRouteDispatch}
-        />
-      )
+      if (sid !== '-') {
+        const sorting = workspace.sortings.filter(s => (s.recordingId === rid && s.sortingId === sid))[0]
+        if (!sorting) return <div>Sorting not found: {rid}/{sid}</div>
+        return (
+          <SortingView
+            sorting={sorting}
+            recording={recording}
+            // onSetExternalUnitMetrics={(a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => { }}
+            width={width}
+            height={height}
+            readOnly={false}
+            workspaceRoute={workspaceRoute}
+            workspaceRouteDispatch={workspaceRouteDispatch}
+          />
+        )
+      }
+      else {
+        return (
+          <SortingView
+            sorting={null}
+            recording={recording}
+            // onSetExternalUnitMetrics={(a: { sortingId: string, externalUnitMetrics: ExternalSortingUnitMetric[] }) => { }}
+            width={width}
+            height={height}
+            readOnly={false}
+            workspaceRoute={workspaceRoute}
+            workspaceRouteDispatch={workspaceRouteDispatch}
+          />
+        )
+      }
     }
   }
 }

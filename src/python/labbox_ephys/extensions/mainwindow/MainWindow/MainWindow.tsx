@@ -5,6 +5,7 @@ import { MainWindowProps, useWorkspaceViewPlugins } from '../../pluginInterface'
 import { parseWorkspaceUri } from '../../pluginInterface/misc';
 import workspaceReducer, { WorkspaceAction } from '../../pluginInterface/workspaceReducer';
 import ApplicationBar from './ApplicationBar';
+import HitherJobMonitorWindow from './HitherJobMonitorWindow';
 import SettingsWindow from './SettingsWindow';
 
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
@@ -30,44 +31,38 @@ function useWindowDimensions() {
     return windowDimensions;
 }
 
-const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspaceRoute, workspaceRouteDispatch, version }) => {
-    const { width, height } = useWindowDimensions()
+const MainWindow: FunctionComponent<MainWindowProps> = ({ workspace, workspaceDispatch, workspaceRoute, workspaceRouteDispatch, version, width, height }) => {
+    const { width: width2, height: height2 } = useWindowDimensions()
     const appBarHeight = 52 // hard-coded for now - must agree with theme
-    const H = height - appBarHeight - 2
+    const H = (height || height2) - appBarHeight - 2
     const hMargin = 0
-    const W = width - hMargin * 2 - 2
+    const W = (width || width2) - hMargin * 2 - 2
 
     const workspaceViewPlugin = useWorkspaceViewPlugins().filter(p => (p.name === 'WorkspaceView'))[0]
     if (!workspaceViewPlugin) throw Error('Unable to find workspace view plugin')
 
     const [settingsVisible, setSettingsVisible] = useState(false)
-
-    const [workspace, workspaceDispatch2] = useReducer(workspaceReducer, useMemo(() => ({recordings: [], sortings: []}), []))
-    const handleWorkspaceSubfeedMessages = useCallback((messages: any[]) => {
-        messages.filter(msg => msg.action).forEach(msg => workspaceDispatch2(msg.action))
-    }, [])
-
-    const {feedUri, workspaceName} = parseWorkspaceUri(workspaceUri)
-
-    const subfeedName = useMemo(() => ({workspaceName}), [workspaceName])
-
-    const {appendMessages: appendWorkspaceMessages} = useSubfeed({feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages })
-    const workspaceDispatch = useCallback((a: WorkspaceAction) => {
-        appendWorkspaceMessages([{action: a}])
-    }, [appendWorkspaceMessages])
+    const [jobMonitorVisible, setJobMonitorVisible] = useState(false)
 
     const handleOpenSettings = useCallback(() => {
         setSettingsVisible(true)
     }, [])
+    const handleOpenJobMonitor = useCallback(() => {
+        setJobMonitorVisible(true)
+    }, [])
 
     const handleCloseSettings = useCallback(() => {
         setSettingsVisible(false)
+    }, [])
+    const handleCloseJobMonitor = useCallback(() => {
+        setJobMonitorVisible(false)
     }, [])
 
     return (
         <div style={{margin: 0}}>
             <ApplicationBar
                 onOpenSettings={handleOpenSettings}
+                onOpenJobMonitor={handleOpenJobMonitor}
                 workspaceRouteDispatch={workspaceRouteDispatch}
             />
             <div style={{position: 'absolute', top: appBarHeight}}>
@@ -81,9 +76,18 @@ const MainWindow: FunctionComponent<MainWindowProps> = ({ workspaceUri, workspac
                 <span>
                     <SettingsWindow
                         workspace={workspace}
-                        workspaceUri={workspaceUri}
+                        workspaceUri={workspaceRoute.workspaceUri}
                         version={version}
                     />
+                </span>
+            </Modal>
+            <Modal
+                open={jobMonitorVisible}
+                onClose={handleCloseJobMonitor}
+                style={{zIndex: 9999}}
+            >
+                <span>
+                    <HitherJobMonitorWindow />
                 </span>
             </Modal>
         </div>

@@ -13,7 +13,7 @@ type Props = {
 const SortingsView: FunctionComponent<Props> = ({ sortings, workspaceRouteDispatch, workspaceRoute, onDeleteSortings }) => {
     return (
         <Paper>
-            <h3>{`${sortings.length} sortings`}</h3>
+            <h3>{`${sortings.length} sorting${sortings.length !== 1 ? "s" : ""}`}</h3>
             <SortingsTable
                 sortings={sortings}
                 workspaceRouteDispatch={workspaceRouteDispatch}

@@ -1,10 +1,12 @@
 import { HitherContext, HitherJob } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import Hyperlink from '../../common/Hyperlink';
 
 type Props = {
+    onClick?: () => void
 }
 
-const HitherJobMonitorControl: FunctionComponent<Props> = () => {
+export const useMonitorHitherJobs = () => {
     const [hitherJobs, setHitherJobs] = useState<HitherJob[]>([])
     const hither = useContext(HitherContext)
     useEffect(() => {
@@ -19,12 +21,18 @@ const HitherJobMonitorControl: FunctionComponent<Props> = () => {
         }
     }, [hither])
 
-    const { pendingJobs, runningJobs, finishedJobs, erroredJobs } = {
+    return {
         pendingJobs: hitherJobs.filter(j => (j.status === 'pending')),
         runningJobs: hitherJobs.filter(j => (j.status === 'running')),
         finishedJobs: hitherJobs.filter(j => (j.status === 'finished')),
         erroredJobs: hitherJobs.filter(j => (j.status === 'error')),
+        allJobs: hitherJobs
     }
+}
+
+const HitherJobMonitorControl: FunctionComponent<Props> = ({ onClick }) => {
+    const { pendingJobs, runningJobs, finishedJobs, erroredJobs } = useMonitorHitherJobs()
+
     const numPending = pendingJobs.length;
     const numRunning = runningJobs.length;
     const numFinished = finishedJobs.length;
@@ -34,7 +42,9 @@ const HitherJobMonitorControl: FunctionComponent<Props> = () => {
         <span>:<span style={{color: 'pink'}}>{numErrored}</span></span>
     ) : <span></span>
     return (
-        <span title={title} style={{ fontFamily: "courier" }}>{numPending}:{numRunning}:{numFinished}{errored}</span>
+        <Hyperlink onClick={onClick} color="white" >
+            <span title={title} style={{ fontFamily: "courier" }}>{numPending}:{numRunning}:{numFinished}{errored}</span>
+        </Hyperlink>
     );
 }
 

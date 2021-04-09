@@ -2,6 +2,7 @@ import { Button, Grid } from '@material-ui/core';
 import { createCalculationPool, usePlugins } from 'labbox';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import Expandable from '../../common/Expandable';
+import Hyperlink from '../../common/Hyperlink';
 import Splitter from '../../common/Splitter';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { LabboxPlugin, Recording, RecordingSelection, recordingSelectionReducer, recordingViewPlugins, Sorting, WorkspaceRoute, WorkspaceRouteDispatch } from "../../pluginInterface";
@@ -45,6 +46,14 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
     })
   }, [workspaceRouteDispatch])
 
+  const handleExploreRecording = useCallback(() => {
+      workspaceRouteDispatch({
+        type: 'gotoSortingPage',
+        recordingId: recording.recordingId,
+        sortingId: '-'
+      })
+  }, [workspaceRouteDispatch])
+
   const plugins = usePlugins<LabboxPlugin>()
   const rvPlugins = useMemo(() => (recordingViewPlugins(plugins)), [plugins])
 
@@ -61,6 +70,9 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
         </Grid>
 
         <Grid item xs={12} xl={6}>
+          <Hyperlink onClick={handleExploreRecording}>Explore recording</Hyperlink>
+        </Grid>
+        <Grid item xs={12} xl={6}>
           <SortingsView
             sortings={sortings}
             workspaceRouteDispatch={workspaceRouteDispatch}
@@ -69,7 +81,7 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
           />
         </Grid>
       </Grid>
-      {
+      {/* {
           sortByPriority(rvPlugins).filter(rv => (!rv.disabled)).map(rv => (
           <Expandable label={rv.label} defaultExpanded={rv.defaultExpanded ? true : false} key={'rv-' + rv.name}>
             <rv.component
@@ -83,7 +95,7 @@ const WorkspaceRecordingView: FunctionComponent<Props> = ({ recording, sortings,
             />
           </Expandable>
         ))
-      }
+      } */}
     </div>
   )
 

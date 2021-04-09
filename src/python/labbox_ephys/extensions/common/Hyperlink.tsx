@@ -1,17 +1,22 @@
 import React, { FunctionComponent } from 'react';
 
-const Hyperlink: FunctionComponent<{onClick: () => void}> = (props) => {
+type Props = {
+    onClick?: () => void
+    color?: string
+}
+
+const Hyperlink: FunctionComponent<Props> = ({ color, onClick, children }) => {
     let style0 = {
-        color: 'gray',
+        color: color || 'gray',
         cursor: 'pointer',
         textDecoration: 'underline'
     };
     return (
         <span
             style={style0}
-            onClick={props.onClick}
+            onClick={onClick}
         >
-            {props.children}
+            {children}
         </span>
     );
 }

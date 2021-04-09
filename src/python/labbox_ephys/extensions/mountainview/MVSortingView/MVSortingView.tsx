@@ -165,6 +165,14 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
             area: ''
         })
     }, [openViewsDispatch])
+    const handleLaunchRecordingView = useCallback((plugin: RecordingViewPlugin) => {
+        openViewsDispatch({
+            type: 'AddView',
+            plugin,
+            label: plugin.label,
+            area: ''
+        })
+    }, [openViewsDispatch])
     const handleLaunchSortingUnitView = useCallback((plugin: SortingUnitViewPlugin, unitId: number, label: string) => {
         openViewsDispatch({
             type: 'AddView',
@@ -196,6 +204,8 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
     const curationIcon = <span style={{color: 'gray'}}><FontAwesomeIcon icon={faPencilAlt} /></span>
     const optionsIcon = <span style={{color: 'gray'}}><Settings /></span>
 
+    const hasSorting = sorting.sortingObject ? true : false
+
     const sortingViewProps = {...props}
     return (
         <div className="MVSortingView">
@@ -209,15 +219,21 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                     <Expandable icon={launchIcon} label="Open views" defaultExpanded={true} unmountOnExit={false}>
                         <ViewLauncher
                             onLaunchSortingView={handleLaunchSortingView}
+                            onLaunchRecordingView={handleLaunchRecordingView}
                             onLaunchSortingUnitView={handleLaunchSortingUnitView}
                             selection={props.selection}
+                            hasSorting={hasSorting}
                         />
                     </Expandable>
 
                     {/* Visible units */}
-                    <Expandable icon={visibleUnitsIcon} label="Visible units" defaultExpanded={false} unmountOnExit={false}>
-                        <VisibleUnitsControl sorting={sorting} recording={recording} selection={selection} selectionDispatch={selectionDispatch} curation={curation} />
-                    </Expandable>
+                    {
+                        hasSorting && (
+                            <Expandable icon={visibleUnitsIcon} label="Visible units" defaultExpanded={false} unmountOnExit={false}>
+                                <VisibleUnitsControl sorting={sorting} recording={recording} selection={selection} selectionDispatch={selectionDispatch} curation={curation} />
+                            </Expandable>
+                        )
+                    }
 
                     {/* Visible electrodes */}
                     <Expandable icon={visibleElectrodesIcon} label="Visible electrodes" defaultExpanded={false} unmountOnExit={false}>
@@ -233,7 +249,7 @@ const MVSortingView: FunctionComponent<SortingViewProps & {preloadStatus?: 'wait
                     </Expandable>
                     
                     {/* Curation */}
-                    { curationDispatch && (
+                    { curationDispatch && hasSorting && (
                         <Expandable icon={curationIcon} label="Curation" defaultExpanded={false} unmountOnExit={false}>
                                 
                             <CurationControl

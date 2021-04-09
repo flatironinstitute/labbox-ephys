@@ -4,6 +4,7 @@ import { RecordingViewPlugin } from "./RecordingViewPlugin";
 import { SortingUnitMetricPlugin } from "./SortingUnitMetricPlugin";
 import { SortingUnitViewPlugin } from "./SortingUnitViewPlugin";
 import { SortingViewPlugin } from "./SortingViewPlugin";
+import { WorkspaceDispatch, WorkspaceState } from "./workspaceReducer";
 import { WorkspaceRoute, WorkspaceRouteDispatch } from './WorkspaceRoute';
 import { WorkspaceViewPlugin } from "./WorkspaceViewPlugin";
 
@@ -23,10 +24,13 @@ export type { WorkspaceRoute, WorkspaceRouteDispatch } from './WorkspaceRoute';
 
 
 export type MainWindowProps = {
-    workspaceUri: string | undefined
+    workspace: WorkspaceState
+    workspaceDispatch: WorkspaceDispatch
     workspaceRoute: WorkspaceRoute
     workspaceRouteDispatch: WorkspaceRouteDispatch
     version: string
+    width?: number
+    height?: number
 }
 export interface MainWindowPlugin extends BaseLabboxPlugin {
     type: 'MainWindow'

@@ -10,6 +10,7 @@ const appBarHeight = 50
 
 type Props = {
     onOpenSettings: () => void
+    onOpenJobMonitor: () => void
     workspaceRouteDispatch: WorkspaceRouteDispatch
     logo?: any
 }
@@ -19,7 +20,7 @@ const homeButtonStyle: React.CSSProperties = {
     cursor: 'pointer'
 }
 
-const ApplicationBar: FunctionComponent<Props> = ({ onOpenSettings, workspaceRouteDispatch, logo }) => {
+const ApplicationBar: FunctionComponent<Props> = ({ onOpenSettings, onOpenJobMonitor, workspaceRouteDispatch, logo }) => {
     const handleHome = useCallback(() => {
         workspaceRouteDispatch({type: 'gotoRecordingsPage'})
     }, [workspaceRouteDispatch])
@@ -34,7 +35,7 @@ const ApplicationBar: FunctionComponent<Props> = ({ onOpenSettings, workspaceRou
             <span style={{paddingBottom: 0, color: 'white'}}>
                 <SettingsControl onOpenSettings={onOpenSettings} color={'white'} />
                 <ServerStatusControl color={'white'} />
-                <HitherJobMonitorControl />
+                <HitherJobMonitorControl onClick={onOpenJobMonitor} />
             </span>
             </Toolbar>
         </AppBar>

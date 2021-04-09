@@ -35,16 +35,18 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children, 
             setStatus('running')
             ;(async () => {
                 try {
-                    setMessage('Checking sorting data...')
-                    const result1 = await hither.createHitherJob('preload_check_sorting_downloaded', {sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as {isLocal: boolean}
-                    if (!matchesRunningState({recordingObject, sortingObject})) return
-                    if (!result1.isLocal) {
-                        setMessage('Downloading sorting...')
-                        const result2 = await hither.createHitherJob('preload_download_sorting', {sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as {success: boolean}
+                    if (sorting.sortingObject) {
+                        setMessage('Checking sorting data...')
+                        const result1 = await hither.createHitherJob('preload_check_sorting_downloaded', {sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as {isLocal: boolean}
                         if (!matchesRunningState({recordingObject, sortingObject})) return
-                        if (!result2.success) {
-                            setError(new Error('Unable to download sorting.'))
-                            return
+                        if (!result1.isLocal) {
+                            setMessage('Downloading sorting...')
+                            const result2 = await hither.createHitherJob('preload_download_sorting', {sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as {success: boolean}
+                            if (!matchesRunningState({recordingObject, sortingObject})) return
+                            if (!result2.success) {
+                                setError(new Error('Unable to download sorting.'))
+                                return
+                            }
                         }
                     }
 
@@ -61,12 +63,14 @@ const PreloadCheck: FunctionComponent<Props> = ({ recording, sorting, children, 
                         }
                     }
 
-                    setMessage('Extracting snippets...')
-                    const result5 = await hither.createHitherJob('preload_extract_snippets', {recording_object: recordingObject, sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as string
-                    if (!matchesRunningState({recordingObject, sortingObject})) return
-                    if (!result5) {
-                        setError(new Error('Problem extracting snippets'))
-                        return
+                    if (sorting.sortingObject) {
+                        setMessage('Extracting snippets...')
+                        const result5 = await hither.createHitherJob('preload_extract_snippets', {recording_object: recordingObject, sorting_object: sortingObject}, {useClientCache: false, calculationPool}).wait() as string
+                        if (!matchesRunningState({recordingObject, sortingObject})) return
+                        if (!result5) {
+                            setError(new Error('Problem extracting snippets'))
+                            return
+                        }
                     }
                     setStatus('finished')
                 }

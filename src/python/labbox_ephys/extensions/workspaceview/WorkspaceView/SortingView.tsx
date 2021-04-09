@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useReducer, useStat
 import Hyperlink from '../../common/Hyperlink';
 import { useRecordingInfo } from '../../common/useRecordingInfo';
 import { useSortingInfo } from '../../common/useSortingInfo';
-import { LabboxPlugin, Recording, Sorting, SortingSelection, sortingSelectionReducer, sortingViewPlugins, WorkspaceRoute, WorkspaceRouteDispatch } from '../../pluginInterface';
+import { LabboxPlugin, Recording, Sorting, SortingInfo, SortingSelection, sortingSelectionReducer, sortingViewPlugins, WorkspaceRoute, WorkspaceRouteDispatch } from '../../pluginInterface';
 import { parseWorkspaceUri } from '../../pluginInterface/misc';
 import { SortingCurationAction } from '../../pluginInterface/SortingCuration';
 import { sortingCurationReducer } from '../../pluginInterface/workspaceReducer';
@@ -19,7 +19,7 @@ import { sortingCurationReducer } from '../../pluginInterface/workspaceReducer';
 // }
 
 interface Props {
-  sorting: Sorting
+  sorting: Sorting | null
   recording: Recording
   width: number,
   height: number,
@@ -41,9 +41,9 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const initialSortingSelection: SortingSelection = {}
   const [selection, selectionDispatch] = useReducer(sortingSelectionReducer, initialSortingSelection)
   
-  const sortingInfo = useSortingInfo(sorting.sortingObject, sorting.recordingObject)
+  const sortingInfo = useSortingInfo(sorting ? sorting.sortingObject: null, sorting ? sorting.recordingObject : null)
   const recordingInfo = useRecordingInfo(recording.recordingObject)
-  const sortingId = sorting.sortingId
+  const sortingId = sorting ? sorting.sortingId : null
 
   const {feedUri, workspaceName} = parseWorkspaceUri(workspaceRoute.workspaceUri)
 
@@ -113,16 +113,28 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       })
   }, [workspaceRouteDispatch, recording.recordingId])
 
-  if (!sorting) {
-    return <h3>{`Sorting not found: ${sortingId}`}</h3>
-  }
-  if (!recording) {
+  const emptySorting: Sorting = useMemo(() => ({
+    sortingId: '',
+    sortingLabel: '',
+    sortingPath: '',
+    sortingObject: null,
+    recordingId: '',
+    recordingPath: '',
+    recordingObject: null
+  }), [])
+
+  const emptySortingInfo: SortingInfo = useMemo(() => ({
+    unit_ids: [],
+    samplerate: 0
+  }), [])
+
+  if ((!recording) && (sorting)) {
     return <h3>{`Recording not found: ${sorting.recordingId}`}</h3>
   }
   if (!recordingInfo) {
     return <h3>Loading recording info...</h3>
   }
-  if (!sortingInfo) {
+  if ((!sortingInfo) && (sorting)) {
     return <h3>Loading sorting info...</h3>
   }
   
@@ -133,9 +145,9 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
       <div style={contentWrapperStyle}>
           <sv.component
             {...svProps}
-            sorting={sorting}
+            sorting={sorting || emptySorting}
             recording={recording}
-            sortingInfo={sortingInfo}
+            sortingInfo={sortingInfo || emptySortingInfo}
             recordingInfo={recordingInfo}
             selection={selection}
             selectionDispatch={selectionDispatch}
@@ -148,10 +160,19 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
           />
       </div>
       <div style={footerStyle}>
-          {`Sorting: `}
-          {sorting.sortingLabel}
-          {` | Recording: `}
-          {<Hyperlink onClick={handleGotoRecording}>{recording.recordingLabel}</Hyperlink>}
+        { sorting ? (
+          <span>
+            {`Sorting: `}
+            {sorting.sortingLabel}
+            {` | Recording: `}
+            {<Hyperlink onClick={handleGotoRecording}>{recording.recordingLabel}</Hyperlink>}
+          </span>
+        ) : (
+          <span>
+            {`Recording: `}
+            {<Hyperlink onClick={handleGotoRecording}>{recording.recordingLabel}</Hyperlink>}
+          </span>
+        ) }
       </div>
     </div>
   );
