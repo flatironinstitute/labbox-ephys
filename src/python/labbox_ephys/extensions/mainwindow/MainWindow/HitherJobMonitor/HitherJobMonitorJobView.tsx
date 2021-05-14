@@ -1,9 +1,9 @@
 import React from 'react'
-import NiceTable from "../../common/NiceTable";
+import NiceTable from "../../../common/NiceTable";
 
 import { HitherJob } from 'labbox';
 import { FunctionComponent, useState } from "react";
-import Hyperlink from "../../common/Hyperlink";
+import Hyperlink from "../../../common/Hyperlink";
 import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
 import { Delete } from "@material-ui/icons";
 

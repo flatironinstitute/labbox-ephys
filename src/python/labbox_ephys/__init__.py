@@ -16,7 +16,7 @@ from .misc import get_recording_info, get_recording_object, get_sorting_info, ge
 from .register_views import (_recording_views, register_recording_view,
                              register_sorting_view, _sorting_views)
 
-from .workspace import load_workspace, Workspace
+from .workspace import create_workspace, load_workspace, Workspace
 
 from .start_app import start_app
 

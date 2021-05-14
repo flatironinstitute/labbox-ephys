@@ -1,6 +1,6 @@
 import { HitherContext, HitherJob } from 'labbox';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
-import Hyperlink from '../../common/Hyperlink';
+import Hyperlink from '../../../common/Hyperlink';
 
 type Props = {
     onClick?: () => void

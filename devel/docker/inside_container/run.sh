@@ -4,7 +4,7 @@
 
 set -ex
 
-mkdir -p $KACHERY_STORAGE_DIR
+[ ! -z "$KACHERY_DAEMON_RUN_OPTS" ] && mkdir -p $KACHERY_STORAGE_DIR
 export PYTHONUNBUFFERED=1
 
 npm config set unsafe-perm true

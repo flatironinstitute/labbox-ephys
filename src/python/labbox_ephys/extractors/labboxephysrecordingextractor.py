@@ -132,7 +132,7 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
     # if arg is a string ending with .json then replace arg by the object
     if (isinstance(arg, str)) and (arg.endswith('.json')):
         path = arg
-        x = kp.load_object(path)
+        x = kp.load_json(path)
         if x is None:
             raise Exception(f'Unable to load object: {path}')
         return _create_object_for_arg(x)
@@ -379,7 +379,7 @@ class NrsRecordingExtractor(se.RecordingExtractor):
         se.RecordingExtractor.__init__(self)
         # info = check_load_nrs(dirpath)
         # assert info is not None
-        probe_obj = kp.load_object(probe_file)
+        probe_obj = kp.load_json(probe_file)
         xml_file = kp.load_file(xml_file)
         # nrs_file = kp.load_file(nrs_file)
         dat_file = kp.load_file(dat_file)

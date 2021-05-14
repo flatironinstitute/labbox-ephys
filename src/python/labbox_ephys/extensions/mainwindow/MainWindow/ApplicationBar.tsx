@@ -1,7 +1,7 @@
 import { AppBar, Toolbar } from '@material-ui/core';
 import React, { FunctionComponent, useCallback } from 'react';
 import { WorkspaceRouteDispatch } from '../../pluginInterface';
-import HitherJobMonitorControl from './HitherJobMonitorControl';
+import HitherJobMonitorControl from './HitherJobMonitor/HitherJobMonitorControl';
 import ServerStatusControl from './ServerStatusControl';
 import SettingsControl from './SettingsControl';
 

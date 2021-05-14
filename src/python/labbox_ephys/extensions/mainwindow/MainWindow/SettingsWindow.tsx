@@ -29,7 +29,6 @@ type Props = {
 const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri, version }) => {
     const classes = useStyles();
     const { serverInfo } = useContext(LabboxProviderContext)
-    const { workspaceName } = parseWorkspaceUri(workspaceUri)
     return (
         <div className={classes.paper} style={{zIndex: 9999}}>
             <h2>Labbox Ephys {version}</h2>
@@ -37,10 +36,6 @@ const SettingsWindow: FunctionComponent<Props> = ({ workspaceUri, version }) => 
                 <TableRow>
                     <TableCell>Workspace URI</TableCell>
                     <TableCell>{workspaceUri || ''}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Workspace name</TableCell>
-                    <TableCell>{workspaceName}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>Kachery node ID</TableCell>

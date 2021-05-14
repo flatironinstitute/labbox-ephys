@@ -5,23 +5,24 @@ import labbox_ephys as le
 
 
 def main():
-    # previously: kp.set('franklab-example-nwb', 'sha1://...')
-    uri = kp.get_string('franklab-example-nwb')
+    # previously:
+    # kp.set('example-nwb-workspace', le.create_workspace())
+    # kp.set('example-nwb-file', 'sha1://....') # set the URI of the nwb file
+    workspace = le.load_workspace(kp.get('example-nwb-workspace'))
+    nwb_file_uri = kp.get('example-nwb-file')
     
-    feed = kp.load_feed('franklab-example-feed', create=True)
-    workspace = le.load_workspace(workspace_uri=f'workspace://{feed.get_feed_id()}/default')
-    print(f'Workspace URI: {workspace.get_uri()}')
+    print(f'Workspace URI: {workspace.uri}')
 
     recording = le.LabboxEphysRecordingExtractor({
         'recording_format': 'nwb',
         'data': {
-            'path': uri
+            'path': nwb_file_uri
         }
     })
     sorting = le.LabboxEphysSortingExtractor({
         'sorting_format': 'nwb',
         'data': {
-            'path': uri
+            'path': nwb_file_uri
         }
     })
 

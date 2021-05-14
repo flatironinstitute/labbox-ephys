@@ -10,4 +10,4 @@ rm -rf devel/docker/dist
 cp -r src/python/dist devel/docker/
 
 cd devel/docker
-docker build -t magland/labbox-ephys:0.5.13 .
+docker build -t magland/labbox-ephys:0.6.0 .

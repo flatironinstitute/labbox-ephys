@@ -9,11 +9,16 @@ import { {{ classPrefix }}Plugin } from './python/{{ projectNameUnderscore }}/ex
 import registerExtensions from './registerExtensions';
 import reportWebVitals from './reportWebVitals';
 
-const apiConfig = {
+// this is a hard-coded hack for now
+const apiConfig = (location.hostname === 'labbox-ephys.flatironinstitute.org') ? ({
+  webSocketUrl: `ws://${window.location.hostname}/ws`,
+  baseSha1Url: `http://${window.location.hostname}/api/sha1`,
+  baseFeedUrl: `http://${window.location.hostname}/api/feed`
+}) : ({
   webSocketUrl: `ws://${window.location.hostname}:${config.webSocketPort}`,
   baseSha1Url: `http://${window.location.hostname}:${config.httpPort}/sha1`,
   baseFeedUrl: `http://${window.location.hostname}:${config.httpPort}/feed`
-}
+})
 
 const extensionContext = createExtensionContext<{{ classPrefix }}Plugin>()
 registerExtensions(extensionContext).then(() => {

@@ -45,13 +45,13 @@ const SortingView: React.FunctionComponent<Props> = (props) => {
   const recordingInfo = useRecordingInfo(recording.recordingObject)
   const sortingId = sorting ? sorting.sortingId : null
 
-  const {feedUri, workspaceName} = parseWorkspaceUri(workspaceRoute.workspaceUri)
+  const {feedUri} = parseWorkspaceUri(workspaceRoute.workspaceUri)
 
   const [curation, curationDispatch2] = useReducer(sortingCurationReducer, useMemo(() => ({}), []))
   const handleCurationSubfeedMessages = useCallback((messages: any[]) => {
     messages.forEach(msg => curationDispatch2(msg))
   }, [])
-  const curationSubfeedName = useMemo(() => ({name: 'sortingCuration', workspaceName, sortingId}), [workspaceName, sortingId])
+  const curationSubfeedName = useMemo(() => ({name: 'sortingCuration', sortingId}), [sortingId])
   const {appendMessages: appendCurationMessages} = useSubfeed({feedUri, subfeedName: curationSubfeedName, onMessages: handleCurationSubfeedMessages })
   const curationDispatch = useCallback((a: SortingCurationAction) => {
       appendCurationMessages([a])

@@ -48,9 +48,9 @@ function App({ version }: { version: string }) {
     messages.filter(msg => msg.action).forEach(msg => workspaceDispatch2(msg.action))
   }, [])
 
-  const { feedUri, workspaceName } = parseWorkspaceUri(workspaceUri)
+  const { feedUri } = parseWorkspaceUri(workspaceUri)
 
-  const subfeedName = useMemo(() => ({ workspaceName }), [workspaceName])
+  const subfeedName = 'main'
 
   const { appendMessages: appendWorkspaceMessages } = useSubfeed({ feedUri, subfeedName, onMessages: handleWorkspaceSubfeedMessages })
   const workspaceDispatch = useCallback((a: WorkspaceAction) => {

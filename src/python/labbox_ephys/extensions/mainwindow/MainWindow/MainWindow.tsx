@@ -5,7 +5,7 @@ import { MainWindowProps, useWorkspaceViewPlugins } from '../../pluginInterface'
 import { parseWorkspaceUri } from '../../pluginInterface/misc';
 import workspaceReducer, { WorkspaceAction } from '../../pluginInterface/workspaceReducer';
 import ApplicationBar from './ApplicationBar';
-import HitherJobMonitorWindow from './HitherJobMonitorWindow';
+import HitherJobMonitorWindow from './HitherJobMonitor/HitherJobMonitorWindow';
 import SettingsWindow from './SettingsWindow';
 
 // Thanks: https://stackoverflow.com/questions/36862334/get-viewport-window-height-in-reactjs
