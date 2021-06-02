@@ -225,7 +225,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         elif recording_format == 'nwb':
             from .nwbextractors import NwbRecordingExtractor
             path0 = kp.load_file(data['path'])
-            self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0)
+            self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name=data.get('electrical_series_name', None))
         elif recording_format == 'bin1':
             self._recording: se.RecordingExtractor = Bin1RecordingExtractor(**data, p2p=True)
         elif recording_format == 'snippets1':
@@ -304,7 +304,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             if serialize_dtype is None:
                 raise Exception('You must specify the serialize_dtype when serializing recording extractor in from_memory()')
             with kp.TemporaryDirectory() as tmpdir:
-                fname = tmpdir + '/' + _random_string(10) + '_recording.mda'
+                fname = tmpdir + '/' + _random_string(10) + '_recording.dat'
                 se.BinDatRecordingExtractor.write_recording(recording=recording, save_path=fname, time_axis=0, dtype=serialize_dtype)
                 # with ka.config(use_hard_links=True):
                 uri = kp.store_file(fname, basename='raw.mda')

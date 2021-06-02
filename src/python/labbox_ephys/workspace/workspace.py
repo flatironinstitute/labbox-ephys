@@ -350,7 +350,7 @@ def _query_string_to_dict(q: str):
 def _dict_to_query_string(x: Dict[str, str]):
     ret = ''
     for k, v in x.items():
-        if not ret:
+        if ret != '':
             ret = ret + '&'
         ret = ret + f'{k}={v}'
     return ret
