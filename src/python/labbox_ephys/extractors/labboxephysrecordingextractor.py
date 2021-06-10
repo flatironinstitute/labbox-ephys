@@ -3,7 +3,7 @@ from os.path import basename
 from typing import Union
 
 import kachery_p2p as kp
-from labbox_ephys.extractors.h5extractors.h5recordingextractorv1 import H5RecordingExtractorV1
+from .h5extractors.h5recordingextractorv1 import H5RecordingExtractorV1
 import numpy as np
 import spikeextractors as se
 
