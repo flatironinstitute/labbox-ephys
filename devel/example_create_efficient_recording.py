@@ -5,7 +5,9 @@ import spikeextractors as se
 recording, sorting = se.example_datasets.toy_example()
 
 recording2 = le.LabboxEphysRecordingExtractor.create_efficient_recording(recording)
+sorting2 = le.LabboxEphysSortingExtractor.store_sorting(sorting) 
 print(recording2.object())
+print(sorting2.object())
 
 for R in [recording, recording2]:
     R = cast(se.RecordingExtractor, R)

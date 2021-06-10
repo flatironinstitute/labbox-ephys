@@ -11,8 +11,8 @@ SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 RUN conda install -c conda-forge nodejs
 RUN npm install -g serve
 
-COPY ./dist/labbox-ephys-0.6.2.tar.gz /labbox-ephys-0.6.2.tar.gz
-RUN pip install /labbox-ephys-0.6.2.tar.gz
+COPY ./dist/labbox-ephys-0.6.3.tar.gz /labbox-ephys-0.6.3.tar.gz
+RUN pip install /labbox-ephys-0.6.3.tar.gz
 
 # Make sure the environment is activated and labbox-ephys is installed
 RUN echo "Make sure labbox-ephys is installed:"
