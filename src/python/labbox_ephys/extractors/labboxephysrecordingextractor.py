@@ -3,6 +3,7 @@ from os.path import basename
 from typing import Union
 
 import kachery_p2p as kp
+from labbox_ephys.extractors.h5extractors.h5recordingextractorv1 import H5RecordingExtractorV1
 import numpy as np
 import spikeextractors as se
 
@@ -230,6 +231,12 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             self._recording: se.RecordingExtractor = Bin1RecordingExtractor(**data, p2p=True)
         elif recording_format == 'snippets1':
             self._recording: se.RecordingExtractor = Snippets1RecordingExtractor(snippets_h5_uri=data['snippets_h5_uri'], p2p=True)
+        elif recording_format == 'h5_v1':
+            h5_uri = data['h5_uri']
+            h5_path = kp.load_file(h5_uri)
+            if h5_path is None:
+                raise Exception(f'Unable to load h5 recording file: {h5_uri}')
+            self._recording: se.RecordingExtractor = H5RecordingExtractorV1(h5_path=h5_path)
         elif recording_format == 'subrecording':
             R = LabboxEphysRecordingExtractor(data['recording'], download=download)
             if 'channel_ids' in data:
@@ -337,6 +344,31 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             raise Exception('Cannot load recording extractor: recording is not dumpable')
         x = spikeinterface_recording_dict_to_labbox_dict(recording.dump_to_dict())
         return LabboxEphysRecordingExtractor(x)
+    
+    @staticmethod
+    def create_efficient_recording(recording: se.RecordingExtractor, format='h5_v1'):
+        if isinstance(recording, LabboxEphysRecordingExtractor):
+            if recording.object()['recording_format'] == format:
+                # already in this format
+                print(f'Already has format: {format}')
+                return recording
+        if format == 'h5_v1':    
+            with kp.TemporaryDirectory() as tmpdir:
+                fname = tmpdir + '/recording.h5'
+                print('Creating efficient recording: writing as h5...')
+                H5RecordingExtractorV1.write_recording(recording=recording, h5_path=fname)
+                print('Creating efficient recording: storing in kachery...')
+                h5_uri = kp.store_file(fname)
+                object = {
+                    'recording_format': 'h5_v1',
+                    'data': {
+                        'h5_uri': h5_uri
+                    }
+                }
+                print('Done creating efficient recording.')
+                return LabboxEphysRecordingExtractor(object)
+        else:
+            raise Exception(f'Unsupported format for create_efficient_recording: {format}')
 
     # @staticmethod
     # def get_recording_object(recording):
