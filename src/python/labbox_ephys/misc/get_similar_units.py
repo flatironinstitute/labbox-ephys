@@ -1,6 +1,6 @@
 import os
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 
 @hi.function('createjob_get_similar_units', '0.1.0', register_globally=True)
@@ -25,7 +25,7 @@ def createjob_get_similar_units(labbox, recording_object, sorting_object):
 )
 def get_similar_units(snippets_h5):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))

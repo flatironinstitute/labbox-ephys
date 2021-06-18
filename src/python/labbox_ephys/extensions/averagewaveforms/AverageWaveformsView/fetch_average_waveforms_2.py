@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 
 import hither2 as hi
 from hither2.dockerimage import RemoteDockerImage
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 import labbox_ephys as le
 from labbox import LabboxContext
@@ -32,7 +32,7 @@ def createjob_fetch_average_waveform_2(labbox: LabboxContext, recording_object, 
 @le.serialize
 def fetch_average_waveform_2(snippets_h5, unit_id):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     unit_waveforms, unit_waveforms_channel_ids, channel_locations0, sampling_frequency, unit_spike_train = le.get_unit_waveforms_from_snippets_h5(h5_path, unit_id)
     

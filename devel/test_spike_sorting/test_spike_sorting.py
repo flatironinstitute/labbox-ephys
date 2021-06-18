@@ -1,12 +1,12 @@
 
 import hither as hi
 import labbox_ephys as le
-import kachery_p2p as kp
+import kachery_client as kc
 import kachery as ka
 import json
 
-# recording_object = kp.load_object('sha1://e3f764b72eafa0704cb4fef23d101e10e5404043/allen_mouse419112_probeE-ch0-7-10sec.json')
-recording_object = kp.load_object('sha1://8b222e25bc4d9c792e4490ca322b5338e0795596/cortexlab-single-phase-3.json')
+# recording_object = kc.load_json('sha1://e3f764b72eafa0704cb4fef23d101e10e5404043/allen_mouse419112_probeE-ch0-7-10sec.json')
+recording_object = kc.load_json('sha1://8b222e25bc4d9c792e4490ca322b5338e0795596/cortexlab-single-phase-3.json')
 recording_object = dict(
     recording_format='subrecording',
     data=dict(
@@ -63,9 +63,9 @@ le_sortings.append(dict(
 ))
 
 try:
-    f = kp.create_feed()
-    recordings = f.get_subfeed(dict(workspaceName='default', key='recordings'))
-    sortings = f.get_subfeed(dict(workspaceName='default', key='sortings'))
+    f = kc.create_feed()
+    recordings = f.load_subfeed(dict(workspaceName='default', key='recordings'))
+    sortings = f.load_subfeed(dict(workspaceName='default', key='sortings'))
     for le_recording in le_recordings:
         recordings.append_message(dict(
             action=dict(
@@ -89,7 +89,8 @@ try:
         dict(workspaceName='default', key='sortings')
     ])
     print('Feed:')
-    print(x.get_uri())
-    print(f'http://ephys1.laboratorybox.org/default?feed={x.get_uri()}')
+    print(x.uri)
+    print(f'http://ephys1.laboratorybox.org/default?feed={x.uri}')
 finally:
-    f.delete()
+    print('WARN: feed.delete() needs to be implemented')
+    # f.delete()

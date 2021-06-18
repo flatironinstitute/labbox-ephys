@@ -1,5 +1,5 @@
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import spikeextractors as se
 import numpy as np
 
@@ -32,7 +32,7 @@ def mountainsort4(*,
     )
     if num_workers is not None:
         MS4.setNumWorkers(num_workers)
-    with kp.TemporaryDirectory() as tmpdir:
+    with kc.TemporaryDirectory() as tmpdir:
         MS4.setTemporaryDirectory(tmpdir)
         MS4.sort()
         times, labels, channels = MS4.eventTimesLabelsChannels()
@@ -40,8 +40,8 @@ def mountainsort4(*,
             'sorting_format': 'npy1',
             'data': {
                 'samplerate': recording.get_sampling_frequency(),
-                'times_npy_uri': kp.store_npy(times.astype(np.float64)),
-                'labels_npy_uri': kp.store_npy(labels.astype(np.int32))
+                'times_npy_uri': kc.load_npy(times.astype(np.float64)),
+                'labels_npy_uri': kc.load_npy(labels.astype(np.int32))
             }
         }
         return sorting_object

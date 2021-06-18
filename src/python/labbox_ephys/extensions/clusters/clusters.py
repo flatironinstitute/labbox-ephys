@@ -2,7 +2,7 @@ import os
 import math
 import hither2 as hi
 from hither2.dockerimage import RemoteDockerImage
-import kachery_p2p as kp
+import kachery_client as kc
 import labbox_ephys as le
 import numpy as np
 
@@ -37,7 +37,7 @@ def subsample_inds(n, m):
 @le.serialize
 def individual_cluster_features(snippets_h5, unit_id, max_num_events=1000):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     # with h5py.File(h5_path, 'r') as f:
     #     unit_ids = np.array(f.get('unit_ids'))

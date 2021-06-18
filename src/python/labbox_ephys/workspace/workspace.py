@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Union
 import uuid
-import kachery_p2p as kp
+import kachery_client as kc
 import spikeextractors as se
 from ..extractors import LabboxEphysRecordingExtractor, LabboxEphysSortingExtractor
 
@@ -19,21 +19,21 @@ class Workspace:
     def __init__(self, *, workspace_uri: str) -> None:
         feed_id, query_string = parse_workspace_uri(workspace_uri)
         self._query_string = query_string
-        self._feed = kp.load_feed(f'feed://{feed_id}')
-        main_subfeed = self._feed.get_subfeed('main')
+        self._feed = kc.load_feed(f'feed://{feed_id}')
+        main_subfeed = self._feed.load_subfeed('main')
         self._recordings = _get_recordings_from_subfeed(main_subfeed)
         self._sortings = _get_sortings_from_subfeed(main_subfeed)
         self._unit_metrics_for_sortings = _get_unit_metrics_for_sortings_from_subfeed(main_subfeed)
     @property
     def uri(self):
         q = f'?{self._query_string}' if self._query_string else ''
-        return f'workspace://{self._feed.get_feed_id()}{q}'
+        return f'workspace://{self._feed.feed_id}{q}'
     @property
     def feed_uri(self):
-        return self._feed.get_uri()
+        return self._feed.uri
     @property
     def feed_id(self):
-        return self._feed.get_feed_id()
+        return self._feed.feed_id
     @property
     def feed(self):
         return self._feed
@@ -45,7 +45,7 @@ class Workspace:
         print('WARNING: workspace.get_uri() is deprecated. Use workspace.uri instead')
         return self.uri
     def get_feed_id(self):
-        print('WARNING: workspace.get_feed_id() is deprecated. Use workspace.feed_id instead')
+        print('WARNING: workspace.feed_id is deprecated. Use workspace.feed_id instead')
         return self.feed_id
     def set_label(self, label: str):
         p = _query_string_to_dict(self._query_string)
@@ -62,11 +62,11 @@ class Workspace:
         x = {
             'recordingId': recording_id,
             'recordingLabel': label,
-            'recordingPath': kp.store_json(recording.object(), basename=f'{label}.json'),
+            'recordingPath': kc.store_json(recording.object(), basename=f'{label}.json'),
             'recordingObject': recording.object(),
             'description': f'Imported from Python: {label}'
         }
-        main_subfeed = self._feed.get_subfeed('main')
+        main_subfeed = self._feed.load_subfeed('main')
         _import_le_recording(main_subfeed, x)
         self._recordings[recording_id] = x
         return recording_id
@@ -80,7 +80,7 @@ class Workspace:
         x = {
             'sortingId': sorting_id,
             'sortingLabel': label,
-            'sortingPath': kp.store_json(sorting.object(), basename=f'{label}.json'),
+            'sortingPath': kc.store_json(sorting.object(), basename=f'{label}.json'),
             'sortingObject': sorting.object(),
 
             'recordingId': recording_id,
@@ -89,17 +89,17 @@ class Workspace:
 
             'description': f'Imported from Python: {label}'
         }
-        main_subfeed = self._feed.get_subfeed('main')
+        main_subfeed = self._feed.load_subfeed('main')
         _import_le_sorting(main_subfeed, x)
         self._sortings[sorting_id] = x
         return sorting_id
     def set_unit_metrics_for_sorting(self, *, sorting_id: str, metrics: List[dict]):
-        metrics_uri = kp.store_json(metrics, basename='unit_metrics.json')
+        metrics_uri = kc.store_json(metrics, basename='unit_metrics.json')
         x = {
             'sortingId': sorting_id,
             'metricsUri': metrics_uri
         }
-        main_subfeed = self._feed.get_subfeed('main')
+        main_subfeed = self._feed.load_subfeed('main')
         _set_unit_metrics_for_sorting(main_subfeed, x)
         self._unit_metrics_for_sortings[sorting_id] = metrics
     def delete_recording(self, recording_id: str):
@@ -131,7 +131,7 @@ class Workspace:
         s = self.get_sorting(sorting_id)
         return LabboxEphysSortingExtractor(s['sortingObject'])
     def get_sorting_curation(self, sorting_id: str):
-        curation_subfeed = self._feed.get_subfeed(dict(name='sortingCuration', sortingId=sorting_id))
+        curation_subfeed = self._feed.load_subfeed(dict(name='sortingCuration', sortingId=sorting_id))
         return _get_sorting_curation(curation_subfeed, sorting_id=sorting_id)
     def get_curated_sorting_extractor(self, sorting_id):
         s = self.get_sorting(sorting_id)
@@ -145,8 +145,8 @@ class Workspace:
         })
 
 def create_workspace(*, label: Union[str, None]=None):
-    feed = kp.create_feed()
-    feed_id = feed.get_feed_id()
+    feed = kc.create_feed()
+    feed_id = feed.feed_id
     workspace_uri = f'workspace://{feed_id}'
     W = load_workspace(workspace_uri)
     if label:
@@ -161,7 +161,7 @@ def load_workspace(workspace_uri: Union[str, Any]):
 def _random_id():
     return str(uuid.uuid4())[-12:]
 
-def _get_recordings_from_subfeed(subfeed: kp.Subfeed):
+def _get_recordings_from_subfeed(subfeed: kc.Subfeed):
     subfeed.set_position(0)
     le_recordings = {}
     while True:
@@ -179,7 +179,7 @@ def _get_recordings_from_subfeed(subfeed: kp.Subfeed):
                         del le_recordings[rid]
     return le_recordings
 
-def _get_sortings_from_subfeed(subfeed: kp.Subfeed):
+def _get_sortings_from_subfeed(subfeed: kc.Subfeed):
     subfeed.set_position(0)
     le_sortings = {}
     while True:
@@ -209,7 +209,7 @@ def _get_sortings_from_subfeed(subfeed: kp.Subfeed):
                             del le_sortings[sid]
     return le_sortings
 
-def _get_unit_metrics_for_sortings_from_subfeed(subfeed: kp.Subfeed):
+def _get_unit_metrics_for_sortings_from_subfeed(subfeed: kc.Subfeed):
     subfeed.set_position(0)
     sortings = _get_sortings_from_subfeed(subfeed)
     le_unit_metrics_for_sortings = {}
@@ -223,7 +223,7 @@ def _get_unit_metrics_for_sortings_from_subfeed(subfeed: kp.Subfeed):
                 sid = x.get('sortingId', '')
                 uri = x.get('metricsUri')
                 if sid in sortings:
-                    le_unit_metrics_for_sortings[sid] = kp.load_json(uri)
+                    le_unit_metrics_for_sortings[sid] = kc.load_json(uri)
     return le_unit_metrics_for_sortings
 
 def _mg_intersection(g1: List[int], g2: List[int]):
@@ -247,7 +247,7 @@ def _simplify_merge_groups(merge_groups: List[List[int]]):
                     something_changed = True
     return [sorted(mg) for mg in new_merge_groups if len(mg) >= 2]
 
-def _get_sorting_curation(subfeed: kp.Subfeed, sorting_id: str):
+def _get_sorting_curation(subfeed: kc.Subfeed, sorting_id: str):
     subfeed.set_position(0)
     labels_by_unit = {}
     merge_groups = []
@@ -277,46 +277,46 @@ def _get_sorting_curation(subfeed: kp.Subfeed, sorting_id: str):
         'mergeGroups': merge_groups
     }
 
-def _import_le_recording(subfeed: kp.Subfeed, le_recording):
+def _import_le_recording(subfeed: kc.Subfeed, le_recording):
     le_recordings = _get_recordings_from_subfeed(subfeed)
     id = le_recording['recordingId']
     if id in le_recordings:
         print(f'Recording with ID {id} already exists. Not adding.')
         return
     print(f'Adding recording: {id}')
-    subfeed.submit_message({
+    subfeed.append_message({
         'action': {
             'type': 'ADD_RECORDING',
             'recording': le_recording
         }
     })
 
-def _import_le_sorting(subfeed: kp.Subfeed, le_sorting):
+def _import_le_sorting(subfeed: kc.Subfeed, le_sorting):
     le_sortings = _get_sortings_from_subfeed(subfeed)
     id = le_sorting["sortingId"]
     if id in le_sortings:
         print(f'Sorting with ID {id} already exists. Not adding.')
         return
     print(f'Adding sorting: {id}')
-    subfeed.submit_message({
+    subfeed.append_message({
         'action': {
             'type': 'ADD_SORTING',
             'sorting': le_sorting
         }
     })
 
-def _set_unit_metrics_for_sorting(subfeed: kp.Subfeed, le_unit_metrics_for_sorting):
+def _set_unit_metrics_for_sorting(subfeed: kc.Subfeed, le_unit_metrics_for_sorting):
     sid = le_unit_metrics_for_sorting['sortingId']
     print(f'Setting unit metrics for sorting {sid}')
-    subfeed.submit_message({
+    subfeed.append_message({
         'action': {
             'type': 'SET_UNIT_METRICS_FOR_SORTING',
             'unitMetricsForSorting': le_unit_metrics_for_sorting
         }
     })
 
-def _delete_recording(*, feed: kp.Feed, recording_id: str):
-    subfeed = feed.get_subfeed('main')
+def _delete_recording(*, feed: kc.Feed, recording_id: str):
+    subfeed = feed.load_subfeed('main')
     le_recordings = _get_recordings_from_subfeed(subfeed)
     if recording_id not in le_recordings:
         print(f'Cannot remove recording. Recording not found: {recording_id}')
@@ -356,8 +356,8 @@ def _dict_to_query_string(x: Dict[str, str]):
     return ret
 
 
-def _delete_sorting(*, feed: kp.Feed, sorting_id: str):
-    subfeed = feed.get_subfeed('main')
+def _delete_sorting(*, feed: kc.Feed, sorting_id: str):
+    subfeed = feed.load_subfeed('main')
     le_sortings = _get_recordings_from_subfeed(subfeed)
     if sorting_id not in le_sortings:
         print(f'Cannot remove sorting. Sorting not found: {sorting_id}')

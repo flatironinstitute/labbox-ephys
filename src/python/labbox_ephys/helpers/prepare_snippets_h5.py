@@ -2,13 +2,13 @@ from typing import Dict, Union
 
 import os
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 import spikeextractors as se
 
 
 @hi.function(
-    'prepare_snippets_h5', '0.2.6',
+    'prepare_snippets_h5', '0.2.7',
     image=hi.RemoteDockerImage('docker://magland/labbox-ephys-processing:0.3.19'),
     modules=['labbox_ephys']
 )
@@ -27,7 +27,7 @@ def prepare_snippets_h5(
     recording = le.LabboxEphysRecordingExtractor(recording_object)
     sorting = le.LabboxEphysSortingExtractor(sorting_object)
 
-    with kp.TemporaryDirectory() as tmpdir:
+    with kc.TemporaryDirectory() as tmpdir:
         save_path = tmpdir + '/snippets.h5'
         prepare_snippets_h5_from_extractors(
             recording=recording,
@@ -38,7 +38,7 @@ def prepare_snippets_h5(
             max_events_per_unit=max_events_per_unit,
             max_neighborhood_size=max_neighborhood_size
         )
-        return kp.store_file(save_path)
+        return kc.store_file(save_path)
 
 def prepare_snippets_h5_from_extractors(
     recording: se.RecordingExtractor,

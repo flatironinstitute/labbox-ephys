@@ -2,7 +2,7 @@ from typing import Dict
 
 import os
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 import labbox_ephys as le
 
@@ -38,7 +38,7 @@ def _compute_peak_channel_index_from_average_waveform(average_waveform):
 @le.serialize
 def fetch_spike_amplitudes(snippets_h5, unit_id):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     # with h5py.File(h5_path, 'r') as f:
     #     unit_spike_train = np.array(f.get(f'unit_spike_trains/{unit_id}'))

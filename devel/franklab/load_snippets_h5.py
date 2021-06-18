@@ -1,5 +1,5 @@
 import kachery as ka
-import kachery_p2p as kp
+import kachery_client as kc
 import labbox_ephys as le
 
 
@@ -55,9 +55,9 @@ def main():
 
 def create_labbox_ephys_feed(le_recordings, le_sortings):
     try:
-        f = kp.create_feed()
-        recordings = f.get_subfeed(dict(workspaceName='default', key='recordings'))
-        sortings = f.get_subfeed(dict(workspaceName='default', key='sortings'))
+        f = kc.create_feed()
+        recordings = f.load_subfeed(dict(workspaceName='default', key='recordings'))
+        sortings = f.load_subfeed(dict(workspaceName='default', key='sortings'))
         for le_recording in le_recordings:
             recordings.append_message(dict(
                 action=dict(
@@ -80,9 +80,10 @@ def create_labbox_ephys_feed(le_recordings, le_sortings):
             dict(workspaceName='default', key='recordings'),
             dict(workspaceName='default', key='sortings')
         ])
-        return x.get_uri()
+        return x.uri
     finally:
-        f.delete()
+        print('WARN: feed.delete() needs to be implemented')
+        # f.delete()
 
 if __name__ == '__main__':
     main()

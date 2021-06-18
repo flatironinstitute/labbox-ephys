@@ -2,7 +2,7 @@ import os
 from typing import Union
 import labbox_ephys as le
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 
 
 ###################################################################################
@@ -22,7 +22,7 @@ def preload_check_sorting_downloaded(labbox, sorting_object):
     modules=['labbox_ephys']
 )
 def preload_check_sorting_downloaded_2(sorting_object):
-    import kachery_p2p as kp
+    import kachery_client as kc
     try:
         kp._experimental_config(nop2p=True)
         X = le.LabboxEphysSortingExtractor(sorting_object)
@@ -49,7 +49,7 @@ def preload_download_sorting(labbox, sorting_object):
     modules=['labbox_ephys']
 )
 def preload_download_sorting_2(sorting_object):
-    import kachery_p2p as kp
+    import kachery_client as kc
     try:
         X = le.LabboxEphysSortingExtractor(sorting_object)
     except:
@@ -73,7 +73,7 @@ def preload_check_recording_downloaded(labbox, recording_object):
     modules=['labbox_ephys']
 )
 def preload_check_recording_downloaded_2(recording_object):
-    import kachery_p2p as kp
+    import kachery_client as kc
     try:
         kp._experimental_config(nop2p=True)
         X = le.LabboxEphysRecordingExtractor(recording_object, download=False)
@@ -100,7 +100,7 @@ def preload_download_recording(labbox, recording_object):
     modules=['labbox_ephys']
 )
 def preload_download_recording_2(recording_object):
-    import kachery_p2p as kp
+    import kachery_client as kc
     try:
         X = le.LabboxEphysRecordingExtractor(recording_object, download=True)
     except:

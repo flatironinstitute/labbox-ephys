@@ -4,7 +4,7 @@ from copy import deepcopy
 from typing import Any, Dict, List, Union, cast
 
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import spikeextractors as se
 from spikeextractors.sortingextractor import SortingExtractor
 
@@ -19,7 +19,7 @@ from .curatedsortingextractor import CuratedSortingExtractor
 def _try_mda_create_object(arg: Union[str, dict], samplerate=None) -> Union[None, dict]:
     if isinstance(arg, str):
         path = arg
-        if not kp.load_file(path):
+        if not kc.load_file(path):
             return None
         return dict(
             sorting_format='mda',
@@ -57,7 +57,7 @@ def _create_object_for_arg(arg: Union[str, dict], samplerate=None) -> Union[dict
     # if arg is a string ending with .json then replace arg by the object
     if (isinstance(arg, str)) and (arg.endswith('.json')):
         path = arg
-        obj = kp.load_json(path)
+        obj = kc.load_json(path)
         if obj is None:
             raise Exception(f'Unable to load json object: {path}')
         return obj
@@ -86,15 +86,15 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             sorting_format = self._object['sorting_format']
             data: Dict[str, Any] = self._object['data']
         if sorting_format == 'mda':
-            firings_path = kp.load_file(data['firings'])
+            firings_path = kc.load_file(data['firings'])
             assert firings_path is not None, f'Unable to load firings file: {data["firings"]}'
             self._sorting: se.SortingExtractor = MdaSortingExtractor(firings_file=firings_path, samplerate=data['samplerate'])
         elif sorting_format == 'h5_v1':
-            h5_path = kp.load_file(data['h5_path'])
+            h5_path = kc.load_file(data['h5_path'])
             self._sorting = H5SortingExtractorV1(h5_path=h5_path)
         elif sorting_format == 'npy1':
-            times_npy = kp.load_npy(data['times_npy_uri'])
-            labels_npy = kp.load_npy(data['labels_npy_uri'])
+            times_npy = kc.load_npy(data['times_npy_uri'])
+            labels_npy = kc.load_npy(data['labels_npy_uri'])
             samplerate = data['samplerate']
             S = se.NumpySortingExtractor()
             S.set_sampling_frequency(samplerate)
@@ -104,7 +104,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             S = Snippets1SortingExtractor(snippets_h5_uri = data['snippets_h5_uri'], p2p=True)
             self._sorting = S
         elif sorting_format == 'npy2':
-            npz = kp.load_npy(data['npz_uri'])
+            npz = kc.load_npy(data['npz_uri'])
             times_npy = npz['spike_indexes']
             labels_npy = npz['spike_labels']
             samplerate = float(npz['sampling_frequency'])
@@ -114,7 +114,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             self._sorting = S
         elif sorting_format == 'nwb':
             from .nwbextractors import NwbSortingExtractor
-            path0 = kp.load_file(data['path'])
+            path0 = kc.load_file(data['path'])
             self._sorting: se.SortingExtractor = NwbSortingExtractor(path0)
         elif sorting_format == 'in_memory':
             S = get_in_memory_object(data)
@@ -149,11 +149,11 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
     @staticmethod
     def from_memory(sorting: se.SortingExtractor, serialize=False):
         if serialize:
-            with kp.TemporaryDirectory() as tmpdir:
+            with kc.TemporaryDirectory() as tmpdir:
                 fname = tmpdir + '/' + _random_string(10) + '_firings.mda'
                 MdaSortingExtractor.write_sorting(sorting=sorting, save_path=fname)
                 # with ka.config(use_hard_links=True):
-                uri = kp.store_file(fname, basename='firings.mda')
+                uri = kc.store_file(fname, basename='firings.mda')
                 sorting = LabboxEphysSortingExtractor({
                     'sorting_format': 'mda',
                     'data': {
@@ -172,12 +172,12 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
     def write_sorting(sorting, save_path=None):
         if save_path is not None:
             print('WARNING: save_path not used in LabboxEphysSortingExtractor.write_sorting')
-        with kp.TemporaryDirectory() as tmpdir:
+        with kc.TemporaryDirectory() as tmpdir:
             H5SortingExtractorV1.write_sorting(sorting=sorting, save_path=tmpdir + '/' + _random_string(10) + '_sorting.h5')
     
     @staticmethod
     def store_sorting(sorting: SortingExtractor):
-        with kp.TemporaryDirectory() as tmpdir:
+        with kc.TemporaryDirectory() as tmpdir:
             save_path = tmpdir + '/sorting.h5'
             H5SortingExtractorV1.write_sorting(sorting=sorting, save_path=save_path)
 
@@ -186,7 +186,7 @@ class LabboxEphysSortingExtractor(se.SortingExtractor):
             _add_exec_permissions(tmpdir)
             _add_read_permissions(save_path)
 
-            uri =kp.store_file(save_path)
+            uri =kc.store_file(save_path)
             return {
                 'sorting_format': 'h5_v1',
                 'data': {

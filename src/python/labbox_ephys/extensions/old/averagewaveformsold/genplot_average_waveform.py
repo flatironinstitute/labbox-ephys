@@ -2,7 +2,7 @@ from typing import Dict
 
 import os
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 import spikeextractors as se
 import spiketoolkit as st
@@ -41,7 +41,7 @@ def createjob_fetch_average_waveform_plot_data(labbox, recording_object, sorting
 )
 def fetch_average_waveform_plot_data(snippets_h5, unit_id):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     with h5py.File(h5_path, 'r') as f:
         unit_ids = np.array(f.get('unit_ids'))

@@ -1,6 +1,6 @@
 import os
 import hither2 as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import labbox_ephys as le
 import numpy as np
 
@@ -35,7 +35,7 @@ def fetch_external_sorting_unit_metrics(labbox, uri):
 
 @hi.function('load_object', '0.1.0')
 def load_object(uri):
-    return kp.load_object(uri)
+    return kc.load_json(uri)
 
 def _to_int_list(x):
     return np.array(x).astype(int).tolist()

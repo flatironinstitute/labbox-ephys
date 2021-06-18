@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-import kachery_p2p as kp
+import kachery_client as kc
 import labbox_ephys as le
 
 
 def main():
     # previously:
-    # kp.set('example-nwb-workspace', le.create_workspace())
-    # kp.set('example-nwb-file', 'sha1://....') # set the URI of the nwb file
-    workspace = le.load_workspace(kp.get('example-nwb-workspace'))
-    nwb_file_uri = kp.get('example-nwb-file')
+    # kc.set('example-nwb-workspace', le.create_workspace())
+    # kc.set('example-nwb-file', 'sha1://....') # set the URI of the nwb file
+    workspace = le.load_workspace(kc.get('example-nwb-workspace'))
+    nwb_file_uri = kc.get('example-nwb-file')
     
     print(f'Workspace URI: {workspace.uri}')
 

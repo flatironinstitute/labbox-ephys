@@ -1,6 +1,6 @@
 import os
 import hither as hi
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 from labbox_ephys import prepare_snippets_h5
 
@@ -33,7 +33,7 @@ def createjob_fetch_pca_features(labbox, recording_object, sorting_object, unit_
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_pca_features(snippets_h5, unit_ids):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     with h5py.File(h5_path, 'r') as f:
         sampling_frequency = np.array(f.get('sampling_frequency'))[0].item()
@@ -105,7 +105,7 @@ def createjob_fetch_spike_waveforms(labbox, recording_object, sorting_object, un
 @hi.local_modules([os.getenv('LABBOX_EPHYS_PYTHON_MODULE_DIR')])
 def fetch_spike_waveforms(snippets_h5, unit_ids, spike_indices):
     import h5py
-    h5_path = kp.load_file(snippets_h5, p2p=False)
+    h5_path = kc.load_file(snippets_h5)
     assert h5_path is not None
     spikes = []
     with h5py.File(h5_path, 'r') as f:

@@ -1,5 +1,5 @@
 import numpy as np
-import kachery_p2p as kp
+import kachery_client as kc
 import spikeextractors as se
 
 def _load_geom_from_csv(path: str) -> list:
@@ -66,10 +66,10 @@ def spikeinterface_recording_dict_to_labbox_dict(x):
   elif c == 'spikeextractors.extractors.mdaextractors.mdaextractors.MdaRecordingExtractor':
     kwargs = x['kwargs']
     path = kwargs['folder_path']
-    raw_path = kp.store_file(path + '/raw.mda')
+    raw_path = kc.load_file(path + '/raw.mda')
     params_path = path + '/params.json'
     geom_path = path + '/geom.csv'
-    params = kp.load_object(params_path, p2p=False)
+    params = kc.load_json(params_path)
     assert params is not None, f'Unable to load params.json from: {params_path}'
     geom = _load_geom_from_csv(geom_path)
     return _make_json_safe({

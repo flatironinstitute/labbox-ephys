@@ -2,7 +2,7 @@ from copy import deepcopy
 from os.path import basename
 from typing import Union
 
-import kachery_p2p as kp
+import kachery_client as kc
 from .h5extractors.h5recordingextractorv1 import H5RecordingExtractorV1
 import numpy as np
 import spikeextractors as se
@@ -53,9 +53,9 @@ def _try_mda_create_object(arg: Union[str, dict]) -> Union[None, dict]:
             #         raw_path = path + '/raw.mda'
             #         params_path = path + '/params.json'
             #         geom_path = path + '/geom.csv'
-            #         geom_path_resolved = kp.load_file(geom_path)
+            #         geom_path_resolved = kc.load_file(geom_path)
             #         assert geom_path_resolved is not None, f'Unable to load geom.csv from: {geom_path}'
-            #         params = kp.load_object(params_path)
+            #         params = kc.load_json(params_path)
             #         assert params is not None, f'Unable to load params.json from: {params_path}'
             #         geom = _load_geom_from_csv(geom_path_resolved)
             #         return dict(
@@ -93,7 +93,7 @@ def _try_nrs_create_object(arg: Union[str, dict]) -> Union[None, dict]:
             #     dat_file = None
             #     for f in dd['files'].keys():
             #         if f.endswith('.json'):
-            #             obj = kp.load_object(path + '/' + f)
+            #             obj = kc.load_json(path + '/' + f)
             #             if obj.get('format_version', None) in ['flatiron-probe-0.1', 'flatiron-probe-0.2']:
             #                 probe_file = path + '/' + f
             #         elif f.endswith('.xml'):
@@ -133,7 +133,7 @@ def _create_object_for_arg(arg: Union[str, dict]) -> Union[dict, None]:
     # if arg is a string ending with .json then replace arg by the object
     if (isinstance(arg, str)) and (arg.endswith('.json')):
         path = arg
-        x = kp.load_json(path)
+        x = kc.load_json(path)
         if x is None:
             raise Exception(f'Unable to load object: {path}')
         return _create_object_for_arg(x)
@@ -225,7 +225,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             self._recording: se.RecordingExtractor = NrsRecordingExtractor(**data)
         elif recording_format == 'nwb':
             from .nwbextractors import NwbRecordingExtractor
-            path0 = kp.load_file(data['path'])
+            path0 = kc.load_file(data['path'])
             self._recording: se.RecordingExtractor = NwbRecordingExtractor(path0, electrical_series_name=data.get('electrical_series_name', None))
         elif recording_format == 'bin1':
             self._recording: se.RecordingExtractor = Bin1RecordingExtractor(**data, p2p=True)
@@ -233,7 +233,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
             self._recording: se.RecordingExtractor = Snippets1RecordingExtractor(snippets_h5_uri=data['snippets_h5_uri'], p2p=True)
         elif recording_format == 'h5_v1':
             h5_uri = data['h5_uri']
-            h5_path = kp.load_file(h5_uri)
+            h5_path = kc.load_file(h5_uri)
             if h5_path is None:
                 raise Exception(f'Unable to load h5 recording file: {h5_uri}')
             self._recording: se.RecordingExtractor = H5RecordingExtractorV1(h5_path=h5_path)
@@ -310,11 +310,11 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
         if serialize:
             if serialize_dtype is None:
                 raise Exception('You must specify the serialize_dtype when serializing recording extractor in from_memory()')
-            with kp.TemporaryDirectory() as tmpdir:
+            with kc.TemporaryDirectory() as tmpdir:
                 fname = tmpdir + '/' + _random_string(10) + '_recording.dat'
                 se.BinDatRecordingExtractor.write_recording(recording=recording, save_path=fname, time_axis=0, dtype=serialize_dtype)
                 # with ka.config(use_hard_links=True):
-                uri = kp.store_file(fname, basename='raw.mda')
+                uri = kc.store_file(fname, basename='raw.mda')
                 num_channels = recording.get_num_channels()
                 channel_ids = [int(a) for a in recording.get_channel_ids()]
                 xcoords = [recording.get_channel_property(a, 'location')[0] for a in channel_ids]
@@ -353,12 +353,12 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
                 print(f'Already has format: {format}')
                 return recording
         if format == 'h5_v1':    
-            with kp.TemporaryDirectory() as tmpdir:
+            with kc.TemporaryDirectory() as tmpdir:
                 fname = tmpdir + '/recording.h5'
                 print('Creating efficient recording: writing as h5...')
                 H5RecordingExtractorV1.write_recording(recording=recording, h5_path=fname)
                 print('Creating efficient recording: storing in kachery...')
-                h5_uri = kp.store_file(fname)
+                h5_uri = kc.store_file(fname)
                 object = {
                     'recording_format': 'h5_v1',
                     'data': {
@@ -372,7 +372,7 @@ class LabboxEphysRecordingExtractor(se.RecordingExtractor):
 
     # @staticmethod
     # def get_recording_object(recording):
-    #     with kp.TemporaryDirectory() as tmpdir:
+    #     with kc.TemporaryDirectory() as tmpdir:
     #         MdaRecordingExtractor.write_recording(recording=recording, save_path=tmpdir)
     #         raw = ka.store_file(tmpdir + '/raw.mda')
     #         params = ka.load_object(tmpdir + '/params.json')
@@ -411,10 +411,10 @@ class NrsRecordingExtractor(se.RecordingExtractor):
         se.RecordingExtractor.__init__(self)
         # info = check_load_nrs(dirpath)
         # assert info is not None
-        probe_obj = kp.load_json(probe_file)
-        xml_file = kp.load_file(xml_file)
-        # nrs_file = kp.load_file(nrs_file)
-        dat_file = kp.load_file(dat_file)
+        probe_obj = kc.load_json(probe_file)
+        xml_file = kc.load_file(xml_file)
+        # nrs_file = kc.load_file(nrs_file)
+        dat_file = kc.load_file(dat_file)
 
         from xml.etree import ElementTree as ET
         xml = ET.parse(xml_file)
@@ -474,7 +474,7 @@ class NrsRecordingExtractor(se.RecordingExtractor):
 def _all_files_are_local_in_item(x):
     if type(x) == str:
         if x.startswith('sha1://') or x.startswith('sha1dir://'):
-            if kp.load_file(x, p2p=False):
+            if kc.load_file(x):
                 return False
         return True
     elif type(x) == dict:
@@ -498,8 +498,8 @@ def _all_files_are_local_in_item(x):
 def _download_files_in_item(x):
     if type(x) == str:
         if x.startswith('sha1://') or x.startswith('sha1dir://'):
-            if kp.load_file(x, p2p=False) is None:
-                a = kp.load_file(x)
+            if kc.load_file(x) is None:
+                a = kc.load_file(x)
                 assert a is not None, f'Unable to download file: {x}'
         return
     elif type(x) == dict:

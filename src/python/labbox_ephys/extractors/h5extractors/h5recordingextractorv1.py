@@ -2,7 +2,7 @@ from os import stat
 from typing import List, Set
 
 import h5py
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 import spikeextractors as se
 

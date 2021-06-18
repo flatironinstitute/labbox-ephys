@@ -2,7 +2,7 @@ from typing import Union
 from spikeextractors import RecordingExtractor
 from spikeextractors import SortingExtractor
 
-import kachery_p2p as kp
+import kachery_client as kc
 import json
 import numpy as np
 from .mdaio import DiskReadMda, readmda, readmda_header, writemda32, writemda64, writemda, appendmda
@@ -19,7 +19,7 @@ class MdaRecordingExtractor(RecordingExtractor):
             params_path = recording_directory + '/params.json'
         self._timeseries_path = timeseries_path
         if params_path:
-            self._dataset_params = kp.load_object(params_path)
+            self._dataset_params = kc.load_json(params_path)
             if not self._dataset_params:
                 raise Exception('Unable to load recording params: {}'.format(params_path))
             self._samplerate = self._dataset_params['samplerate']
@@ -31,16 +31,16 @@ class MdaRecordingExtractor(RecordingExtractor):
         
         if download:
             assert self._timeseries_path is not None
-            path0 = kp.load_file(self._timeseries_path)
+            path0 = kc.load_file(self._timeseries_path)
             if not path0:
                 raise Exception('Unable to download file: ' + self._timeseries_path)
         else:
             path0 = self._timeseries_path
         if geom_path is not None:
-            if not kp.load_file(geom_path):
+            if not kc.load_file(geom_path):
                 raise Exception('Unable to download file: ' + geom_path)
         if params_path is not None:
-            if not kp.load_file(params_path):
+            if not kc.load_file(params_path):
                 raise Exception('Unable to download file: ' + params_path)
         self._timeseries_path = path0
 
@@ -51,7 +51,7 @@ class MdaRecordingExtractor(RecordingExtractor):
         if geom is not None:
             self._geom = geom
         elif geom_path:
-            geom_path2 = kp.load_file(geom_path)
+            geom_path2 = kc.load_file(geom_path)
             self._geom = np.genfromtxt(geom_path2, delimiter=',')
         else:
             self._geom = np.zeros((X.N1(), 2))
@@ -133,7 +133,7 @@ class MdaRecordingExtractor(RecordingExtractor):
 class MdaSortingExtractor(SortingExtractor):
     def __init__(self, firings_file, samplerate):
         SortingExtractor.__init__(self)
-        self._firings_path = kp.load_file(firings_file)
+        self._firings_path = kc.load_file(firings_file)
         if not self._firings_path:
             raise Exception('Unable to load firings file: ' + firings_file)
 

@@ -1,7 +1,7 @@
 from typing import List, Set
 
 import h5py
-import kachery_p2p as kp
+import kachery_client as kc
 import numpy as np
 import spikeextractors as se
 
@@ -12,7 +12,7 @@ class Snippets1RecordingExtractor(se.RecordingExtractor):
     def __init__(self, *, snippets_h5_uri: str, p2p: bool=False):
         se.RecordingExtractor.__init__(self)
 
-        snippets_h5_path = kp.load_file(snippets_h5_uri, p2p=p2p)
+        snippets_h5_path = kc.load_file(snippets_h5_uri, p2p=p2p)
         
         self._snippets_h5_path: str = snippets_h5_path
 
