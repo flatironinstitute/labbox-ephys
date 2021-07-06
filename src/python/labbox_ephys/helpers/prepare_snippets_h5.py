@@ -18,7 +18,8 @@ def prepare_snippets_h5(
     start_frame=None,
     end_frame=None,
     max_events_per_unit=None,
-    max_neighborhood_size=15
+    max_neighborhood_size=15,
+    snippet_len=(50, 80)
 ):
     if recording_object['recording_format'] == 'snippets1':
         return recording_object['data']['snippets_h5_uri']
@@ -36,7 +37,8 @@ def prepare_snippets_h5(
             start_frame=start_frame,
             end_frame=end_frame,
             max_events_per_unit=max_events_per_unit,
-            max_neighborhood_size=max_neighborhood_size
+            max_neighborhood_size=max_neighborhood_size,
+            snippet_len=snippet_len
         )
         return kc.store_file(save_path)
 
